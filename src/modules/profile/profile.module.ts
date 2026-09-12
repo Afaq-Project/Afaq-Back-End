@@ -11,12 +11,19 @@ import { StorageServiceProvider } from './storage/storage.service';
 import { LocalStorageController } from './controllers/local-storage.controller';
 import { LocalStorageService } from './storage/local-storage.service';
 
+import { SkillsController } from './controllers/skills.controller';
+import { SkillsService } from './services/skills.service';
+import { LanguagesController } from './controllers/languages.controller';
+import { LanguagesService } from './services/languages.service';
+
 @Module({
   controllers: [
     ProfileController,
     ReferenceController,
     DocumentsController,
     LocalStorageController,
+    SkillsController,
+    LanguagesController,
   ],
   providers: [
     ProfileService,
@@ -24,6 +31,8 @@ import { LocalStorageService } from './storage/local-storage.service';
     DocumentsService,
     StorageServiceProvider,
     LocalStorageService,
+    SkillsService,
+    LanguagesService,
   ],
 })
 export class ProfileModule {}

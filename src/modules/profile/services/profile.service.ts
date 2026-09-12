@@ -427,4 +427,16 @@ export class ProfileService {
     const result = await this.getProfileWithDetails(userId);
     return result;
   }
+  async recalculateProfileStatus(userId: string): Promise<void> {
+    const profile = await this.getProfileWithDetails(userId);
+    if (!profile) {
+      return;
+    }
+    const completionPct = this.calculateCompletionPct(profile);
+    const isDraft = !this.isCoreFieldsComplete(profile);
+    await this.prisma.userProfiles.update({
+      where: { userId },
+      data: { completionPct, isDraft },
+    });
+  }
 }
