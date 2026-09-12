@@ -45,4 +45,14 @@ export class ReferenceService {
       skills: categorySkills,
     }));
   }
+
+  async getLanguages() {
+    return this.prisma.languagesMaster.findMany({
+      select: {
+        id: true,
+        name: true,
+      },
+      orderBy: { name: 'asc' },
+    });
+  }
 }

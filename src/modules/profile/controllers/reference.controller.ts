@@ -41,4 +41,21 @@ export class ReferenceController {
       timestamp: new Date().toISOString(),
     };
   }
+
+  @Public()
+  @Get('languages')
+  @ApiOperation({ summary: 'Get all available languages' })
+  @ApiResponse({
+    status: 200,
+    description: 'Languages retrieved successfully',
+  })
+  async getLanguages() {
+    const data = await this.referenceService.getLanguages();
+    return {
+      statusCode: 200,
+      message: 'Languages retrieved successfully',
+      data,
+      timestamp: new Date().toISOString(),
+    };
+  }
 }
