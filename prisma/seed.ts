@@ -151,6 +151,17 @@ async function main() {
   }
   console.log(`  ✔ Seeded ${skills.length} skills`);
 
+  // ── Languages ──────────────────────────────
+  const languages = ['Arabic', 'English'];
+  for (const name of languages) {
+    await prisma.languagesMaster.upsert({
+      where: { name },
+      update: {},
+      create: { name },
+    });
+  }
+  console.log(`  ✔ Seeded ${languages.length} languages`);
+
   console.log('\n✅ Seed complete!');
 }
 
