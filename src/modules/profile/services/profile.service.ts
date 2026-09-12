@@ -14,7 +14,6 @@ import {
 
 export interface ProfileWithRelations {
   educationLevel?: string | null;
-  fieldOfStudy?: string[] | null;
   nationality?: string | null;
   dateOfBirth?: Date | null;
   currentCountry?: string | null;
@@ -28,6 +27,7 @@ export interface ProfileWithRelations {
     userSkills?: unknown[];
     userLanguages?: unknown[];
     documents?: unknown[];
+    userFieldsOfStudy?: unknown[];
   } | null;
 }
 
@@ -53,6 +53,11 @@ export class ProfileService {
               },
             },
             documents: true,
+            userFieldsOfStudy: {
+              include: {
+                field: true,
+              },
+            },
           },
         },
       },
@@ -75,6 +80,9 @@ export class ProfileService {
                 include: { language: true },
               },
               documents: true,
+              userFieldsOfStudy: {
+                include: { field: true },
+              },
             },
           },
         },
@@ -87,8 +95,8 @@ export class ProfileService {
   isCoreFieldsComplete(profile: ProfileWithRelations): boolean {
     return !!(
       profile.educationLevel?.trim() &&
-      Array.isArray(profile.fieldOfStudy) &&
-      profile.fieldOfStudy.length > 0 &&
+      profile.user?.userFieldsOfStudy &&
+      profile.user.userFieldsOfStudy.length > 0 &&
       profile.nationality?.trim()
     );
   }
@@ -98,7 +106,10 @@ export class ProfileService {
     if (profile.educationLevel) {
       pct += 15;
     }
-    if (profile.fieldOfStudy && profile.fieldOfStudy.length > 0) {
+    if (
+      profile.user?.userFieldsOfStudy &&
+      profile.user.userFieldsOfStudy.length > 0
+    ) {
       pct += 15;
     }
     if (profile.nationality) {
@@ -146,8 +157,8 @@ export class ProfileService {
     // Step 1: Education
     if (
       profile.educationLevel &&
-      profile.fieldOfStudy &&
-      profile.fieldOfStudy.length > 0 &&
+      profile.user?.userFieldsOfStudy &&
+      profile.user.userFieldsOfStudy.length > 0 &&
       profile.nationality
     ) {
       step = 1;
@@ -226,7 +237,6 @@ export class ProfileService {
       dateOfBirth: profile.dateOfBirth,
       nationality: profile.nationality,
       educationLevel: profile.educationLevel,
-      fieldOfStudy: profile.fieldOfStudy,
       currentCountry: profile.currentCountry,
       currentCity: profile.currentCity,
       phone: profile.phone,
@@ -267,12 +277,6 @@ export class ProfileService {
 
     if (!currentProfile) {
       throw new NotFoundException('Profile not found');
-    }
-
-    if (data.fieldOfStudy !== undefined && data.fieldOfStudy.length === 0) {
-      throw new BadRequestException(
-        'fieldOfStudy must contain at least one value',
-      );
     }
 
     if (currentProfile.educationLevel && data.educationLevel === null) {

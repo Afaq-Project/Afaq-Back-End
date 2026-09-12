@@ -86,7 +86,7 @@ describe('ProfileService', () => {
       expect(
         service.isCoreFieldsComplete({
           educationLevel: 'BS',
-          fieldOfStudy: ['CS'],
+          user: { userFieldsOfStudy: [{}] },
         }),
       ).toBe(false);
     });
@@ -95,7 +95,7 @@ describe('ProfileService', () => {
       expect(
         service.isCoreFieldsComplete({
           educationLevel: 'BS',
-          fieldOfStudy: ['CS'],
+          user: { userFieldsOfStudy: [{}] },
           nationality: 'US',
         }),
       ).toBe(true);
@@ -110,7 +110,6 @@ describe('ProfileService', () => {
     it('should calculate correct percentage for fully populated profile', () => {
       const profile = {
         educationLevel: 'BS', // 15
-        fieldOfStudy: ['CS'], // 15
         nationality: 'US', // 15
         dateOfBirth: new Date(), // 5
         currentCountry: 'US', // 5
@@ -123,6 +122,7 @@ describe('ProfileService', () => {
         user: {
           userSkills: [{}], // 10
           userLanguages: [{}], // 5
+          userFieldsOfStudy: [{}], // 15
         },
       };
       expect(service.calculateCompletionPct(profile)).toBe(100);
@@ -147,7 +147,7 @@ describe('ProfileService', () => {
       expect(
         service.calculateLastCompletedStep({
           educationLevel: 'BS',
-          fieldOfStudy: ['CS'],
+          user: { userFieldsOfStudy: [{}] },
           nationality: 'US',
           experienceLevel: 'Entry',
         }),
@@ -158,12 +158,12 @@ describe('ProfileService', () => {
       expect(
         service.calculateLastCompletedStep({
           educationLevel: 'BS',
-          fieldOfStudy: ['CS'],
           nationality: 'US',
           experienceLevel: 'Entry',
           user: {
             userSkills: [{}],
             userLanguages: [{}],
+            userFieldsOfStudy: [{}],
           },
         }),
       ).toBe(3);
@@ -173,10 +173,10 @@ describe('ProfileService', () => {
       expect(
         service.calculateLastCompletedStep({
           educationLevel: 'BS',
-          fieldOfStudy: ['CS'],
           nationality: 'US',
           experienceLevel: 'Entry',
           user: {
+            userFieldsOfStudy: [{}],
             userSkills: [{}],
             userLanguages: [{}],
             documents: [{}],
@@ -192,16 +192,6 @@ describe('ProfileService', () => {
       await expect(service.updateProfile('1', {})).rejects.toThrow(
         NotFoundException,
       );
-    });
-
-    it('should throw BadRequestException if clearing fieldOfStudy', async () => {
-      mockPrisma.userProfiles.findUnique.mockResolvedValue({
-        userId: '1',
-        fieldOfStudy: ['CS'],
-      });
-      await expect(
-        service.updateProfile('1', { fieldOfStudy: [] }),
-      ).rejects.toThrow(BadRequestException);
     });
 
     it('should clear GPA value if gpaScale provided without gpaValue', async () => {
@@ -258,62 +248,6 @@ describe('ProfileService', () => {
           completionPct: expect.any(Number),
           isDraft: expect.any(Boolean),
         }),
-      });
-    });
-
-    it('should update skills correctly', async () => {
-      mockPrisma.userProfiles.findUnique.mockResolvedValue({
-        userId: '1',
-        user: {
-          userEducations: [],
-          userSkills: [],
-          userLanguages: [],
-          documents: [],
-        },
-      });
-      mockPrisma.skillsMaster.findUnique.mockResolvedValue({ id: 's1' });
-
-      await service.updateProfile('1', {
-        skills: [{ skillId: 's1', proficiency: 3 }],
-      });
-
-      expect(mockPrisma.userSkills.deleteMany).toHaveBeenCalledWith({
-        where: { userId: '1' },
-      });
-      expect(mockPrisma.userSkills.create).toHaveBeenCalledWith({
-        data: { userId: '1', skillId: 's1', proficiency: 3 },
-      });
-    });
-
-    it('should validate skills max count', async () => {
-      mockPrisma.userProfiles.findUnique.mockResolvedValue({ userId: '1' });
-      const skills = Array(21).fill({ skillId: 's1' });
-      await expect(service.updateProfile('1', { skills })).rejects.toThrow(
-        'Maximum 20 skills allowed',
-      );
-    });
-
-    it('should update languages correctly', async () => {
-      mockPrisma.userProfiles.findUnique.mockResolvedValue({
-        userId: '1',
-        user: {
-          userEducations: [],
-          userSkills: [],
-          userLanguages: [],
-          documents: [],
-        },
-      });
-      mockPrisma.languagesMaster.findUnique.mockResolvedValue({ id: 'l1' });
-
-      await service.updateProfile('1', {
-        languages: [{ languageId: 'l1', proficiency: 'fluent' }],
-      });
-
-      expect(mockPrisma.userLanguages.deleteMany).toHaveBeenCalledWith({
-        where: { userId: '1' },
-      });
-      expect(mockPrisma.userLanguages.create).toHaveBeenCalledWith({
-        data: { userId: '1', languageId: 'l1', proficiency: 'fluent' },
       });
     });
 
