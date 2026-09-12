@@ -374,60 +374,51 @@ export class ProfileService {
             );
           }
           const normalized = normalizeGPA(gpaValue, gpaScale);
-          const educations = await prisma.userEducations.findMany({
+          const education = await prisma.userEducations.findFirst({
             where: { userId },
+            orderBy: { createdAt: 'asc' },
           });
-          if (educations.length > 0) {
-            await prisma.userEducations.update({
-              where: { id: educations[0].id },
-              data: {
-                gpaRaw: typeof gpaValue === 'number' ? gpaValue : null,
-                gpaRawScale:
-                  gpaScale === '4.0'
-                    ? 4.0
-                    : gpaScale === 'percentage'
-                      ? 100
-                      : null,
-                gpaNormalized4: normalized,
-              },
-            });
-          } else {
-            await prisma.userEducations.create({
-              data: {
-                userId,
-                degree: 'Unknown',
-                major: 'Unknown',
-                institution: 'Unknown',
-                gpaRaw: typeof gpaValue === 'number' ? gpaValue : null,
-                gpaRawScale:
-                  gpaScale === '4.0'
-                    ? 4.0
-                    : gpaScale === 'percentage'
-                      ? 100
-                      : null,
-                gpaNormalized4: normalized,
-              },
-            });
+          if (!education) {
+            throw new BadRequestException(
+              'No education record found. Please add an education record before setting GPA.',
+            );
           }
+          await prisma.userEducations.update({
+            where: { id: education.id },
+            data: {
+              gpaRaw: typeof gpaValue === 'number' ? gpaValue : null,
+              gpaRawScale:
+                gpaScale === '4.0'
+                  ? 4.0
+                  : gpaScale === 'percentage'
+                    ? 100
+                    : null,
+              gpaNormalized4: normalized,
+            },
+          });
         } else if (gpaScale && gpaValue === undefined) {
-          const educations = await prisma.userEducations.findMany({
+          const education = await prisma.userEducations.findFirst({
             where: { userId },
+            orderBy: { createdAt: 'asc' },
           });
-          if (educations.length > 0) {
-            await prisma.userEducations.update({
-              where: { id: educations[0].id },
-              data: {
-                gpaRaw: null,
-                gpaRawScale:
-                  gpaScale === '4.0'
-                    ? 4.0
-                    : gpaScale === 'percentage'
-                      ? 100
-                      : null,
-                gpaNormalized4: null,
-              },
-            });
+          if (!education) {
+            throw new BadRequestException(
+              'No education record found. Please add an education record before setting GPA.',
+            );
           }
+          await prisma.userEducations.update({
+            where: { id: education.id },
+            data: {
+              gpaRaw: null,
+              gpaRawScale:
+                gpaScale === '4.0'
+                  ? 4.0
+                  : gpaScale === 'percentage'
+                    ? 100
+                    : null,
+              gpaNormalized4: null,
+            },
+          });
         }
       },
       { timeout: 30000 },

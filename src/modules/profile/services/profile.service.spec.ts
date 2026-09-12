@@ -22,6 +22,7 @@ describe('ProfileService', () => {
     },
     userEducations: {
       findMany: jest.fn(),
+      findFirst: jest.fn(),
       create: jest.fn(),
       update: jest.fn(),
     },
@@ -213,7 +214,7 @@ describe('ProfileService', () => {
           documents: [],
         },
       });
-      mockPrisma.userEducations.findMany.mockResolvedValue([{ id: 'ed1' }]);
+      mockPrisma.userEducations.findFirst.mockResolvedValue({ id: 'ed1' });
       await service.updateProfile('1', { gpaScale: '4.0' });
       expect(mockPrisma.userEducations.update).toHaveBeenCalledWith({
         where: { id: 'ed1' },
@@ -326,7 +327,7 @@ describe('ProfileService', () => {
           documents: [],
         },
       });
-      mockPrisma.userEducations.findMany.mockResolvedValue([{ id: 'ed1' }]);
+      mockPrisma.userEducations.findFirst.mockResolvedValue({ id: 'ed1' });
 
       await service.updateProfile('1', {
         gpaValue: 3.5,
