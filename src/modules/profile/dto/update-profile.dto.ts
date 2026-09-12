@@ -4,33 +4,8 @@ import {
   IsBoolean,
   IsDateString,
   Length,
-  IsNumber,
-  Min,
-  Max,
 } from 'class-validator';
 import { ApiPropertyOptional } from '@nestjs/swagger';
-
-export class SkillDto {
-  @ApiPropertyOptional()
-  @IsString()
-  skillId: string;
-
-  @ApiPropertyOptional()
-  @IsNumber()
-  @Min(1)
-  @Max(5)
-  proficiency: number;
-}
-
-export class LanguageDto {
-  @ApiPropertyOptional()
-  @IsString()
-  languageId: string;
-
-  @ApiPropertyOptional()
-  @IsString()
-  proficiency: string;
-}
 
 export class UpdateProfileDto {
   @ApiPropertyOptional()

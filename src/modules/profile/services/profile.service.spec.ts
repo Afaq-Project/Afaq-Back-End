@@ -278,4 +278,37 @@ describe('ProfileService', () => {
       });
     });
   });
+
+  describe('recalculateProfileStatus', () => {
+    it('should calculate completionPct and isDraft and update the profile', async () => {
+      const mockProfile = { id: 'prof-1', userId: '1' } as any;
+      const getProfileSpy = jest
+        .spyOn(service, 'getProfile')
+        .mockResolvedValue(mockProfile);
+      const calculateCompletionPctSpy = jest
+        .spyOn(service, 'calculateCompletionPct')
+        .mockReturnValue(80);
+      const isCoreFieldsCompleteSpy = jest
+        .spyOn(service, 'isCoreFieldsComplete')
+        .mockReturnValue(true);
+
+      await service.recalculateProfileStatus('1');
+
+      expect(getProfileSpy).toHaveBeenCalledWith('1');
+      expect(calculateCompletionPctSpy).toHaveBeenCalledWith(mockProfile);
+      expect(isCoreFieldsCompleteSpy).toHaveBeenCalledWith(mockProfile);
+      expect(mockPrisma.userProfiles.update).toHaveBeenCalledWith({
+        where: { userId: '1' },
+        data: { completionPct: 80, isDraft: false },
+      });
+    });
+
+    it('should do nothing if profile is not found', async () => {
+      jest.spyOn(service, 'getProfile').mockResolvedValue(null as any);
+
+      await service.recalculateProfileStatus('1');
+
+      expect(mockPrisma.userProfiles.update).not.toHaveBeenCalled();
+    });
+  });
 });
