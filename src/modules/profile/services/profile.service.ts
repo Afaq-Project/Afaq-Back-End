@@ -380,7 +380,7 @@ export class ProfileService {
     return result;
   }
   async recalculateProfileStatus(userId: string): Promise<void> {
-    const profile = await this.getProfileWithDetails(userId);
+    const profile = await this.getProfile(userId);
     if (!profile) {
       return;
     }
