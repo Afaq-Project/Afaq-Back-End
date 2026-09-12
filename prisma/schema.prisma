@@ -44,6 +44,7 @@ model Users {
   notifications    Notifications[]
   subscription     Subscriptions?
   payments         Payments[]
+  userFieldsOfStudy UserFieldsOfStudy[]
 
   @@index([deletedAt])
   @@map("users")
@@ -153,6 +154,8 @@ model FieldOfStudy {
   name      String   @unique @db.Text
   category  String?  @db.Text
   isActive  Boolean  @default(true) @map("is_active")
+
+  userFieldsOfStudy UserFieldsOfStudy[]
 
   @@map("fields_of_study")
 }
@@ -414,4 +417,16 @@ model ChangeLog {
 
   @@index([tableName, recordId])
   @@map("change_log")
+}
+
+model UserFieldsOfStudy {
+  userId    String   @map("user_id") @db.Uuid
+  fieldId   String   @map("field_id") @db.Uuid
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  user      Users        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  field     FieldOfStudy @relation(fields: [fieldId], references: [id], onDelete: Cascade)
+
+  @@id([userId, fieldId])
+  @@map("user_fields_of_study")
 }

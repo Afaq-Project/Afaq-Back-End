@@ -16,6 +16,9 @@ import { SkillsService } from './services/skills.service';
 import { LanguagesController } from './controllers/languages.controller';
 import { LanguagesService } from './services/languages.service';
 
+import { FieldsOfStudyController } from './controllers/fields-of-study.controller';
+import { FieldsOfStudyService } from './services/fields-of-study.service';
+
 @Module({
   controllers: [
     ProfileController,
@@ -24,6 +27,7 @@ import { LanguagesService } from './services/languages.service';
     LocalStorageController,
     SkillsController,
     LanguagesController,
+    FieldsOfStudyController,
   ],
   providers: [
     ProfileService,
@@ -33,6 +37,7 @@ import { LanguagesService } from './services/languages.service';
     LocalStorageService,
     SkillsService,
     LanguagesService,
+    FieldsOfStudyService,
   ],
 })
 export class ProfileModule {}
