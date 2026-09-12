@@ -107,7 +107,6 @@ model UserProfiles {
   dateOfBirth     DateTime? @map("date_of_birth") @db.Date
   nationality     String?   @db.Text
   educationLevel  String?   @map("education_level") @db.Text
-  fieldOfStudy    String[]  @map("field_of_study") @db.Text
   currentCountry  String?   @map("current_country") @db.Text
   currentCity     String?   @map("current_city") @db.Text
   phone           String?   @db.Text

@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
 import {
   Injectable,
   BadRequestException,
@@ -282,7 +284,7 @@ export class ProfileService {
       throw new BadRequestException('Cannot clear required field nationality');
     }
 
-    const { skills, languages, gpaValue, gpaScale, ...profileData } = data;
+    const { gpaValue, gpaScale, ...profileData } = data as any;
 
     // Build a merged in-memory view of the profile after applying updates,
     // so we can calculate completionPct / isDraft without an extra DB round-trip.
@@ -290,18 +292,10 @@ export class ProfileService {
       ...currentProfile,
       ...profileData,
       user: {
-        userSkills: skills
-          ? skills.map((s) => ({
-              skillId: s.skillId,
-              proficiency: s.proficiency,
-            }))
-          : (currentProfile.user?.userSkills ?? []),
-        userLanguages: languages
-          ? languages.map((l) => ({
-              languageId: l.languageId,
-              proficiency: l.proficiency,
-            }))
-          : (currentProfile.user?.userLanguages ?? []),
+        userSkills: currentProfile.user?.userSkills ?? [],
+        userLanguages: currentProfile.user?.userLanguages ?? [],
+        userFieldsOfStudy:
+          (currentProfile.user as any)?.userFieldsOfStudy ?? [],
         documents: currentProfile.user?.documents ?? [],
       },
     };
@@ -320,52 +314,6 @@ export class ProfileService {
             isDraft: !newIsCore,
           },
         });
-
-        if (skills) {
-          if (skills.length > 20) {
-            throw new BadRequestException('Maximum 20 skills allowed');
-          }
-          await prisma.userSkills.deleteMany({ where: { userId } });
-          for (const skill of skills) {
-            const exists = await prisma.skillsMaster.findUnique({
-              where: { id: skill.skillId },
-            });
-            if (!exists) {
-              throw new BadRequestException(`Skill ${skill.skillId} not found`);
-            }
-            await prisma.userSkills.create({
-              data: {
-                userId,
-                skillId: skill.skillId,
-                proficiency: skill.proficiency,
-              },
-            });
-          }
-        }
-
-        if (languages) {
-          if (languages.length > 5) {
-            throw new BadRequestException('Maximum 5 languages allowed');
-          }
-          await prisma.userLanguages.deleteMany({ where: { userId } });
-          for (const lang of languages) {
-            const exists = await prisma.languagesMaster.findUnique({
-              where: { id: lang.languageId },
-            });
-            if (!exists) {
-              throw new BadRequestException(
-                `Language ${lang.languageId} not found`,
-              );
-            }
-            await prisma.userLanguages.create({
-              data: {
-                userId,
-                languageId: lang.languageId,
-                proficiency: lang.proficiency,
-              },
-            });
-          }
-        }
 
         if (gpaValue !== undefined && gpaScale) {
           if (!validateGPARange(gpaValue, gpaScale)) {
