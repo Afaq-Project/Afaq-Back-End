@@ -281,13 +281,6 @@ export class ProfileService {
     if (currentProfile.nationality && data.nationality === null) {
       throw new BadRequestException('Cannot clear required field nationality');
     }
-    if (
-      currentProfile.fieldOfStudy?.length > 0 &&
-      data.fieldOfStudy &&
-      data.fieldOfStudy.length === 0
-    ) {
-      throw new BadRequestException('Cannot clear required field fieldOfStudy');
-    }
 
     const { skills, languages, gpaValue, gpaScale, ...profileData } = data;
 
