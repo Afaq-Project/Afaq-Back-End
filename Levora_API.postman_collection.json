@@ -1110,7 +1110,7 @@
                       "if (pm.response.code === 201) {",
                       "    var jsonData = pm.response.json();",
                       "    if (jsonData.data && jsonData.data.id) {",
-                      "        pm.collectionVariables.set(documentId, jsonData.data.id);",
+                      "        pm.collectionVariables.set("documentId", jsonData.data.id);",
                       "    }",
                       "}",
                       "pm.test(\"Status code is 201\", function () {",
