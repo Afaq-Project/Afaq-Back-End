@@ -48,7 +48,8 @@
                   "pm.test('Response is an array', function () {",
                   "    var jsonData = pm.response.json();",
                   "    pm.expect(jsonData.data).to.be.an('array');",
-                  "});"
+                  "});",
+                  "pm.collectionVariables.set('test_field_id', pm.response.json().data[0].id);"
                 ],
                 "type": "text/javascript"
               }
@@ -76,7 +77,8 @@
                   "pm.test('Response contains category structure', function () {",
                   "    var jsonData = pm.response.json();",
                   "    pm.expect(jsonData.data).to.be.an('array');",
-                  "});"
+                  "});",
+                  "pm.collectionVariables.set('test_skill_id', pm.response.json().data[0].skills[0].id);"
                 ],
                 "type": "text/javascript"
               }
@@ -170,7 +172,8 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test(\"Status code is 200 or 201\", function () { pm.expect(pm.response.code).to.be.oneOf([200, 201]); });"
+                  "pm.test(\"Status code is 200 or 201\", function () { pm.expect(pm.response.code).to.be.oneOf([200, 201]); });",
+                  "pm.collectionVariables.set('test_language_id', pm.response.json().data[0].id);"
                 ],
                 "type": "text/javascript"
               }
@@ -402,7 +405,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\"skillId\": \"00000000-0000-0000-0000-000000000001\", \"proficiency\": 3}",
+              "raw": "{\"skillId\": \"{{test_skill_id}}\", \"proficiency\": 3}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -412,7 +415,7 @@
           }
         },
         {
-          "name": "DELETE /profile/skills/123",
+          "name": "DELETE /profile/skills/{{test_skill_id}}",
           "event": [
             {
               "listen": "test",
@@ -433,15 +436,9 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/v1/profile/skills/00000000-0000-0000-0000-000000000123",
+              "raw": "{{baseUrl}}/api/v1/profile/skills/{{test_skill_id}}",
               "host": ["{{baseUrl}}"],
-              "path": [
-                "api",
-                "v1",
-                "profile",
-                "skills",
-                "00000000-0000-0000-0000-000000000123"
-              ]
+              "path": ["api", "v1", "profile", "skills", "{{test_skill_id}}"]
             }
           }
         },
@@ -505,7 +502,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\"languageId\": \"00000000-0000-0000-0000-000000000001\", \"proficiency\": \"Native\"}",
+              "raw": "{\"languageId\": \"{{test_language_id}}\", \"proficiency\": \"Native\"}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -515,7 +512,7 @@
           }
         },
         {
-          "name": "DELETE /profile/languages/123",
+          "name": "DELETE /profile/languages/{{test_language_id}}",
           "event": [
             {
               "listen": "test",
@@ -536,14 +533,14 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/v1/profile/languages/00000000-0000-0000-0000-000000000123",
+              "raw": "{{baseUrl}}/api/v1/profile/languages/{{test_language_id}}",
               "host": ["{{baseUrl}}"],
               "path": [
                 "api",
                 "v1",
                 "profile",
                 "languages",
-                "00000000-0000-0000-0000-000000000123"
+                "{{test_language_id}}"
               ]
             }
           }
@@ -608,7 +605,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\"fieldId\": \"00000000-0000-0000-0000-000000000001\"}",
+              "raw": "{\"fieldId\": \"{{test_field_id}}\"}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -618,7 +615,7 @@
           }
         },
         {
-          "name": "DELETE /profile/fields-of-study/123",
+          "name": "DELETE /profile/fields-of-study/{{test_field_id}}",
           "event": [
             {
               "listen": "test",
@@ -639,14 +636,14 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/v1/profile/fields-of-study/00000000-0000-0000-0000-000000000123",
+              "raw": "{{baseUrl}}/api/v1/profile/fields-of-study/{{test_field_id}}",
               "host": ["{{baseUrl}}"],
               "path": [
                 "api",
                 "v1",
                 "profile",
                 "fields-of-study",
-                "00000000-0000-0000-0000-000000000123"
+                "{{test_field_id}}"
               ]
             }
           }
