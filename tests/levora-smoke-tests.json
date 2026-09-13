@@ -763,7 +763,7 @@
                   "});",
                   "pm.test('Extract document id', function () {",
                   "    var jsonData = pm.response.json();",
-                  "    pm.collectionVariables.set('document_id', jsonData.data.id);",
+                  "    pm.collectionVariables.set("document_id", jsonData.data.id);",
                   "});"
                 ],
                 "type": "text/javascript"
