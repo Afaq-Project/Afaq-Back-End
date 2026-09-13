@@ -2,6 +2,7 @@ import {
   Injectable,
   BadRequestException,
   ConflictException,
+  NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { ProfileService } from './profile.service';
@@ -59,9 +60,19 @@ export class FieldsOfStudyService {
   }
 
   async removeField(userId: string, fieldId: string) {
-    await this.prisma.userFieldsOfStudy.delete({
-      where: { userId_fieldId: { userId, fieldId } },
-    });
-    await this.profileService.recalculateProfileStatus(userId);
+    try {
+      await this.prisma.userFieldsOfStudy.delete({
+        where: { userId_fieldId: { userId, fieldId } },
+      });
+      await this.profileService.recalculateProfileStatus(userId);
+    } catch (err) {
+      if (
+        err instanceof Prisma.PrismaClientKnownRequestError &&
+        err.code === 'P2025'
+      ) {
+        throw new NotFoundException('Field of study not found in profile.');
+      }
+      throw err;
+    }
   }
 }

@@ -2,6 +2,7 @@ import {
   Injectable,
   BadRequestException,
   ConflictException,
+  NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { ProfileService } from './profile.service';
@@ -57,9 +58,19 @@ export class SkillsService {
   }
 
   async removeSkill(userId: string, skillId: string) {
-    await this.prisma.userSkills.delete({
-      where: { userId_skillId: { userId, skillId } },
-    });
-    await this.profileService.recalculateProfileStatus(userId);
+    try {
+      await this.prisma.userSkills.delete({
+        where: { userId_skillId: { userId, skillId } },
+      });
+      await this.profileService.recalculateProfileStatus(userId);
+    } catch (err) {
+      if (
+        err instanceof Prisma.PrismaClientKnownRequestError &&
+        err.code === 'P2025'
+      ) {
+        throw new NotFoundException('Skill not found in profile.');
+      }
+      throw err;
+    }
   }
 }

@@ -2,6 +2,7 @@ import {
   Injectable,
   BadRequestException,
   ConflictException,
+  NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { ProfileService } from './profile.service';
@@ -59,9 +60,19 @@ export class LanguagesService {
   }
 
   async removeLanguage(userId: string, languageId: string) {
-    await this.prisma.userLanguages.delete({
-      where: { userId_languageId: { userId, languageId } },
-    });
-    await this.profileService.recalculateProfileStatus(userId);
+    try {
+      await this.prisma.userLanguages.delete({
+        where: { userId_languageId: { userId, languageId } },
+      });
+      await this.profileService.recalculateProfileStatus(userId);
+    } catch (err) {
+      if (
+        err instanceof Prisma.PrismaClientKnownRequestError &&
+        err.code === 'P2025'
+      ) {
+        throw new NotFoundException('Language not found in profile.');
+      }
+      throw err;
+    }
   }
 }
