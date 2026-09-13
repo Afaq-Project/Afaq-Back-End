@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/no-unsafe-argument */
+
 import {
   Injectable,
   BadRequestException,
@@ -226,6 +226,12 @@ export class ProfileService {
         proficiency: ul.proficiency,
       }),
     );
+    const fieldsOfStudy = (profile.user.userFieldsOfStudy || []).map(
+      (uf: { fieldId: string; field: { name: string } }) => ({
+        fieldId: uf.fieldId,
+        name: uf.field.name,
+      }),
+    );
     const documents = profile.user.documents;
 
     const gpaNormalized4 =
@@ -255,6 +261,7 @@ export class ProfileService {
       educations,
       skills,
       languages,
+      fieldsOfStudy,
       documents,
       createdAt: profile.createdAt,
       updatedAt: profile.updatedAt,
@@ -288,7 +295,7 @@ export class ProfileService {
       throw new BadRequestException('Cannot clear required field nationality');
     }
 
-    const { gpaValue, gpaScale, ...profileData } = data as any;
+    const { gpaValue, gpaScale, ...profileData } = data;
 
     // Build a merged in-memory view of the profile after applying updates,
     // so we can calculate completionPct / isDraft without an extra DB round-trip.
@@ -328,7 +335,7 @@ export class ProfileService {
           const normalized = normalizeGPA(gpaValue, gpaScale);
           const education = await prisma.userEducations.findFirst({
             where: { userId },
-            orderBy: { createdAt: 'asc' },
+            orderBy: { createdAt: 'desc' },
           });
           if (!education) {
             throw new BadRequestException(
@@ -338,7 +345,7 @@ export class ProfileService {
           await prisma.userEducations.update({
             where: { id: education.id },
             data: {
-              gpaRaw: typeof gpaValue === 'number' ? gpaValue : null,
+              gpaRaw: gpaValue ? parseFloat(gpaValue.toString()) : null,
               gpaRawScale:
                 gpaScale === '4.0'
                   ? 4.0
@@ -351,7 +358,7 @@ export class ProfileService {
         } else if (gpaScale && gpaValue === undefined) {
           const education = await prisma.userEducations.findFirst({
             where: { userId },
-            orderBy: { createdAt: 'asc' },
+            orderBy: { createdAt: 'desc' },
           });
           if (!education) {
             throw new BadRequestException(
