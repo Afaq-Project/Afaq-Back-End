@@ -9,6 +9,7 @@ import {
   UseGuards,
   Request,
   HttpCode,
+  ParseUUIDPipe,
 } from '@nestjs/common';
 import { SkillsService } from '../services/skills.service';
 import { CreateSkillDto } from '../dto/create-skill.dto';
@@ -49,7 +50,7 @@ export class SkillsController {
   @Delete(':skillId')
   @HttpCode(204)
   @ApiOperation({ summary: 'Remove a skill' })
-  async removeSkill(@Request() req: any, @Param('skillId') skillId: string) {
+  async removeSkill(@Request() req: any, @Param('skillId', ParseUUIDPipe) skillId: string) {
     await this.skillsService.removeSkill(req.user.id as string, skillId);
   }
 }

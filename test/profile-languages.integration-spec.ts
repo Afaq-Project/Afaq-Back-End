@@ -28,18 +28,22 @@ describe('Profile Languages (Integration)', () => {
     await app.init();
     prisma = app.get<PrismaService>(PrismaService);
 
-    await prisma.userLanguages.deleteMany();
-    await prisma.userProfiles.deleteMany();
-    await prisma.users.deleteMany();
+    await prisma.userLanguages.deleteMany({
+      where: { user: { email: 'lang_test@example.com' } },
+    });
+    await prisma.userProfiles.deleteMany({
+      where: { user: { email: 'lang_test@example.com' } },
+    });
+    await prisma.users.deleteMany({
+      where: { email: 'lang_test@example.com' },
+    });
 
-    const reg = await request(app.getHttpServer())
-      .post('/api/v1/auth/register')
-      .send({
-        email: 'lang_test@example.com',
-        password: 'Password1!',
-        firstName: 'L',
-        lastName: 'T',
-      });
+    await request(app.getHttpServer()).post('/api/v1/auth/register').send({
+      email: 'lang_test@example.com',
+      password: 'Password1!',
+      firstName: 'L',
+      lastName: 'T',
+    });
 
     const login = await request(app.getHttpServer())
       .post('/api/v1/auth/login')

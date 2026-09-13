@@ -28,19 +28,22 @@ describe('Profile Skills (Integration)', () => {
     await app.init();
     prisma = app.get<PrismaService>(PrismaService);
 
-    await prisma.userSkills.deleteMany();
-    await prisma.userProfiles.deleteMany();
-    await prisma.users.deleteMany();
-    await prisma.skillsMaster.deleteMany();
+    await prisma.userSkills.deleteMany({
+      where: { user: { email: 'skills_test@example.com' } },
+    });
+    await prisma.userProfiles.deleteMany({
+      where: { user: { email: 'skills_test@example.com' } },
+    });
+    await prisma.users.deleteMany({
+      where: { email: 'skills_test@example.com' },
+    });
 
-    const reg = await request(app.getHttpServer())
-      .post('/api/v1/auth/register')
-      .send({
-        email: 'skills_test@example.com',
-        password: 'Password1!',
-        firstName: 'S',
-        lastName: 'T',
-      });
+    await request(app.getHttpServer()).post('/api/v1/auth/register').send({
+      email: 'skills_test@example.com',
+      password: 'Password1!',
+      firstName: 'S',
+      lastName: 'T',
+    });
 
     const login = await request(app.getHttpServer())
       .post('/api/v1/auth/login')

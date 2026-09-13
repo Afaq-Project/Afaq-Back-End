@@ -9,6 +9,7 @@ import {
   UseGuards,
   Request,
   HttpCode,
+  ParseUUIDPipe,
 } from '@nestjs/common';
 import { LanguagesService } from '../services/languages.service';
 import { CreateLanguageDto } from '../dto/create-language.dto';
@@ -56,7 +57,7 @@ export class LanguagesController {
   @ApiOperation({ summary: 'Remove a language' })
   async removeLanguage(
     @Request() req: any,
-    @Param('languageId') languageId: string,
+    @Param('languageId', ParseUUIDPipe) languageId: string,
   ) {
     await this.languagesService.removeLanguage(
       req.user.id as string,

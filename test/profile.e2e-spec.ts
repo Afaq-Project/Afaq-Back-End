@@ -200,22 +200,28 @@ describe('ProfileModule (e2e)', () => {
 
       // 2. Add skill
       let skill = await prisma.skillsMaster.findFirst();
-      if (!skill)
+      if (!skill) {
         skill = await prisma.skillsMaster.create({
           data: { name: 'E2E Skill', category: 'E2E', isActive: true },
         });
-      await request(app.getHttpServer())
+      }
+      const addSkillRes = await request(app.getHttpServer())
         .post('/api/v1/profile/skills')
         .set('Authorization', `Bearer ${userToken}`)
-        .send({ skillId: skill.id, proficiency: 4 })
-        .expect(201);
+        .send({ skillId: skill.id, proficiency: 4 });
+
+      if (addSkillRes.status === 500) {
+        console.error('ADD SKILL 500 ERROR:', addSkillRes.body);
+      }
+      expect(addSkillRes.status).toBe(201);
 
       // 3. Add language
       let lang = await prisma.languagesMaster.findFirst();
-      if (!lang)
+      if (!lang) {
         lang = await prisma.languagesMaster.create({
           data: { name: 'E2E Lang' },
         });
+      }
       await request(app.getHttpServer())
         .post('/api/v1/profile/languages')
         .set('Authorization', `Bearer ${userToken}`)
@@ -224,10 +230,11 @@ describe('ProfileModule (e2e)', () => {
 
       // 4. Add field
       let field = await prisma.fieldOfStudy.findFirst();
-      if (!field)
+      if (!field) {
         field = await prisma.fieldOfStudy.create({
           data: { name: 'E2E Field', isActive: true },
         });
+      }
       await request(app.getHttpServer())
         .post('/api/v1/profile/fields-of-study')
         .set('Authorization', `Bearer ${userToken}`)
