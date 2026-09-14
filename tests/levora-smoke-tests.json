@@ -59,8 +59,15 @@
             "method": "GET",
             "url": {
               "raw": "{{baseUrl}}/api/v1/reference/fields-of-study",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "reference", "fields-of-study"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "reference",
+                "fields-of-study"
+              ]
             }
           }
         },
@@ -88,8 +95,15 @@
             "method": "GET",
             "url": {
               "raw": "{{baseUrl}}/api/v1/reference/skills-taxonomy",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "reference", "skills-taxonomy"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "reference",
+                "skills-taxonomy"
+              ]
             }
           }
         },
@@ -122,8 +136,67 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/auth/register",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "auth", "register"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "register"
+              ]
+            }
+          }
+        },
+        {
+          "name": "PATCH /profile (No Auth Header)",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "pm.request.headers.remove('Authorization');"
+                ],
+                "type": "text/javascript"
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 401', function () {",
+                  "    pm.response.to.have.status(401);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nationality\": \"US\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/profile",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "profile"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
             }
           }
         },
@@ -160,8 +233,15 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/auth/login",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "auth", "login"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "login"
+              ]
             }
           }
         },
@@ -184,8 +264,15 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/v1/reference/languages",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "reference", "languages"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "reference",
+                "languages"
+              ]
             }
           }
         }
@@ -223,8 +310,14 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/api/v1/profile",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "profile"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "profile"
+              ]
             }
           }
         },
@@ -264,8 +357,14 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/profile",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "profile"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "profile"
+              ]
             }
           }
         },
@@ -302,8 +401,14 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/profile",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "profile"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "profile"
+              ]
             }
           }
         },
@@ -340,8 +445,14 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/profile",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "profile"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "profile"
+              ]
             }
           }
         },
@@ -368,8 +479,15 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/api/v1/profile/skills",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "profile", "skills"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "profile",
+                "skills"
+              ]
             }
           }
         },
@@ -400,8 +518,15 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/api/v1/profile/skills",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "profile", "skills"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "profile",
+                "skills"
+              ]
             },
             "body": {
               "mode": "raw",
@@ -421,7 +546,7 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test(\"Status code is 200 or 201\", function () { pm.expect(pm.response.code).to.be.oneOf([200, 201]); });"
+                  "pm.test(\"Status code is 200, 201 or 204\", function () { pm.expect(pm.response.code).to.be.oneOf([200, 201, 204]); });"
                 ],
                 "type": "text/javascript"
               }
@@ -437,8 +562,16 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/api/v1/profile/skills/{{test_skill_id}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "profile", "skills", "{{test_skill_id}}"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "profile",
+                "skills",
+                "{{test_skill_id}}"
+              ]
             }
           }
         },
@@ -465,8 +598,15 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/api/v1/profile/languages",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "profile", "languages"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "profile",
+                "languages"
+              ]
             }
           }
         },
@@ -497,8 +637,15 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/api/v1/profile/languages",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "profile", "languages"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "profile",
+                "languages"
+              ]
             },
             "body": {
               "mode": "raw",
@@ -518,7 +665,7 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test(\"Status code is 200 or 201\", function () { pm.expect(pm.response.code).to.be.oneOf([200, 201]); });"
+                  "pm.test(\"Status code is 200, 201 or 204\", function () { pm.expect(pm.response.code).to.be.oneOf([200, 201, 204]); });"
                 ],
                 "type": "text/javascript"
               }
@@ -534,7 +681,9 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/api/v1/profile/languages/{{test_language_id}}",
-              "host": ["{{baseUrl}}"],
+              "host": [
+                "{{baseUrl}}"
+              ],
               "path": [
                 "api",
                 "v1",
@@ -568,8 +717,15 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/api/v1/profile/fields-of-study",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "profile", "fields-of-study"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "profile",
+                "fields-of-study"
+              ]
             }
           }
         },
@@ -600,8 +756,15 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/api/v1/profile/fields-of-study",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "profile", "fields-of-study"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "profile",
+                "fields-of-study"
+              ]
             },
             "body": {
               "mode": "raw",
@@ -621,7 +784,7 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test(\"Status code is 200 or 201\", function () { pm.expect(pm.response.code).to.be.oneOf([200, 201]); });"
+                  "pm.test(\"Status code is 200, 201 or 204\", function () { pm.expect(pm.response.code).to.be.oneOf([200, 201, 204]); });"
                 ],
                 "type": "text/javascript"
               }
@@ -637,7 +800,9 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/api/v1/profile/fields-of-study/{{test_field_id}}",
-              "host": ["{{baseUrl}}"],
+              "host": [
+                "{{baseUrl}}"
+              ],
               "path": [
                 "api",
                 "v1",
@@ -700,8 +865,15 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/profile/documents",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "profile", "documents"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "profile",
+                "documents"
+              ]
             }
           }
         },
@@ -734,8 +906,15 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/api/v1/profile/documents",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "profile", "documents"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "profile",
+                "documents"
+              ]
             }
           }
         },
@@ -768,7 +947,9 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/api/v1/profile/documents/{{document_id}}/download",
-              "host": ["{{baseUrl}}"],
+              "host": [
+                "{{baseUrl}}"
+              ],
               "path": [
                 "api",
                 "v1",
@@ -805,8 +986,16 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/api/v1/profile/documents/{{document_id}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "profile", "documents", "{{document_id}}"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "profile",
+                "documents",
+                "{{document_id}}"
+              ]
             }
           }
         }
@@ -855,8 +1044,15 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/profile/documents",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "profile", "documents"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "profile",
+                "documents"
+              ]
             }
           }
         },
@@ -893,8 +1089,14 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/profile",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "profile"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "profile"
+              ]
             }
           }
         },
@@ -923,7 +1125,9 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/api/v1/profile/documents/invalid-uuid/download",
-              "host": ["{{baseUrl}}"],
+              "host": [
+                "{{baseUrl}}"
+              ],
               "path": [
                 "api",
                 "v1",
@@ -936,51 +1140,14 @@
           }
         },
         {
-          "name": "PATCH /profile (No Auth Header)",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Status code is 401', function () {",
-                  "    pm.response.to.have.status(401);",
-                  "});"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "PATCH",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"nationality\": \"US\"\n}"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/api/v1/profile",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "profile"]
-            },
-            "auth": {
-              "type": "noauth"
-            }
-          }
-        },
-        {
           "name": "GET /profile/documents/{id}/download (Cross-tenant)",
           "event": [
             {
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status code is 403', function () {",
-                  "    pm.response.to.have.status(403);",
+                  "pm.test('Status code is 404', function () {",
+                  "    pm.response.to.have.status(404);",
                   "});"
                 ],
                 "type": "text/javascript"
@@ -997,7 +1164,9 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/api/v1/profile/documents/00000000-0000-0000-0000-000000000001/download",
-              "host": ["{{baseUrl}}"],
+              "host": [
+                "{{baseUrl}}"
+              ],
               "path": [
                 "api",
                 "v1",

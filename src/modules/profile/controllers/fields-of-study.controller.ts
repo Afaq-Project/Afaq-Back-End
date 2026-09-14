@@ -8,6 +8,7 @@ import {
   UseGuards,
   Request,
   HttpCode,
+  ParseUUIDPipe,
 } from '@nestjs/common';
 import { FieldsOfStudyService } from '../services/fields-of-study.service';
 import { CreateFieldOfStudyDto } from '../dto/create-field-of-study.dto';
@@ -49,7 +50,10 @@ export class FieldsOfStudyController {
   @Delete(':fieldId')
   @HttpCode(204)
   @ApiOperation({ summary: 'Remove a field of study' })
-  async removeField(@Request() req: any, @Param('fieldId') fieldId: string) {
+  async removeField(
+    @Request() req: any,
+    @Param('fieldId', ParseUUIDPipe) fieldId: string,
+  ) {
     await this.fieldsService.removeField(req.user.id as string, fieldId);
   }
 }
