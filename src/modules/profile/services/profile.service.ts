@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
 import {
   Injectable,
   BadRequestException,
@@ -276,6 +274,7 @@ export class ProfileService {
           select: {
             userSkills: true,
             userLanguages: true,
+            userFieldsOfStudy: true,
             documents: true,
           },
         },
@@ -305,8 +304,7 @@ export class ProfileService {
       user: {
         userSkills: currentProfile.user?.userSkills ?? [],
         userLanguages: currentProfile.user?.userLanguages ?? [],
-        userFieldsOfStudy:
-          (currentProfile.user as any)?.userFieldsOfStudy ?? [],
+        userFieldsOfStudy: currentProfile.user?.userFieldsOfStudy ?? [],
         documents: currentProfile.user?.documents ?? [],
       },
     };

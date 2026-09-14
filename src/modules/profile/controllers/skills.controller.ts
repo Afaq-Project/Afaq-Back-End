@@ -50,7 +50,10 @@ export class SkillsController {
   @Delete(':skillId')
   @HttpCode(204)
   @ApiOperation({ summary: 'Remove a skill' })
-  async removeSkill(@Request() req: any, @Param('skillId', ParseUUIDPipe) skillId: string) {
+  async removeSkill(
+    @Request() req: any,
+    @Param('skillId', ParseUUIDPipe) skillId: string,
+  ) {
     await this.skillsService.removeSkill(req.user.id as string, skillId);
   }
 }
