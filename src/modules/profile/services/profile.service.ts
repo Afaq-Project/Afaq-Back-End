@@ -12,7 +12,6 @@ import {
 
 export interface ProfileWithRelations {
   educationLevel?: string | null;
-  fieldOfStudy?: string[] | null;
   nationality?: string | null;
   dateOfBirth?: Date | null;
   currentCountry?: string | null;
@@ -26,6 +25,7 @@ export interface ProfileWithRelations {
     userSkills?: unknown[];
     userLanguages?: unknown[];
     documents?: unknown[];
+    userFieldsOfStudy?: unknown[];
   } | null;
 }
 
@@ -51,6 +51,11 @@ export class ProfileService {
               },
             },
             documents: true,
+            userFieldsOfStudy: {
+              include: {
+                field: true,
+              },
+            },
           },
         },
       },
@@ -73,6 +78,9 @@ export class ProfileService {
                 include: { language: true },
               },
               documents: true,
+              userFieldsOfStudy: {
+                include: { field: true },
+              },
             },
           },
         },
@@ -85,8 +93,8 @@ export class ProfileService {
   isCoreFieldsComplete(profile: ProfileWithRelations): boolean {
     return !!(
       profile.educationLevel?.trim() &&
-      Array.isArray(profile.fieldOfStudy) &&
-      profile.fieldOfStudy.length > 0 &&
+      profile.user?.userFieldsOfStudy &&
+      profile.user.userFieldsOfStudy.length > 0 &&
       profile.nationality?.trim()
     );
   }
@@ -96,7 +104,10 @@ export class ProfileService {
     if (profile.educationLevel) {
       pct += 15;
     }
-    if (profile.fieldOfStudy && profile.fieldOfStudy.length > 0) {
+    if (
+      profile.user?.userFieldsOfStudy &&
+      profile.user.userFieldsOfStudy.length > 0
+    ) {
       pct += 15;
     }
     if (profile.nationality) {
@@ -144,8 +155,8 @@ export class ProfileService {
     // Step 1: Education
     if (
       profile.educationLevel &&
-      profile.fieldOfStudy &&
-      profile.fieldOfStudy.length > 0 &&
+      profile.user?.userFieldsOfStudy &&
+      profile.user.userFieldsOfStudy.length > 0 &&
       profile.nationality
     ) {
       step = 1;
@@ -213,6 +224,12 @@ export class ProfileService {
         proficiency: ul.proficiency,
       }),
     );
+    const fieldsOfStudy = (profile.user.userFieldsOfStudy || []).map(
+      (uf: { fieldId: string; field: { name: string } }) => ({
+        fieldId: uf.fieldId,
+        name: uf.field.name,
+      }),
+    );
     const documents = profile.user.documents;
 
     const gpaNormalized4 =
@@ -224,7 +241,6 @@ export class ProfileService {
       dateOfBirth: profile.dateOfBirth,
       nationality: profile.nationality,
       educationLevel: profile.educationLevel,
-      fieldOfStudy: profile.fieldOfStudy,
       currentCountry: profile.currentCountry,
       currentCity: profile.currentCity,
       phone: profile.phone,
@@ -243,6 +259,7 @@ export class ProfileService {
       educations,
       skills,
       languages,
+      fieldsOfStudy,
       documents,
       createdAt: profile.createdAt,
       updatedAt: profile.updatedAt,
@@ -257,6 +274,7 @@ export class ProfileService {
           select: {
             userSkills: true,
             userLanguages: true,
+            userFieldsOfStudy: true,
             documents: true,
           },
         },
@@ -267,12 +285,6 @@ export class ProfileService {
       throw new NotFoundException('Profile not found');
     }
 
-    if (data.fieldOfStudy !== undefined && data.fieldOfStudy.length === 0) {
-      throw new BadRequestException(
-        'fieldOfStudy must contain at least one value',
-      );
-    }
-
     if (currentProfile.educationLevel && data.educationLevel === null) {
       throw new BadRequestException(
         'Cannot clear required field educationLevel',
@@ -281,15 +293,8 @@ export class ProfileService {
     if (currentProfile.nationality && data.nationality === null) {
       throw new BadRequestException('Cannot clear required field nationality');
     }
-    if (
-      currentProfile.fieldOfStudy?.length > 0 &&
-      data.fieldOfStudy &&
-      data.fieldOfStudy.length === 0
-    ) {
-      throw new BadRequestException('Cannot clear required field fieldOfStudy');
-    }
 
-    const { skills, languages, gpaValue, gpaScale, ...profileData } = data;
+    const { gpaValue, gpaScale, ...profileData } = data;
 
     // Build a merged in-memory view of the profile after applying updates,
     // so we can calculate completionPct / isDraft without an extra DB round-trip.
@@ -297,18 +302,9 @@ export class ProfileService {
       ...currentProfile,
       ...profileData,
       user: {
-        userSkills: skills
-          ? skills.map((s) => ({
-              skillId: s.skillId,
-              proficiency: s.proficiency,
-            }))
-          : (currentProfile.user?.userSkills ?? []),
-        userLanguages: languages
-          ? languages.map((l) => ({
-              languageId: l.languageId,
-              proficiency: l.proficiency,
-            }))
-          : (currentProfile.user?.userLanguages ?? []),
+        userSkills: currentProfile.user?.userSkills ?? [],
+        userLanguages: currentProfile.user?.userLanguages ?? [],
+        userFieldsOfStudy: currentProfile.user?.userFieldsOfStudy ?? [],
         documents: currentProfile.user?.documents ?? [],
       },
     };
@@ -328,52 +324,6 @@ export class ProfileService {
           },
         });
 
-        if (skills) {
-          if (skills.length > 20) {
-            throw new BadRequestException('Maximum 20 skills allowed');
-          }
-          await prisma.userSkills.deleteMany({ where: { userId } });
-          for (const skill of skills) {
-            const exists = await prisma.skillsMaster.findUnique({
-              where: { id: skill.skillId },
-            });
-            if (!exists) {
-              throw new BadRequestException(`Skill ${skill.skillId} not found`);
-            }
-            await prisma.userSkills.create({
-              data: {
-                userId,
-                skillId: skill.skillId,
-                proficiency: skill.proficiency,
-              },
-            });
-          }
-        }
-
-        if (languages) {
-          if (languages.length > 5) {
-            throw new BadRequestException('Maximum 5 languages allowed');
-          }
-          await prisma.userLanguages.deleteMany({ where: { userId } });
-          for (const lang of languages) {
-            const exists = await prisma.languagesMaster.findUnique({
-              where: { id: lang.languageId },
-            });
-            if (!exists) {
-              throw new BadRequestException(
-                `Language ${lang.languageId} not found`,
-              );
-            }
-            await prisma.userLanguages.create({
-              data: {
-                userId,
-                languageId: lang.languageId,
-                proficiency: lang.proficiency,
-              },
-            });
-          }
-        }
-
         if (gpaValue !== undefined && gpaScale) {
           if (!validateGPARange(gpaValue, gpaScale)) {
             throw new BadRequestException(
@@ -381,60 +331,51 @@ export class ProfileService {
             );
           }
           const normalized = normalizeGPA(gpaValue, gpaScale);
-          const educations = await prisma.userEducations.findMany({
+          const education = await prisma.userEducations.findFirst({
             where: { userId },
+            orderBy: { createdAt: 'desc' },
           });
-          if (educations.length > 0) {
-            await prisma.userEducations.update({
-              where: { id: educations[0].id },
-              data: {
-                gpaRaw: typeof gpaValue === 'number' ? gpaValue : null,
-                gpaRawScale:
-                  gpaScale === '4.0'
-                    ? 4.0
-                    : gpaScale === 'percentage'
-                      ? 100
-                      : null,
-                gpaNormalized4: normalized,
-              },
-            });
-          } else {
-            await prisma.userEducations.create({
-              data: {
-                userId,
-                degree: 'Unknown',
-                major: 'Unknown',
-                institution: 'Unknown',
-                gpaRaw: typeof gpaValue === 'number' ? gpaValue : null,
-                gpaRawScale:
-                  gpaScale === '4.0'
-                    ? 4.0
-                    : gpaScale === 'percentage'
-                      ? 100
-                      : null,
-                gpaNormalized4: normalized,
-              },
-            });
+          if (!education) {
+            throw new BadRequestException(
+              'No education record found. Please add an education record before setting GPA.',
+            );
           }
+          await prisma.userEducations.update({
+            where: { id: education.id },
+            data: {
+              gpaRaw: gpaValue ? parseFloat(gpaValue.toString()) : null,
+              gpaRawScale:
+                gpaScale === '4.0'
+                  ? 4.0
+                  : gpaScale === 'percentage'
+                    ? 100
+                    : null,
+              gpaNormalized4: normalized,
+            },
+          });
         } else if (gpaScale && gpaValue === undefined) {
-          const educations = await prisma.userEducations.findMany({
+          const education = await prisma.userEducations.findFirst({
             where: { userId },
+            orderBy: { createdAt: 'desc' },
           });
-          if (educations.length > 0) {
-            await prisma.userEducations.update({
-              where: { id: educations[0].id },
-              data: {
-                gpaRaw: null,
-                gpaRawScale:
-                  gpaScale === '4.0'
-                    ? 4.0
-                    : gpaScale === 'percentage'
-                      ? 100
-                      : null,
-                gpaNormalized4: null,
-              },
-            });
+          if (!education) {
+            throw new BadRequestException(
+              'No education record found. Please add an education record before setting GPA.',
+            );
           }
+          await prisma.userEducations.update({
+            where: { id: education.id },
+            data: {
+              gpaRaw: null,
+              gpaRawScale:
+                gpaScale === '4.0'
+                  ? 4.0
+                  : gpaScale === 'percentage'
+                    ? 100
+                    : null,
+              gpaNormalized4: null,
+            },
+          });
         }
       },
       { timeout: 30000 },
@@ -442,5 +383,17 @@ export class ProfileService {
     // Single final read to return the fully-shaped response
     const result = await this.getProfileWithDetails(userId);
     return result;
+  }
+  async recalculateProfileStatus(userId: string): Promise<void> {
+    const profile = await this.getProfile(userId);
+    if (!profile) {
+      return;
+    }
+    const completionPct = this.calculateCompletionPct(profile);
+    const isDraft = !this.isCoreFieldsComplete(profile);
+    await this.prisma.userProfiles.update({
+      where: { userId },
+      data: { completionPct, isDraft },
+    });
   }
 }

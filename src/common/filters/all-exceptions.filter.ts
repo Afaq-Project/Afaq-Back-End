@@ -6,6 +6,7 @@ import {
   HttpStatus,
   Logger,
 } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 import { ThrottlerException } from '@nestjs/throttler';
 import { Request, Response } from 'express';
 import {
@@ -28,13 +29,25 @@ export class AllExceptionsFilter implements ExceptionFilter {
     const startTime = (request as Request & { startTime?: number }).startTime;
     const duration = startTime ? Date.now() - startTime : 0;
 
-    const status =
+    let status =
       exception instanceof HttpException
         ? exception.getStatus()
         : HttpStatus.INTERNAL_SERVER_ERROR;
 
-    const exceptionResponse =
+    let exceptionResponse =
       exception instanceof HttpException ? exception.getResponse() : null;
+
+    if (exception instanceof Prisma.PrismaClientKnownRequestError) {
+      if (exception.code === 'P2025') {
+        status = HttpStatus.NOT_FOUND;
+        exceptionResponse = { message: 'Resource not found' };
+      } else if (exception.code === 'P2002') {
+        status = HttpStatus.CONFLICT;
+        exceptionResponse = {
+          message: 'Resource already exists or conflicts with another record',
+        };
+      }
+    }
 
     let message = 'An unexpected error occurred';
     let errors: ApiErrorItem[] = [];

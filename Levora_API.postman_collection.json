@@ -42,13 +42,8 @@
             },
             "url": {
               "raw": "{{baseUrl}}/auth/register",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "auth",
-                "register"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "register"]
             },
             "description": "Registers a new user and creates an initial profile."
           },
@@ -69,13 +64,8 @@
                 },
                 "url": {
                   "raw": "{{baseUrl}}/auth/register",
-                  "host": [
-                    "{{baseUrl}}"
-                  ],
-                  "path": [
-                    "auth",
-                    "register"
-                  ]
+                  "host": ["{{baseUrl}}"],
+                  "path": ["auth", "register"]
                 }
               },
               "status": "Created",
@@ -130,13 +120,8 @@
             },
             "url": {
               "raw": "{{baseUrl}}/auth/login",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "auth",
-                "login"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "login"]
             },
             "description": "Authenticates user credentials and returns JWT access and refresh tokens."
           },
@@ -157,13 +142,8 @@
                 },
                 "url": {
                   "raw": "{{baseUrl}}/auth/login",
-                  "host": [
-                    "{{baseUrl}}"
-                  ],
-                  "path": [
-                    "auth",
-                    "login"
-                  ]
+                  "host": ["{{baseUrl}}"],
+                  "path": ["auth", "login"]
                 }
               },
               "status": "OK",
@@ -197,13 +177,8 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/auth/me",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "auth",
-                "me"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "me"]
             },
             "description": "Retrieves current authenticated user details."
           },
@@ -215,13 +190,8 @@
                 "header": [],
                 "url": {
                   "raw": "{{baseUrl}}/auth/me",
-                  "host": [
-                    "{{baseUrl}}"
-                  ],
-                  "path": [
-                    "auth",
-                    "me"
-                  ]
+                  "host": ["{{baseUrl}}"],
+                  "path": ["auth", "me"]
                 }
               },
               "status": "OK",
@@ -273,13 +243,8 @@
             },
             "url": {
               "raw": "{{baseUrl}}/auth/refresh",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "auth",
-                "refresh"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "refresh"]
             },
             "description": "Refreshes an expired access token using a valid refresh token."
           },
@@ -300,13 +265,8 @@
                 },
                 "url": {
                   "raw": "{{baseUrl}}/auth/refresh",
-                  "host": [
-                    "{{baseUrl}}"
-                  ],
-                  "path": [
-                    "auth",
-                    "refresh"
-                  ]
+                  "host": ["{{baseUrl}}"],
+                  "path": ["auth", "refresh"]
                 }
               },
               "status": "OK",
@@ -340,13 +300,8 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/auth/logout",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "auth",
-                "logout"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "logout"]
             },
             "description": "Logs out the user and clears authentication cookies."
           },
@@ -358,13 +313,8 @@
                 "header": [],
                 "url": {
                   "raw": "{{baseUrl}}/auth/logout",
-                  "host": [
-                    "{{baseUrl}}"
-                  ],
-                  "path": [
-                    "auth",
-                    "logout"
-                  ]
+                  "host": ["{{baseUrl}}"],
+                  "path": ["auth", "logout"]
                 }
               },
               "status": "No Content",
@@ -408,13 +358,8 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/auth/google",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "auth",
-                "google"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "google"]
             },
             "description": "Initiates the Google OAuth 2.0 authentication flow. The server will respond with a 302 redirect to Google's consent screen. The user must follow the redirect in a browser to complete authentication.\n\n**Flow:**\n1. Client calls `GET /auth/google`\n2. Server redirects → `https://accounts.google.com/o/oauth2/v2/auth?...`\n3. User grants permissions\n4. Google redirects → `/auth/google/callback?code=...`\n5. Server processes callback and returns JWT tokens\n\n**Note:** This endpoint cannot be tested end-to-end in Postman because it requires a browser session to follow the OAuth redirect and complete the consent flow."
           },
@@ -426,13 +371,8 @@
                 "header": [],
                 "url": {
                   "raw": "{{baseUrl}}/auth/google",
-                  "host": [
-                    "{{baseUrl}}"
-                  ],
-                  "path": [
-                    "auth",
-                    "google"
-                  ]
+                  "host": ["{{baseUrl}}"],
+                  "path": ["auth", "google"]
                 }
               },
               "status": "Found",
@@ -454,13 +394,8 @@
                 "header": [],
                 "url": {
                   "raw": "{{baseUrl}}/auth/other",
-                  "host": [
-                    "{{baseUrl}}"
-                  ],
-                  "path": [
-                    "auth",
-                    "other"
-                  ]
+                  "host": ["{{baseUrl}}"],
+                  "path": ["auth", "other"]
                 }
               },
               "status": "Bad Request",
@@ -484,14 +419,8 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/auth/google/callback?code=AUTHORIZATION_CODE_FROM_GOOGLE",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "auth",
-                "google",
-                "callback"
-              ],
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "google", "callback"],
               "query": [
                 {
                   "key": "code",
@@ -510,14 +439,8 @@
                 "header": [],
                 "url": {
                   "raw": "{{baseUrl}}/auth/google/callback?code=AUTHORIZATION_CODE_FROM_GOOGLE",
-                  "host": [
-                    "{{baseUrl}}"
-                  ],
-                  "path": [
-                    "auth",
-                    "google",
-                    "callback"
-                  ]
+                  "host": ["{{baseUrl}}"],
+                  "path": ["auth", "google", "callback"]
                 }
               },
               "status": "OK",
@@ -543,14 +466,8 @@
                 "header": [],
                 "url": {
                   "raw": "{{baseUrl}}/auth/google/callback?code=AUTHORIZATION_CODE_FROM_GOOGLE",
-                  "host": [
-                    "{{baseUrl}}"
-                  ],
-                  "path": [
-                    "auth",
-                    "google",
-                    "callback"
-                  ]
+                  "host": ["{{baseUrl}}"],
+                  "path": ["auth", "google", "callback"]
                 }
               },
               "status": "Bad Request",
@@ -601,13 +518,8 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/auth/linkedin",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "auth",
-                "linkedin"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "linkedin"]
             },
             "description": "Initiates the LinkedIn OAuth 2.0 authentication flow. The server will respond with a 302 redirect to LinkedIn's authorization page. The user must follow the redirect in a browser to complete authentication.\n\n**Flow:**\n1. Client calls `GET /auth/linkedin`\n2. Server redirects → `https://www.linkedin.com/oauth/v2/authorization?...`\n3. User grants permissions\n4. LinkedIn redirects → `/auth/linkedin/callback?code=...`\n5. Server processes callback and returns JWT tokens\n\n**Note:** This endpoint cannot be tested end-to-end in Postman because it requires a browser session to follow the OAuth redirect and complete the consent flow."
           },
@@ -619,13 +531,8 @@
                 "header": [],
                 "url": {
                   "raw": "{{baseUrl}}/auth/linkedin",
-                  "host": [
-                    "{{baseUrl}}"
-                  ],
-                  "path": [
-                    "auth",
-                    "linkedin"
-                  ]
+                  "host": ["{{baseUrl}}"],
+                  "path": ["auth", "linkedin"]
                 }
               },
               "status": "Found",
@@ -649,14 +556,8 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/auth/linkedin/callback?code=AUTHORIZATION_CODE_FROM_LINKEDIN",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "auth",
-                "linkedin",
-                "callback"
-              ],
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "linkedin", "callback"],
               "query": [
                 {
                   "key": "code",
@@ -675,14 +576,8 @@
                 "header": [],
                 "url": {
                   "raw": "{{baseUrl}}/auth/linkedin/callback?code=AUTHORIZATION_CODE_FROM_LINKEDIN",
-                  "host": [
-                    "{{baseUrl}}"
-                  ],
-                  "path": [
-                    "auth",
-                    "linkedin",
-                    "callback"
-                  ]
+                  "host": ["{{baseUrl}}"],
+                  "path": ["auth", "linkedin", "callback"]
                 }
               },
               "status": "OK",
@@ -722,13 +617,8 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/users/profile",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "users",
-                "profile"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "profile"]
             },
             "description": "Retrieves profile of currently logged-in user."
           },
@@ -751,12 +641,8 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/users?page=1&limit=20&order=desc",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "users"
-              ],
+              "host": ["{{baseUrl}}"],
+              "path": ["users"],
               "query": [
                 {
                   "key": "page",
@@ -793,13 +679,8 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/users/{{userId}}",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "users",
-                "{{userId}}"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "{{userId}}"]
             },
             "description": "Retrieves details of a specific user by ID (Admin only)."
           },
@@ -831,12 +712,8 @@
             },
             "url": {
               "raw": "{{baseUrl}}/users",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "users"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["users"]
             },
             "description": "Creates a new user (Admin only)."
           },
@@ -868,13 +745,8 @@
             },
             "url": {
               "raw": "{{baseUrl}}/users/{{userId}}",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "users",
-                "{{userId}}"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "{{userId}}"]
             },
             "description": "Updates user info."
           },
@@ -897,13 +769,8 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/users/{{userId}}",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "users",
-                "{{userId}}"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "{{userId}}"]
             },
             "description": "Deletes a user by ID (Admin only)."
           },
@@ -954,12 +821,8 @@
                 "header": [],
                 "url": {
                   "raw": "{{baseUrl}}/profile",
-                  "host": [
-                    "{{baseUrl}}"
-                  ],
-                  "path": [
-                    "profile"
-                  ]
+                  "host": ["{{baseUrl}}"],
+                  "path": ["profile"]
                 },
                 "description": "Retrieves the current authenticated user profile with detailed relations (education, skills, languages, documents, and completion percentage)."
               },
@@ -976,12 +839,8 @@
                     ],
                     "url": {
                       "raw": "{{baseUrl}}/profile",
-                      "host": [
-                        "{{baseUrl}}"
-                      ],
-                      "path": [
-                        "profile"
-                      ]
+                      "host": ["{{baseUrl}}"],
+                      "path": ["profile"]
                     }
                   },
                   "status": "OK",
@@ -994,7 +853,7 @@
                     }
                   ],
                   "cookie": [],
-                  "body": "{\n  \"statusCode\": 200,\n  \"message\": \"Profile retrieved successfully\",\n  \"data\": {\n    \"id\": \"d3b07384-d113-460d-a773-f9c15d5ec3ef\",\n    \"userId\": \"9dd10e8f-0f3c-4295-befb-6109efd2587f\",\n    \"fullName\": \"John Doe\",\n    \"dateOfBirth\": \"1998-05-15T00:00:00.000Z\",\n    \"nationality\": \"US\",\n    \"educationLevel\": \"Bachelor\",\n    \"fieldOfStudy\": [\n      \"Computer Science\",\n      \"Software Engineering\"\n    ],\n    \"currentCountry\": \"United States\",\n    \"currentCity\": \"San Francisco\",\n    \"phone\": \"+1-555-0199\",\n    \"experienceLevel\": \"Mid-Level\",\n    \"hasFinancialNeed\": false,\n    \"careerGoals\": \"Aspiring AI Engineer looking for master scholarship opportunities.\",\n    \"profilePhotoUrl\": \"https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80\",\n    \"completionPct\": 85,\n    \"coreFieldsComplete\": true,\n    \"isDraft\": false,\n    \"createdAt\": \"2026-08-28T19:00:00.000Z\",\n    \"updatedAt\": \"2026-09-02T12:00:00.000Z\",\n    \"user\": {\n      \"userEducations\": [\n        {\n          \"id\": \"e1a2b3c4-d5e6-7f8a-9b0c-1d2e3f4a5b6c\",\n          \"userId\": \"9dd10e8f-0f3c-4295-befb-6109efd2587f\",\n          \"degree\": \"Bachelor of Science\",\n          \"institution\": \"Stanford University\",\n          \"gpaValue\": \"3.85\",\n          \"gpaScale\": \"4.0\",\n          \"normalizedGpa\": 3.85,\n          \"startYear\": 2016,\n          \"endYear\": 2020\n        }\n      ],\n      \"userSkills\": [\n        {\n          \"id\": \"s1a2b3c4-d5e6-7f8a-9b0c-1d2e3f4a5b6c\",\n          \"userId\": \"9dd10e8f-0f3c-4295-befb-6109efd2587f\",\n          \"skillId\": \"f0a1b2c3-d4e5-6f7a-8b9c-0d1e2f3a4b5c\",\n          \"proficiency\": 4,\n          \"skill\": {\n            \"id\": \"f0a1b2c3-d4e5-6f7a-8b9c-0d1e2f3a4b5c\",\n            \"name\": \"TypeScript\",\n            \"category\": \"Technical\"\n          }\n        }\n      ],\n      \"userLanguages\": [\n        {\n          \"id\": \"l1a2b3c4-d5e6-7f8a-9b0c-1d2e3f4a5b6c\",\n          \"userId\": \"9dd10e8f-0f3c-4295-befb-6109efd2587f\",\n          \"languageId\": \"en-us\",\n          \"proficiency\": \"Native\",\n          \"language\": {\n            \"id\": \"en-us\",\n            \"name\": \"English\"\n          }\n        }\n      ],\n      \"documents\": [\n        {\n          \"id\": \"a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d\",\n          \"userId\": \"9dd10e8f-0f3c-4295-befb-6109efd2587f\",\n          \"docType\": \"resume\",\n          \"displayName\": \"John_Doe_Resume.pdf\",\n          \"mimeType\": \"application/pdf\",\n          \"sizeBytes\": 1048576,\n          \"createdAt\": \"2026-09-01T10:00:00.000Z\"\n        }\n      ]\n    }\n  },\n  \"timestamp\": \"2026-09-02T12:00:00.000Z\"\n}"
+                  "body": "{\n  \"statusCode\": 200,\n  \"message\": \"Profile retrieved successfully\",\n  \"data\": {\n    \"userId\": \"00000000-0000-0000-0000-000000000001\",\n    \"fullName\": \"John Doe\",\n    \"dateOfBirth\": \"1998-05-15T00:00:00.000Z\",\n    \"nationality\": \"US\",\n    \"educationLevel\": \"Bachelor\",\n    \"currentCountry\": \"United States\",\n    \"currentCity\": \"San Francisco\",\n    \"phone\": \"+1-555-0199\",\n    \"experienceLevel\": \"Mid-Level\",\n    \"hasFinancialNeed\": false,\n    \"careerGoals\": \"Aspiring AI Engineer looking for master scholarship opportunities.\",\n    \"profilePhotoUrl\": \"https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80\",\n    \"completionPct\": 85,\n    \"coreFieldsComplete\": true,\n    \"lastCompletedStep\": 3,\n    \"gpaNormalized4\": 3.85,\n    \"isDraft\": false,\n    \"educations\": [\n      {\n        \"id\": \"00000000-0000-0000-0000-000000000002\",\n        \"userId\": \"00000000-0000-0000-0000-000000000001\",\n        \"degree\": \"Bachelor of Science\",\n        \"institution\": \"Stanford University\",\n        \"gpaRaw\": 3.85,\n        \"gpaRawScale\": 4,\n        \"gpaNormalized4\": 3.85,\n        \"graduationYear\": 2020\n      }\n    ],\n    \"skills\": [\n      {\n        \"skillId\": \"00000000-0000-0000-0000-000000000003\",\n        \"name\": \"TypeScript\",\n        \"proficiency\": 4\n      }\n    ],\n    \"languages\": [\n      {\n        \"languageId\": \"00000000-0000-0000-0000-000000000004\",\n        \"name\": \"English\",\n        \"proficiency\": \"Native\"\n      }\n    ],\n    \"documents\": [\n      {\n        \"id\": \"00000000-0000-0000-0000-000000000005\",\n        \"userId\": \"00000000-0000-0000-0000-000000000001\",\n        \"docType\": \"resume\",\n        \"displayName\": \"John_Doe_Resume.pdf\",\n        \"mimeType\": \"application/pdf\",\n        \"sizeBytes\": 1048576,\n        \"createdAt\": \"2026-09-01T10:00:00.000Z\"\n      }\n    ],\n    \"createdAt\": \"2026-08-28T19:00:00.000Z\",\n    \"updatedAt\": \"2026-09-02T12:00:00.000Z\"\n  },\n  \"timestamp\": \"2026-09-02T12:00:00.000Z\"\n}"
                 }
               ]
             },
@@ -1038,16 +897,12 @@
                 ],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"fullName\": \"John Doe\",\n  \"dateOfBirth\": \"1998-05-15\",\n  \"nationality\": \"US\",\n  \"educationLevel\": \"Bachelor\",\n  \"fieldOfStudy\": [\n    \"Computer Science\",\n    \"Artificial Intelligence\"\n  ],\n  \"currentCountry\": \"United States\",\n  \"currentCity\": \"San Francisco\",\n  \"phone\": \"+1-555-0199\",\n  \"experienceLevel\": \"Mid-Level\",\n  \"hasFinancialNeed\": false,\n  \"careerGoals\": \"Aspiring AI Engineer looking for master scholarship and research opportunities.\",\n  \"profilePhotoUrl\": \"https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80\",\n  \"gpaValue\": \"3.85\",\n  \"gpaScale\": \"4.0\",\n  \"skills\": [\n    {\n      \"skillId\": \"f0a1b2c3-d4e5-6f7a-8b9c-0d1e2f3a4b5c\",\n      \"proficiency\": 5\n    }\n  ],\n  \"languages\": [\n    {\n      \"languageId\": \"en-us\",\n      \"proficiency\": \"Native\"\n    }\n  ]\n}"
+                  "raw": "{\n  \"fullName\": \"John Doe\",\n  \"dateOfBirth\": \"1998-05-15\",\n  \"nationality\": \"US\",\n  \"educationLevel\": \"Bachelor\",\n  \"currentCountry\": \"United States\",\n  \"currentCity\": \"San Francisco\",\n  \"phone\": \"+1-555-0199\",\n  \"experienceLevel\": \"Mid-Level\",\n  \"hasFinancialNeed\": false,\n  \"careerGoals\": \"Aspiring AI Engineer looking for master scholarship and research opportunities.\",\n  \"profilePhotoUrl\": \"https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80\",\n  \"gpaValue\": \"3.85\",\n  \"gpaScale\": \"4.0\"\n}"
                 },
                 "url": {
                   "raw": "{{baseUrl}}/profile",
-                  "host": [
-                    "{{baseUrl}}"
-                  ],
-                  "path": [
-                    "profile"
-                  ]
+                  "host": ["{{baseUrl}}"],
+                  "path": ["profile"]
                 },
                 "description": "Updates profile fields with ready-to-use payload for the front-end team. Automatically recalculates profile completion percentage and core field statuses."
               },
@@ -1072,12 +927,8 @@
                     },
                     "url": {
                       "raw": "{{baseUrl}}/profile",
-                      "host": [
-                        "{{baseUrl}}"
-                      ],
-                      "path": [
-                        "profile"
-                      ]
+                      "host": ["{{baseUrl}}"],
+                      "path": ["profile"]
                     }
                   },
                   "status": "OK",
@@ -1110,7 +961,7 @@
                       "if (pm.response.code === 201) {",
                       "    var jsonData = pm.response.json();",
                       "    if (jsonData.data && jsonData.data.id) {",
-                      "        pm.collectionVariables.set(documentId, jsonData.data.id);",
+                      "        pm.collectionVariables.set(\"documentId\", jsonData.data.id);",
                       "    }",
                       "}",
                       "pm.test(\"Status code is 201\", function () {",
@@ -1153,13 +1004,8 @@
                 },
                 "url": {
                   "raw": "{{baseUrl}}/profile/documents",
-                  "host": [
-                    "{{baseUrl}}"
-                  ],
-                  "path": [
-                    "profile",
-                    "documents"
-                  ]
+                  "host": ["{{baseUrl}}"],
+                  "path": ["profile", "documents"]
                 },
                 "description": "Uploads a user document (encrypted at rest with AES-256). Supported document types: resume, essay, transcript, recommendation_letter, other."
               },
@@ -1176,13 +1022,8 @@
                     ],
                     "url": {
                       "raw": "{{baseUrl}}/profile/documents",
-                      "host": [
-                        "{{baseUrl}}"
-                      ],
-                      "path": [
-                        "profile",
-                        "documents"
-                      ]
+                      "host": ["{{baseUrl}}"],
+                      "path": ["profile", "documents"]
                     }
                   },
                   "status": "Created",
@@ -1233,13 +1074,8 @@
                 "header": [],
                 "url": {
                   "raw": "{{baseUrl}}/profile/documents",
-                  "host": [
-                    "{{baseUrl}}"
-                  ],
-                  "path": [
-                    "profile",
-                    "documents"
-                  ]
+                  "host": ["{{baseUrl}}"],
+                  "path": ["profile", "documents"]
                 },
                 "description": "Retrieves all active uploaded documents for the user profile."
               },
@@ -1256,13 +1092,8 @@
                     ],
                     "url": {
                       "raw": "{{baseUrl}}/profile/documents",
-                      "host": [
-                        "{{baseUrl}}"
-                      ],
-                      "path": [
-                        "profile",
-                        "documents"
-                      ]
+                      "host": ["{{baseUrl}}"],
+                      "path": ["profile", "documents"]
                     }
                   },
                   "status": "OK",
@@ -1314,15 +1145,8 @@
                 "header": [],
                 "url": {
                   "raw": "{{baseUrl}}/profile/documents/{{documentId}}/download",
-                  "host": [
-                    "{{baseUrl}}"
-                  ],
-                  "path": [
-                    "profile",
-                    "documents",
-                    "{{documentId}}",
-                    "download"
-                  ]
+                  "host": ["{{baseUrl}}"],
+                  "path": ["profile", "documents", "{{documentId}}", "download"]
                 },
                 "description": "Generates a secure temporary signed download URL for the requested document."
               },
@@ -1339,9 +1163,7 @@
                     ],
                     "url": {
                       "raw": "{{baseUrl}}/profile/documents/{{documentId}}/download",
-                      "host": [
-                        "{{baseUrl}}"
-                      ],
+                      "host": ["{{baseUrl}}"],
                       "path": [
                         "profile",
                         "documents",
@@ -1394,14 +1216,8 @@
                 "header": [],
                 "url": {
                   "raw": "{{baseUrl}}/profile/documents/{{documentId}}",
-                  "host": [
-                    "{{baseUrl}}"
-                  ],
-                  "path": [
-                    "profile",
-                    "documents",
-                    "{{documentId}}"
-                  ]
+                  "host": ["{{baseUrl}}"],
+                  "path": ["profile", "documents", "{{documentId}}"]
                 },
                 "description": "Permanently deletes a document from user storage."
               },
@@ -1418,14 +1234,8 @@
                     ],
                     "url": {
                       "raw": "{{baseUrl}}/profile/documents/{{documentId}}",
-                      "host": [
-                        "{{baseUrl}}"
-                      ],
-                      "path": [
-                        "profile",
-                        "documents",
-                        "{{documentId}}"
-                      ]
+                      "host": ["{{baseUrl}}"],
+                      "path": ["profile", "documents", "{{documentId}}"]
                     }
                   },
                   "status": "OK",
@@ -1441,6 +1251,255 @@
                   "body": "{\n  \"statusCode\": 200,\n  \"message\": \"Document deleted successfully\",\n  \"data\": null,\n  \"timestamp\": \"2026-09-02T12:00:00.000Z\"\n}"
                 }
               ]
+            }
+          ]
+        },
+        {
+          "name": "Skills",
+          "item": [
+            {
+              "name": "Get Skills",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{accessToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/profile/skills",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["profile", "skills"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Add Skill",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{accessToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/profile/skills",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["profile", "skills"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Delete Skill",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{accessToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/profile/skills/:skillId",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["profile", "skills", ":skillId"]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Languages",
+          "item": [
+            {
+              "name": "Get Languages",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{accessToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/profile/languages",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["profile", "languages"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Add Language",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{accessToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/profile/languages",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["profile", "languages"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Delete Language",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{accessToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/profile/languages/:languageId",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["profile", "languages", ":languageId"]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Fields of Study",
+          "item": [
+            {
+              "name": "Get Fields of Study",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{accessToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/profile/fields-of-study",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["profile", "fields-of-study"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Add Field of Study",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{accessToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/profile/fields-of-study",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["profile", "fields-of-study"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Delete Field of Study",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{accessToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/profile/fields-of-study/:fieldId",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["profile", "fields-of-study", ":fieldId"]
+                }
+              },
+              "response": []
             }
           ]
         },
@@ -1472,13 +1531,8 @@
                 "header": [],
                 "url": {
                   "raw": "{{baseUrl}}/reference/fields-of-study",
-                  "host": [
-                    "{{baseUrl}}"
-                  ],
-                  "path": [
-                    "reference",
-                    "fields-of-study"
-                  ]
+                  "host": ["{{baseUrl}}"],
+                  "path": ["reference", "fields-of-study"]
                 },
                 "description": "Returns list of active fields of study for academic profile dropdowns."
               },
@@ -1489,13 +1543,8 @@
                     "method": "GET",
                     "url": {
                       "raw": "{{baseUrl}}/reference/fields-of-study",
-                      "host": [
-                        "{{baseUrl}}"
-                      ],
-                      "path": [
-                        "reference",
-                        "fields-of-study"
-                      ]
+                      "host": ["{{baseUrl}}"],
+                      "path": ["reference", "fields-of-study"]
                     }
                   },
                   "status": "OK",
@@ -1536,13 +1585,8 @@
                 "header": [],
                 "url": {
                   "raw": "{{baseUrl}}/reference/skills-taxonomy",
-                  "host": [
-                    "{{baseUrl}}"
-                  ],
-                  "path": [
-                    "reference",
-                    "skills-taxonomy"
-                  ]
+                  "host": ["{{baseUrl}}"],
+                  "path": ["reference", "skills-taxonomy"]
                 },
                 "description": "Returns standardized skills taxonomy grouped by categories for multi-select tagging."
               },
@@ -1553,13 +1597,8 @@
                     "method": "GET",
                     "url": {
                       "raw": "{{baseUrl}}/reference/skills-taxonomy",
-                      "host": [
-                        "{{baseUrl}}"
-                      ],
-                      "path": [
-                        "reference",
-                        "skills-taxonomy"
-                      ]
+                      "host": ["{{baseUrl}}"],
+                      "path": ["reference", "skills-taxonomy"]
                     }
                   },
                   "status": "OK",
@@ -1575,6 +1614,19 @@
                   "body": "{\n  \"statusCode\": 200,\n  \"message\": \"Skills taxonomy retrieved successfully\",\n  \"data\": [\n    {\n      \"category\": \"Programming Languages\",\n      \"skills\": [\n        {\n          \"id\": \"s-ts\",\n          \"name\": \"TypeScript\"\n        },\n        {\n          \"id\": \"s-py\",\n          \"name\": \"Python\"\n        },\n        {\n          \"id\": \"s-go\",\n          \"name\": \"Go\"\n        }\n      ]\n    },\n    {\n      \"category\": \"AI & Machine Learning\",\n      \"skills\": [\n        {\n          \"id\": \"s-pt\",\n          \"name\": \"PyTorch\"\n        },\n        {\n          \"id\": \"s-tf\",\n          \"name\": \"TensorFlow\"\n        }\n      ]\n    }\n  ],\n  \"timestamp\": \"2026-09-02T12:00:00.000Z\"\n}"
                 }
               ]
+            },
+            {
+              "name": "Get Languages Reference",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/reference/languages",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["reference", "languages"]
+                }
+              },
+              "response": []
             }
           ]
         }
@@ -1591,12 +1643,8 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/health",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "health"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["health"]
             },
             "description": "Checks liveness of database and redis services."
           },
@@ -1609,13 +1657,8 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/health/ready",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "health",
-                "ready"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["health", "ready"]
             },
             "description": "Checks readiness of application services."
           },
