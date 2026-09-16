@@ -203,28 +203,6 @@ describe('ProfileService', () => {
       ).rejects.toThrow(BadRequestException);
     });
 
-    it('should clear GPA value if gpaScale provided without gpaValue', async () => {
-      mockPrisma.userProfiles.findUnique.mockResolvedValue({
-        userId: '1',
-        user: {
-          userEducations: [],
-          userSkills: [],
-          userLanguages: [],
-          documents: [],
-        },
-      });
-      mockPrisma.userEducations.findMany.mockResolvedValue([{ id: 'ed1' }]);
-      await service.updateProfile('1', { gpaScale: '4.0' });
-      expect(mockPrisma.userEducations.update).toHaveBeenCalledWith({
-        where: { id: 'ed1' },
-        data: {
-          gpaRaw: null,
-          gpaRawScale: 4.0,
-          gpaNormalized4: null,
-        },
-      });
-    });
-
     it('should throw BadRequestException if clearing required fields', async () => {
       mockPrisma.userProfiles.findUnique.mockResolvedValue({
         userId: '1',
@@ -313,33 +291,6 @@ describe('ProfileService', () => {
       });
       expect(mockPrisma.userLanguages.create).toHaveBeenCalledWith({
         data: { userId: '1', languageId: 'l1', proficiency: 'fluent' },
-      });
-    });
-
-    it('should update GPA correctly', async () => {
-      mockPrisma.userProfiles.findUnique.mockResolvedValue({
-        userId: '1',
-        user: {
-          userEducations: [],
-          userSkills: [],
-          userLanguages: [],
-          documents: [],
-        },
-      });
-      mockPrisma.userEducations.findMany.mockResolvedValue([{ id: 'ed1' }]);
-
-      await service.updateProfile('1', {
-        gpaValue: 3.5,
-        gpaScale: '4.0',
-      });
-
-      expect(mockPrisma.userEducations.update).toHaveBeenCalledWith({
-        where: { id: 'ed1' },
-        data: expect.objectContaining({
-          gpaRaw: 3.5,
-          gpaRawScale: 4.0,
-          gpaNormalized4: 3.5,
-        }),
       });
     });
   });

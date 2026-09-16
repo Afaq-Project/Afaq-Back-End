@@ -115,13 +115,4 @@ export class UpdateProfileDto {
   @ValidateNested({ each: true })
   @Type(() => LanguageDto)
   languages?: LanguageDto[];
-
-  @ApiPropertyOptional()
-  @IsOptional()
-  gpaValue?: number | string;
-
-  @ApiPropertyOptional()
-  @IsOptional()
-  @IsString()
-  gpaScale?: '4.0' | 'percentage' | 'letter';
 }

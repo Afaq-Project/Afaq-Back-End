@@ -1093,6 +1093,162 @@
                   "body": "{\n  \"statusCode\": 200,\n  \"message\": \"Profile updated successfully\",\n  \"data\": {\n    \"userId\": \"9dd10e8f-0f3c-4295-befb-6109efd2587f\",\n    \"completionPct\": 85,\n    \"coreFieldsComplete\": true,\n    \"updatedAt\": \"2026-09-02T12:00:00.000Z\"\n  },\n  \"timestamp\": \"2026-09-02T12:00:00.000Z\"\n}"
                 }
               ]
+            },
+            {
+              "name": "Get Educations",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{accessToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/profile/educations",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "profile",
+                    "educations"
+                  ]
+                },
+                "description": "Retrieves the current user's educations."
+              },
+              "response": []
+            },
+            {
+              "name": "Create Education",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{accessToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"degree\": \"BSc Computer Science\",\n  \"major\": \"Software Engineering\",\n  \"institution\": \"University of Technology\",\n  \"graduationYear\": 2024\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/profile/educations",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "profile",
+                    "educations"
+                  ]
+                },
+                "description": "Creates a new education entry."
+              },
+              "response": []
+            },
+            {
+              "name": "Update Education",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{accessToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"degree\": \"MSc Computer Science\",\n  \"major\": \"AI\",\n  \"institution\": \"University of Technology\",\n  \"graduationYear\": 2026,\n  \"gpaValue\": 3.8,\n  \"gpaScale\": 4\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/profile/educations/:id",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "profile",
+                    "educations",
+                    ":id"
+                  ],
+                  "variable": [
+                    {
+                      "key": "id",
+                      "value": "uuid-of-education"
+                    }
+                  ]
+                },
+                "description": "Updates an existing education entry."
+              },
+              "response": []
+            },
+            {
+              "name": "Delete Education",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{accessToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/profile/educations/:id",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "profile",
+                    "educations",
+                    ":id"
+                  ],
+                  "variable": [
+                    {
+                      "key": "id",
+                      "value": "uuid-of-education"
+                    }
+                  ]
+                },
+                "description": "Deletes an education entry."
+              },
+              "response": []
             }
           ]
         },

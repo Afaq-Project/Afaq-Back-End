@@ -170,6 +170,192 @@ describe('ProfileModule (e2e)', () => {
     });
   });
 
+  describe('Education Scenarios', () => {
+    let educationId: string;
+
+    it('should add educational data successfully', async () => {
+      // Ensure profile exists
+      await request(app.getHttpServer())
+        .get('/api/v1/profile')
+        .set('Authorization', `Bearer ${userToken}`);
+
+      const createDto = {
+        degree: 'Bachelor',
+        major: 'Computer Science',
+        institution: 'Tech University',
+        graduationYear: 2024,
+      };
+
+      const res = await request(app.getHttpServer())
+        .post('/api/v1/profile/educations')
+        .set('Authorization', `Bearer ${userToken}`)
+        .send(createDto)
+        .expect(201);
+
+      expect(res.body.data).toBeDefined();
+      expect(res.body.data.id).toBeDefined();
+      educationId = res.body.data.id;
+    });
+
+    it('should update education with GPA successfully', async () => {
+      const updateDto = {
+        gpaValue: 3.8,
+        gpaScale: '4.0',
+      };
+
+      const res = await request(app.getHttpServer())
+        .patch(`/api/v1/profile/educations/${educationId}`)
+        .set('Authorization', `Bearer ${userToken}`)
+        .send(updateDto)
+        .expect(200);
+
+      expect(res.body.data.gpaValue).toBe(3.8);
+      expect(res.body.data.gpaScale).toBe('4.0');
+    });
+
+    it('should fail cross-field validation if gpaValue is missing but gpaScale is provided', async () => {
+      const updateDto = {
+        gpaScale: 'percentage',
+      };
+
+      await request(app.getHttpServer())
+        .patch(`/api/v1/profile/educations/${educationId}`)
+        .set('Authorization', `Bearer ${userToken}`)
+        .send(updateDto)
+        .expect(400);
+    });
+
+    it('should fail cross-field validation if gpaScale is missing but gpaValue is provided', async () => {
+      const updateDto = {
+        gpaValue: 95,
+      };
+
+      await request(app.getHttpServer())
+        .patch(`/api/v1/profile/educations/${educationId}`)
+        .set('Authorization', `Bearer ${userToken}`)
+        .send(updateDto)
+        .expect(400);
+    });
+
+    it("should prevent updating another user's education (IDOR)", async () => {
+      await request(app.getHttpServer())
+        .patch(`/api/v1/profile/educations/${educationId}`)
+        .set('Authorization', `Bearer ${otherUserToken}`)
+        .send({ degree: 'Master' })
+        .expect(404);
+    });
+
+    it('should prevent deleting another users education (IDOR)', async () => {
+      await request(app.getHttpServer())
+        .delete(`/api/v1/profile/educations/${educationId}`)
+        .set('Authorization', `Bearer ${otherUserToken}`)
+        .expect(403);
+    });
+
+    it('should remove education successfully', async () => {
+      await request(app.getHttpServer())
+        .delete(`/api/v1/profile/educations/${educationId}`)
+        .set('Authorization', `Bearer ${userToken}`)
+        .expect(204);
+    });
+  });
+
+  describe('Education Security & Edge Cases', () => {
+    it('should reject SQL injection in payload fields', async () => {
+      const payload = {
+        degree: "Bachelor' OR '1'='1",
+        major: 'Computer Science',
+        institution: 'Tech University',
+        graduationYear: 2024,
+      };
+
+      const res = await request(app.getHttpServer())
+        .post('/api/v1/profile/educations')
+        .set('Authorization', `Bearer ${userToken}`)
+        .send(payload);
+
+      expect(res.status).not.toBe(500);
+    });
+
+    it('should handle XSS payload injections safely', async () => {
+      const payload = {
+        degree: '<script>alert(1)</script>',
+        major: 'Computer Science',
+        institution: 'Tech University',
+        graduationYear: 2024,
+      };
+
+      const res = await request(app.getHttpServer())
+        .post('/api/v1/profile/educations')
+        .set('Authorization', `Bearer ${userToken}`)
+        .send(payload);
+
+      expect(res.status).not.toBe(500);
+    });
+
+    it('should handle extremely large or negative values for gpaValue safely', async () => {
+      const payload = {
+        degree: 'Bachelor',
+        major: 'Computer Science',
+        institution: 'Tech University',
+        graduationYear: 2024,
+        gpaValue: 99999999999, // Extremely large
+        gpaScale: '100',
+      };
+
+      const res = await request(app.getHttpServer())
+        .post('/api/v1/profile/educations')
+        .set('Authorization', `Bearer ${userToken}`)
+        .send(payload);
+
+      expect(res.status).not.toBe(500);
+
+      const negativePayload = {
+        ...payload,
+        gpaValue: -5,
+      };
+
+      const resNeg = await request(app.getHttpServer())
+        .post('/api/v1/profile/educations')
+        .set('Authorization', `Bearer ${userToken}`)
+        .send(negativePayload);
+
+      expect(resNeg.status).not.toBe(500);
+    });
+
+    it('should return 400 or 404 for invalid UUID, not 500', async () => {
+      const invalidUuid = 'not-a-valid-uuid';
+
+      const patchRes = await request(app.getHttpServer())
+        .patch(`/api/v1/profile/educations/${invalidUuid}`)
+        .set('Authorization', `Bearer ${userToken}`)
+        .send({ degree: 'Master' });
+
+      expect([400, 404]).toContain(patchRes.status);
+
+      const delRes = await request(app.getHttpServer())
+        .delete(`/api/v1/profile/educations/${invalidUuid}`)
+        .set('Authorization', `Bearer ${userToken}`);
+
+      expect([400, 404]).toContain(delRes.status);
+    });
+
+    it('should return 400 for missing required fields in POST', async () => {
+      const payload = {
+        gpaValue: 3.5,
+        gpaScale: '4.0',
+      };
+
+      const res = await request(app.getHttpServer())
+        .post('/api/v1/profile/educations')
+        .set('Authorization', `Bearer ${userToken}`)
+        .send(payload)
+        .expect(400);
+
+      expect(res.body.message).toBeDefined();
+    });
+  });
+
   describe('Document Scenarios & Security Tests', () => {
     let docId: string;
 

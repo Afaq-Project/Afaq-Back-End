@@ -5,10 +5,6 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { UpdateProfileDto } from '../dto/update-profile.dto';
-import {
-  normalizeGPA,
-  validateGPARange,
-} from '../../../common/utils/gpa-normalizer';
 
 export interface ProfileWithRelations {
   educationLevel?: string | null;
@@ -23,6 +19,7 @@ export interface ProfileWithRelations {
   careerGoals?: string | null;
   profilePhotoUrl?: string | null;
   user?: {
+    userEducations?: unknown[];
     userSkills?: unknown[];
     userLanguages?: unknown[];
     documents?: unknown[];
@@ -289,7 +286,7 @@ export class ProfileService {
       throw new BadRequestException('Cannot clear required field fieldOfStudy');
     }
 
-    const { skills, languages, gpaValue, gpaScale, ...profileData } = data;
+    const { skills, languages, ...profileData } = data;
 
     // Build a merged in-memory view of the profile after applying updates,
     // so we can calculate completionPct / isDraft without an extra DB round-trip.
@@ -369,69 +366,6 @@ export class ProfileService {
                 userId,
                 languageId: lang.languageId,
                 proficiency: lang.proficiency,
-              },
-            });
-          }
-        }
-
-        if (gpaValue !== undefined && gpaScale) {
-          if (!validateGPARange(gpaValue, gpaScale)) {
-            throw new BadRequestException(
-              'Invalid GPA range for selected scale',
-            );
-          }
-          const normalized = normalizeGPA(gpaValue, gpaScale);
-          const educations = await prisma.userEducations.findMany({
-            where: { userId },
-          });
-          if (educations.length > 0) {
-            await prisma.userEducations.update({
-              where: { id: educations[0].id },
-              data: {
-                gpaRaw: typeof gpaValue === 'number' ? gpaValue : null,
-                gpaRawScale:
-                  gpaScale === '4.0'
-                    ? 4.0
-                    : gpaScale === 'percentage'
-                      ? 100
-                      : null,
-                gpaNormalized4: normalized,
-              },
-            });
-          } else {
-            await prisma.userEducations.create({
-              data: {
-                userId,
-                degree: 'Unknown',
-                major: 'Unknown',
-                institution: 'Unknown',
-                gpaRaw: typeof gpaValue === 'number' ? gpaValue : null,
-                gpaRawScale:
-                  gpaScale === '4.0'
-                    ? 4.0
-                    : gpaScale === 'percentage'
-                      ? 100
-                      : null,
-                gpaNormalized4: normalized,
-              },
-            });
-          }
-        } else if (gpaScale && gpaValue === undefined) {
-          const educations = await prisma.userEducations.findMany({
-            where: { userId },
-          });
-          if (educations.length > 0) {
-            await prisma.userEducations.update({
-              where: { id: educations[0].id },
-              data: {
-                gpaRaw: null,
-                gpaRawScale:
-                  gpaScale === '4.0'
-                    ? 4.0
-                    : gpaScale === 'percentage'
-                      ? 100
-                      : null,
-                gpaNormalized4: null,
               },
             });
           }
