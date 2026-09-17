@@ -1,8 +1,12 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { INestApplication } from '@nestjs/common';
+import { INestApplication, ValidationPipe } from '@nestjs/common';
 import * as request from 'supertest';
 import * as cookieParser from 'cookie-parser';
 import { AppModule } from './../src/app.module';
+import { Reflector } from '@nestjs/core';
+import { TransformInterceptor } from './../src/common/interceptors/transform.interceptor';
+import { TimeoutInterceptor } from './../src/common/interceptors/timeout.interceptor';
+import { AllExceptionsFilter } from './../src/common/filters/all-exceptions.filter';
 
 describe('AuthController (e2e)', () => {
   let app: INestApplication;
@@ -14,6 +18,16 @@ describe('AuthController (e2e)', () => {
 
     app = moduleFixture.createNestApplication();
     app.use(cookieParser());
+    app.setGlobalPrefix('api');
+    app.useGlobalPipes(
+      new ValidationPipe({ whitelist: true, transform: true }),
+    );
+    const reflector = app.get(Reflector);
+    app.useGlobalFilters(new AllExceptionsFilter());
+    app.useGlobalInterceptors(
+      new TransformInterceptor(reflector),
+      new TimeoutInterceptor(),
+    );
     await app.init();
   });
 
@@ -24,7 +38,7 @@ describe('AuthController (e2e)', () => {
   describe('/auth/refresh (POST)', () => {
     it('should deny request with missing Origin/Referer in production-like environments', async () => {
       const res = await request(app.getHttpServer())
-        .post('/auth/refresh')
+        .post('/api/auth/refresh')
         .send({ refreshToken: 'dummy-token' });
 
       // Note: In development mode, the guard allows the request and returns 401 Unauthorized instead of 403 Forbidden
@@ -37,7 +51,7 @@ describe('AuthController (e2e)', () => {
     it('should deny request with unallowed Origin', async () => {
       // By default the e2e test uses whatever is in .env, typically http://localhost:3000
       const res = await request(app.getHttpServer())
-        .post('/auth/refresh')
+        .post('/api/auth/refresh')
         .set('Origin', 'https://malicious-site.com')
         .send({ refreshToken: 'dummy-token' });
 
@@ -48,7 +62,7 @@ describe('AuthController (e2e)', () => {
     it('should allow request with valid Origin (and fail with 401 due to dummy token)', async () => {
       // .env.example typically allows http://localhost:3000
       const res = await request(app.getHttpServer())
-        .post('/auth/refresh')
+        .post('/api/auth/refresh')
         .set('Origin', 'http://localhost:3000')
         .send({ refreshToken: 'dummy-token' });
 
