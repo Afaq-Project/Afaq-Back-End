@@ -1,3 +1,4 @@
+import * as crypto from 'crypto';
 import { RedisService } from '../../redis/redis.service';
 import { formatUserResponse } from '../../common/utils/user-mapper.util';
 import { ProfileService } from '../profile/services/profile.service';
@@ -50,6 +51,48 @@ export interface UserWithRelations {
 
 @Injectable()
 export class AuthService {
+  private hashToken(token: string): string {
+    return crypto.createHash('sha256').update(token).digest('hex');
+  }
+
+  async storeRefreshToken(userId: string, token: string): Promise<void> {
+    const hash = this.hashToken(token);
+    const key = `rt:${userId}:${hash}`;
+    const setKey = `rt:user:${userId}`;
+    const pipeline = this.redisService.client.pipeline();
+    pipeline.set(key, '1', 'EX', 7 * 24 * 60 * 60); // 7 days
+    pipeline.sadd(setKey, hash);
+    pipeline.expire(setKey, 7 * 24 * 60 * 60);
+    await pipeline.exec();
+  }
+
+  async revokeRefreshToken(userId: string, token: string): Promise<void> {
+    const hash = this.hashToken(token);
+    const key = `rt:${userId}:${hash}`;
+    const setKey = `rt:user:${userId}`;
+    const pipeline = this.redisService.client.pipeline();
+    pipeline.del(key);
+    pipeline.srem(setKey, hash);
+    await pipeline.exec();
+  }
+
+  async isRefreshTokenActive(userId: string, token: string): Promise<boolean> {
+    const hash = this.hashToken(token);
+    const key = `rt:${userId}:${hash}`;
+    const exists = await this.redisService.client.exists(key);
+    return exists === 1;
+  }
+
+  async revokeAllUserRefreshTokens(userId: string): Promise<void> {
+    const setKey = `rt:user:${userId}`;
+    const hashes = await this.redisService.client.smembers(setKey);
+    const pipeline = this.redisService.client.pipeline();
+    for (const hash of hashes) {
+      pipeline.del(`rt:${userId}:${hash}`);
+    }
+    pipeline.del(setKey);
+    await pipeline.exec();
+  }
   constructor(
     @InjectPinoLogger(AuthService.name)
     private readonly logger: PinoLogger,
@@ -165,6 +208,7 @@ export class AuthService {
       updatedUser.email,
       role,
     );
+    await this.storeRefreshToken(updatedUser.id, tokens.refreshToken);
 
     const userOutput: UserResponseDto = {
       id: updatedUser.id,
@@ -204,39 +248,40 @@ export class AuthService {
         code: 'AUTH_REFRESH_TOKEN_REVOKED',
       });
     }
+
+    let payload: JwtPayload;
     try {
-      const payload = await this.jwt.verifyAsync<JwtPayload>(token);
-      const user = await this.usersService.findById(payload.sub);
-
-      if (!user || !user.isActive) {
-        throw new UnauthorizedException('Account is deactivated');
-      }
-
-      const role = await this.userRolesRepo.getCurrentRoleName(user.id);
-
-      const tokens = await this.generateTokens(user.id, user.email, role);
-
-      const ttl: number = (payload as { exp?: number }).exp
-        ? Number((payload as { exp?: number }).exp) -
-          Math.floor(Date.now() / 1000)
-        : 0;
-      if (ttl > 0) {
-        await this.redisService.client.set(`bl_${token}`, 'revoked', 'EX', ttl);
-      }
-
-      return {
-        accessToken: tokens.accessToken,
-        refreshToken: tokens.refreshToken,
-      };
-    } catch (err: unknown) {
-      if (err instanceof UnauthorizedException) {
-        throw err;
-      }
+      payload = await this.jwt.verifyAsync<JwtPayload>(token);
+    } catch {
       throw new UnauthorizedException({
-        message: 'Invalid or expired refresh token',
+        message: 'Refresh token invalid or expired',
         code: 'AUTH_REFRESH_TOKEN_INVALID',
       });
     }
+
+    const isActive = await this.isRefreshTokenActive(payload.sub, token);
+    if (!isActive) {
+      throw new UnauthorizedException({
+        message: 'Refresh token revoked',
+        code: 'AUTH_REFRESH_TOKEN_REVOKED',
+      });
+    }
+
+    const user = await this.usersService.findById(payload.sub);
+    if (!user || !user.isActive) {
+      throw new UnauthorizedException('Account is deactivated');
+    }
+
+    const role = await this.userRolesRepo.getCurrentRoleName(user.id);
+    const tokens = await this.generateTokens(user.id, user.email, role);
+
+    await this.revokeRefreshToken(user.id, token);
+    await this.storeRefreshToken(user.id, tokens.refreshToken);
+
+    return {
+      accessToken: tokens.accessToken,
+      refreshToken: tokens.refreshToken,
+    };
   }
 
   // Alias for backward compatibility

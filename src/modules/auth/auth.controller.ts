@@ -200,32 +200,16 @@ export class AuthController {
     if (token) {
       try {
         const decoded = this.jwtService.decode(token);
+        if (decoded && decoded.sub) {
+          await this.authService.revokeAllUserRefreshTokens(
+            String(decoded.sub),
+          );
+        }
         if (decoded && decoded.exp) {
           const ttl = decoded.exp - Math.floor(Date.now() / 1000);
           if (ttl > 0) {
             await this.redisService.client.set(
               `bl_${token}`,
-              'revoked',
-              'EX',
-              ttl,
-            );
-          }
-        }
-      } catch {
-        /* ignore */
-      }
-    }
-    const refreshToken: unknown =
-      req.body?.refreshToken ||
-      (req.cookies as Record<string, string>)?.[REFRESH_COOKIE];
-    if (typeof refreshToken === 'string' && refreshToken.length > 0) {
-      try {
-        const decoded = this.jwtService.decode(refreshToken);
-        if (decoded && decoded.exp) {
-          const ttl = decoded.exp - Math.floor(Date.now() / 1000);
-          if (ttl > 0) {
-            await this.redisService.client.set(
-              `bl_${refreshToken}`,
               'revoked',
               'EX',
               ttl,
