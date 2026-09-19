@@ -1,3 +1,4 @@
+import { formatUserResponse } from '../../common/utils/user-mapper.util';
 import {
   Controller,
   Get,
@@ -48,7 +49,9 @@ export class UsersController {
     type: UserDataResponse,
   })
   getProfile(@CurrentUser('id') userId: string) {
-    return this.usersService.getUserWithProfile(userId);
+    return this.usersService
+      .getUserWithProfile(userId)
+      .then(formatUserResponse);
   }
 
   @Post()

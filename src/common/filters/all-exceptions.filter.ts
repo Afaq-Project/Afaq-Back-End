@@ -28,7 +28,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
     const startTime = (request as Request & { startTime?: number }).startTime;
     const duration = startTime ? Date.now() - startTime : 0;
 
-    const status =
+    let status =
       exception instanceof HttpException
         ? exception.getStatus()
         : HttpStatus.INTERNAL_SERVER_ERROR;
@@ -40,6 +40,23 @@ export class AllExceptionsFilter implements ExceptionFilter {
     let errors: ApiErrorItem[] = [];
     let code: string =
       STATUS_TO_ERROR_CODE[status] ?? ErrorCode.SYSTEM_INTERNAL_ERROR;
+
+    if (
+      exception &&
+      typeof exception === 'object' &&
+      'code' in exception &&
+      exception.code === 'P2002'
+    ) {
+      const meta = (exception as Record<string, unknown>).meta as Record<
+        string,
+        unknown
+      >;
+      if (meta && Array.isArray(meta.target) && meta.target.includes('email')) {
+        status = HttpStatus.CONFLICT;
+        code = ErrorCode.USER_EMAIL_DUPLICATE;
+        message = 'This email is already registered';
+      }
+    }
 
     if (typeof exceptionResponse === 'string') {
       message = exceptionResponse;

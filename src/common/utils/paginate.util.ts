@@ -7,7 +7,7 @@ export function buildMeta(total: number, page: number, limit: number) {
       total,
       totalPages,
       hasNext: page < totalPages,
-      hasPrev: page > 1,
+      hasPrev: page > 1 && page <= totalPages + 1,
     },
   };
 }

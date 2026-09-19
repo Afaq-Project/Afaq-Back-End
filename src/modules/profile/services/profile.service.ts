@@ -8,6 +8,7 @@ import { Prisma } from '@prisma/client';
 import { UpdateProfileDto } from '../dto/update-profile.dto';
 
 export interface ProfileWithRelations {
+  fullName?: string | null;
   educationLevelId?: string | null;
   fieldOfStudy?: string[] | null;
   nationality?: string | null;
@@ -80,25 +81,59 @@ export class ProfileService {
     return profile;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private hasValidFieldOfStudy(fos: any): boolean {
+    if (!fos) {
+      return false;
+    }
+    if (Array.isArray(fos)) {
+      return fos.length > 0;
+    }
+    if (typeof fos === 'string') {
+      try {
+        const parsed = JSON.parse(fos);
+        if (Array.isArray(parsed)) {
+          return parsed.length > 0;
+        }
+      } catch {
+        /* ignore */
+      }
+      return fos.trim().length > 0;
+    }
+    if (typeof fos === 'object') {
+      return Object.keys(fos as Record<string, unknown>).length > 0;
+    }
+    return false;
+  }
+
   isCoreFieldsComplete(profile: ProfileWithRelations): boolean {
-    return !!(
-      profile.educationLevelId?.trim() &&
-      Array.isArray(profile.fieldOfStudy) &&
-      profile.fieldOfStudy.length > 0 &&
-      profile.nationality?.trim()
-    );
+    const hasEdu =
+      typeof profile.educationLevelId === 'string' &&
+      profile.educationLevelId.trim().length > 0;
+    const hasNat =
+      typeof profile.nationality === 'string' &&
+      profile.nationality.trim().length > 0;
+    const hasFos = this.hasValidFieldOfStudy(profile.fieldOfStudy);
+    return hasEdu && hasFos && hasNat;
   }
 
   calculateCompletionPct(profile: ProfileWithRelations): number {
     let pct = 0;
+
+    // Core fields (40%)
     if (profile.educationLevelId) {
       pct += 15;
     }
-    if (profile.fieldOfStudy && profile.fieldOfStudy.length > 0) {
+    if (this.hasValidFieldOfStudy(profile.fieldOfStudy)) {
       pct += 15;
     }
     if (profile.nationality) {
-      pct += 15;
+      pct += 10;
+    }
+
+    // Additional fields (60% total -> 12 fields * 5%)
+    if (profile.fullName && profile.fullName.trim().length > 0) {
+      pct += 5;
     }
     if (profile.dateOfBirth) {
       pct += 5;
@@ -125,27 +160,28 @@ export class ProfileService {
       pct += 5;
     }
     if (profile.user?.userSkills && profile.user.userSkills.length > 0) {
-      pct += 10;
+      pct += 5;
     }
     if (profile.user?.userLanguages && profile.user.userLanguages.length > 0) {
+      pct += 5;
+    }
+    if (profile.user?.documents && profile.user.documents.length > 0) {
       pct += 5;
     }
     if (profile.profilePhotoUrl) {
       pct += 5;
     }
-    return pct;
+
+    return pct > 100 ? 100 : pct;
   }
 
   calculateLastCompletedStep(profile: ProfileWithRelations): number {
     let step = 0;
 
+    const hasFos = this.hasValidFieldOfStudy(profile.fieldOfStudy);
+
     // Step 1: Education
-    if (
-      profile.educationLevelId &&
-      profile.fieldOfStudy &&
-      profile.fieldOfStudy.length > 0 &&
-      profile.nationality
-    ) {
+    if (profile.educationLevelId && hasFos && profile.nationality) {
       step = 1;
     } else if (profile.educationLevelId && profile.nationality) {
       return 1; // Partial step 1
@@ -188,7 +224,16 @@ export class ProfileService {
   async getProfileWithDetails(userId: string) {
     const profile = await this.getProfile(userId);
 
-    const educations = profile.user.userEducations;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const educations = profile.user.userEducations.map((edu: any) => ({
+      ...edu,
+      gpaRawScale:
+        edu.gpaRawScale !== null && edu.gpaRawScale !== undefined
+          ? Number.isInteger(Number(edu.gpaRawScale))
+            ? Number(edu.gpaRawScale).toFixed(1)
+            : String(edu.gpaRawScale)
+          : null,
+    }));
     const skills = profile.user.userSkills.map(
       (us: {
         skillId: string;
@@ -288,7 +333,9 @@ export class ProfileService {
     }
 
     const { educationLevelId, ...restData } = data;
-    const profileData: Prisma.UserProfilesUncheckedUpdateInput = { ...restData };
+    const profileData: Prisma.UserProfilesUncheckedUpdateInput = {
+      ...restData,
+    };
     if (educationLevelId !== undefined) {
       profileData.educationLevelId = educationLevelId;
     }

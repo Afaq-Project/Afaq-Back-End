@@ -1,3 +1,4 @@
+import { ExtractJwt } from 'passport-jwt';
 import {
   Controller,
   Post,
@@ -11,6 +12,7 @@ import {
   UnauthorizedException,
   UseGuards,
 } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
 import { Throttle } from '@nestjs/throttler';
 import {
   ApiTags,
@@ -20,6 +22,7 @@ import {
   ApiParam,
 } from '@nestjs/swagger';
 import { ConfigService } from '@nestjs/config';
+import { RedisService } from '../../redis/redis.service';
 import { Request, Response } from 'express';
 import { AuthService, AuthTokens } from './auth.service';
 import {
@@ -59,6 +62,8 @@ export class AuthController {
     private readonly authService: AuthService,
     private readonly oauthProcessorService: OAuthProcessorService,
     private readonly config: ConfigService,
+    private readonly redisService: RedisService,
+    private readonly jwtService: JwtService,
   ) {}
 
   private setTokenCookies(res: Response, tokens: AuthTokens) {
@@ -187,7 +192,29 @@ export class AuthController {
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Logout (clear cookies)' })
   @ApiResponse({ status: 204, description: 'Logged out' })
-  logout(@Res({ passthrough: true }) res: Response): void {
+  async logout(
+    @Req() req: Request,
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<void> {
+    const token = ExtractJwt.fromAuthHeaderAsBearerToken()(req);
+    if (token) {
+      try {
+        const decoded = this.jwtService.decode(token);
+        if (decoded && decoded.exp) {
+          const ttl = decoded.exp - Math.floor(Date.now() / 1000);
+          if (ttl > 0) {
+            await this.redisService.client.set(
+              `bl_${token}`,
+              'revoked',
+              'EX',
+              ttl,
+            );
+          }
+        }
+      } catch {
+        /* ignore */
+      }
+    }
     this.clearTokenCookies(res);
   }
 

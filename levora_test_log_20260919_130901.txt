@@ -1,0 +1,2560 @@
+═══════════════════════════════════════════════════════════════
+  Levora API - Test Report
+  Date   : 2026-09-19 13:09:01
+  BaseURL: http://localhost:3000/api/v1
+  Email A: levora_test_1789812541@example.com
+  Email B: levora_test_b_1789812541@example.com
+═══════════════════════════════════════════════════════════════
+
+
+───────────────────────────────────────────────────────────────
+  1) AUTH - Register (User A)
+───────────────────────────────────────────────────────────────
+
+▶ REQUEST #1
+  Method     : POST
+  URL        : http://localhost:3000/api/v1/auth/register
+  Description: تسجيل المستخدم A
+  Body       : {"email":"levora_test_1789812541@example.com","password":"P@ssw0rd123!","firstName":"John","lastName":"Doe"}
+  Expected   : HTTP 201
+
+◀ RESPONSE
+  Status Code: 201
+  Body (JSON):
+    {
+      "statusCode": 201,
+      "message": "Created successfully",
+      "data": {
+        "id": "655c1931-a0c1-4f06-9951-f209f4b57c0b",
+        "email": "levora_test_1789812541@example.com",
+        "firstName": "John",
+        "lastName": "Doe",
+        "isEmailVerified": false,
+        "isActive": true,
+        "lastLoginAt": null,
+        "createdAt": "2026-09-19T10:09:02.372Z",
+        "userProfile": {
+          "fullName": "John Doe",
+          "completionPct": 0,
+          "isDraft": true
+        },
+        "roles": [
+          "user"
+        ]
+      },
+      "meta": {
+        "requestId": "380a13c9-6ac9-45de-9d8e-c8947429624a"
+      },
+      "timestamp": "2026-09-19T10:09:02+00:00"
+    }
+
+  ✅ PASS
+
+  → userId A = 655c1931-a0c1-4f06-9951-f209f4b57c0b
+
+───────────────────────────────────────────────────────────────
+  2) AUTH - Login (User A)
+───────────────────────────────────────────────────────────────
+
+▶ REQUEST #2
+  Method     : POST
+  URL        : http://localhost:3000/api/v1/auth/login
+  Description: تسجيل دخول A
+  Body       : {"email":"levora_test_1789812541@example.com","password":"P@ssw0rd123!"}
+  Expected   : HTTP 200
+
+◀ RESPONSE
+  Status Code: 200
+  Body (JSON):
+    {
+      "statusCode": 200,
+      "message": "OK",
+      "data": {
+        "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2NTVjMTkzMS1hMGMxLTRmMDYtOTk1MS1mMjA5ZjRiNTdjMGIiLCJlbWFpbCI6Imxldm9yYV90ZXN0XzE3ODk4MTI1NDFAZXhhbXBsZS5jb20iLCJyb2xlIjoidXNlciIsImlhdCI6MTc4OTgxMjU0MywiZXhwIjoxNzg5ODEzNDQzfQ.koOjAX2pdPjkAj6gytk2kNY2tBh9gCZNaiFbbhOgNuo",
+        "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2NTVjMTkzMS1hMGMxLTRmMDYtOTk1MS1mMjA5ZjRiNTdjMGIiLCJlbWFpbCI6Imxldm9yYV90ZXN0XzE3ODk4MTI1NDFAZXhhbXBsZS5jb20iLCJyb2xlIjoidXNlciIsImlhdCI6MTc4OTgxMjU0MywiZXhwIjoxNzkwNDE3MzQzfQ.oSEqZ_vvM_7cCYXinRCcXho5SkpbK0K76sUi--3Rw5w",
+        "user": {
+          "id": "655c1931-a0c1-4f06-9951-f209f4b57c0b",
+          "email": "levora_test_1789812541@example.com",
+          "firstName": "John",
+          "lastName": "Doe",
+          "isEmailVerified": false,
+          "isActive": true,
+          "lastLoginAt": "2026-09-19T10:09:03.426Z",
+          "createdAt": "2026-09-19T10:09:02.372Z",
+          "userProfile": {
+            "fullName": "John Doe",
+            "completionPct": 0,
+            "isDraft": true
+          },
+          "roles": [
+            "user"
+          ]
+        }
+      },
+      "meta": {
+        "requestId": "cd2fcb59-9ab1-4592-82ed-d56ea4dfbf06"
+      },
+      "timestamp": "2026-09-19T10:09:03+00:00"
+    }
+
+  ✅ PASS
+
+  → accessToken  = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ...
+  → refreshToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ...
+
+───────────────────────────────────────────────────────────────
+  3) AUTH - Me
+───────────────────────────────────────────────────────────────
+
+▶ REQUEST #3
+  Method     : GET
+  URL        : http://localhost:3000/api/v1/auth/me
+  Description: الملف الشخصي الحالي
+  Auth       : Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6Ik...
+  Expected   : HTTP 200
+
+◀ RESPONSE
+  Status Code: 200
+  Body (JSON):
+    {
+      "statusCode": 200,
+      "message": "OK",
+      "data": {
+        "id": "655c1931-a0c1-4f06-9951-f209f4b57c0b",
+        "email": "levora_test_1789812541@example.com",
+        "firstName": "John",
+        "lastName": "Doe",
+        "isEmailVerified": false,
+        "isActive": true,
+        "lastLoginAt": "2026-09-19T10:09:03.426Z",
+        "createdAt": "2026-09-19T10:09:02.372Z",
+        "userProfile": {
+          "fullName": "John Doe",
+          "completionPct": 0,
+          "isDraft": true
+        },
+        "roles": [
+          "user"
+        ]
+      },
+      "meta": {
+        "requestId": "d965ad91-03b5-46fd-acf3-ca8f3794607b"
+      },
+      "timestamp": "2026-09-19T10:09:03+00:00"
+    }
+
+  ✅ PASS
+
+
+───────────────────────────────────────────────────────────────
+  4) USERS - Get Own Profile
+───────────────────────────────────────────────────────────────
+
+▶ REQUEST #4
+  Method     : GET
+  URL        : http://localhost:3000/api/v1/users/profile
+  Description: بروفايل المستخدم الحالي
+  Auth       : Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6Ik...
+  Expected   : HTTP 200
+
+◀ RESPONSE
+  Status Code: 200
+  Body (JSON):
+    {
+      "statusCode": 200,
+      "message": "Profile retrieved successfully",
+      "data": {
+        "id": "655c1931-a0c1-4f06-9951-f209f4b57c0b",
+        "email": "levora_test_1789812541@example.com",
+        "firstName": "John",
+        "lastName": "Doe",
+        "isActive": true,
+        "isEmailVerified": false,
+        "roles": [
+          "user"
+        ],
+        "lastLoginAt": "2026-09-19T10:09:03.426Z",
+        "userProfile": {
+          "fullName": "John Doe",
+          "completionPct": 0,
+          "isDraft": true,
+          "educations": [],
+          "skills": [],
+          "languages": [],
+          "documents": []
+        }
+      },
+      "meta": {
+        "requestId": "86266630-0fa0-43be-91b4-986f53aae8f9"
+      },
+      "timestamp": "2026-09-19T10:09:04+00:00"
+    }
+
+  ✅ PASS
+
+
+───────────────────────────────────────────────────────────────
+  5) PROFILE - Get User Profile
+───────────────────────────────────────────────────────────────
+
+▶ REQUEST #5
+  Method     : GET
+  URL        : http://localhost:3000/api/v1/profile
+  Description: استرجاع البروفايل
+  Auth       : Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6Ik...
+  Expected   : HTTP 200
+
+◀ RESPONSE
+  Status Code: 200
+  Body (JSON):
+    {
+      "statusCode": 200,
+      "message": "OK",
+      "data": {
+        "userId": "655c1931-a0c1-4f06-9951-f209f4b57c0b",
+        "fullName": "John Doe",
+        "dateOfBirth": null,
+        "nationality": null,
+        "educationLevel": null,
+        "fieldOfStudy": [],
+        "currentCountry": null,
+        "currentCity": null,
+        "phone": null,
+        "experienceLevel": null,
+        "hasFinancialNeed": null,
+        "careerGoals": null,
+        "profilePhotoUrl": null,
+        "completionPct": 5,
+        "coreFieldsComplete": false,
+        "lastCompletedStep": 0,
+        "gpaNormalized4": null,
+        "isDraft": true,
+        "educations": [],
+        "skills": [],
+        "languages": [],
+        "documents": [],
+        "createdAt": "2026-09-19T10:09:02.372Z",
+        "updatedAt": "2026-09-19T10:09:02.372Z"
+      },
+      "meta": {
+        "requestId": "9bbea509-1625-4143-b128-684571b52519"
+      },
+      "timestamp": "2026-09-19T10:09:05+00:00"
+    }
+
+  ✅ PASS
+
+
+───────────────────────────────────────────────────────────────
+  6) PROFILE - Update
+───────────────────────────────────────────────────────────────
+
+▶ REQUEST #6
+  Method     : PATCH
+  URL        : http://localhost:3000/api/v1/profile
+  Description: تحديث البروفايل
+  Auth       : Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6Ik...
+  Body       : {"fullName":"Jane Doe","experienceLevel":"Mid","hasFinancialNeed":false}
+  Expected   : HTTP 200
+
+◀ RESPONSE
+  Status Code: 200
+  Body (JSON):
+    {
+      "statusCode": 200,
+      "message": "Updated successfully",
+      "data": {
+        "userId": "655c1931-a0c1-4f06-9951-f209f4b57c0b",
+        "completionPct": 15,
+        "coreFieldsComplete": false,
+        "updatedAt": "2026-09-19T10:09:06.055Z"
+      },
+      "meta": {
+        "requestId": "15d3fee2-0851-4495-8bea-0558a6787c36"
+      },
+      "timestamp": "2026-09-19T10:09:06+00:00"
+    }
+
+  ✅ PASS
+
+
+───────────────────────────────────────────────────────────────
+  6.b) PROFILE - Verify Update
+───────────────────────────────────────────────────────────────
+
+▶ REQUEST #7
+  Method     : GET
+  URL        : http://localhost:3000/api/v1/profile
+  Description: التحقق من التحديث
+  Auth       : Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6Ik...
+  Expected   : HTTP 200
+
+◀ RESPONSE
+  Status Code: 200
+  Body (JSON):
+    {
+      "statusCode": 200,
+      "message": "OK",
+      "data": {
+        "userId": "655c1931-a0c1-4f06-9951-f209f4b57c0b",
+        "fullName": "Jane Doe",
+        "dateOfBirth": null,
+        "nationality": null,
+        "educationLevel": null,
+        "fieldOfStudy": [],
+        "currentCountry": null,
+        "currentCity": null,
+        "phone": null,
+        "experienceLevel": "Mid",
+        "hasFinancialNeed": false,
+        "careerGoals": null,
+        "profilePhotoUrl": null,
+        "completionPct": 15,
+        "coreFieldsComplete": false,
+        "lastCompletedStep": 0,
+        "gpaNormalized4": null,
+        "isDraft": true,
+        "educations": [],
+        "skills": [],
+        "languages": [],
+        "documents": [],
+        "createdAt": "2026-09-19T10:09:02.372Z",
+        "updatedAt": "2026-09-19T10:09:06.055Z"
+      },
+      "meta": {
+        "requestId": "d64a3eea-c436-4c88-a3e8-3ed40f2d9519"
+      },
+      "timestamp": "2026-09-19T10:09:06+00:00"
+    }
+
+  ✅ PASS
+
+  → fullName بعد التحديث: Jane Doe
+  ✅ التحديث تم بنجاح
+
+───────────────────────────────────────────────────────────────
+  7) PROFILE / EDUCATIONS - Full CRUD
+───────────────────────────────────────────────────────────────
+
+▶ REQUEST #8
+  Method     : GET
+  URL        : http://localhost:3000/api/v1/profile/educations
+  Description: قائمة التعليمات (فارغة)
+  Auth       : Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6Ik...
+  Expected   : HTTP 200
+
+◀ RESPONSE
+  Status Code: 200
+  Body (JSON):
+    {
+      "statusCode": 200,
+      "message": "OK",
+      "data": [],
+      "meta": {
+        "pagination": {
+          "page": 1,
+          "limit": 20,
+          "total": 0,
+          "totalPages": 0,
+          "hasNext": false,
+          "hasPrev": false
+        },
+        "requestId": "60fe3e1b-5190-4f8b-b75f-ddf23bb7db55"
+      },
+      "timestamp": "2026-09-19T10:09:08+00:00"
+    }
+
+  ✅ PASS
+
+▶ REQUEST #9
+  Method     : POST
+  URL        : http://localhost:3000/api/v1/profile/educations
+  Description: إنشاء سجل تعليمي
+  Auth       : Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6Ik...
+  Body       : {"degree":"Bachelor of Science","major":"Computer Science","institution":"Technical University of Munich","graduationYear":2024}
+  Expected   : HTTP 201
+
+◀ RESPONSE
+  Status Code: 201
+  Body (JSON):
+    {
+      "statusCode": 201,
+      "message": "Created successfully",
+      "data": {
+        "id": "77248d83-1fe5-481c-94c1-e558099f2495",
+        "userId": "655c1931-a0c1-4f06-9951-f209f4b57c0b",
+        "degree": "Bachelor of Science",
+        "major": "Computer Science",
+        "institution": "Technical University of Munich",
+        "graduationYear": 2024,
+        "gpaRaw": null,
+        "gpaRawScale": null,
+        "gpaNormalized4": null,
+        "createdAt": "2026-09-19T10:09:08.802Z",
+        "updatedAt": "2026-09-19T10:09:08.802Z"
+      },
+      "meta": {
+        "requestId": "05392cf3-05f8-46db-827d-263f4a3c4a2e"
+      },
+      "timestamp": "2026-09-19T10:09:08+00:00"
+    }
+
+  ✅ PASS
+
+  → educationId = 77248d83-1fe5-481c-94c1-e558099f2495
+▶ REQUEST #10
+  Method     : GET
+  URL        : http://localhost:3000/api/v1/profile/educations
+  Description: قائمة التعليمات بعد الإضافة
+  Auth       : Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6Ik...
+  Expected   : HTTP 200
+
+◀ RESPONSE
+  Status Code: 200
+  Body (JSON):
+    {
+      "statusCode": 200,
+      "message": "OK",
+      "data": [
+        {
+          "id": "77248d83-1fe5-481c-94c1-e558099f2495",
+          "userId": "655c1931-a0c1-4f06-9951-f209f4b57c0b",
+          "degree": "Bachelor of Science",
+          "major": "Computer Science",
+          "institution": "Technical University of Munich",
+          "graduationYear": 2024,
+          "gpaRaw": null,
+          "gpaRawScale": null,
+          "gpaNormalized4": null,
+          "createdAt": "2026-09-19T10:09:08.802Z",
+          "updatedAt": "2026-09-19T10:09:08.802Z"
+        }
+      ],
+      "meta": {
+        "pagination": {
+          "page": 1,
+          "limit": 20,
+          "total": 1,
+          "totalPages": 1,
+          "hasNext": false,
+          "hasPrev": false
+        },
+        "requestId": "f2ed0388-7e8d-4f94-9d3c-b065d3d05f74"
+      },
+      "timestamp": "2026-09-19T10:09:09+00:00"
+    }
+
+  ✅ PASS
+
+▶ REQUEST #11
+  Method     : PATCH
+  URL        : http://localhost:3000/api/v1/profile/educations/77248d83-1fe5-481c-94c1-e558099f2495
+  Description: تحديث السجل التعليمي
+  Auth       : Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6Ik...
+  Body       : {"gpaValue":3.8,"gpaScale":"4.0"}
+  Expected   : HTTP 200
+
+◀ RESPONSE
+  Status Code: 200
+  Body (JSON):
+    {
+      "statusCode": 200,
+      "message": "Updated successfully",
+      "data": {
+        "id": "77248d83-1fe5-481c-94c1-e558099f2495",
+        "userId": "655c1931-a0c1-4f06-9951-f209f4b57c0b",
+        "degree": "Bachelor of Science",
+        "major": "Computer Science",
+        "institution": "Technical University of Munich",
+        "graduationYear": 2024,
+        "gpaRaw": "3.8",
+        "gpaRawScale": "4.0",
+        "gpaNormalized4": "3.8",
+        "createdAt": "2026-09-19T10:09:08.802Z",
+        "updatedAt": "2026-09-19T10:09:09.830Z"
+      },
+      "meta": {
+        "requestId": "9b13884a-2b20-4d5d-9d3e-a952722d424a"
+      },
+      "timestamp": "2026-09-19T10:09:09+00:00"
+    }
+
+  ✅ PASS
+
+▶ REQUEST #12
+  Method     : GET
+  URL        : http://localhost:3000/api/v1/profile/educations
+  Description: التحقق من التحديث
+  Auth       : Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6Ik...
+  Expected   : HTTP 200
+
+◀ RESPONSE
+  Status Code: 200
+  Body (JSON):
+    {
+      "statusCode": 200,
+      "message": "OK",
+      "data": [
+        {
+          "id": "77248d83-1fe5-481c-94c1-e558099f2495",
+          "userId": "655c1931-a0c1-4f06-9951-f209f4b57c0b",
+          "degree": "Bachelor of Science",
+          "major": "Computer Science",
+          "institution": "Technical University of Munich",
+          "graduationYear": 2024,
+          "gpaRaw": "3.8",
+          "gpaRawScale": "4.0",
+          "gpaNormalized4": "3.8",
+          "createdAt": "2026-09-19T10:09:08.802Z",
+          "updatedAt": "2026-09-19T10:09:09.830Z"
+        }
+      ],
+      "meta": {
+        "pagination": {
+          "page": 1,
+          "limit": 20,
+          "total": 1,
+          "totalPages": 1,
+          "hasNext": false,
+          "hasPrev": false
+        },
+        "requestId": "f1c67e09-10fe-4819-af84-b57a478dc008"
+      },
+      "timestamp": "2026-09-19T10:09:10+00:00"
+    }
+
+  ✅ PASS
+
+▶ REQUEST #13
+  Method     : DELETE
+  URL        : http://localhost:3000/api/v1/profile/educations/77248d83-1fe5-481c-94c1-e558099f2495
+  Description: حذف السجل التعليمي
+  Auth       : Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6Ik...
+  Expected   : HTTP 200,204
+
+◀ RESPONSE
+  Status Code: 204
+  Body       : (no content)
+
+  ✅ PASS
+
+▶ REQUEST #14
+  Method     : GET
+  URL        : http://localhost:3000/api/v1/profile/educations
+  Description: التحقق من الحذف
+  Auth       : Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6Ik...
+  Expected   : HTTP 200
+
+◀ RESPONSE
+  Status Code: 200
+  Body (JSON):
+    {
+      "statusCode": 200,
+      "message": "OK",
+      "data": [],
+      "meta": {
+        "pagination": {
+          "page": 1,
+          "limit": 20,
+          "total": 0,
+          "totalPages": 0,
+          "hasNext": false,
+          "hasPrev": false
+        },
+        "requestId": "280e4d36-dbed-4276-909b-ebc07578d7ab"
+      },
+      "timestamp": "2026-09-19T10:09:11+00:00"
+    }
+
+  ✅ PASS
+
+
+  ⋯ Delete education twice (يجب 404)
+▶ REQUEST #15
+  Method     : DELETE
+  URL        : http://localhost:3000/api/v1/profile/educations/77248d83-1fe5-481c-94c1-e558099f2495
+  Description: حذف سجل محذوف
+  Auth       : Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6Ik...
+  Expected   : HTTP 404
+
+◀ RESPONSE
+  Status Code: 404
+  Body (JSON):
+    {
+      "success": false,
+      "status": 404,
+      "message": "Education record not found",
+      "data": null,
+      "meta": null,
+      "errors": [
+        {
+          "code": "SYSTEM_RESOURCE_NOT_FOUND",
+          "message": "Education record not found"
+        }
+      ],
+      "timestamp": "2026-09-19T10:09:11+00:00"
+    }
+
+  ✅ PASS
+
+
+───────────────────────────────────────────────────────────────
+  8) PROFILE / SKILLS - Full CRUD
+───────────────────────────────────────────────────────────────
+
+▶ REQUEST #16
+  Method     : GET
+  URL        : http://localhost:3000/api/v1/reference/skills-taxonomy
+  Description: جلب تصنيف المهارات
+  Expected   : HTTP 200
+
+◀ RESPONSE
+  Status Code: 200
+  Body (JSON):
+    {
+      "statusCode": 200,
+      "message": "Skills taxonomy retrieved successfully",
+      "data": [
+        {
+          "id": "9671c49d-369e-4165-8b12-17bdbf626107",
+          "name": "AutoCAD",
+          "category": "Engineering"
+        },
+        {
+          "id": "2d68baec-6489-410a-9337-b50074c12185",
+          "name": "AWS",
+          "category": "Tech"
+        },
+        {
+          "id": "7903df10-2a6e-4e78-879c-f70890a2118e",
+          "name": "Business Development",
+          "category": "Business"
+        },
+        {
+          "id": "f5368246-651d-40dd-929a-2b9ceeba87c8",
+          "name": "C++",
+          "category": "Tech"
+        },
+        {
+          "id": "ec1d6a79-9524-4850-8659-576deaadc26d",
+          "name": "Data Analysis",
+          "category": "Business"
+        },
+        {
+          "id": "c1f9d80e-2100-489b-aea3-958c3c923f4c",
+          "name": "Docker",
+          "category": "Tech"
+        },
+        {
+          "id": "dd8b8b38-9add-4a08-87c5-382e1cc8b27c",
+          "name": "Financial Modeling",
+          "category": "Business"
+        },
+        {
+          "id": "7645291c-49ee-413f-b2f3-5ac7a27dd82e",
+          "name": "Illustration",
+          "category": "Arts"
+        },
+        {
+          "id": "7820319b-9ae2-4cd3-84b7-b88b32c946b2",
+          "name": "Java",
+          "category": "Tech"
+        },
+        {
+          "id": "a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d",
+          "name": "JavaScript",
+          "category": "Tech"
+        },
+        {
+          "id": "dc66b865-8f0c-45b6-aff6-6743b08eccc0",
+          "name": "Kubernetes",
+          "category": "Tech"
+        },
+        {
+          "id": "7a3b5dcc-9281-4734-9e31-ac1993d552d5",
+          "name": "Marketing Strategy",
+          "category": "Business"
+        },
+        {
+          "id": "54d8da54-fa46-49a4-a281-074da497c928",
+          "name": "MATLAB",
+          "category": "Engineering"
+        },
+        {
+          "id": "4d40f401-e4f4-4f41-9954-068cd93df1f2",
+          "name": "Medical Research",
+          "category": "Healthcare"
+        },
+        {
+          "id": "3fe8deb8-dd8f-43b0-9692-d7f965494f09",
+          "name": "MongoDB",
+          "category": "Tech"
+        },
+        {
+          "id": "5fd3ac0c-1e41-4c32-95bd-04c5dc4e205a",
+          "name": "Node.js",
+          "category": "Tech"
+        },
+        {
+          "id": "28252c45-be36-4b64-b52b-470aed1c6ec3",
+          "name": "Patient Care",
+          "category": "Healthcare"
+        },
+        {
+          "id": "6076813c-c6f7-4562-a799-bfaeace3bb62",
+          "name": "Photography",
+          "category": "Arts"
+        },
+        {
+          "id": "9c1ecb5f-7bef-44f3-9167-3ce2389b140e",
+          "name": "PostgreSQL",
+          "category": "Tech"
+        },
+        {
+          "id": "c017837c-f396-42f4-b04d-6d0aeb778ae2",
+          "name": "Project Management",
+          "category": "Business"
+        }
+      ],
+      "meta": {
+        "pagination": {
+          "page": 1,
+          "limit": 20,
+          "total": 27,
+          "totalPages": 2,
+          "hasNext": true,
+          "hasPrev": false
+        },
+        "requestId": "53642c8b-dd7a-4810-a323-9831f1ea4015"
+      },
+      "timestamp": "2026-09-19T10:09:12+00:00"
+    }
+
+  ✅ PASS
+
+  → skillId = 9671c49d-369e-4165-8b12-17bdbf626107
+▶ REQUEST #17
+  Method     : GET
+  URL        : http://localhost:3000/api/v1/profile/skills
+  Description: قائمة المهارات (فارغة)
+  Auth       : Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6Ik...
+  Expected   : HTTP 200
+
+◀ RESPONSE
+  Status Code: 200
+  Body (JSON):
+    {
+      "statusCode": 200,
+      "message": "OK",
+      "data": [],
+      "meta": {
+        "pagination": {
+          "page": 1,
+          "limit": 20,
+          "total": 0,
+          "totalPages": 0,
+          "hasNext": false,
+          "hasPrev": false
+        },
+        "requestId": "9358a27d-bea1-4c65-89dd-ce954955f1e1"
+      },
+      "timestamp": "2026-09-19T10:09:13+00:00"
+    }
+
+  ✅ PASS
+
+▶ REQUEST #18
+  Method     : POST
+  URL        : http://localhost:3000/api/v1/profile/skills
+  Description: إضافة مهارة
+  Auth       : Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6Ik...
+  Body       : {"skillId":"9671c49d-369e-4165-8b12-17bdbf626107","proficiency":4}
+  Expected   : HTTP 201
+
+◀ RESPONSE
+  Status Code: 201
+  Body (JSON):
+    {
+      "statusCode": 201,
+      "message": "Created successfully",
+      "data": {
+        "userId": "655c1931-a0c1-4f06-9951-f209f4b57c0b",
+        "skillId": "9671c49d-369e-4165-8b12-17bdbf626107",
+        "proficiency": 4
+      },
+      "meta": {
+        "requestId": "99934d2f-0411-47a4-97ac-07da576a74cc"
+      },
+      "timestamp": "2026-09-19T10:09:15+00:00"
+    }
+
+  ✅ PASS
+
+  → skillRecordId = 9671c49d-369e-4165-8b12-17bdbf626107
+▶ REQUEST #19
+  Method     : GET
+  URL        : http://localhost:3000/api/v1/profile/skills
+  Description: قائمة المهارات بعد الإضافة
+  Auth       : Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6Ik...
+  Expected   : HTTP 200
+
+◀ RESPONSE
+  Status Code: 200
+  Body (JSON):
+    {
+      "statusCode": 200,
+      "message": "OK",
+      "data": [
+        {
+          "skillId": "9671c49d-369e-4165-8b12-17bdbf626107",
+          "name": "AutoCAD",
+          "proficiency": 4
+        }
+      ],
+      "meta": {
+        "pagination": {
+          "page": 1,
+          "limit": 20,
+          "total": 1,
+          "totalPages": 1,
+          "hasNext": false,
+          "hasPrev": false
+        },
+        "requestId": "1a3070a4-665b-47b8-81bb-4d4e8759a668"
+      },
+      "timestamp": "2026-09-19T10:09:15+00:00"
+    }
+
+  ✅ PASS
+
+▶ REQUEST #20
+  Method     : GET
+  URL        : http://localhost:3000/api/v1/profile/skills/9671c49d-369e-4165-8b12-17bdbf626107
+  Description: جلب مهارة بالـ ID
+  Auth       : Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6Ik...
+  Expected   : HTTP 200
+
+◀ RESPONSE
+  Status Code: 200
+  Body (JSON):
+    {
+      "statusCode": 200,
+      "message": "OK",
+      "data": {
+        "userId": "655c1931-a0c1-4f06-9951-f209f4b57c0b",
+        "skillId": "9671c49d-369e-4165-8b12-17bdbf626107",
+        "proficiency": 4,
+        "skill": {
+          "id": "9671c49d-369e-4165-8b12-17bdbf626107",
+          "name": "AutoCAD",
+          "category": "Engineering",
+          "isActive": true
+        }
+      },
+      "meta": {
+        "requestId": "72b65084-bd15-4047-a49e-9602009eb95b"
+      },
+      "timestamp": "2026-09-19T10:09:16+00:00"
+    }
+
+  ✅ PASS
+
+▶ REQUEST #21
+  Method     : PATCH
+  URL        : http://localhost:3000/api/v1/profile/skills/9671c49d-369e-4165-8b12-17bdbf626107
+  Description: تحديث المهارة
+  Auth       : Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6Ik...
+  Body       : {"proficiency":5}
+  Expected   : HTTP 200
+
+◀ RESPONSE
+  Status Code: 200
+  Body (JSON):
+    {
+      "statusCode": 200,
+      "message": "Updated successfully",
+      "data": {
+        "userId": "655c1931-a0c1-4f06-9951-f209f4b57c0b",
+        "skillId": "9671c49d-369e-4165-8b12-17bdbf626107",
+        "proficiency": 5
+      },
+      "meta": {
+        "requestId": "a0e7a158-ce32-4f7f-8f2c-7ce2adf13ae5"
+      },
+      "timestamp": "2026-09-19T10:09:16+00:00"
+    }
+
+  ✅ PASS
+
+▶ REQUEST #22
+  Method     : GET
+  URL        : http://localhost:3000/api/v1/profile/skills/9671c49d-369e-4165-8b12-17bdbf626107
+  Description: التحقق من التحديث
+  Auth       : Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6Ik...
+  Expected   : HTTP 200
+
+◀ RESPONSE
+  Status Code: 200
+  Body (JSON):
+    {
+      "statusCode": 200,
+      "message": "OK",
+      "data": {
+        "userId": "655c1931-a0c1-4f06-9951-f209f4b57c0b",
+        "skillId": "9671c49d-369e-4165-8b12-17bdbf626107",
+        "proficiency": 5,
+        "skill": {
+          "id": "9671c49d-369e-4165-8b12-17bdbf626107",
+          "name": "AutoCAD",
+          "category": "Engineering",
+          "isActive": true
+        }
+      },
+      "meta": {
+        "requestId": "d967bf48-b759-4c99-9360-b194f47bce1e"
+      },
+      "timestamp": "2026-09-19T10:09:17+00:00"
+    }
+
+  ✅ PASS
+
+▶ REQUEST #23
+  Method     : DELETE
+  URL        : http://localhost:3000/api/v1/profile/skills/9671c49d-369e-4165-8b12-17bdbf626107
+  Description: حذف المهارة
+  Auth       : Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6Ik...
+  Expected   : HTTP 200,204
+
+◀ RESPONSE
+  Status Code: 204
+  Body       : (no content)
+
+  ✅ PASS
+
+▶ REQUEST #24
+  Method     : GET
+  URL        : http://localhost:3000/api/v1/profile/skills
+  Description: التحقق من الحذف
+  Auth       : Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6Ik...
+  Expected   : HTTP 200
+
+◀ RESPONSE
+  Status Code: 200
+  Body (JSON):
+    {
+      "statusCode": 200,
+      "message": "OK",
+      "data": [],
+      "meta": {
+        "pagination": {
+          "page": 1,
+          "limit": 20,
+          "total": 0,
+          "totalPages": 0,
+          "hasNext": false,
+          "hasPrev": false
+        },
+        "requestId": "434d745b-3ac5-4481-b65a-9473826f7ca7"
+      },
+      "timestamp": "2026-09-19T10:09:18+00:00"
+    }
+
+  ✅ PASS
+
+
+───────────────────────────────────────────────────────────────
+  9) PROFILE / LANGUAGES - Full CRUD
+───────────────────────────────────────────────────────────────
+
+▶ REQUEST #25
+  Method     : GET
+  URL        : http://localhost:3000/api/v1/reference/languages
+  Description: جلب قائمة اللغات
+  Expected   : HTTP 200
+
+◀ RESPONSE
+  Status Code: 200
+  Body (JSON):
+    {
+      "statusCode": 200,
+      "message": "Languages retrieved successfully",
+      "data": [
+        {
+          "id": "0c47b6a4-ded1-4b44-8286-ad8f2e336018",
+          "name": "Arabic"
+        },
+        {
+          "id": "e71c18c3-566f-47db-8b43-039fad8f32fc",
+          "name": "Chinese"
+        },
+        {
+          "id": "b2c3d4e5-f6a7-8b9c-0d1e-2f3a4b5c6d7e",
+          "name": "English"
+        },
+        {
+          "id": "b1abe5a2-0059-48ee-b642-545f4da41c87",
+          "name": "French"
+        },
+        {
+          "id": "f4f28dc1-cbd3-4b08-a31b-37d1d0ce74c5",
+          "name": "German"
+        },
+        {
+          "id": "d20de72f-422b-45bc-a534-78411ae4f00c",
+          "name": "Italian"
+        },
+        {
+          "id": "34ce968b-3e69-4a32-bb36-4ba73d97be71",
+          "name": "Japanese"
+        },
+        {
+          "id": "75fd1d80-79b4-4ca3-b606-d8435962d1cf",
+          "name": "Portuguese"
+        },
+        {
+          "id": "afcb10d1-8dfd-4f0f-a4ea-1e199529965b",
+          "name": "Russian"
+        },
+        {
+          "id": "d1cd6a07-558a-43a9-a146-4c9c36194b8a",
+          "name": "Spanish"
+        }
+      ],
+      "meta": {
+        "pagination": {
+          "page": 1,
+          "limit": 20,
+          "total": 10,
+          "totalPages": 1,
+          "hasNext": false,
+          "hasPrev": false
+        },
+        "requestId": "b236657c-4499-4a41-a5f1-59e810f69032"
+      },
+      "timestamp": "2026-09-19T10:09:18+00:00"
+    }
+
+  ✅ PASS
+
+  → languageId = 0c47b6a4-ded1-4b44-8286-ad8f2e336018
+▶ REQUEST #26
+  Method     : GET
+  URL        : http://localhost:3000/api/v1/profile/languages
+  Description: قائمة اللغات (فارغة)
+  Auth       : Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6Ik...
+  Expected   : HTTP 200
+
+◀ RESPONSE
+  Status Code: 200
+  Body (JSON):
+    {
+      "statusCode": 200,
+      "message": "OK",
+      "data": [],
+      "meta": {
+        "pagination": {
+          "page": 1,
+          "limit": 20,
+          "total": 0,
+          "totalPages": 0,
+          "hasNext": false,
+          "hasPrev": false
+        },
+        "requestId": "398487c7-deb5-4b7f-b41f-639b6477000d"
+      },
+      "timestamp": "2026-09-19T10:09:19+00:00"
+    }
+
+  ✅ PASS
+
+▶ REQUEST #27
+  Method     : POST
+  URL        : http://localhost:3000/api/v1/profile/languages
+  Description: إضافة لغة
+  Auth       : Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6Ik...
+  Body       : {"languageId":"0c47b6a4-ded1-4b44-8286-ad8f2e336018","proficiency":"Fluent"}
+  Expected   : HTTP 201
+
+◀ RESPONSE
+  Status Code: 201
+  Body (JSON):
+    {
+      "statusCode": 201,
+      "message": "Created successfully",
+      "data": {
+        "userId": "655c1931-a0c1-4f06-9951-f209f4b57c0b",
+        "languageId": "0c47b6a4-ded1-4b44-8286-ad8f2e336018",
+        "proficiency": "Fluent"
+      },
+      "meta": {
+        "requestId": "a6a1f791-d6a8-46ae-a0be-bceb432a0d72"
+      },
+      "timestamp": "2026-09-19T10:09:19+00:00"
+    }
+
+  ✅ PASS
+
+  → languageRecordId = 0c47b6a4-ded1-4b44-8286-ad8f2e336018
+▶ REQUEST #28
+  Method     : GET
+  URL        : http://localhost:3000/api/v1/profile/languages
+  Description: قائمة اللغات بعد الإضافة
+  Auth       : Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6Ik...
+  Expected   : HTTP 200
+
+◀ RESPONSE
+  Status Code: 200
+  Body (JSON):
+    {
+      "statusCode": 200,
+      "message": "OK",
+      "data": [
+        {
+          "languageId": "0c47b6a4-ded1-4b44-8286-ad8f2e336018",
+          "name": "Arabic",
+          "proficiency": "Fluent"
+        }
+      ],
+      "meta": {
+        "pagination": {
+          "page": 1,
+          "limit": 20,
+          "total": 1,
+          "totalPages": 1,
+          "hasNext": false,
+          "hasPrev": false
+        },
+        "requestId": "54d7c137-89f6-4523-b817-919a30829f89"
+      },
+      "timestamp": "2026-09-19T10:09:20+00:00"
+    }
+
+  ✅ PASS
+
+▶ REQUEST #29
+  Method     : GET
+  URL        : http://localhost:3000/api/v1/profile/languages/0c47b6a4-ded1-4b44-8286-ad8f2e336018
+  Description: جلب لغة بالـ ID
+  Auth       : Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6Ik...
+  Expected   : HTTP 200
+
+◀ RESPONSE
+  Status Code: 200
+  Body (JSON):
+    {
+      "statusCode": 200,
+      "message": "OK",
+      "data": {
+        "userId": "655c1931-a0c1-4f06-9951-f209f4b57c0b",
+        "languageId": "0c47b6a4-ded1-4b44-8286-ad8f2e336018",
+        "proficiency": "Fluent",
+        "language": {
+          "id": "0c47b6a4-ded1-4b44-8286-ad8f2e336018",
+          "name": "Arabic"
+        }
+      },
+      "meta": {
+        "requestId": "ff772ace-73b1-40ec-a05e-06e2b9845701"
+      },
+      "timestamp": "2026-09-19T10:09:22+00:00"
+    }
+
+  ✅ PASS
+
+▶ REQUEST #30
+  Method     : PATCH
+  URL        : http://localhost:3000/api/v1/profile/languages/0c47b6a4-ded1-4b44-8286-ad8f2e336018
+  Description: تحديث اللغة
+  Auth       : Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6Ik...
+  Body       : {"proficiency":"Native"}
+  Expected   : HTTP 200
+
+◀ RESPONSE
+  Status Code: 200
+  Body (JSON):
+    {
+      "statusCode": 200,
+      "message": "Updated successfully",
+      "data": {
+        "userId": "655c1931-a0c1-4f06-9951-f209f4b57c0b",
+        "languageId": "0c47b6a4-ded1-4b44-8286-ad8f2e336018",
+        "proficiency": "Native"
+      },
+      "meta": {
+        "requestId": "b66f3b59-18b9-4f93-b9aa-f0daa680a2bc"
+      },
+      "timestamp": "2026-09-19T10:09:23+00:00"
+    }
+
+  ✅ PASS
+
+▶ REQUEST #31
+  Method     : GET
+  URL        : http://localhost:3000/api/v1/profile/languages/0c47b6a4-ded1-4b44-8286-ad8f2e336018
+  Description: التحقق من التحديث
+  Auth       : Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6Ik...
+  Expected   : HTTP 200
+
+◀ RESPONSE
+  Status Code: 200
+  Body (JSON):
+    {
+      "statusCode": 200,
+      "message": "OK",
+      "data": {
+        "userId": "655c1931-a0c1-4f06-9951-f209f4b57c0b",
+        "languageId": "0c47b6a4-ded1-4b44-8286-ad8f2e336018",
+        "proficiency": "Native",
+        "language": {
+          "id": "0c47b6a4-ded1-4b44-8286-ad8f2e336018",
+          "name": "Arabic"
+        }
+      },
+      "meta": {
+        "requestId": "a712c861-9794-4e37-a3e4-b43034795772"
+      },
+      "timestamp": "2026-09-19T10:09:24+00:00"
+    }
+
+  ✅ PASS
+
+▶ REQUEST #32
+  Method     : DELETE
+  URL        : http://localhost:3000/api/v1/profile/languages/0c47b6a4-ded1-4b44-8286-ad8f2e336018
+  Description: حذف اللغة
+  Auth       : Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6Ik...
+  Expected   : HTTP 200,204
+
+◀ RESPONSE
+  Status Code: 204
+  Body       : (no content)
+
+  ✅ PASS
+
+▶ REQUEST #33
+  Method     : GET
+  URL        : http://localhost:3000/api/v1/profile/languages
+  Description: التحقق من الحذف
+  Auth       : Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6Ik...
+  Expected   : HTTP 200
+
+◀ RESPONSE
+  Status Code: 200
+  Body (JSON):
+    {
+      "statusCode": 200,
+      "message": "OK",
+      "data": [],
+      "meta": {
+        "pagination": {
+          "page": 1,
+          "limit": 20,
+          "total": 0,
+          "totalPages": 0,
+          "hasNext": false,
+          "hasPrev": false
+        },
+        "requestId": "80413fec-4811-49ef-8b14-c7f1d7b51c7c"
+      },
+      "timestamp": "2026-09-19T10:09:25+00:00"
+    }
+
+  ✅ PASS
+
+
+───────────────────────────────────────────────────────────────
+  10) REFERENCE DATA
+───────────────────────────────────────────────────────────────
+
+▶ REQUEST #34
+  Method     : GET
+  URL        : http://localhost:3000/api/v1/reference/fields-of-study
+  Description: مجالات الدراسة
+  Expected   : HTTP 200
+
+◀ RESPONSE
+  Status Code: 200
+  Body (JSON):
+    {
+      "statusCode": 200,
+      "message": "Fields of study retrieved successfully",
+      "data": [
+        {
+          "id": "31e885b9-1624-4f16-9201-f56da5338d0d",
+          "name": "Artificial Intelligence",
+          "category": "STEM"
+        },
+        {
+          "id": "306126b8-39e6-4232-bb8f-46460a292c52",
+          "name": "Biology",
+          "category": "Science"
+        },
+        {
+          "id": "5ba0e3f1-2bf1-427c-ae1d-7bae99b960d3",
+          "name": "Business Administration",
+          "category": "Business"
+        },
+        {
+          "id": "d9ad8142-8b56-42ab-9c49-aa867750340d",
+          "name": "Chemistry",
+          "category": "Science"
+        },
+        {
+          "id": "9fe5550a-9620-4091-82d0-3cfb29e918bc",
+          "name": "Civil Engineering",
+          "category": "Engineering"
+        },
+        {
+          "id": "8ea37d9a-1bbb-4e76-a6ed-3ee7e94fbac6",
+          "name": "Computer Science",
+          "category": "STEM"
+        },
+        {
+          "id": "4e09a7f8-4754-4c62-9c40-18775f219fc8",
+          "name": "Data Science",
+          "category": "STEM"
+        },
+        {
+          "id": "381bc396-acc3-4ee0-bb6b-d52d30d26ffe",
+          "name": "Electrical Engineering",
+          "category": "Engineering"
+        },
+        {
+          "id": "468a9e65-3889-4ea6-8691-5484a56c0ea4",
+          "name": "Finance",
+          "category": "Business"
+        },
+        {
+          "id": "58613870-e1be-4786-8869-72c9fcf46333",
+          "name": "Fine Arts",
+          "category": "Arts"
+        },
+        {
+          "id": "e6a3066e-952b-4165-bcca-2dfb2572b7fb",
+          "name": "Graphic Design",
+          "category": "Arts"
+        },
+        {
+          "id": "3b9ab4ef-7438-46d5-86d5-85052cce9efc",
+          "name": "Marketing",
+          "category": "Business"
+        },
+        {
+          "id": "f86f5aed-2e4a-4bbc-8c1a-22f4d2466abb",
+          "name": "Mechanical Engineering",
+          "category": "Engineering"
+        },
+        {
+          "id": "ca0e8d33-e925-457d-b2a7-03ea048a0a28",
+          "name": "Medicine",
+          "category": "Healthcare"
+        },
+        {
+          "id": "b4a15f4c-8c4a-403d-b14d-d41f316c0692",
+          "name": "Nursing",
+          "category": "Healthcare"
+        },
+        {
+          "id": "6f82b93f-1188-4a65-aa40-b22c790e990d",
+          "name": "Physics",
+          "category": "Science"
+        },
+        {
+          "id": "a08b51b0-037a-4145-b15f-11b00e8946fc",
+          "name": "Public Health",
+          "category": "Healthcare"
+        },
+        {
+          "id": "1c5cc9ad-e0c2-4086-82c9-8d9b0756889d",
+          "name": "Software Engineering",
+          "category": "STEM"
+        }
+      ],
+      "meta": {
+        "pagination": {
+          "page": 1,
+          "limit": 20,
+          "total": 18,
+          "totalPages": 1,
+          "hasNext": false,
+          "hasPrev": false
+        },
+        "requestId": "fa903b4f-00a4-44e2-a47b-e734b2904f0a"
+      },
+      "timestamp": "2026-09-19T10:09:25+00:00"
+    }
+
+  ✅ PASS
+
+▶ REQUEST #35
+  Method     : GET
+  URL        : http://localhost:3000/api/v1/reference/skills-taxonomy
+  Description: تصنيف المهارات
+  Expected   : HTTP 200
+
+◀ RESPONSE
+  Status Code: 200
+  Body (JSON):
+    {
+      "statusCode": 200,
+      "message": "Skills taxonomy retrieved successfully",
+      "data": [
+        {
+          "id": "9671c49d-369e-4165-8b12-17bdbf626107",
+          "name": "AutoCAD",
+          "category": "Engineering"
+        },
+        {
+          "id": "2d68baec-6489-410a-9337-b50074c12185",
+          "name": "AWS",
+          "category": "Tech"
+        },
+        {
+          "id": "7903df10-2a6e-4e78-879c-f70890a2118e",
+          "name": "Business Development",
+          "category": "Business"
+        },
+        {
+          "id": "f5368246-651d-40dd-929a-2b9ceeba87c8",
+          "name": "C++",
+          "category": "Tech"
+        },
+        {
+          "id": "ec1d6a79-9524-4850-8659-576deaadc26d",
+          "name": "Data Analysis",
+          "category": "Business"
+        },
+        {
+          "id": "c1f9d80e-2100-489b-aea3-958c3c923f4c",
+          "name": "Docker",
+          "category": "Tech"
+        },
+        {
+          "id": "dd8b8b38-9add-4a08-87c5-382e1cc8b27c",
+          "name": "Financial Modeling",
+          "category": "Business"
+        },
+        {
+          "id": "7645291c-49ee-413f-b2f3-5ac7a27dd82e",
+          "name": "Illustration",
+          "category": "Arts"
+        },
+        {
+          "id": "7820319b-9ae2-4cd3-84b7-b88b32c946b2",
+          "name": "Java",
+          "category": "Tech"
+        },
+        {
+          "id": "a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d",
+          "name": "JavaScript",
+          "category": "Tech"
+        },
+        {
+          "id": "dc66b865-8f0c-45b6-aff6-6743b08eccc0",
+          "name": "Kubernetes",
+          "category": "Tech"
+        },
+        {
+          "id": "7a3b5dcc-9281-4734-9e31-ac1993d552d5",
+          "name": "Marketing Strategy",
+          "category": "Business"
+        },
+        {
+          "id": "54d8da54-fa46-49a4-a281-074da497c928",
+          "name": "MATLAB",
+          "category": "Engineering"
+        },
+        {
+          "id": "4d40f401-e4f4-4f41-9954-068cd93df1f2",
+          "name": "Medical Research",
+          "category": "Healthcare"
+        },
+        {
+          "id": "3fe8deb8-dd8f-43b0-9692-d7f965494f09",
+          "name": "MongoDB",
+          "category": "Tech"
+        },
+        {
+          "id": "5fd3ac0c-1e41-4c32-95bd-04c5dc4e205a",
+          "name": "Node.js",
+          "category": "Tech"
+        },
+        {
+          "id": "28252c45-be36-4b64-b52b-470aed1c6ec3",
+          "name": "Patient Care",
+          "category": "Healthcare"
+        },
+        {
+          "id": "6076813c-c6f7-4562-a799-bfaeace3bb62",
+          "name": "Photography",
+          "category": "Arts"
+        },
+        {
+          "id": "9c1ecb5f-7bef-44f3-9167-3ce2389b140e",
+          "name": "PostgreSQL",
+          "category": "Tech"
+        },
+        {
+          "id": "c017837c-f396-42f4-b04d-6d0aeb778ae2",
+          "name": "Project Management",
+          "category": "Business"
+        }
+      ],
+      "meta": {
+        "pagination": {
+          "page": 1,
+          "limit": 20,
+          "total": 27,
+          "totalPages": 2,
+          "hasNext": true,
+          "hasPrev": false
+        },
+        "requestId": "a853345e-d086-4a25-900e-2dcb2dfcf8d0"
+      },
+      "timestamp": "2026-09-19T10:09:25+00:00"
+    }
+
+  ✅ PASS
+
+▶ REQUEST #36
+  Method     : GET
+  URL        : http://localhost:3000/api/v1/reference/languages
+  Description: اللغات
+  Expected   : HTTP 200
+
+◀ RESPONSE
+  Status Code: 200
+  Body (JSON):
+    {
+      "statusCode": 200,
+      "message": "Languages retrieved successfully",
+      "data": [
+        {
+          "id": "0c47b6a4-ded1-4b44-8286-ad8f2e336018",
+          "name": "Arabic"
+        },
+        {
+          "id": "e71c18c3-566f-47db-8b43-039fad8f32fc",
+          "name": "Chinese"
+        },
+        {
+          "id": "b2c3d4e5-f6a7-8b9c-0d1e-2f3a4b5c6d7e",
+          "name": "English"
+        },
+        {
+          "id": "b1abe5a2-0059-48ee-b642-545f4da41c87",
+          "name": "French"
+        },
+        {
+          "id": "f4f28dc1-cbd3-4b08-a31b-37d1d0ce74c5",
+          "name": "German"
+        },
+        {
+          "id": "d20de72f-422b-45bc-a534-78411ae4f00c",
+          "name": "Italian"
+        },
+        {
+          "id": "34ce968b-3e69-4a32-bb36-4ba73d97be71",
+          "name": "Japanese"
+        },
+        {
+          "id": "75fd1d80-79b4-4ca3-b606-d8435962d1cf",
+          "name": "Portuguese"
+        },
+        {
+          "id": "afcb10d1-8dfd-4f0f-a4ea-1e199529965b",
+          "name": "Russian"
+        },
+        {
+          "id": "d1cd6a07-558a-43a9-a146-4c9c36194b8a",
+          "name": "Spanish"
+        }
+      ],
+      "meta": {
+        "pagination": {
+          "page": 1,
+          "limit": 20,
+          "total": 10,
+          "totalPages": 1,
+          "hasNext": false,
+          "hasPrev": false
+        },
+        "requestId": "28a3c7a5-8d14-4de0-a8f0-03d8d948489e"
+      },
+      "timestamp": "2026-09-19T10:09:26+00:00"
+    }
+
+  ✅ PASS
+
+▶ REQUEST #37
+  Method     : GET
+  URL        : http://localhost:3000/api/v1/reference/education-levels
+  Description: مستويات التعليم
+  Expected   : HTTP 200
+
+◀ RESPONSE
+  Status Code: 200
+  Body (JSON):
+    {
+      "statusCode": 200,
+      "message": "Education levels retrieved successfully",
+      "data": [
+        {
+          "id": "66763b6a-adb6-44ca-a1b1-56ca9f146eff",
+          "name": "bachelor",
+          "labelEn": "Bachelor",
+          "labelAr": "بكالوريوس",
+          "isActive": true
+        },
+        {
+          "id": "3cd3b2b9-b4ba-4ccb-8203-12a1a0d4f5c3",
+          "name": "certificate",
+          "labelEn": "Certificate",
+          "labelAr": "شهادة مهنية",
+          "isActive": true
+        },
+        {
+          "id": "921bd551-43ed-45e8-8769-9ddf103997f5",
+          "name": "diploma",
+          "labelEn": "Diploma",
+          "labelAr": "دبلوم",
+          "isActive": true
+        },
+        {
+          "id": "4ab3bff1-4def-4de5-bab4-51bee348e9d6",
+          "name": "high_school",
+          "labelEn": "High School",
+          "labelAr": "ثانوية عامة",
+          "isActive": true
+        },
+        {
+          "id": "053af6fa-3958-4c5c-8d20-f6cd983eaa75",
+          "name": "master",
+          "labelEn": "Master",
+          "labelAr": "ماجستير",
+          "isActive": true
+        },
+        {
+          "id": "19c668e7-8342-426b-b2d0-17e70ee2d9cd",
+          "name": "other",
+          "labelEn": "Other",
+          "labelAr": "أخرى",
+          "isActive": true
+        },
+        {
+          "id": "fc8a5b30-f7e9-4337-a699-eb1927dad561",
+          "name": "phd",
+          "labelEn": "PhD",
+          "labelAr": "دكتوراه",
+          "isActive": true
+        }
+      ],
+      "meta": {
+        "requestId": "4e23bd3d-d494-4120-b667-175a74035956"
+      },
+      "timestamp": "2026-09-19T10:09:26+00:00"
+    }
+
+  ✅ PASS
+
+▶ REQUEST #38
+  Method     : GET
+  URL        : http://localhost:3000/api/v1/reference/app-languages
+  Description: لغات التطبيق
+  Expected   : HTTP 200
+
+◀ RESPONSE
+  Status Code: 200
+  Body (JSON):
+    {
+      "statusCode": 200,
+      "message": "App languages retrieved successfully",
+      "data": [
+        {
+          "code": "en",
+          "name": "English",
+          "nativeName": "English",
+          "dir": "ltr"
+        },
+        {
+          "code": "ar",
+          "name": "Arabic",
+          "nativeName": "العربية",
+          "dir": "rtl"
+        },
+        {
+          "code": "fr",
+          "name": "French",
+          "nativeName": "Français",
+          "dir": "ltr"
+        },
+        {
+          "code": "de",
+          "name": "German",
+          "nativeName": "Deutsch",
+          "dir": "ltr"
+        },
+        {
+          "code": "es",
+          "name": "Spanish",
+          "nativeName": "Español",
+          "dir": "ltr"
+        },
+        {
+          "code": "tr",
+          "name": "Turkish",
+          "nativeName": "Türkçe",
+          "dir": "ltr"
+        }
+      ],
+      "meta": {
+        "requestId": "bc464241-6676-4bc9-b8f1-221c0f53f834"
+      },
+      "timestamp": "2026-09-19T10:09:27+00:00"
+    }
+
+  ✅ PASS
+
+
+───────────────────────────────────────────────────────────────
+  11) AUTH - Refresh Token
+───────────────────────────────────────────────────────────────
+
+▶ REQUEST #39
+  Method     : POST
+  URL        : http://localhost:3000/api/v1/auth/refresh
+  Description: تحديث التوكن
+  Body       : {"refreshToken":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2NTVjMTkzMS1hMGMxLTRmMDYtOTk1MS1mMjA5ZjRiNTdjMGIiLCJlbWFpbCI6Imxldm9yYV90ZXN0XzE3ODk4MTI1NDFAZXhhbXBsZS5jb20iLCJyb2xlIjoidXNlciIsImlhdCI6MTc4OTgxMjU0MywiZXhwIjoxNzkwNDE3MzQzfQ.oSEqZ_vvM_7cCYXinRCcXho5SkpbK0K76sUi--3Rw5w"}
+  Expected   : HTTP 200
+
+◀ RESPONSE
+  Status Code: 200
+  Body (JSON):
+    {
+      "statusCode": 200,
+      "message": "OK",
+      "data": {
+        "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2NTVjMTkzMS1hMGMxLTRmMDYtOTk1MS1mMjA5ZjRiNTdjMGIiLCJlbWFpbCI6Imxldm9yYV90ZXN0XzE3ODk4MTI1NDFAZXhhbXBsZS5jb20iLCJyb2xlIjoidXNlciIsImlhdCI6MTc4OTgxMjU2NywiZXhwIjoxNzg5ODEzNDY3fQ.0n0RwQBbm1kFI_xgWv2fXbmrmXpQZHVPR7rVe1FoXRI",
+        "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2NTVjMTkzMS1hMGMxLTRmMDYtOTk1MS1mMjA5ZjRiNTdjMGIiLCJlbWFpbCI6Imxldm9yYV90ZXN0XzE3ODk4MTI1NDFAZXhhbXBsZS5jb20iLCJyb2xlIjoidXNlciIsImlhdCI6MTc4OTgxMjU2NywiZXhwIjoxNzkwNDE3MzY3fQ.gluXxzHFYMwgQ-5WFLRxjj6JSu2VuKSFHq3T-kOXx8g"
+      },
+      "meta": {
+        "requestId": "a7274bb0-8971-467a-a8fd-44b77ef33fd9"
+      },
+      "timestamp": "2026-09-19T10:09:27+00:00"
+    }
+
+  ✅ PASS
+
+  → التوكن تم تحديثه
+
+───────────────────────────────────────────────────────────────
+  12) HEALTH
+───────────────────────────────────────────────────────────────
+
+▶ REQUEST #40
+  Method     : GET
+  URL        : http://localhost:3000/api/v1/health
+  Description: Liveness
+  Expected   : HTTP 200
+
+◀ RESPONSE
+  Status Code: 200
+  Body (JSON):
+    {
+      "statusCode": 200,
+      "message": "OK",
+      "data": {
+        "status": "ok"
+      },
+      "meta": {
+        "requestId": "5e63ee25-84f1-4680-8c5d-acf01daed6b9"
+      },
+      "timestamp": "2026-09-19T10:09:28+00:00"
+    }
+
+  ✅ PASS
+
+▶ REQUEST #41
+  Method     : GET
+  URL        : http://localhost:3000/api/v1/health/ready
+  Description: Readiness
+  Expected   : HTTP 200
+
+◀ RESPONSE
+  Status Code: 200
+  Body (JSON):
+    {
+      "statusCode": 200,
+      "message": "OK",
+      "data": {
+        "status": "ok",
+        "info": {
+          "database": {
+            "status": "up"
+          },
+          "redis": {
+            "status": "up"
+          }
+        },
+        "error": {},
+        "details": {
+          "database": {
+            "status": "up"
+          },
+          "redis": {
+            "status": "up"
+          }
+        }
+      },
+      "meta": {
+        "requestId": "0340b29f-22c0-4231-97d1-c667f57e249c"
+      },
+      "timestamp": "2026-09-19T10:09:28+00:00"
+    }
+
+  ✅ PASS
+
+
+───────────────────────────────────────────────────────────────
+  13) SECURITY - Negative Tests
+───────────────────────────────────────────────────────────────
+
+
+  ⋯ 13.1 تسجيل بنفس الإيميل مرة ثانية
+▶ REQUEST #42
+  Method     : POST
+  URL        : http://localhost:3000/api/v1/auth/register
+  Description: Duplicate register
+  Body       : {"email":"levora_test_1789812541@example.com","password":"P@ssw0rd123!","firstName":"John","lastName":"Doe"}
+  Expected   : HTTP 400,409
+
+◀ RESPONSE
+  Status Code: 409
+  Body (JSON):
+    {
+      "success": false,
+      "status": 409,
+      "message": "Email already registered",
+      "data": null,
+      "meta": null,
+      "errors": [
+        {
+          "code": "SYSTEM_REQUEST_IN_PROGRESS",
+          "message": "Email already registered"
+        }
+      ],
+      "timestamp": "2026-09-19T10:09:29+00:00"
+    }
+
+  ✅ PASS
+
+
+  ⋯ 13.2 تسجيل بحقول ناقصة
+▶ REQUEST #43
+  Method     : POST
+  URL        : http://localhost:3000/api/v1/auth/register
+  Description: Register missing fields
+  Body       : {"email":"incomplete@levora.com"}
+  Expected   : HTTP 400
+
+◀ RESPONSE
+  Status Code: 400
+  Body (JSON):
+    {
+      "success": false,
+      "status": 400,
+      "message": "Validation failed",
+      "data": null,
+      "meta": null,
+      "errors": [
+        {
+          "field": "password",
+          "code": "VALIDATION_INVALID_FORMAT",
+          "message": "Password must be at least 8 characters long and contain at least one letter and one number"
+        }
+      ],
+      "timestamp": "2026-09-19T10:09:29+00:00"
+    }
+
+  ✅ PASS
+
+
+  ⋯ 13.3 Login بكلمة سر خاطئة
+▶ REQUEST #44
+  Method     : POST
+  URL        : http://localhost:3000/api/v1/auth/login
+  Description: Login invalid password
+  Body       : {"email":"levora_test_1789812541@example.com","password":"WrongPassword!"}
+  Expected   : HTTP 401
+
+◀ RESPONSE
+  Status Code: 401
+  Body (JSON):
+    {
+      "success": false,
+      "status": 401,
+      "message": "Invalid credentials",
+      "data": null,
+      "meta": null,
+      "errors": [
+        {
+          "code": "AUTH_TOKEN_MISSING",
+          "message": "Invalid credentials"
+        }
+      ],
+      "timestamp": "2026-09-19T10:09:30+00:00"
+    }
+
+  ✅ PASS
+
+
+  ⋯ 13.4 الوصول لـ endpoint محمي بدون توكن
+▶ REQUEST #45
+  Method     : GET
+  URL        : http://localhost:3000/api/v1/profile
+  Description: No token
+  Expected   : HTTP 401
+
+◀ RESPONSE
+  Status Code: 401
+  Body (JSON):
+    {
+      "success": false,
+      "status": 401,
+      "message": "Missing authentication: provide a cookie or Bearer token",
+      "data": null,
+      "meta": null,
+      "errors": [
+        {
+          "code": "AUTH_TOKEN_MISSING",
+          "message": "Missing authentication: provide a cookie or Bearer token"
+        }
+      ],
+      "timestamp": "2026-09-19T10:09:30+00:00"
+    }
+
+  ✅ PASS
+
+
+  ⋯ 13.5 الوصول بتوكن غير صالح
+▶ REQUEST #46
+  Method     : GET
+  URL        : http://localhost:3000/api/v1/profile
+  Description: Invalid token
+  Auth       : Bearer invalid.token.here...
+  Expected   : HTTP 401
+
+◀ RESPONSE
+  Status Code: 401
+  Body (JSON):
+    {
+      "success": false,
+      "status": 401,
+      "message": "Invalid or expired access token",
+      "data": null,
+      "meta": null,
+      "errors": [
+        {
+          "code": "AUTH_TOKEN_MISSING",
+          "message": "Invalid or expired access token"
+        }
+      ],
+      "timestamp": "2026-09-19T10:09:30+00:00"
+    }
+
+  ✅ PASS
+
+
+  ⋯ 13.6 Refresh بتوكن غير صالح
+▶ REQUEST #47
+  Method     : POST
+  URL        : http://localhost:3000/api/v1/auth/refresh
+  Description: Invalid refresh token
+  Body       : {"refreshToken":"invalid.refresh.token"}
+  Expected   : HTTP 401
+
+◀ RESPONSE
+  Status Code: 401
+  Body (JSON):
+    {
+      "success": false,
+      "status": 401,
+      "message": "Invalid or expired refresh token",
+      "data": null,
+      "meta": null,
+      "errors": [
+        {
+          "code": "AUTH_TOKEN_MISSING",
+          "message": "Invalid or expired refresh token"
+        }
+      ],
+      "timestamp": "2026-09-19T10:09:30+00:00"
+    }
+
+  ✅ PASS
+
+
+  ⋯ 13.7 IDOR - UUID صفري
+▶ REQUEST #48
+  Method     : GET
+  URL        : http://localhost:3000/api/v1/profile/skills/00000000-0000-0000-0000-000000000000
+  Description: IDOR zero UUID
+  Auth       : Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6Ik...
+  Expected   : HTTP 403,404
+
+◀ RESPONSE
+  Status Code: 404
+  Body (JSON):
+    {
+      "success": false,
+      "status": 404,
+      "message": "User skill not found",
+      "data": null,
+      "meta": null,
+      "errors": [
+        {
+          "code": "SYSTEM_RESOURCE_NOT_FOUND",
+          "message": "User skill not found"
+        }
+      ],
+      "timestamp": "2026-09-19T10:09:31+00:00"
+    }
+
+  ✅ PASS
+
+
+  ⋯ 13.8 Pagination - page كبير
+▶ REQUEST #49
+  Method     : GET
+  URL        : http://localhost:3000/api/v1/profile/skills?page=9999&limit=20
+  Description: Pagination page=9999
+  Auth       : Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6Ik...
+  Expected   : HTTP 200
+
+◀ RESPONSE
+  Status Code: 200
+  Body (JSON):
+    {
+      "statusCode": 200,
+      "message": "OK",
+      "data": [],
+      "meta": {
+        "pagination": {
+          "page": 9999,
+          "limit": 20,
+          "total": 0,
+          "totalPages": 0,
+          "hasNext": false,
+          "hasPrev": false
+        },
+        "requestId": "59d4c195-b074-4232-aae8-bffe436a2358"
+      },
+      "timestamp": "2026-09-19T10:09:31+00:00"
+    }
+
+  ✅ PASS
+
+
+───────────────────────────────────────────────────────────────
+  14) SECURITY - Real IDOR Test
+───────────────────────────────────────────────────────────────
+
+
+  ⋯ 14.1 Register User B
+▶ REQUEST #50
+  Method     : POST
+  URL        : http://localhost:3000/api/v1/auth/register
+  Description: تسجيل المستخدم B
+  Body       : {"email":"levora_test_b_1789812541@example.com","password":"P@ssw0rd456!","firstName":"Bob","lastName":"Smith"}
+  Expected   : HTTP 201
+
+◀ RESPONSE
+  Status Code: 201
+  Body (JSON):
+    {
+      "statusCode": 201,
+      "message": "Created successfully",
+      "data": {
+        "id": "5157aeb0-6ff6-4408-aa28-2ca741f54ca5",
+        "email": "levora_test_b_1789812541@example.com",
+        "firstName": "Bob",
+        "lastName": "Smith",
+        "isEmailVerified": false,
+        "isActive": true,
+        "lastLoginAt": null,
+        "createdAt": "2026-09-19T10:09:32.373Z",
+        "userProfile": {
+          "fullName": "Bob Smith",
+          "completionPct": 0,
+          "isDraft": true
+        },
+        "roles": [
+          "user"
+        ]
+      },
+      "meta": {
+        "requestId": "46713861-a2dc-4312-b0ef-54e5eefa9ad5"
+      },
+      "timestamp": "2026-09-19T10:09:32+00:00"
+    }
+
+  ✅ PASS
+
+  → userId B = 5157aeb0-6ff6-4408-aa28-2ca741f54ca5
+
+  ⋯ 14.2 Login User B
+▶ REQUEST #51
+  Method     : POST
+  URL        : http://localhost:3000/api/v1/auth/login
+  Description: تسجيل دخول B
+  Body       : {"email":"levora_test_b_1789812541@example.com","password":"P@ssw0rd456!"}
+  Expected   : HTTP 200
+
+◀ RESPONSE
+  Status Code: 200
+  Body (JSON):
+    {
+      "statusCode": 200,
+      "message": "OK",
+      "data": {
+        "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI1MTU3YWViMC02ZmY2LTQ0MDgtYWEyOC0yY2E3NDFmNTRjYTUiLCJlbWFpbCI6Imxldm9yYV90ZXN0X2JfMTc4OTgxMjU0MUBleGFtcGxlLmNvbSIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNzg5ODEyNTczLCJleHAiOjE3ODk4MTM0NzN9.6MPez78lD2tenxLkFwyZ_e_5OtN1Hu9vHBgvcH7VBww",
+        "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI1MTU3YWViMC02ZmY2LTQ0MDgtYWEyOC0yY2E3NDFmNTRjYTUiLCJlbWFpbCI6Imxldm9yYV90ZXN0X2JfMTc4OTgxMjU0MUBleGFtcGxlLmNvbSIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNzg5ODEyNTczLCJleHAiOjE3OTA0MTczNzN9.stYBstyTs9Qjqwow8rAbTsWvB7yWzHszf_JBTyABrBY",
+        "user": {
+          "id": "5157aeb0-6ff6-4408-aa28-2ca741f54ca5",
+          "email": "levora_test_b_1789812541@example.com",
+          "firstName": "Bob",
+          "lastName": "Smith",
+          "isEmailVerified": false,
+          "isActive": true,
+          "lastLoginAt": "2026-09-19T10:09:33.096Z",
+          "createdAt": "2026-09-19T10:09:32.373Z",
+          "userProfile": {
+            "fullName": "Bob Smith",
+            "completionPct": 0,
+            "isDraft": true
+          },
+          "roles": [
+            "user"
+          ]
+        }
+      },
+      "meta": {
+        "requestId": "62975642-def9-4d74-81e3-5d7b2b77c9bf"
+      },
+      "timestamp": "2026-09-19T10:09:33+00:00"
+    }
+
+  ✅ PASS
+
+  → accessToken B = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ...
+
+  ⋯ 14.3 User A ينشئ skill
+▶ REQUEST #52
+  Method     : POST
+  URL        : http://localhost:3000/api/v1/profile/skills
+  Description: User A skill
+  Auth       : Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6Ik...
+  Body       : {"skillId":"9671c49d-369e-4165-8b12-17bdbf626107","proficiency":3}
+  Expected   : HTTP 201
+
+◀ RESPONSE
+  Status Code: 201
+  Body (JSON):
+    {
+      "statusCode": 201,
+      "message": "Created successfully",
+      "data": {
+        "userId": "655c1931-a0c1-4f06-9951-f209f4b57c0b",
+        "skillId": "9671c49d-369e-4165-8b12-17bdbf626107",
+        "proficiency": 3
+      },
+      "meta": {
+        "requestId": "316aa61e-ac64-4efd-bc2f-c8406add4216"
+      },
+      "timestamp": "2026-09-19T10:09:33+00:00"
+    }
+
+  ✅ PASS
+
+  → skill A id = 9671c49d-369e-4165-8b12-17bdbf626107
+
+  ⋯ 14.4 IDOR: User B يحاول قراءة مهارة User A
+▶ REQUEST #53
+  Method     : GET
+  URL        : http://localhost:3000/api/v1/profile/skills/9671c49d-369e-4165-8b12-17bdbf626107
+  Description: IDOR: B reads A's skill
+  Auth       : Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6Ik...
+  Expected   : HTTP 403,404
+
+◀ RESPONSE
+  Status Code: 404
+  Body (JSON):
+    {
+      "success": false,
+      "status": 404,
+      "message": "User skill not found",
+      "data": null,
+      "meta": null,
+      "errors": [
+        {
+          "code": "SYSTEM_RESOURCE_NOT_FOUND",
+          "message": "User skill not found"
+        }
+      ],
+      "timestamp": "2026-09-19T10:09:34+00:00"
+    }
+
+  ✅ PASS
+
+
+  ⋯ 14.5 IDOR: User B يحاول تحديث مهارة User A
+▶ REQUEST #54
+  Method     : PATCH
+  URL        : http://localhost:3000/api/v1/profile/skills/9671c49d-369e-4165-8b12-17bdbf626107
+  Description: IDOR: B updates A's skill
+  Auth       : Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6Ik...
+  Body       : {"proficiency":99}
+  Expected   : HTTP 403,404
+
+◀ RESPONSE
+  Status Code: 404
+  Body (JSON):
+    {
+      "success": false,
+      "status": 404,
+      "message": "User skill not found",
+      "data": null,
+      "meta": null,
+      "errors": [
+        {
+          "code": "SYSTEM_RESOURCE_NOT_FOUND",
+          "message": "User skill not found"
+        }
+      ],
+      "timestamp": "2026-09-19T10:09:35+00:00"
+    }
+
+  ✅ PASS
+
+
+  ⋯ 14.6 IDOR: User B يحاول حذف مهارة User A
+▶ REQUEST #55
+  Method     : DELETE
+  URL        : http://localhost:3000/api/v1/profile/skills/9671c49d-369e-4165-8b12-17bdbf626107
+  Description: IDOR: B deletes A's skill
+  Auth       : Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6Ik...
+  Expected   : HTTP 403,404
+
+◀ RESPONSE
+  Status Code: 404
+  Body (JSON):
+    {
+      "success": false,
+      "status": 404,
+      "message": "User skill not found",
+      "data": null,
+      "meta": null,
+      "errors": [
+        {
+          "code": "SYSTEM_RESOURCE_NOT_FOUND",
+          "message": "User skill not found"
+        }
+      ],
+      "timestamp": "2026-09-19T10:09:35+00:00"
+    }
+
+  ✅ PASS
+
+
+  ⋯ 14.7 User A يحذف مهارته (تنظيف)
+▶ REQUEST #56
+  Method     : DELETE
+  URL        : http://localhost:3000/api/v1/profile/skills/9671c49d-369e-4165-8b12-17bdbf626107
+  Description: cleanup A's skill
+  Auth       : Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6Ik...
+  Expected   : HTTP 200,204
+
+◀ RESPONSE
+  Status Code: 204
+  Body       : (no content)
+
+  ✅ PASS
+
+
+───────────────────────────────────────────────────────────────
+  15) SECURITY - Rate Limiting (15 attempts)
+───────────────────────────────────────────────────────────────
+
+▶ REQUEST #57
+  Method     : POST
+  URL        : http://localhost:3000/api/v1/auth/login
+  Description: Rate limit attempt 1
+  Body       : {"email":"ratelimit@levora.com","password":"x"}
+  Expected   : HTTP 401,429
+
+◀ RESPONSE
+  Status Code: 401
+  Body (JSON):
+    {
+      "success": false,
+      "status": 401,
+      "message": "Invalid credentials",
+      "data": null,
+      "meta": null,
+      "errors": [
+        {
+          "code": "AUTH_TOKEN_MISSING",
+          "message": "Invalid credentials"
+        }
+      ],
+      "timestamp": "2026-09-19T10:09:36+00:00"
+    }
+
+  ✅ PASS
+
+▶ REQUEST #58
+  Method     : POST
+  URL        : http://localhost:3000/api/v1/auth/login
+  Description: Rate limit attempt 2
+  Body       : {"email":"ratelimit@levora.com","password":"x"}
+  Expected   : HTTP 401,429
+
+◀ RESPONSE
+  Status Code: 401
+  Body (JSON):
+    {
+      "success": false,
+      "status": 401,
+      "message": "Invalid credentials",
+      "data": null,
+      "meta": null,
+      "errors": [
+        {
+          "code": "AUTH_TOKEN_MISSING",
+          "message": "Invalid credentials"
+        }
+      ],
+      "timestamp": "2026-09-19T10:09:36+00:00"
+    }
+
+  ✅ PASS
+
+▶ REQUEST #59
+  Method     : POST
+  URL        : http://localhost:3000/api/v1/auth/login
+  Description: Rate limit attempt 3
+  Body       : {"email":"ratelimit@levora.com","password":"x"}
+  Expected   : HTTP 401,429
+
+◀ RESPONSE
+  Status Code: 401
+  Body (JSON):
+    {
+      "success": false,
+      "status": 401,
+      "message": "Invalid credentials",
+      "data": null,
+      "meta": null,
+      "errors": [
+        {
+          "code": "AUTH_TOKEN_MISSING",
+          "message": "Invalid credentials"
+        }
+      ],
+      "timestamp": "2026-09-19T10:09:37+00:00"
+    }
+
+  ✅ PASS
+
+▶ REQUEST #60
+  Method     : POST
+  URL        : http://localhost:3000/api/v1/auth/login
+  Description: Rate limit attempt 4
+  Body       : {"email":"ratelimit@levora.com","password":"x"}
+  Expected   : HTTP 401,429
+
+◀ RESPONSE
+  Status Code: 401
+  Body (JSON):
+    {
+      "success": false,
+      "status": 401,
+      "message": "Invalid credentials",
+      "data": null,
+      "meta": null,
+      "errors": [
+        {
+          "code": "AUTH_TOKEN_MISSING",
+          "message": "Invalid credentials"
+        }
+      ],
+      "timestamp": "2026-09-19T10:09:37+00:00"
+    }
+
+  ✅ PASS
+
+▶ REQUEST #61
+  Method     : POST
+  URL        : http://localhost:3000/api/v1/auth/login
+  Description: Rate limit attempt 5
+  Body       : {"email":"ratelimit@levora.com","password":"x"}
+  Expected   : HTTP 401,429
+
+◀ RESPONSE
+  Status Code: 401
+  Body (JSON):
+    {
+      "success": false,
+      "status": 401,
+      "message": "Invalid credentials",
+      "data": null,
+      "meta": null,
+      "errors": [
+        {
+          "code": "AUTH_TOKEN_MISSING",
+          "message": "Invalid credentials"
+        }
+      ],
+      "timestamp": "2026-09-19T10:09:37+00:00"
+    }
+
+  ✅ PASS
+
+▶ REQUEST #62
+  Method     : POST
+  URL        : http://localhost:3000/api/v1/auth/login
+  Description: Rate limit attempt 6
+  Body       : {"email":"ratelimit@levora.com","password":"x"}
+  Expected   : HTTP 401,429
+
+◀ RESPONSE
+  Status Code: 401
+  Body (JSON):
+    {
+      "success": false,
+      "status": 401,
+      "message": "Invalid credentials",
+      "data": null,
+      "meta": null,
+      "errors": [
+        {
+          "code": "AUTH_TOKEN_MISSING",
+          "message": "Invalid credentials"
+        }
+      ],
+      "timestamp": "2026-09-19T10:09:37+00:00"
+    }
+
+  ✅ PASS
+
+▶ REQUEST #63
+  Method     : POST
+  URL        : http://localhost:3000/api/v1/auth/login
+  Description: Rate limit attempt 7
+  Body       : {"email":"ratelimit@levora.com","password":"x"}
+  Expected   : HTTP 401,429
+
+◀ RESPONSE
+  Status Code: 401
+  Body (JSON):
+    {
+      "success": false,
+      "status": 401,
+      "message": "Invalid credentials",
+      "data": null,
+      "meta": null,
+      "errors": [
+        {
+          "code": "AUTH_TOKEN_MISSING",
+          "message": "Invalid credentials"
+        }
+      ],
+      "timestamp": "2026-09-19T10:09:38+00:00"
+    }
+
+  ✅ PASS
+
+▶ REQUEST #64
+  Method     : POST
+  URL        : http://localhost:3000/api/v1/auth/login
+  Description: Rate limit attempt 8
+  Body       : {"email":"ratelimit@levora.com","password":"x"}
+  Expected   : HTTP 401,429
+
+◀ RESPONSE
+  Status Code: 429
+  Body (JSON):
+    {
+      "success": false,
+      "status": 429,
+      "message": "ThrottlerException: Too Many Requests",
+      "data": null,
+      "meta": null,
+      "errors": [
+        {
+          "code": "SYSTEM_RATE_LIMIT_EXCEEDED",
+          "message": "ThrottlerException: Too Many Requests"
+        }
+      ],
+      "timestamp": "2026-09-19T10:09:38+00:00"
+    }
+
+  ✅ PASS
+
+  → Rate limit انطلق عند المحاولة #8 ✅
+  ✅ Rate Limiting يعمل
+
+───────────────────────────────────────────────────────────────
+  16) AUTH - Logout (User A)
+───────────────────────────────────────────────────────────────
+
+▶ REQUEST #65
+  Method     : POST
+  URL        : http://localhost:3000/api/v1/auth/logout
+  Description: تسجيل الخروج
+  Auth       : Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6Ik...
+  Expected   : HTTP 200,204
+
+◀ RESPONSE
+  Status Code: 204
+  Body       : (no content)
+
+  ✅ PASS
+
+
+  ⋯ 16.b استخدام accessToken بعد Logout
+▶ REQUEST #66
+  Method     : GET
+  URL        : http://localhost:3000/api/v1/profile
+  Description: Token after logout
+  Auth       : Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6Ik...
+  Expected   : HTTP 401,403
+
+◀ RESPONSE
+  Status Code: 401
+  Body (JSON):
+    {
+      "success": false,
+      "status": 401,
+      "message": "Token has been revoked",
+      "data": null,
+      "meta": null,
+      "errors": [
+        {
+          "code": "AUTH_TOKEN_REVOKED",
+          "message": "Token has been revoked"
+        }
+      ],
+      "timestamp": "2026-09-19T10:09:41+00:00"
+    }
+
+  ✅ PASS
+
+
+═══════════════════════════════════════════════════════════════
+  SUMMARY
+═══════════════════════════════════════════════════════════════
+  Total  : 66
+  Passed : 66
+  Failed : 0
+═══════════════════════════════════════════════════════════════

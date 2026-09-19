@@ -108,9 +108,10 @@ describe('ProfileService', () => {
 
     it('should calculate correct percentage for fully populated profile', () => {
       const profile = {
+        fullName: 'John Doe', // 5
         educationLevelId: 'BS', // 15
         fieldOfStudy: ['CS'], // 15
-        nationality: 'US', // 15
+        nationality: 'US', // 10
         dateOfBirth: new Date(), // 5
         currentCountry: 'US', // 5
         currentCity: 'NY', // 5
@@ -120,8 +121,9 @@ describe('ProfileService', () => {
         careerGoals: 'To become a great software engineer and build products', // >20 chars -> 5
         profilePhotoUrl: 'url', // 5
         user: {
-          userSkills: [{}], // 10
+          userSkills: [{}], // 5
           userLanguages: [{}], // 5
+          documents: [{}], // 5
         },
       };
       expect(service.calculateCompletionPct(profile)).toBe(100);

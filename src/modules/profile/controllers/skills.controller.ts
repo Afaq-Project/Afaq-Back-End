@@ -10,6 +10,8 @@ import {
   Req,
   ParseUUIDPipe,
   Query,
+  HttpCode,
+  HttpStatus,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -19,6 +21,7 @@ import {
   ApiParam,
 } from '@nestjs/swagger';
 import { SkillsService } from '../services/skills.service';
+import { SkillOwnershipGuard } from '../guards/skill-ownership.guard';
 import { CreateSkillDto } from '../dto/create-skill.dto';
 import { UpdateSkillDto } from '../dto/update-skill.dto';
 import { PaginationDto } from '../../../common/dto/pagination.dto';
@@ -66,6 +69,7 @@ export class SkillsController {
   }
 
   @Patch(':skillId')
+  @UseGuards(SkillOwnershipGuard)
   @ApiOperation({ summary: 'Update an existing skill' })
   @ApiParam({ name: 'skillId', description: 'UUID of the skill' })
   @ApiResponse({ status: 200, description: 'Skill updated successfully' })
@@ -79,14 +83,16 @@ export class SkillsController {
   }
 
   @Delete(':skillId')
+  @UseGuards(SkillOwnershipGuard)
+  @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Remove a skill from user profile' })
   @ApiParam({ name: 'skillId', description: 'UUID of the skill' })
-  @ApiResponse({ status: 200, description: 'Skill removed successfully' })
+  @ApiResponse({ status: 204, description: 'Skill removed successfully' })
   @ApiResponse({ status: 404, description: 'Skill not found' })
   async removeSkill(
     @Req() req: RequestWithUser,
     @Param('skillId', ParseUUIDPipe) skillId: string,
-  ) {
-    return this.skillsService.remove(req.user.id, skillId);
+  ): Promise<void> {
+    await this.skillsService.remove(req.user.id, skillId);
   }
 }

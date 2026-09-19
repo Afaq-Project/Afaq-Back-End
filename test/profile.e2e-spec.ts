@@ -126,7 +126,9 @@ describe('ProfileModule (e2e)', () => {
         .get('/api/v1/profile')
         .set('Authorization', `Bearer ${userToken}`);
 
-      const eduRes = await request(app.getHttpServer()).get("/api/v1/reference/education-levels");
+      const eduRes = await request(app.getHttpServer()).get(
+        '/api/v1/reference/education-levels',
+      );
       const eduId = eduRes.body.data[0].id;
 
       const updatePayload = {

@@ -23,13 +23,9 @@ export class HealthController {
   ) {}
 
   @Get()
-  @HealthCheck()
   @ApiOperation({ summary: 'Liveness probe' })
-  check(): Promise<HealthCheckResult> {
-    return this.health.check([
-      () => this.prismaHealth.isHealthy('database'),
-      () => this.redisHealth.isHealthy('redis'),
-    ]);
+  check() {
+    return { status: 'ok' };
   }
 
   @Get('ready')

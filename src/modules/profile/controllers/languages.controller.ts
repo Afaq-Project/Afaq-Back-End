@@ -10,6 +10,8 @@ import {
   Request,
   ParseUUIDPipe,
   Query,
+  HttpCode,
+  HttpStatus,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -22,6 +24,7 @@ import { CreateLanguageDto } from '../dto/create-language.dto';
 import { UpdateLanguageDto } from '../dto/update-language.dto';
 import { PaginationDto } from '../../../common/dto/pagination.dto';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
+import { LanguageOwnershipGuard } from '../guards/language-ownership.guard';
 
 interface AuthRequest {
   user: { id: string };
@@ -62,6 +65,7 @@ export class LanguagesController {
   }
 
   @Patch(':languageId')
+  @UseGuards(LanguageOwnershipGuard)
   @ApiOperation({ summary: 'Update a user language' })
   @ApiResponse({ status: 200, description: 'Language updated successfully.' })
   update(
@@ -77,12 +81,14 @@ export class LanguagesController {
   }
 
   @Delete(':languageId')
+  @UseGuards(LanguageOwnershipGuard)
+  @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Delete a user language' })
-  @ApiResponse({ status: 200, description: 'Language deleted successfully.' })
-  remove(
+  @ApiResponse({ status: 204, description: 'Language deleted successfully.' })
+  async remove(
     @Request() req: AuthRequest,
     @Param('languageId', ParseUUIDPipe) languageId: string,
-  ) {
-    return this.languagesService.remove(req.user.id, languageId);
+  ): Promise<void> {
+    await this.languagesService.remove(req.user.id, languageId);
   }
 }

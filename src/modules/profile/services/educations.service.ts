@@ -15,6 +15,22 @@ export class EducationsService {
     private readonly profileService: ProfileService,
   ) {}
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private formatEducation(edu: any) {
+    if (!edu) {
+      return edu;
+    }
+    return {
+      ...edu,
+      gpaRawScale:
+        edu.gpaRawScale !== null && edu.gpaRawScale !== undefined
+          ? Number.isInteger(Number(edu.gpaRawScale))
+            ? Number(edu.gpaRawScale).toFixed(1)
+            : String(edu.gpaRawScale)
+          : null,
+    };
+  }
+
   async create(userId: string, data: CreateEducationDto) {
     const education = await this.prisma.userEducations.create({
       data: {
@@ -25,7 +41,7 @@ export class EducationsService {
 
     await this.profileService.updateProfile(userId, {});
 
-    return education;
+    return this.formatEducation(education);
   }
 
   async findAll(userId: string, dto: PaginationDto) {
@@ -40,7 +56,7 @@ export class EducationsService {
     ]);
 
     return {
-      data: educations,
+      data: educations.map((edu) => this.formatEducation(edu)),
       meta: buildMeta(total, dto.page, dto.limit),
     };
   }
@@ -95,10 +111,12 @@ export class EducationsService {
       updateData.gpaRaw = data.gpaValue;
     }
 
-    return this.prisma.userEducations.update({
+    const updated = await this.prisma.userEducations.update({
       where: { id, userId },
       data: updateData,
     });
+
+    return this.formatEducation(updated);
   }
 
   async remove(userId: string, id: string) {

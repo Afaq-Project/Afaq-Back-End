@@ -19,6 +19,7 @@ import { CreateEducationDto } from '../dto/create-education.dto';
 import { UpdateEducationDto } from '../dto/update-education.dto';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { PaginationDto } from '../../../common/dto/pagination.dto';
+import { EducationOwnershipGuard } from '../guards/education-ownership.guard';
 
 interface RequestWithUser {
   user: { id: string };
@@ -44,6 +45,7 @@ export class EducationsController {
   }
 
   @Patch(':id')
+  @UseGuards(EducationOwnershipGuard)
   @ApiOperation({ summary: 'Update an education record' })
   async update(
     @Req() req: RequestWithUser,
@@ -54,12 +56,13 @@ export class EducationsController {
   }
 
   @Delete(':id')
+  @UseGuards(EducationOwnershipGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Delete an education record' })
   async remove(
     @Req() req: RequestWithUser,
     @Param('id', ParseUUIDPipe) id: string,
-  ) {
+  ): Promise<void> {
     await this.educationsService.remove(req.user.id, id);
   }
 }

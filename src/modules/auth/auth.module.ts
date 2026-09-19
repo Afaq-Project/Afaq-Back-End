@@ -1,4 +1,5 @@
 import { Module, forwardRef } from '@nestjs/common';
+import { RedisModule } from '../../redis/redis.module';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { ConfigService } from '@nestjs/config';
@@ -40,6 +41,7 @@ import { getAllSupportedProviders } from './config/providers.config';
       }),
     }),
     PrismaModule,
+    RedisModule,
     forwardRef(() => UsersModule),
   ],
   controllers: [AuthController],

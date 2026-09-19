@@ -13,6 +13,8 @@ import {
   ParseUUIDPipe,
   NotFoundException,
   Query,
+  HttpCode,
+  HttpStatus,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -26,6 +28,7 @@ import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { DocumentsService } from '../services/documents.service';
 import { UploadDocumentDto } from '../dto/upload-document.dto';
 import { PaginationDto } from '../../../common/dto/pagination.dto';
+import { DocumentOwnershipGuard } from '../guards/document-ownership.guard';
 
 interface RequestWithUser {
   user: { id: string };
@@ -147,8 +150,10 @@ export class DocumentsController {
   }
 
   @Delete(':id')
+  @UseGuards(DocumentOwnershipGuard)
+  @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Delete a document' })
-  @ApiResponse({ status: 200, description: 'Document deleted successfully' })
+  @ApiResponse({ status: 204, description: 'Document deleted successfully' })
   @ApiResponse({ status: 404, description: 'Document not found' })
   async deleteDocument(
     @Req() req: RequestWithUser,
@@ -159,7 +164,7 @@ export class DocumentsController {
       }),
     )
     id: string,
-  ) {
+  ): Promise<void> {
     await this.documentsService.deleteDocument(req.user.id, id);
   }
 }
