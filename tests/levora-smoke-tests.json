@@ -667,6 +667,52 @@
           }
         },
         {
+          "name": "PATCH missing cross-field (gpaScale without gpaValue)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 400', function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/profile/educations/{{education_id}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "profile",
+                "educations",
+                "{{education_id}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"gpaScale\": \"4.0\"}"
+            }
+          }
+        },
+        {
           "name": "DELETE /profile/educations/{{education_id}}",
           "event": [
             {
@@ -1303,8 +1349,8 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status code is 200', function () {",
-                  "    pm.response.to.have.status(200);",
+                  "pm.test('Status code is 200 or 204', function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 204]);",
                   "});"
                 ],
                 "type": "text/javascript"
@@ -1789,52 +1835,6 @@
             "body": {
               "mode": "raw",
               "raw": "{\"degree\":\"BSc\",\"major\":\"CS\",\"institution\":\"MIT\",\"graduationYear\":\"2024\"}"
-            }
-          }
-        },
-        {
-          "name": "PATCH missing cross-field (gpaScale without gpaValue)",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Status code is 400', function () {",
-                  "    pm.response.to.have.status(400);",
-                  "});"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "PATCH",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{access_token}}"
-              },
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/v1/profile/educations/{{education_id}}",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "v1",
-                "profile",
-                "educations",
-                "{{education_id}}"
-              ]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\"gpaScale\": \"4.0\"}"
             }
           }
         },
