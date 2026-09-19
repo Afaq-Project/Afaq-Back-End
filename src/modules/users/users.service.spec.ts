@@ -117,7 +117,7 @@ describe('UsersService', () => {
         search: 'test',
         role: 'admin',
       } as any);
-      expect(res.total).toBe(1);
+      expect(res.meta.pagination.total).toBe(1);
       expect(res.data).toHaveLength(1);
     });
   });

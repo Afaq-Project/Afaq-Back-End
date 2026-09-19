@@ -113,7 +113,11 @@ async function main() {
 
   // ── Skills ─────────────────────────────────
   const skills = [
-    { name: 'JavaScript', category: 'Tech' },
+    {
+      id: 'a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d',
+      name: 'JavaScript',
+      category: 'Tech',
+    },
     { name: 'TypeScript', category: 'Tech' },
     { name: 'Python', category: 'Tech' },
     { name: 'Java', category: 'Tech' },
@@ -143,13 +147,58 @@ async function main() {
   ];
 
   for (const skill of skills) {
+    const { id } = skill;
     await prisma.skillsMaster.upsert({
       where: { name: skill.name },
-      update: { category: skill.category },
-      create: skill,
+      update: { category: skill.category, ...(id ? { id } : {}) },
+      create: { ...skill },
     });
   }
   console.log(`  ✔ Seeded ${skills.length} skills`);
+
+  // ── Languages ──────────────────────────────
+  const languages = [
+    { id: 'b2c3d4e5-f6a7-8b9c-0d1e-2f3a4b5c6d7e', name: 'English' },
+    { name: 'Arabic' },
+    { name: 'French' },
+    { name: 'Spanish' },
+    { name: 'German' },
+    { name: 'Chinese' },
+    { name: 'Japanese' },
+    { name: 'Russian' },
+    { name: 'Portuguese' },
+    { name: 'Italian' },
+  ];
+
+  for (const lang of languages) {
+    const { id } = lang;
+    await prisma.languagesMaster.upsert({
+      where: { name: lang.name },
+      update: { ...(id ? { id } : {}) },
+      create: { ...lang },
+    });
+  }
+  console.log(`  ✔ Seeded ${languages.length} languages`);
+
+  // ── Education Levels ───────────────────────
+  const educationLevels = [
+    { name: 'high_school', labelEn: 'High School', labelAr: 'ثانوية عامة' },
+    { name: 'diploma', labelEn: 'Diploma', labelAr: 'دبلوم' },
+    { name: 'bachelor', labelEn: 'Bachelor', labelAr: 'بكالوريوس' },
+    { name: 'master', labelEn: 'Master', labelAr: 'ماجستير' },
+    { name: 'phd', labelEn: 'PhD', labelAr: 'دكتوراه' },
+    { name: 'certificate', labelEn: 'Certificate', labelAr: 'شهادة مهنية' },
+    { name: 'other', labelEn: 'Other', labelAr: 'أخرى' },
+  ];
+
+  for (const level of educationLevels) {
+    await prisma.educationLevel.upsert({
+      where: { name: level.name },
+      update: { labelEn: level.labelEn, labelAr: level.labelAr },
+      create: level,
+    });
+  }
+  console.log(`  ✔ Seeded ${educationLevels.length} education levels`);
 
   console.log('\n✅ Seed complete!');
 }

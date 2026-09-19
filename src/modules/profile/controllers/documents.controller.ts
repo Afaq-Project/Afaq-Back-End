@@ -12,6 +12,7 @@ import {
   BadRequestException,
   ParseUUIDPipe,
   NotFoundException,
+  Query,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -24,6 +25,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { DocumentsService } from '../services/documents.service';
 import { UploadDocumentDto } from '../dto/upload-document.dto';
+import { PaginationDto } from '../../../common/dto/pagination.dto';
 
 interface RequestWithUser {
   user: { id: string };
@@ -119,24 +121,14 @@ export class DocumentsController {
       actualFile,
       body.docType || 'other',
     );
-    return {
-      statusCode: 201,
-      message: 'Document uploaded successfully',
-      data: doc,
-      timestamp: new Date().toISOString(),
-    };
+    return doc;
   }
 
   @Get()
   @ApiOperation({ summary: 'Get all user documents' })
-  async getDocuments(@Req() req: RequestWithUser) {
-    const data = await this.documentsService.getDocuments(req.user.id);
-    return {
-      statusCode: 200,
-      message: 'Documents retrieved successfully',
-      data,
-      timestamp: new Date().toISOString(),
-    };
+  async getDocuments(@Req() req: RequestWithUser, @Query() dto: PaginationDto) {
+    const data = await this.documentsService.getDocuments(req.user.id, dto);
+    return data;
   }
 
   @Get(':id/download')
@@ -169,11 +161,5 @@ export class DocumentsController {
     id: string,
   ) {
     await this.documentsService.deleteDocument(req.user.id, id);
-    return {
-      statusCode: 200,
-      message: 'Document deleted successfully',
-      data: null,
-      timestamp: new Date().toISOString(),
-    };
   }
 }

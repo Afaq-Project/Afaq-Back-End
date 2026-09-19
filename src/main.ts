@@ -87,7 +87,7 @@ async function bootstrap() {
       whitelist: true,
       forbidNonWhitelisted: true,
       transform: true,
-      transformOptions: { enableImplicitConversion: true },
+      transformOptions: { enableImplicitConversion: false },
       exceptionFactory: (errors: ValidationError[]) => {
         const errList = errors.flatMap((err) =>
           Object.keys(err.constraints ?? {}).map((constraintKey) => ({

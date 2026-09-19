@@ -1,5 +1,5 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { IsOptional, IsString, IsEnum, IsIn } from 'class-validator';
+import { IsOptional, IsEnum, IsIn } from 'class-validator';
 import { PaginationDto } from '@common/dto';
 
 const SORTABLE_FIELDS = [
@@ -13,14 +13,6 @@ const SORTABLE_FIELDS = [
 export type UserSortField = (typeof SORTABLE_FIELDS)[number];
 
 export class UserQueryDto extends PaginationDto {
-  @ApiPropertyOptional({
-    description: 'Search by name or email',
-    example: 'john',
-  })
-  @IsString()
-  @IsOptional()
-  search?: string;
-
   @ApiPropertyOptional({
     description: 'Filter by role',
     enum: ['USER', 'ADMIN'],

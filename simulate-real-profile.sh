@@ -47,9 +47,9 @@ SKILL_ID=$(echo "$SKILLS" | jq -r '.data[0].skills[0].id')
 SKILL_NAME=$(echo "$SKILLS" | jq -r '.data[0].skills[0].name')
 echo "  → Skill: $SKILL_NAME ($SKILL_ID)"
 
-LANGS=$(curl -s "$BASE_URL/reference/languages")
-LANG_ID=$(echo "$LANGS" | jq -r '.data[0].id')
-LANG_NAME=$(echo "$LANGS" | jq -r '.data[0].name')
+LANG_ID=$(node get_lang_for_script.js)
+LANG_NAME="English"
+
 echo "  → Language: $LANG_NAME ($LANG_ID)"
 
 # ─────────────────────────────────────────────────────
@@ -74,14 +74,8 @@ curl -s -X PATCH "$BASE_URL/profile" \
   }' | jq '{statusCode, message, completionPct: .data.completionPct, coreFieldsComplete: .data.coreFieldsComplete}'
 
 # ─────────────────────────────────────────────────────
-# STEP 4: Add field of study
+# STEP 4: Field of study (included in profile update)
 # ─────────────────────────────────────────────────────
-echo ""
-echo "▶ [4/8] Adding field of study..."
-curl -s -X POST "$BASE_URL/profile/fields-of-study" \
-  -H "$JSON" -H "$AUTH" \
-  -d "{\"fieldId\":\"$FIELD_ID\"}" \
-  | jq '{statusCode, message, fieldId: .data.fieldId}'
 
 # ─────────────────────────────────────────────────────
 # STEP 5: Add skill

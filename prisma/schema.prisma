@@ -105,7 +105,7 @@ model UserProfiles {
   fullName        String?   @map("full_name") @db.Text
   dateOfBirth     DateTime? @map("date_of_birth") @db.Date
   nationality     String?   @db.Text
-  educationLevel  String?   @map("education_level") @db.Text
+  educationLevelId  String?   @map("education_level_id") @db.Uuid
   fieldOfStudy    String[]  @map("field_of_study") @db.Text
   currentCountry  String?   @map("current_country") @db.Text
   currentCity     String?   @map("current_city") @db.Text
@@ -124,6 +124,8 @@ model UserProfiles {
   updatedAt       DateTime? @updatedAt @map("updated_at") @db.Timestamptz(6)
 
   user            Users     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  educationLevelRef EducationLevel? @relation(fields: [educationLevelId], references: [id])
 
   @@index([matchingVersion])
   @@map("user_profiles")
@@ -199,6 +201,18 @@ model UserLanguages {
 
   @@id([userId, languageId])
   @@map("user_languages")
+}
+
+model EducationLevel {
+  id       String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name     String  @unique @db.VarChar(50)
+  labelEn  String  @map("label_en") @db.VarChar(100)
+  labelAr  String  @map("label_ar") @db.VarChar(100)
+  isActive Boolean @default(true) @map("is_active")
+
+  userProfiles UserProfiles[]
+
+  @@map("education_levels")
 }
 
 // ============================================================

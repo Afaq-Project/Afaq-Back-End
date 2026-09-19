@@ -6,6 +6,10 @@ import * as nock from 'nock';
 import { AppModule } from './../src/app.module';
 import { PrismaService } from '@/prisma';
 import { OAuthGuard } from '@/modules/auth/guards/oauth.guard';
+import { Reflector } from '@nestjs/core';
+import { TransformInterceptor } from './../src/common/interceptors/transform.interceptor';
+import { TimeoutInterceptor } from './../src/common/interceptors/timeout.interceptor';
+import { AllExceptionsFilter } from './../src/common/filters/all-exceptions.filter';
 
 describe('OAuth (e2e)', () => {
   let app: INestApplication<App>;
@@ -34,6 +38,12 @@ describe('OAuth (e2e)', () => {
     app.setGlobalPrefix('api');
     app.useGlobalPipes(
       new ValidationPipe({ whitelist: true, transform: true }),
+    );
+    const reflector = app.get(Reflector);
+    app.useGlobalFilters(new AllExceptionsFilter());
+    app.useGlobalInterceptors(
+      new TransformInterceptor(reflector),
+      new TimeoutInterceptor(),
     );
 
     prisma = app.get<PrismaService>(PrismaService);
@@ -108,6 +118,12 @@ describe('OAuth (e2e)', () => {
       testApp.useGlobalPipes(
         new ValidationPipe({ whitelist: true, transform: true }),
       );
+      const testReflector = testApp.get(Reflector);
+      testApp.useGlobalFilters(new AllExceptionsFilter());
+      testApp.useGlobalInterceptors(
+        new TransformInterceptor(testReflector),
+        new TimeoutInterceptor(),
+      );
       await testApp.init();
     });
 
@@ -136,12 +152,12 @@ describe('OAuth (e2e)', () => {
         .get('/api/auth/google/callback')
         .expect(200);
 
-      expect(res.body.accessToken).toBeDefined();
-      expect(res.body.refreshToken).toBeDefined();
-      expect(res.body.user.email).toBe(uniqueEmail);
-      expect(res.body.user.isEmailVerified).toBe(true);
-      expect(res.body.user.userProfile.isDraft).toBe(true);
-      expect(res.body.user.roles).toContain('user');
+      expect(res.body.data.accessToken).toBeDefined();
+      expect(res.body.data.refreshToken).toBeDefined();
+      expect(res.body.data.user.email).toBe(uniqueEmail);
+      expect(res.body.data.user.isEmailVerified).toBe(true);
+      expect(res.body.data.user.userProfile.isDraft).toBe(true);
+      expect(res.body.data.user.roles).toContain('user');
 
       // Verify in DB
       const dbUser = await prisma.users.findUnique({
@@ -195,9 +211,9 @@ describe('OAuth (e2e)', () => {
         .get('/api/auth/linkedin/callback')
         .expect(200);
 
-      expect(res.body.user.id).toBe(existingUser.id);
-      expect(res.body.user.email).toBe(existingEmail);
-      expect(res.body.user.isEmailVerified).toBe(true);
+      expect(res.body.data.user.id).toBe(existingUser.id);
+      expect(res.body.data.user.email).toBe(existingEmail);
+      expect(res.body.data.user.isEmailVerified).toBe(true);
 
       // Verify DB has only 1 user, and identity linked
       const userCount = await prisma.users.count({

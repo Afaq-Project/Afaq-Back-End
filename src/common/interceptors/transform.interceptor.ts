@@ -18,12 +18,16 @@ type RequestWithMeta = Request & { generatedRequestId?: boolean };
 
 interface PaginatedShape {
   data: unknown[];
-  total: number;
-  page: number;
-  limit: number;
-  totalPages: number;
-  hasNext: boolean;
-  hasPrev: boolean;
+  meta: {
+    pagination: {
+      total: number;
+      page: number;
+      limit: number;
+      totalPages: number;
+      hasNext: boolean;
+      hasPrev: boolean;
+    };
+  };
 }
 
 function isPaginated(value: unknown): value is PaginatedShape {
@@ -31,9 +35,10 @@ function isPaginated(value: unknown): value is PaginatedShape {
     value !== null &&
     typeof value === 'object' &&
     'data' in value &&
-    'total' in value &&
-    'page' in value &&
-    'hasNext' in value
+    'meta' in value &&
+    typeof (value as Record<string, unknown>).meta === 'object' &&
+    'pagination' in
+      ((value as Record<string, unknown>).meta as Record<string, unknown>)
   );
 }
 
@@ -122,14 +127,13 @@ export class TransformInterceptor implements NestInterceptor {
             : message;
 
         if (isPaginated(finalData)) {
-          const { data, total, page, limit, totalPages, hasNext, hasPrev } =
-            finalData;
+          const { data, meta: originalMeta } = finalData;
           return {
             statusCode,
             message: finalMessage,
             data,
             meta: {
-              pagination: { page, limit, total, totalPages, hasNext, hasPrev },
+              ...originalMeta,
               ...requestIdMeta,
               ...(deprecationMeta ? { deprecation: deprecationMeta } : {}),
             },

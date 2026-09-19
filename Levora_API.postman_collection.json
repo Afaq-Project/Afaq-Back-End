@@ -12,22 +12,6 @@
       "item": [
         {
           "name": "Register",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "if (pm.response.code === 201) {",
-                  "    var jsonData = pm.response.json();",
-                  "    if (jsonData.data && jsonData.data.id) {",
-                  "        pm.collectionVariables.set('userId', jsonData.data.id);",
-                  "    }",
-                  "}"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
           "request": {
             "method": "POST",
             "header": [
@@ -36,10 +20,6 @@
                 "value": "application/json"
               }
             ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"email\": \"user@example.com\",\n  \"password\": \"P@ssw0rd123!\",\n  \"firstName\": \"John\",\n  \"lastName\": \"Doe\"\n}"
-            },
             "url": {
               "raw": "{{baseUrl}}/auth/register",
               "host": [
@@ -50,72 +30,32 @@
                 "register"
               ]
             },
-            "description": "Registers a new user and creates an initial profile."
+            "description": "Registers a new user and creates an initial profile.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"user@example.com\",\n  \"password\": \"P@ssw0rd123!\",\n  \"firstName\": \"John\",\n  \"lastName\": \"Doe\"\n}"
+            }
           },
-          "response": [
+          "response": [],
+          "event": [
             {
-              "name": "201 Created",
-              "originalRequest": {
-                "method": "POST",
-                "header": [
-                  {
-                    "key": "Content-Type",
-                    "value": "application/json"
-                  }
-                ],
-                "body": {
-                  "mode": "raw",
-                  "raw": "{\n  \"email\": \"user@example.com\",\n  \"password\": \"P@ssw0rd123!\",\n  \"firstName\": \"John\",\n  \"lastName\": \"Doe\"\n}"
-                },
-                "url": {
-                  "raw": "{{baseUrl}}/auth/register",
-                  "host": [
-                    "{{baseUrl}}"
-                  ],
-                  "path": [
-                    "auth",
-                    "register"
-                  ]
-                }
-              },
-              "status": "Created",
-              "code": 201,
-              "_postman_previewlanguage": "json",
-              "header": [
-                {
-                  "key": "Content-Type",
-                  "value": "application/json"
-                }
-              ],
-              "cookie": [],
-              "body": "{\n  \"success\": true,\n  \"status\": 201,\n  \"message\": \"Created successfully\",\n  \"data\": {\n    \"id\": \"9dd10e8f-0f3c-4295-befb-6109efd2587f\",\n    \"email\": \"user@example.com\",\n    \"firstName\": \"John\",\n    \"lastName\": \"Doe\",\n    \"isEmailVerified\": false,\n    \"isActive\": true,\n    \"lastLoginAt\": null,\n    \"createdAt\": \"2026-08-19T20:00:00.000Z\",\n    \"userProfile\": {\n      \"fullName\": \"John Doe\",\n      \"completionPct\": 0,\n      \"isDraft\": true\n    },\n    \"roles\": [\n      \"user\"\n    ]\n  },\n  \"meta\": {\n    \"requestId\": \"f8207c5b-4442-442b-ac9f-a42e3e5a7e36\"\n  },\n  \"errors\": null,\n  \"timestamp\": \"2026-08-19T20:00:00+00:00\"\n}"
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    var jsonData = pm.response.json();",
+                  "    if (jsonData.data && jsonData.data.id) {",
+                  "        pm.collectionVariables.set('userId', jsonData.data.id);",
+                  "    }",
+                  "}"
+                ]
+              }
             }
           ]
         },
         {
           "name": "Login",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "if (pm.response.code === 200) {",
-                  "    var jsonData = pm.response.json();",
-                  "    if (jsonData.data && jsonData.data.accessToken) {",
-                  "        pm.collectionVariables.set('accessToken', jsonData.data.accessToken);",
-                  "    }",
-                  "    if (jsonData.data && jsonData.data.refreshToken) {",
-                  "        pm.collectionVariables.set('refreshToken', jsonData.data.refreshToken);",
-                  "    }",
-                  "    if (jsonData.data && jsonData.data.user && jsonData.data.user.id) {",
-                  "        pm.collectionVariables.set('userId', jsonData.data.user.id);",
-                  "    }",
-                  "}"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
           "request": {
             "method": "POST",
             "header": [
@@ -124,10 +64,6 @@
                 "value": "application/json"
               }
             ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"email\": \"user@example.com\",\n  \"password\": \"P@ssw0rd123!\"\n}"
-            },
             "url": {
               "raw": "{{baseUrl}}/auth/login",
               "host": [
@@ -138,61 +74,33 @@
                 "login"
               ]
             },
-            "description": "Authenticates user credentials and returns JWT access and refresh tokens."
+            "description": "Login with email and password",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"user@example.com\",\n  \"password\": \"P@ssw0rd123!\"\n}"
+            }
           },
-          "response": [
+          "response": [],
+          "event": [
             {
-              "name": "200 OK",
-              "originalRequest": {
-                "method": "POST",
-                "header": [
-                  {
-                    "key": "Content-Type",
-                    "value": "application/json"
-                  }
-                ],
-                "body": {
-                  "mode": "raw",
-                  "raw": "{\n  \"email\": \"user@example.com\",\n  \"password\": \"P@ssw0rd123!\"\n}"
-                },
-                "url": {
-                  "raw": "{{baseUrl}}/auth/login",
-                  "host": [
-                    "{{baseUrl}}"
-                  ],
-                  "path": [
-                    "auth",
-                    "login"
-                  ]
-                }
-              },
-              "status": "OK",
-              "code": 200,
-              "_postman_previewlanguage": "json",
-              "header": [
-                {
-                  "key": "Content-Type",
-                  "value": "application/json"
-                }
-              ],
-              "cookie": [],
-              "body": "{\n  \"success\": true,\n  \"status\": 200,\n  \"message\": \"OK\",\n  \"data\": {\n    \"accessToken\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...\",\n    \"refreshToken\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...\",\n    \"user\": {\n      \"id\": \"9dd10e8f-0f3c-4295-befb-6109efd2587f\",\n      \"email\": \"user@example.com\",\n      \"firstName\": \"John\",\n      \"lastName\": \"Doe\",\n      \"isEmailVerified\": false,\n      \"isActive\": true,\n      \"lastLoginAt\": \"2026-08-19T20:05:00.000Z\",\n      \"createdAt\": \"2026-08-19T20:00:00.000Z\",\n      \"userProfile\": {\n        \"fullName\": \"John Doe\",\n        \"completionPct\": 0,\n        \"isDraft\": true\n      },\n      \"roles\": [\n        \"user\"\n      ]\n    }\n  },\n  \"meta\": {\n    \"requestId\": \"0375eb67-40c9-4427-ae57-a719b7df22da\"\n  },\n  \"errors\": null,\n  \"timestamp\": \"2026-08-19T20:05:00+00:00\"\n}"
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    var jsonData = pm.response.json();",
+                  "    if (jsonData.data && jsonData.data.accessToken) { pm.collectionVariables.set('accessToken', jsonData.data.accessToken); }",
+                  "    if (jsonData.data && jsonData.data.refreshToken) { pm.collectionVariables.set('refreshToken', jsonData.data.refreshToken); }",
+                  "    if (jsonData.data && jsonData.data.user && jsonData.data.user.id) { pm.collectionVariables.set('userId', jsonData.data.user.id); }",
+                  "}"
+                ]
+              }
             }
           ]
         },
         {
           "name": "Get Current Profile (Me)",
           "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{accessToken}}",
-                  "type": "string"
-                }
-              ]
-            },
             "method": "GET",
             "header": [],
             "url": {
@@ -205,60 +113,22 @@
                 "me"
               ]
             },
-            "description": "Retrieves current authenticated user details."
-          },
-          "response": [
-            {
-              "name": "200 OK",
-              "originalRequest": {
-                "method": "GET",
-                "header": [],
-                "url": {
-                  "raw": "{{baseUrl}}/auth/me",
-                  "host": [
-                    "{{baseUrl}}"
-                  ],
-                  "path": [
-                    "auth",
-                    "me"
-                  ]
-                }
-              },
-              "status": "OK",
-              "code": 200,
-              "_postman_previewlanguage": "json",
-              "header": [
+            "description": "Get current user profile",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
                 {
-                  "key": "Content-Type",
-                  "value": "application/json"
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
                 }
-              ],
-              "cookie": [],
-              "body": "{\n  \"success\": true,\n  \"status\": 200,\n  \"message\": \"OK\",\n  \"data\": {\n    \"id\": \"9dd10e8f-0f3c-4295-befb-6109efd2587f\",\n    \"email\": \"user@example.com\",\n    \"firstName\": \"John\",\n    \"lastName\": \"Doe\",\n    \"isEmailVerified\": false,\n    \"isActive\": true,\n    \"lastLoginAt\": \"2026-08-19T20:05:00.000Z\",\n    \"createdAt\": \"2026-08-19T20:00:00.000Z\",\n    \"userProfile\": {\n      \"fullName\": \"John Doe\",\n      \"completionPct\": 0,\n      \"isDraft\": true\n    },\n    \"roles\": [\n      \"user\"\n    ]\n  },\n  \"meta\": {\n    \"requestId\": \"92b0d93e-8881-4b24-a77f-840d4379a554\"\n  },\n  \"errors\": null,\n  \"timestamp\": \"2026-08-19T20:05:00+00:00\"\n}"
+              ]
             }
-          ]
+          },
+          "response": []
         },
         {
           "name": "Refresh Token",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "if (pm.response.code === 200) {",
-                  "    var jsonData = pm.response.json();",
-                  "    if (jsonData.data && jsonData.data.accessToken) {",
-                  "        pm.collectionVariables.set('accessToken', jsonData.data.accessToken);",
-                  "    }",
-                  "    if (jsonData.data && jsonData.data.refreshToken) {",
-                  "        pm.collectionVariables.set('refreshToken', jsonData.data.refreshToken);",
-                  "    }",
-                  "}"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
           "request": {
             "method": "POST",
             "header": [
@@ -267,10 +137,6 @@
                 "value": "application/json"
               }
             ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}"
-            },
             "url": {
               "raw": "{{baseUrl}}/auth/refresh",
               "host": [
@@ -281,61 +147,32 @@
                 "refresh"
               ]
             },
-            "description": "Refreshes an expired access token using a valid refresh token."
+            "description": "Refresh access token",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}"
+            }
           },
-          "response": [
+          "response": [],
+          "event": [
             {
-              "name": "200 OK",
-              "originalRequest": {
-                "method": "POST",
-                "header": [
-                  {
-                    "key": "Content-Type",
-                    "value": "application/json"
-                  }
-                ],
-                "body": {
-                  "mode": "raw",
-                  "raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}"
-                },
-                "url": {
-                  "raw": "{{baseUrl}}/auth/refresh",
-                  "host": [
-                    "{{baseUrl}}"
-                  ],
-                  "path": [
-                    "auth",
-                    "refresh"
-                  ]
-                }
-              },
-              "status": "OK",
-              "code": 200,
-              "_postman_previewlanguage": "json",
-              "header": [
-                {
-                  "key": "Content-Type",
-                  "value": "application/json"
-                }
-              ],
-              "cookie": [],
-              "body": "{\n  \"success\": true,\n  \"status\": 200,\n  \"message\": \"OK\",\n  \"data\": {\n    \"accessToken\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...\",\n    \"refreshToken\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...\"\n  },\n  \"meta\": {\n    \"requestId\": \"d6e0fb9f-3fb7-4122-8f36-e7b1dc2179c4\"\n  },\n  \"errors\": null,\n  \"timestamp\": \"2026-08-19T20:10:00+00:00\"\n}"
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    var jsonData = pm.response.json();",
+                  "    if (jsonData.data && jsonData.data.accessToken) { pm.collectionVariables.set('accessToken', jsonData.data.accessToken); }",
+                  "    if (jsonData.data && jsonData.data.refreshToken) { pm.collectionVariables.set('refreshToken', jsonData.data.refreshToken); }",
+                  "}"
+                ]
+              }
             }
           ]
         },
         {
           "name": "Logout",
           "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{accessToken}}",
-                  "type": "string"
-                }
-              ]
-            },
             "method": "POST",
             "header": [],
             "url": {
@@ -348,61 +185,22 @@
                 "logout"
               ]
             },
-            "description": "Logs out the user and clears authentication cookies."
-          },
-          "response": [
-            {
-              "name": "204 No Content",
-              "originalRequest": {
-                "method": "POST",
-                "header": [],
-                "url": {
-                  "raw": "{{baseUrl}}/auth/logout",
-                  "host": [
-                    "{{baseUrl}}"
-                  ],
-                  "path": [
-                    "auth",
-                    "logout"
-                  ]
+            "description": "Logout (clear cookies)",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
                 }
-              },
-              "status": "No Content",
-              "code": 204,
-              "_postman_previewlanguage": "text",
-              "body": ""
+              ]
             }
-          ]
+          },
+          "response": []
         },
         {
-          "name": "OAuth Google → Initiate",
-          "event": [
-            {
-              "listen": "prerequest",
-              "script": {
-                "exec": [
-                  "// Clear cookies before initiating OAuth to avoid session interference.",
-                  "pm.cookies.clear();",
-                  "pm.request.headers.remove('Cookie');"
-                ],
-                "type": "text/javascript"
-              }
-            },
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Status is 302 Redirect to Google', function () {",
-                  "    pm.response.to.have.status(302);",
-                  "});",
-                  "pm.test('Location header points to accounts.google.com', function () {",
-                  "    pm.expect(pm.response.headers.get('Location')).to.include('accounts.google.com');",
-                  "});"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
+          "name": "OAuth Google \u2192 Initiate",
           "request": {
             "method": "GET",
             "header": [],
@@ -416,69 +214,23 @@
                 "google"
               ]
             },
-            "description": "Initiates the Google OAuth 2.0 authentication flow. The server will respond with a 302 redirect to Google's consent screen. The user must follow the redirect in a browser to complete authentication.\n\n**Flow:**\n1. Client calls `GET /auth/google`\n2. Server redirects → `https://accounts.google.com/o/oauth2/v2/auth?...`\n3. User grants permissions\n4. Google redirects → `/auth/google/callback?code=...`\n5. Server processes callback and returns JWT tokens\n\n**Note:** This endpoint cannot be tested end-to-end in Postman because it requires a browser session to follow the OAuth redirect and complete the consent flow."
+            "description": "Initiate OAuth login with Google"
           },
-          "response": [
+          "response": [],
+          "event": [
             {
-              "name": "302 Redirect to Google",
-              "originalRequest": {
-                "method": "GET",
-                "header": [],
-                "url": {
-                  "raw": "{{baseUrl}}/auth/google",
-                  "host": [
-                    "{{baseUrl}}"
-                  ],
-                  "path": [
-                    "auth",
-                    "google"
-                  ]
-                }
-              },
-              "status": "Found",
-              "code": 302,
-              "_postman_previewlanguage": "text",
-              "header": [
-                {
-                  "key": "Location",
-                  "value": "https://accounts.google.com/o/oauth2/v2/auth?response_type=code&redirect_uri=...&scope=email%20profile&client_id=..."
-                }
-              ],
-              "cookie": [],
-              "body": ""
-            },
-            {
-              "name": "400 Unsupported Provider",
-              "originalRequest": {
-                "method": "GET",
-                "header": [],
-                "url": {
-                  "raw": "{{baseUrl}}/auth/other",
-                  "host": [
-                    "{{baseUrl}}"
-                  ],
-                  "path": [
-                    "auth",
-                    "other"
-                  ]
-                }
-              },
-              "status": "Bad Request",
-              "code": 400,
-              "_postman_previewlanguage": "json",
-              "header": [
-                {
-                  "key": "Content-Type",
-                  "value": "application/json"
-                }
-              ],
-              "cookie": [],
-              "body": "{\n  \"success\": false,\n  \"status\": 400,\n  \"message\": \"Provider other is not supported\",\n  \"data\": null,\n  \"errors\": null,\n  \"timestamp\": \"2026-08-28T20:00:00+00:00\"\n}"
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.cookies.clear(); pm.request.headers.remove('Cookie');"
+                ]
+              }
             }
           ]
         },
         {
-          "name": "OAuth Google → Callback (Doc Only)",
+          "name": "OAuth Google \u2192 Callback (Doc Only)",
           "request": {
             "method": "GET",
             "header": [],
@@ -495,107 +247,16 @@
               "query": [
                 {
                   "key": "code",
-                  "value": "AUTHORIZATION_CODE_FROM_GOOGLE",
-                  "description": "Authorization code returned by Google after the user grants consent. This is generated by Google and cannot be fabricated."
+                  "value": "AUTHORIZATION_CODE_FROM_GOOGLE"
                 }
               ]
             },
-            "description": "⚠️ **DOCUMENTATION ONLY — Cannot be tested directly in Postman.**\n\nThis endpoint is the OAuth callback for Google. It is called automatically by Google after the user grants or denies consent on the Google consent screen. The `code` query parameter is a one-time authorization code issued by Google that cannot be generated manually.\n\n**On success (200 OK):** Returns JWT access token, refresh token, and user profile. Sets `accessToken` and `refreshToken` cookies.\n\n**On missing email (400 Bad Request):** Returns `\"Unable to retrieve email from the provider. Please ensure your email is public or use another login method.\"`\n\n**Testing:** Use the browser-based OAuth flow with real credentials, or refer to `test/oauth.e2e-spec.ts` for automated E2E testing with mocked guards."
+            "description": "OAuth callback endpoint for Google"
           },
-          "response": [
-            {
-              "name": "200 OK — New User Created (isDraft: true)",
-              "originalRequest": {
-                "method": "GET",
-                "header": [],
-                "url": {
-                  "raw": "{{baseUrl}}/auth/google/callback?code=AUTHORIZATION_CODE_FROM_GOOGLE",
-                  "host": [
-                    "{{baseUrl}}"
-                  ],
-                  "path": [
-                    "auth",
-                    "google",
-                    "callback"
-                  ]
-                }
-              },
-              "status": "OK",
-              "code": 200,
-              "_postman_previewlanguage": "json",
-              "header": [
-                {
-                  "key": "Content-Type",
-                  "value": "application/json"
-                },
-                {
-                  "key": "Set-Cookie",
-                  "value": "accessToken=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...; Path=/; HttpOnly; SameSite=Lax"
-                }
-              ],
-              "cookie": [],
-              "body": "{\n  \"accessToken\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...\",\n  \"refreshToken\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...\",\n  \"user\": {\n    \"id\": \"9dd10e8f-0f3c-4295-befb-6109efd2587f\",\n    \"email\": \"john.doe@gmail.com\",\n    \"firstName\": \"John\",\n    \"lastName\": \"Doe\",\n    \"isEmailVerified\": true,\n    \"isActive\": true,\n    \"lastLoginAt\": \"2026-08-28T20:00:00.000Z\",\n    \"createdAt\": \"2026-08-28T20:00:00.000Z\",\n    \"userProfile\": {\n      \"fullName\": \"John Doe\",\n      \"completionPct\": 0,\n      \"isDraft\": true\n    },\n    \"roles\": [\n      \"user\"\n    ]\n  }\n}"
-            },
-            {
-              "name": "400 Bad Request — Missing Email",
-              "originalRequest": {
-                "method": "GET",
-                "header": [],
-                "url": {
-                  "raw": "{{baseUrl}}/auth/google/callback?code=AUTHORIZATION_CODE_FROM_GOOGLE",
-                  "host": [
-                    "{{baseUrl}}"
-                  ],
-                  "path": [
-                    "auth",
-                    "google",
-                    "callback"
-                  ]
-                }
-              },
-              "status": "Bad Request",
-              "code": 400,
-              "_postman_previewlanguage": "json",
-              "header": [
-                {
-                  "key": "Content-Type",
-                  "value": "application/json"
-                }
-              ],
-              "cookie": [],
-              "body": "{\n  \"success\": false,\n  \"status\": 400,\n  \"message\": \"Unable to retrieve email from the provider. Please ensure your email is public or use another login method.\",\n  \"data\": null,\n  \"errors\": null,\n  \"timestamp\": \"2026-08-28T20:00:00+00:00\"\n}"
-            }
-          ]
+          "response": []
         },
         {
-          "name": "OAuth LinkedIn → Initiate",
-          "event": [
-            {
-              "listen": "prerequest",
-              "script": {
-                "exec": [
-                  "// Clear cookies before initiating OAuth to avoid session interference.",
-                  "pm.cookies.clear();",
-                  "pm.request.headers.remove('Cookie');"
-                ],
-                "type": "text/javascript"
-              }
-            },
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Status is 302 Redirect to LinkedIn', function () {",
-                  "    pm.response.to.have.status(302);",
-                  "});",
-                  "pm.test('Location header points to linkedin.com', function () {",
-                  "    pm.expect(pm.response.headers.get('Location')).to.include('linkedin.com');",
-                  "});"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
+          "name": "OAuth LinkedIn \u2192 Initiate",
           "request": {
             "method": "GET",
             "header": [],
@@ -609,41 +270,23 @@
                 "linkedin"
               ]
             },
-            "description": "Initiates the LinkedIn OAuth 2.0 authentication flow. The server will respond with a 302 redirect to LinkedIn's authorization page. The user must follow the redirect in a browser to complete authentication.\n\n**Flow:**\n1. Client calls `GET /auth/linkedin`\n2. Server redirects → `https://www.linkedin.com/oauth/v2/authorization?...`\n3. User grants permissions\n4. LinkedIn redirects → `/auth/linkedin/callback?code=...`\n5. Server processes callback and returns JWT tokens\n\n**Note:** This endpoint cannot be tested end-to-end in Postman because it requires a browser session to follow the OAuth redirect and complete the consent flow."
+            "description": "Initiate OAuth login with LinkedIn"
           },
-          "response": [
+          "response": [],
+          "event": [
             {
-              "name": "302 Redirect to LinkedIn",
-              "originalRequest": {
-                "method": "GET",
-                "header": [],
-                "url": {
-                  "raw": "{{baseUrl}}/auth/linkedin",
-                  "host": [
-                    "{{baseUrl}}"
-                  ],
-                  "path": [
-                    "auth",
-                    "linkedin"
-                  ]
-                }
-              },
-              "status": "Found",
-              "code": 302,
-              "_postman_previewlanguage": "text",
-              "header": [
-                {
-                  "key": "Location",
-                  "value": "https://www.linkedin.com/oauth/v2/authorization?response_type=code&redirect_uri=...&scope=r_emailaddress%20r_liteprofile&client_id=..."
-                }
-              ],
-              "cookie": [],
-              "body": ""
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.cookies.clear(); pm.request.headers.remove('Cookie');"
+                ]
+              }
             }
           ]
         },
         {
-          "name": "OAuth LinkedIn → Callback (Doc Only)",
+          "name": "OAuth LinkedIn \u2192 Callback (Doc Only)",
           "request": {
             "method": "GET",
             "header": [],
@@ -660,44 +303,13 @@
               "query": [
                 {
                   "key": "code",
-                  "value": "AUTHORIZATION_CODE_FROM_LINKEDIN",
-                  "description": "Authorization code returned by LinkedIn after the user grants consent. This is generated by LinkedIn and cannot be fabricated."
+                  "value": "AUTHORIZATION_CODE_FROM_LINKEDIN"
                 }
               ]
             },
-            "description": "⚠️ **DOCUMENTATION ONLY — Cannot be tested directly in Postman.**\n\nThis endpoint is the OAuth callback for LinkedIn. It is called automatically by LinkedIn after the user grants or denies consent on the LinkedIn authorization page. The `code` query parameter is a one-time authorization code issued by LinkedIn that cannot be generated manually.\n\n**On success (200 OK):** Returns JWT access token, refresh token, and user profile. Sets `accessToken` and `refreshToken` cookies. If the email matches an existing user, the OAuth identity is linked to that account instead of creating a new one.\n\n**On missing email (400 Bad Request):** Returns `\"Unable to retrieve email from the provider. Please ensure your email is public or use another login method.\"`\n\n**Testing:** Use the browser-based OAuth flow with real credentials, or refer to `test/oauth.e2e-spec.ts` for automated E2E testing with mocked guards."
+            "description": "OAuth callback endpoint for LinkedIn"
           },
-          "response": [
-            {
-              "name": "200 OK — Existing User Linked",
-              "originalRequest": {
-                "method": "GET",
-                "header": [],
-                "url": {
-                  "raw": "{{baseUrl}}/auth/linkedin/callback?code=AUTHORIZATION_CODE_FROM_LINKEDIN",
-                  "host": [
-                    "{{baseUrl}}"
-                  ],
-                  "path": [
-                    "auth",
-                    "linkedin",
-                    "callback"
-                  ]
-                }
-              },
-              "status": "OK",
-              "code": 200,
-              "_postman_previewlanguage": "json",
-              "header": [
-                {
-                  "key": "Content-Type",
-                  "value": "application/json"
-                }
-              ],
-              "cookie": [],
-              "body": "{\n  \"accessToken\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...\",\n  \"refreshToken\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...\",\n  \"user\": {\n    \"id\": \"9dd10e8f-0f3c-4295-befb-6109efd2587f\",\n    \"email\": \"john.doe@linkedin.com\",\n    \"firstName\": \"John\",\n    \"lastName\": \"Doe\",\n    \"isEmailVerified\": true,\n    \"isActive\": true,\n    \"lastLoginAt\": \"2026-08-28T20:00:00.000Z\",\n    \"createdAt\": \"2026-08-28T19:00:00.000Z\",\n    \"userProfile\": {\n      \"fullName\": \"John Doe\",\n      \"completionPct\": 80,\n      \"isDraft\": false\n    },\n    \"roles\": [\n      \"user\"\n    ]\n  }\n}"
-            }
-          ]
+          "response": []
         }
       ]
     },
@@ -708,16 +320,6 @@
         {
           "name": "Get Own Profile",
           "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{accessToken}}",
-                  "type": "string"
-                }
-              ]
-            },
             "method": "GET",
             "header": [],
             "url": {
@@ -730,27 +332,17 @@
                 "profile"
               ]
             },
-            "description": "Retrieves profile of currently logged-in user."
+            "description": "Get current authenticated user profile"
           },
           "response": []
         },
         {
           "name": "List Users (Admin)",
           "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{accessToken}}",
-                  "type": "string"
-                }
-              ]
-            },
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/users?page=1&limit=20&order=desc",
+              "raw": "{{baseUrl}}/users?page=1&limit=20&search=john&role=USER&sort=createdAt&order=desc",
               "host": [
                 "{{baseUrl}}"
               ],
@@ -767,28 +359,30 @@
                   "value": "20"
                 },
                 {
+                  "key": "search",
+                  "value": "john"
+                },
+                {
+                  "key": "role",
+                  "value": "USER"
+                },
+                {
+                  "key": "sort",
+                  "value": "createdAt"
+                },
+                {
                   "key": "order",
                   "value": "desc"
                 }
               ]
             },
-            "description": "Retrieves paginated list of users (Admin only)."
+            "description": "List all users (paginated)"
           },
           "response": []
         },
         {
           "name": "Get User By ID (Admin)",
           "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{accessToken}}",
-                  "type": "string"
-                }
-              ]
-            },
             "method": "GET",
             "header": [],
             "url": {
@@ -801,23 +395,13 @@
                 "{{userId}}"
               ]
             },
-            "description": "Retrieves details of a specific user by ID (Admin only)."
+            "description": "Get user by ID (admin only)"
           },
           "response": []
         },
         {
           "name": "Create User (Admin)",
           "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{accessToken}}",
-                  "type": "string"
-                }
-              ]
-            },
             "method": "POST",
             "header": [
               {
@@ -825,10 +409,6 @@
                 "value": "application/json"
               }
             ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"email\": \"newuser@example.com\",\n  \"name\": \"Jane Doe\"\n}"
-            },
             "url": {
               "raw": "{{baseUrl}}/users",
               "host": [
@@ -838,23 +418,17 @@
                 "users"
               ]
             },
-            "description": "Creates a new user (Admin only)."
+            "description": "Create a new user (admin only)",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"newuser@example.com\",\n  \"name\": \"New User\"\n}"
+            }
           },
           "response": []
         },
         {
           "name": "Update User",
           "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{accessToken}}",
-                  "type": "string"
-                }
-              ]
-            },
             "method": "PATCH",
             "header": [
               {
@@ -862,10 +436,6 @@
                 "value": "application/json"
               }
             ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"name\": \"Jane Smith\"\n}"
-            },
             "url": {
               "raw": "{{baseUrl}}/users/{{userId}}",
               "host": [
@@ -876,23 +446,17 @@
                 "{{userId}}"
               ]
             },
-            "description": "Updates user info."
+            "description": "Update user",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Updated Name\",\n  \"email\": \"updated@example.com\"\n}"
+            }
           },
           "response": []
         },
         {
           "name": "Delete User (Admin)",
           "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{accessToken}}",
-                  "type": "string"
-                }
-              ]
-            },
             "method": "DELETE",
             "header": [],
             "url": {
@@ -905,51 +469,33 @@
                 "{{userId}}"
               ]
             },
-            "description": "Deletes a user by ID (Admin only)."
+            "description": "Delete user (admin only)"
           },
           "response": []
         }
-      ]
+      ],
+      "auth": {
+        "type": "bearer",
+        "bearer": [
+          {
+            "key": "token",
+            "value": "{{accessToken}}",
+            "type": "string"
+          }
+        ]
+      }
     },
     {
       "name": "Profile",
-      "description": "User profile management, documents, and reference data endpoints.",
+      "description": "User profile management, educations, skills, languages, and documents.",
       "item": [
         {
-          "name": "Profile",
+          "name": "General",
           "description": "User profile CRUD operations.",
           "item": [
             {
               "name": "Get User Profile",
-              "event": [
-                {
-                  "listen": "test",
-                  "script": {
-                    "exec": [
-                      "pm.test(\"Status code is 200\", function () {",
-                      "    pm.response.to.have.status(200);",
-                      "});",
-                      "pm.test(\"Profile data retrieved\", function () {",
-                      "    var jsonData = pm.response.json();",
-                      "    pm.expect(jsonData).to.have.property(\"data\");",
-                      "    pm.expect(jsonData.data).to.have.property(\"userId\");",
-                      "});"
-                    ],
-                    "type": "text/javascript"
-                  }
-                }
-              ],
               "request": {
-                "auth": {
-                  "type": "bearer",
-                  "bearer": [
-                    {
-                      "key": "token",
-                      "value": "{{accessToken}}",
-                      "type": "string"
-                    }
-                  ]
-                },
                 "method": "GET",
                 "header": [],
                 "url": {
@@ -961,74 +507,13 @@
                     "profile"
                   ]
                 },
-                "description": "Retrieves the current authenticated user profile with detailed relations (education, skills, languages, documents, and completion percentage)."
+                "description": "Retrieves the current authenticated user profile"
               },
-              "response": [
-                {
-                  "name": "200 OK",
-                  "originalRequest": {
-                    "method": "GET",
-                    "header": [
-                      {
-                        "key": "Authorization",
-                        "value": "Bearer {{accessToken}}"
-                      }
-                    ],
-                    "url": {
-                      "raw": "{{baseUrl}}/profile",
-                      "host": [
-                        "{{baseUrl}}"
-                      ],
-                      "path": [
-                        "profile"
-                      ]
-                    }
-                  },
-                  "status": "OK",
-                  "code": 200,
-                  "_postman_previewlanguage": "json",
-                  "header": [
-                    {
-                      "key": "Content-Type",
-                      "value": "application/json"
-                    }
-                  ],
-                  "cookie": [],
-                  "body": "{\n  \"success\": true,\n  \"status\": 200,\n  \"message\": \"Profile retrieved successfully\",\n  \"data\": {\n    \"id\": \"d3b07384-d113-460d-a773-f9c15d5ec3ef\",\n    \"userId\": \"9dd10e8f-0f3c-4295-befb-6109efd2587f\",\n    \"fullName\": \"John Doe\",\n    \"dateOfBirth\": \"1998-05-15T00:00:00.000Z\",\n    \"nationality\": \"US\",\n    \"educationLevel\": \"Bachelor\",\n    \"fieldOfStudy\": [\n      \"Computer Science\",\n      \"Software Engineering\"\n    ],\n    \"currentCountry\": \"United States\",\n    \"currentCity\": \"San Francisco\",\n    \"phone\": \"+1-555-0199\",\n    \"experienceLevel\": \"Mid-Level\",\n    \"hasFinancialNeed\": false,\n    \"careerGoals\": \"Aspiring AI Engineer looking for master scholarship opportunities.\",\n    \"profilePhotoUrl\": \"https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80\",\n    \"completionPct\": 85,\n    \"coreFieldsComplete\": true,\n    \"isDraft\": false,\n    \"createdAt\": \"2026-08-28T19:00:00.000Z\",\n    \"updatedAt\": \"2026-09-02T12:00:00.000Z\",\n    \"user\": {\n      \"userEducations\": [\n        {\n          \"id\": \"e1a2b3c4-d5e6-7f8a-9b0c-1d2e3f4a5b6c\",\n          \"userId\": \"9dd10e8f-0f3c-4295-befb-6109efd2587f\",\n          \"degree\": \"Bachelor of Science\",\n          \"institution\": \"Stanford University\",\n          \"gpaValue\": \"3.85\",\n          \"gpaScale\": \"4.0\",\n          \"normalizedGpa\": 3.85,\n          \"startYear\": 2016,\n          \"endYear\": 2020\n        }\n      ],\n      \"userSkills\": [\n        {\n          \"id\": \"s1a2b3c4-d5e6-7f8a-9b0c-1d2e3f4a5b6c\",\n          \"userId\": \"9dd10e8f-0f3c-4295-befb-6109efd2587f\",\n          \"skillId\": \"f0a1b2c3-d4e5-6f7a-8b9c-0d1e2f3a4b5c\",\n          \"proficiency\": 4,\n          \"skill\": {\n            \"id\": \"f0a1b2c3-d4e5-6f7a-8b9c-0d1e2f3a4b5c\",\n            \"name\": \"TypeScript\",\n            \"category\": \"Technical\"\n          }\n        }\n      ],\n      \"userLanguages\": [\n        {\n          \"id\": \"l1a2b3c4-d5e6-7f8a-9b0c-1d2e3f4a5b6c\",\n          \"userId\": \"9dd10e8f-0f3c-4295-befb-6109efd2587f\",\n          \"languageId\": \"en-us\",\n          \"proficiency\": \"Native\",\n          \"language\": {\n            \"id\": \"en-us\",\n            \"name\": \"English\"\n          }\n        }\n      ],\n      \"documents\": [\n        {\n          \"id\": \"a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d\",\n          \"userId\": \"9dd10e8f-0f3c-4295-befb-6109efd2587f\",\n          \"docType\": \"resume\",\n          \"displayName\": \"John_Doe_Resume.pdf\",\n          \"mimeType\": \"application/pdf\",\n          \"sizeBytes\": 1048576,\n          \"createdAt\": \"2026-09-01T10:00:00.000Z\"\n        }\n      ]\n    }\n  },\n  \"timestamp\": \"2026-09-02T12:00:00.000Z\"\n}"
-                }
-              ]
+              "response": []
             },
             {
               "name": "Update User Profile",
-              "event": [
-                {
-                  "listen": "test",
-                  "script": {
-                    "exec": [
-                      "pm.test(\"Status code is 200\", function () {",
-                      "    pm.response.to.have.status(200);",
-                      "});",
-                      "pm.test(\"Profile updated successfully\", function () {",
-                      "    var jsonData = pm.response.json();",
-                      "    pm.expect(jsonData.status).to.eql(200);",
-                      "    pm.expect(jsonData.data).to.have.property(\"completionPct\");",
-                      "});"
-                    ],
-                    "type": "text/javascript"
-                  }
-                }
-              ],
               "request": {
-                "auth": {
-                  "type": "bearer",
-                  "bearer": [
-                    {
-                      "key": "token",
-                      "value": "{{accessToken}}",
-                      "type": "string"
-                    }
-                  ]
-                },
                 "method": "PATCH",
                 "header": [
                   {
@@ -1036,10 +521,6 @@
                     "value": "application/json"
                   }
                 ],
-                "body": {
-                  "mode": "raw",
-                  "raw": "{\n  \"fullName\": \"John Doe\",\n  \"dateOfBirth\": \"1998-05-15\",\n  \"nationality\": \"US\",\n  \"educationLevel\": \"Bachelor\",\n  \"fieldOfStudy\": [\n    \"Computer Science\",\n    \"Artificial Intelligence\"\n  ],\n  \"currentCountry\": \"United States\",\n  \"currentCity\": \"San Francisco\",\n  \"phone\": \"+1-555-0199\",\n  \"experienceLevel\": \"Mid-Level\",\n  \"hasFinancialNeed\": false,\n  \"careerGoals\": \"Aspiring AI Engineer looking for master scholarship and research opportunities.\",\n  \"profilePhotoUrl\": \"https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80\",\n  \"gpaValue\": \"3.85\",\n  \"gpaScale\": \"4.0\",\n  \"skills\": [\n    {\n      \"skillId\": \"f0a1b2c3-d4e5-6f7a-8b9c-0d1e2f3a4b5c\",\n      \"proficiency\": 5\n    }\n  ],\n  \"languages\": [\n    {\n      \"languageId\": \"en-us\",\n      \"proficiency\": \"Native\"\n    }\n  ]\n}"
-                },
                 "url": {
                   "raw": "{{baseUrl}}/profile",
                   "host": [
@@ -1049,64 +530,23 @@
                     "profile"
                   ]
                 },
-                "description": "Updates profile fields with ready-to-use payload for the front-end team. Automatically recalculates profile completion percentage and core field statuses."
-              },
-              "response": [
-                {
-                  "name": "200 OK",
-                  "originalRequest": {
-                    "method": "PATCH",
-                    "header": [
-                      {
-                        "key": "Content-Type",
-                        "value": "application/json"
-                      },
-                      {
-                        "key": "Authorization",
-                        "value": "Bearer {{accessToken}}"
-                      }
-                    ],
-                    "body": {
-                      "mode": "raw",
-                      "raw": "{\n  \"fullName\": \"John Doe\",\n  \"nationality\": \"US\",\n  \"educationLevel\": \"Bachelor\"\n}"
-                    },
-                    "url": {
-                      "raw": "{{baseUrl}}/profile",
-                      "host": [
-                        "{{baseUrl}}"
-                      ],
-                      "path": [
-                        "profile"
-                      ]
-                    }
-                  },
-                  "status": "OK",
-                  "code": 200,
-                  "_postman_previewlanguage": "json",
-                  "header": [
-                    {
-                      "key": "Content-Type",
-                      "value": "application/json"
-                    }
-                  ],
-                  "cookie": [],
-                  "body": "{\n  \"success\": true,\n  \"status\": 200,\n  \"message\": \"Profile updated successfully\",\n  \"data\": {\n    \"userId\": \"9dd10e8f-0f3c-4295-befb-6109efd2587f\",\n    \"completionPct\": 85,\n    \"coreFieldsComplete\": true,\n    \"updatedAt\": \"2026-09-02T12:00:00.000Z\"\n  },\n  \"timestamp\": \"2026-09-02T12:00:00.000Z\"\n}"
+                "description": "Update user profile details",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"fullName\": \"Jane Doe\",\n  \"experienceLevel\": \"Mid\",\n  \"hasFinancialNeed\": false\n}"
                 }
-              ]
-            },
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Educations",
+          "description": "Education records management.",
+          "item": [
             {
-              "name": "Get Educations",
+              "name": "Get All Educations",
               "request": {
-                "auth": {
-                  "type": "bearer",
-                  "bearer": [
-                    {
-                      "key": "token",
-                      "value": "{{accessToken}}",
-                      "type": "string"
-                    }
-                  ]
-                },
                 "method": "GET",
                 "header": [],
                 "url": {
@@ -1119,23 +559,13 @@
                     "educations"
                   ]
                 },
-                "description": "Retrieves the current user's educations."
+                "description": "Get all education records for the current user"
               },
               "response": []
             },
             {
               "name": "Create Education",
               "request": {
-                "auth": {
-                  "type": "bearer",
-                  "bearer": [
-                    {
-                      "key": "token",
-                      "value": "{{accessToken}}",
-                      "type": "string"
-                    }
-                  ]
-                },
                 "method": "POST",
                 "header": [
                   {
@@ -1143,10 +573,6 @@
                     "value": "application/json"
                   }
                 ],
-                "body": {
-                  "mode": "raw",
-                  "raw": "{\n  \"degree\": \"BSc Computer Science\",\n  \"major\": \"Software Engineering\",\n  \"institution\": \"University of Technology\",\n  \"graduationYear\": 2024\n}"
-                },
                 "url": {
                   "raw": "{{baseUrl}}/profile/educations",
                   "host": [
@@ -1157,23 +583,31 @@
                     "educations"
                   ]
                 },
-                "description": "Creates a new education entry."
+                "description": "Add a new education record",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"degree\": \"Bachelor of Science\",\n  \"major\": \"Computer Science\",\n  \"institution\": \"Technical University of Munich\",\n  \"graduationYear\": 2024\n}"
+                }
               },
-              "response": []
+              "response": [],
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "if (pm.response.code === 201) {",
+                      "    var jsonData = pm.response.json();",
+                      "    if (jsonData.data && jsonData.data.id) { pm.collectionVariables.set('educationId', jsonData.data.id); }",
+                      "}"
+                    ]
+                  }
+                }
+              ]
             },
             {
               "name": "Update Education",
               "request": {
-                "auth": {
-                  "type": "bearer",
-                  "bearer": [
-                    {
-                      "key": "token",
-                      "value": "{{accessToken}}",
-                      "type": "string"
-                    }
-                  ]
-                },
                 "method": "PATCH",
                 "header": [
                   {
@@ -1181,64 +615,314 @@
                     "value": "application/json"
                   }
                 ],
-                "body": {
-                  "mode": "raw",
-                  "raw": "{\n  \"degree\": \"MSc Computer Science\",\n  \"major\": \"AI\",\n  \"institution\": \"University of Technology\",\n  \"graduationYear\": 2026,\n  \"gpaValue\": 3.8,\n  \"gpaScale\": 4\n}"
-                },
                 "url": {
-                  "raw": "{{baseUrl}}/profile/educations/:id",
+                  "raw": "{{baseUrl}}/profile/educations/{{educationId}}",
                   "host": [
                     "{{baseUrl}}"
                   ],
                   "path": [
                     "profile",
                     "educations",
-                    ":id"
-                  ],
-                  "variable": [
-                    {
-                      "key": "id",
-                      "value": "123e4567-e89b-12d3-a456-426614174000"
-                    }
+                    "{{educationId}}"
                   ]
                 },
-                "description": "Updates an existing education entry."
+                "description": "Update an education record",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"gpaValue\": 3.8,\n  \"gpaScale\": \"4.0\"\n}"
+                }
               },
               "response": []
             },
             {
               "name": "Delete Education",
               "request": {
-                "auth": {
-                  "type": "bearer",
-                  "bearer": [
-                    {
-                      "key": "token",
-                      "value": "{{accessToken}}",
-                      "type": "string"
-                    }
-                  ]
-                },
                 "method": "DELETE",
                 "header": [],
                 "url": {
-                  "raw": "{{baseUrl}}/profile/educations/:id",
+                  "raw": "{{baseUrl}}/profile/educations/{{educationId}}",
                   "host": [
                     "{{baseUrl}}"
                   ],
                   "path": [
                     "profile",
                     "educations",
-                    ":id"
-                  ],
-                  "variable": [
-                    {
-                      "key": "id",
-                      "value": "123e4567-e89b-12d3-a456-426614174000"
-                    }
+                    "{{educationId}}"
                   ]
                 },
-                "description": "Deletes an education entry."
+                "description": "Delete an education record"
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Skills",
+          "description": "Skills management.",
+          "item": [
+            {
+              "name": "Get All Skills",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/profile/skills",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "profile",
+                    "skills"
+                  ]
+                },
+                "description": "Get all skills for the user"
+              },
+              "response": []
+            },
+            {
+              "name": "Get Skill By ID",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/profile/skills/{{skillId}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "profile",
+                    "skills",
+                    "{{skillId}}"
+                  ]
+                },
+                "description": "Get a specific skill for the user"
+              },
+              "response": []
+            },
+            {
+              "name": "Add Skill",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/profile/skills",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "profile",
+                    "skills"
+                  ]
+                },
+                "description": "Add a new skill to user profile",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"skillId\": \"a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d\",\n  \"proficiency\": 4\n}"
+                }
+              },
+              "response": [],
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "if (pm.response.code === 201) {",
+                      "    var jsonData = pm.response.json();",
+                      "    if (jsonData.data && jsonData.data.skillId) { pm.collectionVariables.set('skillId', jsonData.data.skillId); }",
+                      "}"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Update Skill",
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/profile/skills/{{skillId}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "profile",
+                    "skills",
+                    "{{skillId}}"
+                  ]
+                },
+                "description": "Update an existing skill",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"proficiency\": 5\n}"
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Remove Skill",
+              "request": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/profile/skills/{{skillId}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "profile",
+                    "skills",
+                    "{{skillId}}"
+                  ]
+                },
+                "description": "Remove a skill from user profile"
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Languages",
+          "description": "Languages management.",
+          "item": [
+            {
+              "name": "Get All Languages",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/profile/languages",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "profile",
+                    "languages"
+                  ]
+                },
+                "description": "Get all user languages"
+              },
+              "response": []
+            },
+            {
+              "name": "Get Language By ID",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/profile/languages/{{languageId}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "profile",
+                    "languages",
+                    "{{languageId}}"
+                  ]
+                },
+                "description": "Get a user language by ID"
+              },
+              "response": []
+            },
+            {
+              "name": "Add Language",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/profile/languages",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "profile",
+                    "languages"
+                  ]
+                },
+                "description": "Add a language to profile",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"languageId\": \"b2c3d4e5-f6a7-8b9c-0d1e-2f3a4b5c6d7e\",\n  \"proficiency\": \"Fluent\"\n}"
+                }
+              },
+              "response": [],
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "if (pm.response.code === 201) {",
+                      "    var jsonData = pm.response.json();",
+                      "    if (jsonData.data && jsonData.data.languageId) { pm.collectionVariables.set('languageId', jsonData.data.languageId); }",
+                      "}"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Update Language",
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/profile/languages/{{languageId}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "profile",
+                    "languages",
+                    "{{languageId}}"
+                  ]
+                },
+                "description": "Update a user language",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"proficiency\": \"Native\"\n}"
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Remove Language",
+              "request": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/profile/languages/{{languageId}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "profile",
+                    "languages",
+                    "{{languageId}}"
+                  ]
+                },
+                "description": "Delete a user language"
               },
               "response": []
             }
@@ -1246,59 +930,13 @@
         },
         {
           "name": "Documents",
-          "description": "Encrypted document uploads and management for user profiles.",
+          "description": "Document management endpoints.",
           "item": [
             {
               "name": "Upload Document",
-              "event": [
-                {
-                  "listen": "test",
-                  "script": {
-                    "exec": [
-                      "if (pm.response.code === 201) {",
-                      "    var jsonData = pm.response.json();",
-                      "    if (jsonData.data && jsonData.data.id) {",
-                      "        pm.collectionVariables.set('documentId', jsonData.data.id);",
-                      "    }",
-                      "}",
-                      "pm.test(\"Status code is 201\", function () {",
-                      "    pm.response.to.have.status(201);",
-                      "});"
-                    ],
-                    "type": "text/javascript"
-                  }
-                }
-              ],
               "request": {
-                "auth": {
-                  "type": "bearer",
-                  "bearer": [
-                    {
-                      "key": "token",
-                      "value": "{{accessToken}}",
-                      "type": "string"
-                    }
-                  ]
-                },
                 "method": "POST",
                 "header": [],
-                "body": {
-                  "mode": "formdata",
-                  "formdata": [
-                    {
-                      "key": "file",
-                      "type": "file",
-                      "src": "",
-                      "description": "File to upload (PDF, DOC, DOCX, PNG, JPG - max 5MB)"
-                    },
-                    {
-                      "key": "docType",
-                      "value": "resume",
-                      "type": "text",
-                      "description": "One of: resume, essay, transcript, recommendation_letter, other"
-                    }
-                  ]
-                },
                 "url": {
                   "raw": "{{baseUrl}}/profile/documents",
                   "host": [
@@ -1309,74 +947,44 @@
                     "documents"
                   ]
                 },
-                "description": "Uploads a user document (encrypted at rest with AES-256). Supported document types: resume, essay, transcript, recommendation_letter, other."
-              },
-              "response": [
-                {
-                  "name": "201 Created",
-                  "originalRequest": {
-                    "method": "POST",
-                    "header": [
-                      {
-                        "key": "Authorization",
-                        "value": "Bearer {{accessToken}}"
-                      }
-                    ],
-                    "url": {
-                      "raw": "{{baseUrl}}/profile/documents",
-                      "host": [
-                        "{{baseUrl}}"
-                      ],
-                      "path": [
-                        "profile",
-                        "documents"
-                      ]
-                    }
-                  },
-                  "status": "Created",
-                  "code": 201,
-                  "_postman_previewlanguage": "json",
-                  "header": [
+                "description": "Upload a document (PDF, DOC, DOCX, PNG, JPG - max 5MB)",
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
                     {
-                      "key": "Content-Type",
-                      "value": "application/json"
+                      "key": "file",
+                      "type": "file",
+                      "src": "",
+                      "description": "File to upload"
+                    },
+                    {
+                      "key": "docType",
+                      "type": "text",
+                      "value": "resume",
+                      "description": "One of: resume, essay, transcript, recommendation_letter, other"
                     }
-                  ],
-                  "cookie": [],
-                  "body": "{\n  \"success\": true,\n  \"status\": 201,\n  \"message\": \"Document uploaded successfully\",\n  \"data\": {\n    \"id\": \"a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d\",\n    \"docType\": \"resume\",\n    \"displayName\": \"Resume_2026.pdf\",\n    \"storagePath\": \"documents/9dd10e8f-0f3c-4295-befb-6109efd2587f/a1b2c3d4-e5f6.pdf\",\n    \"mimeType\": \"application/pdf\",\n    \"sizeBytes\": 1048576,\n    \"createdAt\": \"2026-09-02T12:00:00.000Z\"\n  },\n  \"timestamp\": \"2026-09-02T12:00:00.000Z\"\n}"
+                  ]
+                }
+              },
+              "response": [],
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "if (pm.response.code === 201) {",
+                      "    var jsonData = pm.response.json();",
+                      "    if (jsonData.data && jsonData.data.id) { pm.collectionVariables.set('documentId', jsonData.data.id); }",
+                      "}"
+                    ]
+                  }
                 }
               ]
             },
             {
               "name": "List Documents",
-              "event": [
-                {
-                  "listen": "test",
-                  "script": {
-                    "exec": [
-                      "pm.test(\"Status code is 200\", function () {",
-                      "    pm.response.to.have.status(200);",
-                      "});",
-                      "pm.test(\"Documents array returned\", function () {",
-                      "    var jsonData = pm.response.json();",
-                      "    pm.expect(jsonData.data).to.be.an(\"array\");",
-                      "});"
-                    ],
-                    "type": "text/javascript"
-                  }
-                }
-              ],
               "request": {
-                "auth": {
-                  "type": "bearer",
-                  "bearer": [
-                    {
-                      "key": "token",
-                      "value": "{{accessToken}}",
-                      "type": "string"
-                    }
-                  ]
-                },
                 "method": "GET",
                 "header": [],
                 "url": {
@@ -1389,75 +997,13 @@
                     "documents"
                   ]
                 },
-                "description": "Retrieves all active uploaded documents for the user profile."
+                "description": "Get all user documents"
               },
-              "response": [
-                {
-                  "name": "200 OK",
-                  "originalRequest": {
-                    "method": "GET",
-                    "header": [
-                      {
-                        "key": "Authorization",
-                        "value": "Bearer {{accessToken}}"
-                      }
-                    ],
-                    "url": {
-                      "raw": "{{baseUrl}}/profile/documents",
-                      "host": [
-                        "{{baseUrl}}"
-                      ],
-                      "path": [
-                        "profile",
-                        "documents"
-                      ]
-                    }
-                  },
-                  "status": "OK",
-                  "code": 200,
-                  "_postman_previewlanguage": "json",
-                  "header": [
-                    {
-                      "key": "Content-Type",
-                      "value": "application/json"
-                    }
-                  ],
-                  "cookie": [],
-                  "body": "{\n  \"success\": true,\n  \"status\": 200,\n  \"message\": \"Documents retrieved successfully\",\n  \"data\": [\n    {\n      \"id\": \"a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d\",\n      \"userId\": \"9dd10e8f-0f3c-4295-befb-6109efd2587f\",\n      \"docType\": \"resume\",\n      \"displayName\": \"Resume_2026.pdf\",\n      \"storagePath\": \"documents/9dd10e8f-0f3c-4295-befb-6109efd2587f/a1b2c3d4-e5f6.pdf\",\n      \"mimeType\": \"application/pdf\",\n      \"sizeBytes\": 1048576,\n      \"isEncrypted\": true,\n      \"createdAt\": \"2026-09-02T12:00:00.000Z\",\n      \"updatedAt\": \"2026-09-02T12:00:00.000Z\"\n    }\n  ],\n  \"timestamp\": \"2026-09-02T12:00:00.000Z\"\n}"
-                }
-              ]
+              "response": []
             },
             {
               "name": "Get Document Download URL",
-              "event": [
-                {
-                  "listen": "test",
-                  "script": {
-                    "exec": [
-                      "pm.test(\"Status code is 200\", function () {",
-                      "    pm.response.to.have.status(200);",
-                      "});",
-                      "pm.test(\"Download URL returned\", function () {",
-                      "    var jsonData = pm.response.json();",
-                      "    pm.expect(jsonData.data).to.have.property(\"url\");",
-                      "    pm.expect(jsonData.data).to.have.property(\"expiresAt\");",
-                      "});"
-                    ],
-                    "type": "text/javascript"
-                  }
-                }
-              ],
               "request": {
-                "auth": {
-                  "type": "bearer",
-                  "bearer": [
-                    {
-                      "key": "token",
-                      "value": "{{accessToken}}",
-                      "type": "string"
-                    }
-                  ]
-                },
                 "method": "GET",
                 "header": [],
                 "url": {
@@ -1472,72 +1018,34 @@
                     "download"
                   ]
                 },
-                "description": "Generates a secure temporary signed download URL for the requested document."
+                "description": "Get download URL for a document"
               },
-              "response": [
+              "response": [],
+              "event": [
                 {
-                  "name": "200 OK",
-                  "originalRequest": {
-                    "method": "GET",
-                    "header": [
-                      {
-                        "key": "Authorization",
-                        "value": "Bearer {{accessToken}}"
-                      }
-                    ],
-                    "url": {
-                      "raw": "{{baseUrl}}/profile/documents/{{documentId}}/download",
-                      "host": [
-                        "{{baseUrl}}"
-                      ],
-                      "path": [
-                        "profile",
-                        "documents",
-                        "{{documentId}}",
-                        "download"
-                      ]
-                    }
-                  },
-                  "status": "OK",
-                  "code": 200,
-                  "_postman_previewlanguage": "json",
-                  "header": [
-                    {
-                      "key": "Content-Type",
-                      "value": "application/json"
-                    }
-                  ],
-                  "cookie": [],
-                  "body": "{\n  \"success\": true,\n  \"status\": 200,\n  \"message\": \"Download URL generated successfully\",\n  \"data\": {\n    \"url\": \"https://levora-back-end.onrender.com/api/v1/local-storage/documents-9dd10e8f-Resume_2026.pdf?token=eyJhbGciOi...\",\n    \"expiresAt\": \"2026-09-02T12:05:00.000Z\"\n  },\n  \"timestamp\": \"2026-09-02T12:00:00.000Z\"\n}"
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "if (pm.response.code === 200) {",
+                      "    var jsonData = pm.response.json();",
+                      "    if (jsonData.data && jsonData.data.url) {",
+                      "        var url = new URL(jsonData.data.url, 'http://localhost');",
+                      "        var token = url.searchParams.get('token');",
+                      "        var parts = url.pathname.split('/');",
+                      "        var fileKey = parts[parts.length - 1];",
+                      "        if (token) pm.collectionVariables.set('storageToken', token);",
+                      "        if (fileKey) pm.collectionVariables.set('fileKey', fileKey);",
+                      "    }",
+                      "}"
+                    ]
+                  }
                 }
               ]
             },
             {
               "name": "Delete Document",
-              "event": [
-                {
-                  "listen": "test",
-                  "script": {
-                    "exec": [
-                      "pm.test(\"Status code is 200\", function () {",
-                      "    pm.response.to.have.status(200);",
-                      "});"
-                    ],
-                    "type": "text/javascript"
-                  }
-                }
-              ],
               "request": {
-                "auth": {
-                  "type": "bearer",
-                  "bearer": [
-                    {
-                      "key": "token",
-                      "value": "{{accessToken}}",
-                      "type": "string"
-                    }
-                  ]
-                },
                 "method": "DELETE",
                 "header": [],
                 "url": {
@@ -1551,186 +1059,156 @@
                     "{{documentId}}"
                   ]
                 },
-                "description": "Permanently deletes a document from user storage."
+                "description": "Delete a document"
               },
-              "response": [
-                {
-                  "name": "200 OK",
-                  "originalRequest": {
-                    "method": "DELETE",
-                    "header": [
-                      {
-                        "key": "Authorization",
-                        "value": "Bearer {{accessToken}}"
-                      }
-                    ],
-                    "url": {
-                      "raw": "{{baseUrl}}/profile/documents/{{documentId}}",
-                      "host": [
-                        "{{baseUrl}}"
-                      ],
-                      "path": [
-                        "profile",
-                        "documents",
-                        "{{documentId}}"
-                      ]
-                    }
-                  },
-                  "status": "OK",
-                  "code": 200,
-                  "_postman_previewlanguage": "json",
-                  "header": [
-                    {
-                      "key": "Content-Type",
-                      "value": "application/json"
-                    }
-                  ],
-                  "cookie": [],
-                  "body": "{\n  \"success\": true,\n  \"status\": 200,\n  \"message\": \"Document deleted successfully\",\n  \"data\": null,\n  \"timestamp\": \"2026-09-02T12:00:00.000Z\"\n}"
-                }
-              ]
+              "response": []
             }
           ]
+        }
+      ],
+      "auth": {
+        "type": "bearer",
+        "bearer": [
+          {
+            "key": "token",
+            "value": "{{accessToken}}",
+            "type": "string"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Reference Data",
+      "description": "Public reference data endpoints.",
+      "item": [
+        {
+          "name": "Get Fields of Study",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/reference/fields-of-study",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "reference",
+                "fields-of-study"
+              ]
+            },
+            "description": "Get all fields of study"
+          },
+          "response": []
         },
         {
-          "name": "Reference Data",
-          "description": "Public reference taxonomies and dropdown data for profile builder.",
-          "item": [
-            {
-              "name": "Get Fields of Study",
-              "event": [
-                {
-                  "listen": "test",
-                  "script": {
-                    "exec": [
-                      "pm.test(\"Status code is 200\", function () {",
-                      "    pm.response.to.have.status(200);",
-                      "});",
-                      "pm.test(\"Fields of study array returned\", function () {",
-                      "    var jsonData = pm.response.json();",
-                      "    pm.expect(jsonData.data).to.be.an(\"array\");",
-                      "});"
-                    ],
-                    "type": "text/javascript"
-                  }
-                }
+          "name": "Get Skills Taxonomy",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/reference/skills-taxonomy",
+              "host": [
+                "{{baseUrl}}"
               ],
-              "request": {
-                "method": "GET",
-                "header": [],
-                "url": {
-                  "raw": "{{baseUrl}}/reference/fields-of-study",
-                  "host": [
-                    "{{baseUrl}}"
-                  ],
-                  "path": [
-                    "reference",
-                    "fields-of-study"
-                  ]
-                },
-                "description": "Returns list of active fields of study for academic profile dropdowns."
-              },
-              "response": [
+              "path": [
+                "reference",
+                "skills-taxonomy"
+              ]
+            },
+            "description": "Get skills taxonomy grouped by category"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Languages",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/reference/languages",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "reference",
+                "languages"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Education Levels",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/reference/education-levels",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "reference",
+                "education-levels"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get App Languages",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/reference/app-languages",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "reference",
+                "app-languages"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Storage",
+      "description": "Local storage endpoints.",
+      "item": [
+        {
+          "name": "Download File from Local Storage",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/local-storage/{{fileKey}}?token={{storageToken}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "local-storage",
+                "{{fileKey}}"
+              ],
+              "query": [
                 {
-                  "name": "200 OK",
-                  "originalRequest": {
-                    "method": "GET",
-                    "url": {
-                      "raw": "{{baseUrl}}/reference/fields-of-study",
-                      "host": [
-                        "{{baseUrl}}"
-                      ],
-                      "path": [
-                        "reference",
-                        "fields-of-study"
-                      ]
-                    }
-                  },
-                  "status": "OK",
-                  "code": 200,
-                  "_postman_previewlanguage": "json",
-                  "header": [
-                    {
-                      "key": "Content-Type",
-                      "value": "application/json"
-                    }
-                  ],
-                  "cookie": [],
-                  "body": "{\n  \"success\": true,\n  \"status\": 200,\n  \"message\": \"Fields of study retrieved successfully\",\n  \"data\": [\n    {\n      \"id\": \"1\",\n      \"name\": \"Computer Science\",\n      \"category\": \"STEM\"\n    },\n    {\n      \"id\": \"2\",\n      \"name\": \"Mechanical Engineering\",\n      \"category\": \"Engineering\"\n    },\n    {\n      \"id\": \"3\",\n      \"name\": \"Business Administration\",\n      \"category\": \"Business\"\n    }\n  ],\n  \"timestamp\": \"2026-09-02T12:00:00.000Z\"\n}"
+                  "key": "token",
+                  "value": "{{storageToken}}"
                 }
               ]
             },
-            {
-              "name": "Get Skills Taxonomy",
-              "event": [
-                {
-                  "listen": "test",
-                  "script": {
-                    "exec": [
-                      "pm.test(\"Status code is 200\", function () {",
-                      "    pm.response.to.have.status(200);",
-                      "});",
-                      "pm.test(\"Skills taxonomy categorized list returned\", function () {",
-                      "    var jsonData = pm.response.json();",
-                      "    pm.expect(jsonData.data).to.be.an(\"array\");",
-                      "});"
-                    ],
-                    "type": "text/javascript"
-                  }
-                }
-              ],
-              "request": {
-                "method": "GET",
-                "header": [],
-                "url": {
-                  "raw": "{{baseUrl}}/reference/skills-taxonomy",
-                  "host": [
-                    "{{baseUrl}}"
-                  ],
-                  "path": [
-                    "reference",
-                    "skills-taxonomy"
-                  ]
-                },
-                "description": "Returns standardized skills taxonomy grouped by categories for multi-select tagging."
-              },
-              "response": [
-                {
-                  "name": "200 OK",
-                  "originalRequest": {
-                    "method": "GET",
-                    "url": {
-                      "raw": "{{baseUrl}}/reference/skills-taxonomy",
-                      "host": [
-                        "{{baseUrl}}"
-                      ],
-                      "path": [
-                        "reference",
-                        "skills-taxonomy"
-                      ]
-                    }
-                  },
-                  "status": "OK",
-                  "code": 200,
-                  "_postman_previewlanguage": "json",
-                  "header": [
-                    {
-                      "key": "Content-Type",
-                      "value": "application/json"
-                    }
-                  ],
-                  "cookie": [],
-                  "body": "{\n  \"success\": true,\n  \"status\": 200,\n  \"message\": \"Skills taxonomy retrieved successfully\",\n  \"data\": [\n    {\n      \"category\": \"Programming Languages\",\n      \"skills\": [\n        {\n          \"id\": \"s-ts\",\n          \"name\": \"TypeScript\"\n        },\n        {\n          \"id\": \"s-py\",\n          \"name\": \"Python\"\n        },\n        {\n          \"id\": \"s-go\",\n          \"name\": \"Go\"\n        }\n      ]\n    },\n    {\n      \"category\": \"AI & Machine Learning\",\n      \"skills\": [\n        {\n          \"id\": \"s-pt\",\n          \"name\": \"PyTorch\"\n        },\n        {\n          \"id\": \"s-tf\",\n          \"name\": \"TensorFlow\"\n        }\n      ]\n    }\n  ],\n  \"timestamp\": \"2026-09-02T12:00:00.000Z\"\n}"
-                }
-              ]
-            }
-          ]
+            "description": "Download encrypted file from local storage"
+          },
+          "response": []
         }
       ]
     },
     {
       "name": "Health",
-      "description": "Health check endpoints for liveness and readiness probes.",
+      "description": "Health check probes.",
       "item": [
         {
           "name": "Liveness Probe",
@@ -1770,6 +1248,64 @@
           "response": []
         }
       ]
+    },
+    {
+      "name": "Security Tests",
+      "item": [
+        {
+          "name": "Auth Rate Limiting",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"email\": \"invalid@levora.com\", \"password\": \"invalid\"}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "login"
+              ]
+            }
+          }
+        },
+        {
+          "name": "IDOR Negative Test",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/profile/skills/00000000-0000-0000-0000-000000000000",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "profile",
+                "skills",
+                "00000000-0000-0000-0000-000000000000"
+              ]
+            }
+          }
+        }
+      ]
     }
   ],
   "variable": [
@@ -1795,6 +1331,31 @@
     },
     {
       "key": "documentId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "educationId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "skillId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "languageId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "fileKey",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "storageToken",
       "value": "",
       "type": "string"
     }

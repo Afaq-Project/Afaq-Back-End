@@ -4,10 +4,11 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from '../../../prisma/prisma.service';
+import { Prisma } from '@prisma/client';
 import { UpdateProfileDto } from '../dto/update-profile.dto';
 
 export interface ProfileWithRelations {
-  educationLevel?: string | null;
+  educationLevelId?: string | null;
   fieldOfStudy?: string[] | null;
   nationality?: string | null;
   dateOfBirth?: Date | null;
@@ -81,7 +82,7 @@ export class ProfileService {
 
   isCoreFieldsComplete(profile: ProfileWithRelations): boolean {
     return !!(
-      profile.educationLevel?.trim() &&
+      profile.educationLevelId?.trim() &&
       Array.isArray(profile.fieldOfStudy) &&
       profile.fieldOfStudy.length > 0 &&
       profile.nationality?.trim()
@@ -90,7 +91,7 @@ export class ProfileService {
 
   calculateCompletionPct(profile: ProfileWithRelations): number {
     let pct = 0;
-    if (profile.educationLevel) {
+    if (profile.educationLevelId) {
       pct += 15;
     }
     if (profile.fieldOfStudy && profile.fieldOfStudy.length > 0) {
@@ -140,13 +141,13 @@ export class ProfileService {
 
     // Step 1: Education
     if (
-      profile.educationLevel &&
+      profile.educationLevelId &&
       profile.fieldOfStudy &&
       profile.fieldOfStudy.length > 0 &&
       profile.nationality
     ) {
       step = 1;
-    } else if (profile.educationLevel && profile.nationality) {
+    } else if (profile.educationLevelId && profile.nationality) {
       return 1; // Partial step 1
     }
 
@@ -220,7 +221,7 @@ export class ProfileService {
       fullName: profile.fullName,
       dateOfBirth: profile.dateOfBirth,
       nationality: profile.nationality,
-      educationLevel: profile.educationLevel,
+      educationLevel: profile.educationLevelId,
       fieldOfStudy: profile.fieldOfStudy,
       currentCountry: profile.currentCountry,
       currentCity: profile.currentCity,
@@ -270,7 +271,7 @@ export class ProfileService {
       );
     }
 
-    if (currentProfile.educationLevel && data.educationLevel === null) {
+    if (currentProfile.educationLevelId && data.educationLevelId === null) {
       throw new BadRequestException(
         'Cannot clear required field educationLevel',
       );
@@ -286,26 +287,21 @@ export class ProfileService {
       throw new BadRequestException('Cannot clear required field fieldOfStudy');
     }
 
-    const { skills, languages, ...profileData } = data;
+    const { educationLevelId, ...restData } = data;
+    const profileData: Prisma.UserProfilesUncheckedUpdateInput = { ...restData };
+    if (educationLevelId !== undefined) {
+      profileData.educationLevelId = educationLevelId;
+    }
 
     // Build a merged in-memory view of the profile after applying updates,
     // so we can calculate completionPct / isDraft without an extra DB round-trip.
     const mergedProfile: ProfileWithRelations = {
       ...currentProfile,
-      ...profileData,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      ...(profileData as any),
       user: {
-        userSkills: skills
-          ? skills.map((s) => ({
-              skillId: s.skillId,
-              proficiency: s.proficiency,
-            }))
-          : (currentProfile.user?.userSkills ?? []),
-        userLanguages: languages
-          ? languages.map((l) => ({
-              languageId: l.languageId,
-              proficiency: l.proficiency,
-            }))
-          : (currentProfile.user?.userLanguages ?? []),
+        userSkills: currentProfile.user?.userSkills ?? [],
+        userLanguages: currentProfile.user?.userLanguages ?? [],
         documents: currentProfile.user?.documents ?? [],
       },
     };
@@ -313,68 +309,57 @@ export class ProfileService {
     const newPct = this.calculateCompletionPct(mergedProfile);
     const newIsCore = this.isCoreFieldsComplete(mergedProfile);
 
-    await this.prisma.$transaction(
-      async (prisma) => {
-        // Single profile update (includes pct + isDraft)
-        await prisma.userProfiles.update({
-          where: { userId },
-          data: {
-            ...profileData,
-            completionPct: newPct,
-            isDraft: !newIsCore,
-          },
-        });
-
-        if (skills) {
-          if (skills.length > 20) {
-            throw new BadRequestException('Maximum 20 skills allowed');
-          }
-          await prisma.userSkills.deleteMany({ where: { userId } });
-          for (const skill of skills) {
-            const exists = await prisma.skillsMaster.findUnique({
-              where: { id: skill.skillId },
-            });
-            if (!exists) {
-              throw new BadRequestException(`Skill ${skill.skillId} not found`);
-            }
-            await prisma.userSkills.create({
-              data: {
-                userId,
-                skillId: skill.skillId,
-                proficiency: skill.proficiency,
-              },
-            });
-          }
-        }
-
-        if (languages) {
-          if (languages.length > 5) {
-            throw new BadRequestException('Maximum 5 languages allowed');
-          }
-          await prisma.userLanguages.deleteMany({ where: { userId } });
-          for (const lang of languages) {
-            const exists = await prisma.languagesMaster.findUnique({
-              where: { id: lang.languageId },
-            });
-            if (!exists) {
-              throw new BadRequestException(
-                `Language ${lang.languageId} not found`,
-              );
-            }
-            await prisma.userLanguages.create({
-              data: {
-                userId,
-                languageId: lang.languageId,
-                proficiency: lang.proficiency,
-              },
-            });
-          }
-        }
+    // Single profile update (includes pct + isDraft)
+    await this.prisma.userProfiles.update({
+      where: { userId },
+      data: {
+        ...profileData,
+        completionPct: newPct,
+        isDraft: !newIsCore,
       },
-      { timeout: 30000 },
-    );
+    });
+
     // Single final read to return the fully-shaped response
     const result = await this.getProfileWithDetails(userId);
     return result;
+  }
+
+  async recalculateProfileProgress(userId: string) {
+    const currentProfile = await this.prisma.userProfiles.findUnique({
+      where: { userId },
+      include: {
+        user: {
+          select: {
+            userSkills: true,
+            userLanguages: true,
+            documents: true,
+          },
+        },
+      },
+    });
+
+    if (!currentProfile) {
+      throw new NotFoundException('Profile not found');
+    }
+
+    const mergedProfile: ProfileWithRelations = {
+      ...currentProfile,
+      user: {
+        userSkills: currentProfile.user?.userSkills ?? [],
+        userLanguages: currentProfile.user?.userLanguages ?? [],
+        documents: currentProfile.user?.documents ?? [],
+      },
+    };
+
+    const newPct = this.calculateCompletionPct(mergedProfile);
+    const newIsCore = this.isCoreFieldsComplete(mergedProfile);
+
+    await this.prisma.userProfiles.update({
+      where: { userId },
+      data: {
+        completionPct: newPct,
+        isDraft: !newIsCore,
+      },
+    });
   }
 }

@@ -10,12 +10,15 @@ import {
   Req,
   HttpCode,
   HttpStatus,
+  ParseUUIDPipe,
+  Query,
 } from '@nestjs/common';
 import { ApiTags, ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
 import { EducationsService } from '../services/educations.service';
 import { CreateEducationDto } from '../dto/create-education.dto';
 import { UpdateEducationDto } from '../dto/update-education.dto';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
+import { PaginationDto } from '../../../common/dto/pagination.dto';
 
 interface RequestWithUser {
   user: { id: string };
@@ -36,15 +39,15 @@ export class EducationsController {
 
   @Get()
   @ApiOperation({ summary: 'Get all education records for the current user' })
-  async findAll(@Req() req: RequestWithUser) {
-    return this.educationsService.findAll(req.user.id);
+  async findAll(@Req() req: RequestWithUser, @Query() dto: PaginationDto) {
+    return this.educationsService.findAll(req.user.id, dto);
   }
 
   @Patch(':id')
   @ApiOperation({ summary: 'Update an education record' })
   async update(
     @Req() req: RequestWithUser,
-    @Param('id') id: string,
+    @Param('id', ParseUUIDPipe) id: string,
     @Body() data: UpdateEducationDto,
   ) {
     return this.educationsService.update(req.user.id, id, data);
@@ -53,7 +56,10 @@ export class EducationsController {
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Delete an education record' })
-  async remove(@Req() req: RequestWithUser, @Param('id') id: string) {
+  async remove(
+    @Req() req: RequestWithUser,
+    @Param('id', ParseUUIDPipe) id: string,
+  ) {
     await this.educationsService.remove(req.user.id, id);
   }
 }

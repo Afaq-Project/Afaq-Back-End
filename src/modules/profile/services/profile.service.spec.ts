@@ -79,12 +79,12 @@ describe('ProfileService', () => {
   describe('isCoreFieldsComplete', () => {
     it('should return false if missing fields', () => {
       expect(service.isCoreFieldsComplete({})).toBe(false);
-      expect(service.isCoreFieldsComplete({ educationLevel: 'BS' })).toBe(
+      expect(service.isCoreFieldsComplete({ educationLevelId: 'BS' })).toBe(
         false,
       );
       expect(
         service.isCoreFieldsComplete({
-          educationLevel: 'BS',
+          educationLevelId: 'BS',
           fieldOfStudy: ['CS'],
         }),
       ).toBe(false);
@@ -93,7 +93,7 @@ describe('ProfileService', () => {
     it('should return true if core fields present', () => {
       expect(
         service.isCoreFieldsComplete({
-          educationLevel: 'BS',
+          educationLevelId: 'BS',
           fieldOfStudy: ['CS'],
           nationality: 'US',
         }),
@@ -108,7 +108,7 @@ describe('ProfileService', () => {
 
     it('should calculate correct percentage for fully populated profile', () => {
       const profile = {
-        educationLevel: 'BS', // 15
+        educationLevelId: 'BS', // 15
         fieldOfStudy: ['CS'], // 15
         nationality: 'US', // 15
         dateOfBirth: new Date(), // 5
@@ -136,7 +136,7 @@ describe('ProfileService', () => {
     it('should return 1 for partial step 1', () => {
       expect(
         service.calculateLastCompletedStep({
-          educationLevel: 'BS',
+          educationLevelId: 'BS',
           nationality: 'US',
         }),
       ).toBe(1);
@@ -145,7 +145,7 @@ describe('ProfileService', () => {
     it('should return 2 if step 1 is complete and partial step 2 exists', () => {
       expect(
         service.calculateLastCompletedStep({
-          educationLevel: 'BS',
+          educationLevelId: 'BS',
           fieldOfStudy: ['CS'],
           nationality: 'US',
           experienceLevel: 'Entry',
@@ -156,7 +156,7 @@ describe('ProfileService', () => {
     it('should return 3 if step 2 complete and skills/languages exist', () => {
       expect(
         service.calculateLastCompletedStep({
-          educationLevel: 'BS',
+          educationLevelId: 'BS',
           fieldOfStudy: ['CS'],
           nationality: 'US',
           experienceLevel: 'Entry',
@@ -171,7 +171,7 @@ describe('ProfileService', () => {
     it('should return 4 if step 3 complete and documents exist', () => {
       expect(
         service.calculateLastCompletedStep({
-          educationLevel: 'BS',
+          educationLevelId: 'BS',
           fieldOfStudy: ['CS'],
           nationality: 'US',
           experienceLevel: 'Entry',
@@ -206,11 +206,11 @@ describe('ProfileService', () => {
     it('should throw BadRequestException if clearing required fields', async () => {
       mockPrisma.userProfiles.findUnique.mockResolvedValue({
         userId: '1',
-        educationLevel: 'BS',
+        educationLevelId: 'BS',
         nationality: 'US',
       });
       await expect(
-        service.updateProfile('1', { educationLevel: null } as any),
+        service.updateProfile('1', { educationLevelId: null } as any),
       ).rejects.toThrow(BadRequestException);
       await expect(
         service.updateProfile('1', { nationality: null } as any),
@@ -235,62 +235,6 @@ describe('ProfileService', () => {
           completionPct: expect.any(Number),
           isDraft: expect.any(Boolean),
         }),
-      });
-    });
-
-    it('should update skills correctly', async () => {
-      mockPrisma.userProfiles.findUnique.mockResolvedValue({
-        userId: '1',
-        user: {
-          userEducations: [],
-          userSkills: [],
-          userLanguages: [],
-          documents: [],
-        },
-      });
-      mockPrisma.skillsMaster.findUnique.mockResolvedValue({ id: 's1' });
-
-      await service.updateProfile('1', {
-        skills: [{ skillId: 's1', proficiency: 3 }],
-      });
-
-      expect(mockPrisma.userSkills.deleteMany).toHaveBeenCalledWith({
-        where: { userId: '1' },
-      });
-      expect(mockPrisma.userSkills.create).toHaveBeenCalledWith({
-        data: { userId: '1', skillId: 's1', proficiency: 3 },
-      });
-    });
-
-    it('should validate skills max count', async () => {
-      mockPrisma.userProfiles.findUnique.mockResolvedValue({ userId: '1' });
-      const skills = Array(21).fill({ skillId: 's1' });
-      await expect(service.updateProfile('1', { skills })).rejects.toThrow(
-        'Maximum 20 skills allowed',
-      );
-    });
-
-    it('should update languages correctly', async () => {
-      mockPrisma.userProfiles.findUnique.mockResolvedValue({
-        userId: '1',
-        user: {
-          userEducations: [],
-          userSkills: [],
-          userLanguages: [],
-          documents: [],
-        },
-      });
-      mockPrisma.languagesMaster.findUnique.mockResolvedValue({ id: 'l1' });
-
-      await service.updateProfile('1', {
-        languages: [{ languageId: 'l1', proficiency: 'fluent' }],
-      });
-
-      expect(mockPrisma.userLanguages.deleteMany).toHaveBeenCalledWith({
-        where: { userId: '1' },
-      });
-      expect(mockPrisma.userLanguages.create).toHaveBeenCalledWith({
-        data: { userId: '1', languageId: 'l1', proficiency: 'fluent' },
       });
     });
   });

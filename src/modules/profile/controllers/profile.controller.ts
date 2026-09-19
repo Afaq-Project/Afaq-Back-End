@@ -35,12 +35,7 @@ export class ProfileController {
   async getProfile(@Req() req: RequestWithUser) {
     const userId = req.user.id;
     const data = await this.profileService.getProfileWithDetails(userId);
-    return {
-      statusCode: 200,
-      message: 'Profile retrieved successfully',
-      data,
-      timestamp: new Date().toISOString(),
-    };
+    return data;
   }
 
   @Patch()
@@ -58,15 +53,10 @@ export class ProfileController {
       data,
     );
     return {
-      statusCode: 200,
-      message: 'Profile updated successfully',
-      data: {
-        userId: updatedProfile.userId,
-        completionPct: updatedProfile.completionPct,
-        coreFieldsComplete: updatedProfile.coreFieldsComplete,
-        updatedAt: updatedProfile.updatedAt,
-      },
-      timestamp: new Date().toISOString(),
+      userId: updatedProfile.userId,
+      completionPct: updatedProfile.completionPct,
+      coreFieldsComplete: updatedProfile.coreFieldsComplete,
+      updatedAt: updatedProfile.updatedAt,
     };
   }
 }

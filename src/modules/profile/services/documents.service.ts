@@ -11,6 +11,8 @@ import { StorageService } from '../interfaces/storage.interface';
 import { STORAGE_SERVICE } from '../storage/storage.service';
 import { encryptFile } from '../utils/encryption.util';
 import { v4 as uuidv4 } from 'uuid';
+import { PaginationDto } from '../../../common/dto/pagination.dto';
+import { buildMeta } from '../../../common/utils/paginate.util';
 
 @Injectable()
 export class DocumentsService {
@@ -130,10 +132,32 @@ export class DocumentsService {
     }
   }
 
-  async getDocuments(userId: string) {
-    return this.prisma.documents.findMany({
-      where: { userId, deletedAt: null },
-      orderBy: { createdAt: 'desc' },
-    });
+  async getDocuments(userId: string, dto: PaginationDto) {
+    const [documents, total] = await Promise.all([
+      this.prisma.documents.findMany({
+        where: { userId, deletedAt: null },
+        skip: dto.skip,
+        take: dto.limit,
+        orderBy: { createdAt: 'desc' },
+        select: {
+          id: true,
+          userId: true,
+          docType: true,
+          displayName: true,
+          mimeType: true,
+          sizeBytes: true,
+          isEncrypted: true,
+          createdAt: true,
+          updatedAt: true,
+          deletedAt: true,
+        },
+      }),
+      this.prisma.documents.count({ where: { userId, deletedAt: null } }),
+    ]);
+
+    return {
+      data: documents,
+      meta: buildMeta(total, dto.page, dto.limit),
+    };
   }
 }

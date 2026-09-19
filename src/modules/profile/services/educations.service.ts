@@ -5,6 +5,8 @@ import { UpdateEducationDto } from '../dto/update-education.dto';
 import { ProfileService } from './profile.service';
 import { Prisma } from '@prisma/client';
 import { normalizeGPA } from '../../../common/utils/gpa-normalizer';
+import { PaginationDto } from '../../../common/dto/pagination.dto';
+import { buildMeta } from '../../../common/utils/paginate.util';
 
 @Injectable()
 export class EducationsService {
@@ -21,17 +23,26 @@ export class EducationsService {
       },
     });
 
-    // @ts-expect-error recalculateProfileStatus might not be fully typed on ProfileService
-    await this.profileService.recalculateProfileStatus(userId);
+    await this.profileService.updateProfile(userId, {});
 
     return education;
   }
 
-  async findAll(userId: string) {
-    return this.prisma.userEducations.findMany({
-      where: { userId },
-      orderBy: { createdAt: 'desc' },
-    });
+  async findAll(userId: string, dto: PaginationDto) {
+    const [educations, total] = await Promise.all([
+      this.prisma.userEducations.findMany({
+        where: { userId },
+        skip: dto.skip,
+        take: dto.limit,
+        orderBy: { createdAt: 'desc' },
+      }),
+      this.prisma.userEducations.count({ where: { userId } }),
+    ]);
+
+    return {
+      data: educations,
+      meta: buildMeta(total, dto.page, dto.limit),
+    };
   }
 
   async update(userId: string, id: string, data: UpdateEducationDto) {
@@ -103,7 +114,6 @@ export class EducationsService {
       where: { id, userId },
     });
 
-    // @ts-expect-error recalculateProfileStatus might not be fully typed on ProfileService
-    await this.profileService.recalculateProfileStatus(userId);
+    await this.profileService.updateProfile(userId, {});
   }
 }

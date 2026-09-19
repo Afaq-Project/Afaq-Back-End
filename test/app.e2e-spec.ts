@@ -3,6 +3,10 @@ import { INestApplication, ValidationPipe } from '@nestjs/common';
 import * as request from 'supertest';
 import { App } from 'supertest/types';
 import { AppModule } from './../src/app.module';
+import { Reflector } from '@nestjs/core';
+import { TransformInterceptor } from './../src/common/interceptors/transform.interceptor';
+import { TimeoutInterceptor } from './../src/common/interceptors/timeout.interceptor';
+import { AllExceptionsFilter } from './../src/common/filters/all-exceptions.filter';
 
 describe('App (e2e)', () => {
   let app: INestApplication<App>;
@@ -28,6 +32,12 @@ describe('App (e2e)', () => {
     app.setGlobalPrefix('api');
     app.useGlobalPipes(
       new ValidationPipe({ whitelist: true, transform: true }),
+    );
+    const reflector = app.get(Reflector);
+    app.useGlobalFilters(new AllExceptionsFilter());
+    app.useGlobalInterceptors(
+      new TransformInterceptor(reflector),
+      new TimeoutInterceptor(),
     );
     await app.init();
   });

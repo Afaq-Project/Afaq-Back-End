@@ -15,7 +15,7 @@ const mockPrismaService = {
 };
 
 const mockProfileService = {
-  recalculateProfileStatus: jest.fn(),
+  updateProfile: jest.fn(),
 };
 
 describe('EducationsService', () => {
@@ -56,9 +56,7 @@ describe('EducationsService', () => {
       expect(prismaService.userEducations.create).toHaveBeenCalledWith({
         data: { userId, ...dto },
       });
-      expect(profileService.recalculateProfileStatus).toHaveBeenCalledWith(
-        userId,
-      );
+      expect(profileService.updateProfile).toHaveBeenCalledWith(userId, {});
       expect(result.id).toEqual(educationId);
     });
 
@@ -77,9 +75,7 @@ describe('EducationsService', () => {
       expect(prismaService.userEducations.delete).toHaveBeenCalledWith({
         where: { id: educationId, userId },
       });
-      expect(profileService.recalculateProfileStatus).toHaveBeenCalledWith(
-        userId,
-      );
+      expect(profileService.updateProfile).toHaveBeenCalledWith(userId, {});
     });
 
     it('should prevent IDOR by checking userId before deletion', async () => {

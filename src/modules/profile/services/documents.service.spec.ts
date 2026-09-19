@@ -195,12 +195,32 @@ describe('DocumentsService', () => {
     it('should return documents for user', async () => {
       const docs = [{ id: 'doc-1' }];
       mockPrisma.documents.findMany.mockResolvedValue(docs);
+      mockPrisma.documents.count.mockResolvedValue(1);
 
-      const result = await service.getDocuments('user-1');
-      expect(result).toEqual(docs);
+      const result = await service.getDocuments('user-1', {
+        page: 1,
+        limit: 10,
+        skip: 0,
+      });
+      expect(result.data).toEqual(docs);
+      expect(result.meta.pagination.total).toBe(1);
       expect(mockPrisma.documents.findMany).toHaveBeenCalledWith({
         where: { userId: 'user-1', deletedAt: null },
+        skip: 0,
+        take: 10,
         orderBy: { createdAt: 'desc' },
+        select: {
+          id: true,
+          userId: true,
+          docType: true,
+          mimeType: true,
+          sizeBytes: true,
+          displayName: true,
+          isEncrypted: true,
+          createdAt: true,
+          updatedAt: true,
+          deletedAt: true,
+        },
       });
     });
   });

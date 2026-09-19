@@ -3,85 +3,77 @@ import {
   IsString,
   IsArray,
   IsBoolean,
-  IsDateString,
+  IsDate,
   Length,
   ArrayMaxSize,
-  ValidateNested,
-  IsNumber,
-  Min,
-  Max,
+  MaxLength,
+  IsUUID,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import { ApiPropertyOptional } from '@nestjs/swagger';
-
-export class SkillDto {
-  @ApiPropertyOptional()
-  @IsString()
-  skillId: string;
-
-  @ApiPropertyOptional()
-  @IsNumber()
-  @Min(1)
-  @Max(5)
-  proficiency: number;
-}
-
-export class LanguageDto {
-  @ApiPropertyOptional()
-  @IsString()
-  languageId: string;
-
-  @ApiPropertyOptional()
-  @IsString()
-  proficiency: string;
-}
+import { SanitizeString } from '../../../common/utils/sanitizer.util';
 
 export class UpdateProfileDto {
   @ApiPropertyOptional()
   @IsOptional()
   @IsString()
+  @MaxLength(255)
+  @SanitizeString()
   fullName?: string;
 
   @ApiPropertyOptional()
   @IsOptional()
-  @IsDateString()
+  @Type(() => Date)
+  @IsDate()
   dateOfBirth?: Date;
 
   @ApiPropertyOptional()
   @IsOptional()
   @IsString()
+  @MaxLength(255)
+  @SanitizeString()
   nationality?: string;
 
   @ApiPropertyOptional()
   @IsOptional()
-  @IsString()
-  educationLevel?: string;
+  @IsUUID('4')
+  @SanitizeString()
+  educationLevelId?: string;
 
   @ApiPropertyOptional({ type: [String] })
   @IsOptional()
   @IsArray()
   @IsString({ each: true })
   @ArrayMaxSize(5)
+  @SanitizeString()
   fieldOfStudy?: string[];
 
   @ApiPropertyOptional()
   @IsOptional()
   @IsString()
+  @MaxLength(255)
+  @SanitizeString()
   currentCountry?: string;
 
   @ApiPropertyOptional()
   @IsOptional()
   @IsString()
+  @MaxLength(255)
+  @SanitizeString()
   currentCity?: string;
 
   @ApiPropertyOptional()
   @IsOptional()
   @IsString()
+  @MaxLength(255)
+  @SanitizeString()
   phone?: string;
 
   @ApiPropertyOptional()
   @IsOptional()
   @IsString()
+  @MaxLength(255)
+  @SanitizeString()
   experienceLevel?: string;
 
   @ApiPropertyOptional()
@@ -92,27 +84,14 @@ export class UpdateProfileDto {
   @ApiPropertyOptional()
   @IsOptional()
   @IsString()
+  @SanitizeString()
   @Length(0, 500)
   careerGoals?: string;
 
   @ApiPropertyOptional()
   @IsOptional()
   @IsString()
+  @MaxLength(255)
+  @SanitizeString()
   profilePhotoUrl?: string;
-
-  @ApiPropertyOptional({ type: [SkillDto] })
-  @IsOptional()
-  @IsArray()
-  @ArrayMaxSize(20)
-  @ValidateNested({ each: true })
-  @Type(() => SkillDto)
-  skills?: SkillDto[];
-
-  @ApiPropertyOptional({ type: [LanguageDto] })
-  @IsOptional()
-  @IsArray()
-  @ArrayMaxSize(5)
-  @ValidateNested({ each: true })
-  @Type(() => LanguageDto)
-  languages?: LanguageDto[];
 }

@@ -113,12 +113,16 @@ export class UsersService {
     const totalPages = Math.ceil(total / query.limit);
     return {
       data,
-      total,
-      page: query.page,
-      limit: query.limit,
-      totalPages,
-      hasNext: query.page < totalPages,
-      hasPrev: query.page > 1,
+      meta: {
+        pagination: {
+          total,
+          page: query.page,
+          limit: query.limit,
+          totalPages,
+          hasNext: query.page < totalPages,
+          hasPrev: query.page > 1,
+        },
+      },
     };
   }
 

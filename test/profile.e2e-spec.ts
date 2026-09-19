@@ -3,6 +3,10 @@ import { INestApplication, ValidationPipe } from '@nestjs/common';
 import * as request from 'supertest';
 import { AppModule } from '../src/app.module';
 import { PrismaService } from '../src/prisma/prisma.service';
+import { Reflector } from '@nestjs/core';
+import { TransformInterceptor } from '../src/common/interceptors/transform.interceptor';
+import { TimeoutInterceptor } from '../src/common/interceptors/timeout.interceptor';
+import { AllExceptionsFilter } from '../src/common/filters/all-exceptions.filter';
 
 describe('ProfileModule (e2e)', () => {
   let app: INestApplication;
@@ -25,6 +29,12 @@ describe('ProfileModule (e2e)', () => {
         whitelist: true,
         forbidNonWhitelisted: true,
       }),
+    );
+    const reflector = app.get(Reflector);
+    app.useGlobalFilters(new AllExceptionsFilter());
+    app.useGlobalInterceptors(
+      new TransformInterceptor(reflector),
+      new TimeoutInterceptor(),
     );
     await app.init();
     prisma = app.get<PrismaService>(PrismaService);
@@ -57,16 +67,16 @@ describe('ProfileModule (e2e)', () => {
       .post('/api/v1/auth/login')
       .send({ email: 'test1@example.com', password: 'Password1!' });
 
-    userToken = login1.body.accessToken;
-    userId = reg1.body.user?.id || login1.body.user?.id;
+    userToken = login1.body.data.accessToken;
+    userId = reg1.body.data.user?.id || login1.body.data.user?.id;
 
     const login2 = await request(app.getHttpServer())
       .post('/api/v1/auth/login')
       .send({ email: 'test2@example.com', password: 'Password1!' });
-    otherUserToken = login2.body.accessToken;
+    otherUserToken = login2.body.data.accessToken;
   });
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     // Only clean up profile-related data between tests to keep users intact
     await prisma.documents.deleteMany();
     await prisma.userEducations.deleteMany();
@@ -105,7 +115,7 @@ describe('ProfileModule (e2e)', () => {
         .set('Authorization', `Bearer ${userToken}`)
         .expect(200);
 
-      expect(res.body.data).toBeDefined();
+      expect(res.body).toBeDefined();
       expect(res.body.data.completionPct).toBeDefined();
       expect(res.body.data.userId).toBe(userId);
     });
@@ -116,9 +126,12 @@ describe('ProfileModule (e2e)', () => {
         .get('/api/v1/profile')
         .set('Authorization', `Bearer ${userToken}`);
 
+      const eduRes = await request(app.getHttpServer()).get("/api/v1/reference/education-levels");
+      const eduId = eduRes.body.data[0].id;
+
       const updatePayload = {
         nationality: 'US',
-        educationLevel: 'Bachelor',
+        educationLevelId: eduId,
         fieldOfStudy: ['Computer Science'],
       };
 
@@ -152,7 +165,7 @@ describe('ProfileModule (e2e)', () => {
         .patch('/api/v1/profile')
         .set('Authorization', `Bearer ${userToken}`)
         .send({ nationality: null })
-        .expect(200);
+        .expect(400);
 
       // Reset to original for next tests
       await request(app.getHttpServer())
@@ -197,7 +210,28 @@ describe('ProfileModule (e2e)', () => {
       educationId = res.body.data.id;
     });
 
+    it('should return 400 (not 500/P2022) when unknown columns are provided', async () => {
+      expect(educationId).toBeDefined();
+      const payloadWithUnknown = {
+        degree: 'Master',
+        thisColumnDoesNotExist: 'Exploit/P2022',
+      };
+
+      await request(app.getHttpServer())
+        .post('/api/v1/profile/educations')
+        .set('Authorization', `Bearer ${userToken}`)
+        .send(payloadWithUnknown)
+        .expect(400);
+
+      await request(app.getHttpServer())
+        .patch(`/api/v1/profile/educations/${educationId}`)
+        .set('Authorization', `Bearer ${userToken}`)
+        .send(payloadWithUnknown)
+        .expect(400);
+    });
+
     it('should update education with GPA successfully', async () => {
+      expect(educationId).toBeDefined();
       const updateDto = {
         gpaValue: 3.8,
         gpaScale: '4.0',
@@ -209,11 +243,12 @@ describe('ProfileModule (e2e)', () => {
         .send(updateDto)
         .expect(200);
 
-      expect(res.body.data.gpaValue).toBe(3.8);
-      expect(res.body.data.gpaScale).toBe('4.0');
+      expect(Number(res.body.data.gpaRaw)).toBe(3.8);
+      expect(Number(res.body.data.gpaRawScale)).toBe(4);
     });
 
     it('should fail cross-field validation if gpaValue is missing but gpaScale is provided', async () => {
+      expect(educationId).toBeDefined();
       const updateDto = {
         gpaScale: 'percentage',
       };
@@ -226,6 +261,7 @@ describe('ProfileModule (e2e)', () => {
     });
 
     it('should fail cross-field validation if gpaScale is missing but gpaValue is provided', async () => {
+      expect(educationId).toBeDefined();
       const updateDto = {
         gpaValue: 95,
       };
@@ -238,21 +274,24 @@ describe('ProfileModule (e2e)', () => {
     });
 
     it("should prevent updating another user's education (IDOR)", async () => {
+      expect(educationId).toBeDefined();
       await request(app.getHttpServer())
         .patch(`/api/v1/profile/educations/${educationId}`)
         .set('Authorization', `Bearer ${otherUserToken}`)
-        .send({ degree: 'Master' })
+        .send({ degree: 'Hacked' })
         .expect(404);
     });
 
     it('should prevent deleting another users education (IDOR)', async () => {
+      expect(educationId).toBeDefined();
       await request(app.getHttpServer())
         .delete(`/api/v1/profile/educations/${educationId}`)
         .set('Authorization', `Bearer ${otherUserToken}`)
-        .expect(403);
+        .expect(404);
     });
 
     it('should remove education successfully', async () => {
+      expect(educationId).toBeDefined();
       await request(app.getHttpServer())
         .delete(`/api/v1/profile/educations/${educationId}`)
         .set('Authorization', `Bearer ${userToken}`)

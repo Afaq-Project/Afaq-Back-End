@@ -20,6 +20,8 @@ import {
   storageConfig,
 } from '@config/index';
 import { PrismaModule } from '@/prisma';
+import { RedisThrottlerStorage } from "./common/throttler/redis-throttler.storage";
+import { RedisService } from "./redis/redis.service";
 import { RedisModule } from '@/redis';
 import { HealthModule } from '@modules/health';
 import { UsersModule } from '@modules/users';
@@ -187,8 +189,9 @@ import { ProfileModule } from './modules/profile/profile.module';
 
     // ── Rate Limiting ────────────────────────────
     ThrottlerModule.forRootAsync({
-      inject: [ConfigService],
-      useFactory: (config: ConfigService) => ({
+      inject: [ConfigService, RedisService],
+      useFactory: (config: ConfigService, redis: RedisService) => ({
+        storage: new RedisThrottlerStorage(redis),
         throttlers: [
           {
             ttl: config.get<number>('security.THROTTLE_TTL', 60000),
