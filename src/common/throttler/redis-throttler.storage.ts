@@ -1,5 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { ThrottlerStorage,  } from '@nestjs/throttler';
+import { ThrottlerStorage } from '@nestjs/throttler';
 import { RedisService } from '../../redis/redis.service';
 
 @Injectable()
@@ -14,7 +14,12 @@ export class RedisThrottlerStorage implements ThrottlerStorage {
     limit: number,
     _blockDuration: number,
     _throttlerName: string,
-  ): Promise<any> {
+  ): Promise<{
+    totalHits: number;
+    timeToExpire: number;
+    isBlocked: boolean;
+    timeToBlockExpire: number;
+  }> {
     try {
       const multi = this.redisService.client.multi();
       multi.incr(key);
@@ -40,12 +45,19 @@ export class RedisThrottlerStorage implements ThrottlerStorage {
         timeToBlockExpire: 0,
       };
     } catch (error) {
-      this.logger.warn(`Redis throttler failed, bypassing (fail-open): ${(error as any).message || error}`);
+      this.logger.warn(
+        `Redis throttler failed, bypassing (fail-open): ${(error as Error).message || String(error)}`,
+      );
       return this.failOpen();
     }
   }
 
-  private failOpen(): any  {
+  private failOpen(): {
+    totalHits: number;
+    timeToExpire: number;
+    isBlocked: boolean;
+    timeToBlockExpire: number;
+  } {
     return {
       totalHits: 0,
       timeToExpire: 0,

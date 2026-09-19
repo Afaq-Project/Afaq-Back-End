@@ -20,8 +20,8 @@ import {
   storageConfig,
 } from '@config/index';
 import { PrismaModule } from '@/prisma';
-import { RedisThrottlerStorage } from "./common/throttler/redis-throttler.storage";
-import { RedisService } from "./redis/redis.service";
+import { RedisThrottlerStorage } from './common/throttler/redis-throttler.storage';
+import { RedisService } from './redis/redis.service';
 import { RedisModule } from '@/redis';
 import { HealthModule } from '@modules/health';
 import { UsersModule } from '@modules/users';
@@ -277,6 +277,8 @@ import { ProfileModule } from './modules/profile/profile.module';
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer): void {
-    consumer.apply(RequestIdMiddleware, IdempotencyMiddleware).forRoutes('*');
+    consumer
+      .apply(RequestIdMiddleware, IdempotencyMiddleware)
+      .forRoutes('*path');
   }
 }
