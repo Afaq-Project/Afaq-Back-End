@@ -537,6 +537,100 @@
                 }
               },
               "response": []
+            },
+            {
+              "name": "Publish Profile",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test(\"Status code is 200\", function () {",
+                      "    pm.response.to.have.status(200);",
+                      "});",
+                      "pm.test(\"isDraft is false\", function () {",
+                      "    var jsonData = pm.response.json();",
+                      "    pm.expect(jsonData.data.isDraft).to.eql(false);",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {}
+                  }
+                }
+              ],
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{accessToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/profile/publish",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "profile",
+                    "publish"
+                  ]
+                },
+                "description": "Publish user profile"
+              },
+              "response": []
+            },
+            {
+              "name": "Publish Profile (Already Published)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test(\"Status code is 409\", function () {",
+                      "    pm.response.to.have.status(409);",
+                      "});",
+                      "pm.test(\"Error code is PROFILE_ALREADY_PUBLISHED\", function () {",
+                      "    var jsonData = pm.response.json();",
+                      "    pm.expect(jsonData.errors[0].code).to.eql(\"PROFILE_ALREADY_PUBLISHED\");",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {}
+                  }
+                }
+              ],
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{accessToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/profile/publish",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "profile",
+                    "publish"
+                  ]
+                },
+                "description": "Publish user profile already published"
+              },
+              "response": []
             }
           ]
         },
@@ -1124,13 +1218,11 @@
           "request": {
             "method": "GET",
             "url": {
-              "raw": "{{baseUrl}}/api/v1/reference/languages",
+              "raw": "{{baseUrl}}/reference/languages",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
-                "api",
-                "v1",
                 "reference",
                 "languages"
               ]
@@ -1142,13 +1234,11 @@
           "request": {
             "method": "GET",
             "url": {
-              "raw": "{{baseUrl}}/api/v1/reference/education-levels",
+              "raw": "{{baseUrl}}/reference/education-levels",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
-                "api",
-                "v1",
                 "reference",
                 "education-levels"
               ]
@@ -1160,13 +1250,11 @@
           "request": {
             "method": "GET",
             "url": {
-              "raw": "{{baseUrl}}/api/v1/reference/app-languages",
+              "raw": "{{baseUrl}}/reference/app-languages",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
-                "api",
-                "v1",
                 "reference",
                 "app-languages"
               ]
@@ -1267,13 +1355,11 @@
               "raw": "{\"email\": \"invalid@levora.com\", \"password\": \"invalid\"}"
             },
             "url": {
-              "raw": "{{baseUrl}}/api/v1/auth/login",
+              "raw": "{{baseUrl}}/auth/login",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
-                "api",
-                "v1",
                 "auth",
                 "login"
               ]
@@ -1287,17 +1373,15 @@
             "header": [
               {
                 "key": "Authorization",
-                "value": "Bearer {{access_token}}"
+                "value": "Bearer {{accessToken}}"
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/v1/profile/skills/00000000-0000-0000-0000-000000000000",
+              "raw": "{{baseUrl}}/profile/skills/00000000-0000-0000-0000-000000000000",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
-                "api",
-                "v1",
                 "profile",
                 "skills",
                 "00000000-0000-0000-0000-000000000000"

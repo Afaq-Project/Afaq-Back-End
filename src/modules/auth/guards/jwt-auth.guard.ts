@@ -51,7 +51,11 @@ export class JwtAuthGuard extends NestAuthGuard('jwt') {
           code: 'AUTH_TOKEN_EXPIRED',
         });
       }
-      if (info && (info.name === 'JsonWebTokenError' || (info.message && info.message !== 'No auth token'))) {
+      if (
+        info &&
+        (info.name === 'JsonWebTokenError' ||
+          (info.message && info.message !== 'No auth token'))
+      ) {
         throw new UnauthorizedException({
           message: 'Invalid token',
           code: 'AUTH_TOKEN_INVALID',

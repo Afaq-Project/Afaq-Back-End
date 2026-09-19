@@ -1218,13 +1218,11 @@
           "request": {
             "method": "GET",
             "url": {
-              "raw": "{{baseUrl}}/api/v1/reference/languages",
+              "raw": "{{baseUrl}}/reference/languages",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
-                "api",
-                "v1",
                 "reference",
                 "languages"
               ]
@@ -1236,13 +1234,11 @@
           "request": {
             "method": "GET",
             "url": {
-              "raw": "{{baseUrl}}/api/v1/reference/education-levels",
+              "raw": "{{baseUrl}}/reference/education-levels",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
-                "api",
-                "v1",
                 "reference",
                 "education-levels"
               ]
@@ -1254,13 +1250,11 @@
           "request": {
             "method": "GET",
             "url": {
-              "raw": "{{baseUrl}}/api/v1/reference/app-languages",
+              "raw": "{{baseUrl}}/reference/app-languages",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
-                "api",
-                "v1",
                 "reference",
                 "app-languages"
               ]
@@ -1361,13 +1355,11 @@
               "raw": "{\"email\": \"invalid@levora.com\", \"password\": \"invalid\"}"
             },
             "url": {
-              "raw": "{{baseUrl}}/api/v1/auth/login",
+              "raw": "{{baseUrl}}/auth/login",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
-                "api",
-                "v1",
                 "auth",
                 "login"
               ]
@@ -1381,17 +1373,15 @@
             "header": [
               {
                 "key": "Authorization",
-                "value": "Bearer {{access_token}}"
+                "value": "Bearer {{accessToken}}"
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/v1/profile/skills/00000000-0000-0000-0000-000000000000",
+              "raw": "{{baseUrl}}/profile/skills/00000000-0000-0000-0000-000000000000",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
-                "api",
-                "v1",
                 "profile",
                 "skills",
                 "00000000-0000-0000-0000-000000000000"

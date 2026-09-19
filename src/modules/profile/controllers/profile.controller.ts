@@ -1,4 +1,6 @@
 import {
+  HttpCode,
+  HttpStatus,
   Controller,
   Get,
   Post,
@@ -62,11 +64,15 @@ export class ProfileController {
   }
 
   @Post('publish')
+  @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Publish user profile' })
   @ApiResponse({ status: 200, description: 'Profile published successfully' })
-  @ApiResponse({ status: 409, description: 'Profile already published or core fields incomplete' })
+  @ApiResponse({
+    status: 409,
+    description: 'Profile already published or core fields incomplete',
+  })
   async publishProfile(@Req() req: RequestWithUser) {
     const userId = req.user.id;
-    return await this.profileService.publishProfile(userId);
+    return this.profileService.publishProfile(userId);
   }
 }

@@ -3,8 +3,10 @@ import {
   CanActivate,
   ExecutionContext,
   NotFoundException,
+  BadRequestException,
 } from '@nestjs/common';
 import { PrismaService } from '../../../prisma/prisma.service';
+import { isUUID } from 'class-validator';
 
 @Injectable()
 export class DocumentOwnershipGuard implements CanActivate {
@@ -17,6 +19,10 @@ export class DocumentOwnershipGuard implements CanActivate {
 
     if (!userId || !documentId) {
       return true;
+    }
+
+    if (!isUUID(documentId)) {
+      throw new BadRequestException('Invalid UUID format');
     }
 
     const exists = await this.prisma.documents.findFirst({

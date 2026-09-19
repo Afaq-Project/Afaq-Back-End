@@ -3,8 +3,10 @@ import {
   CanActivate,
   ExecutionContext,
   NotFoundException,
+  BadRequestException,
 } from '@nestjs/common';
 import { PrismaService } from '../../../prisma/prisma.service';
+import { isUUID } from 'class-validator';
 
 @Injectable()
 export class EducationOwnershipGuard implements CanActivate {
@@ -17,6 +19,10 @@ export class EducationOwnershipGuard implements CanActivate {
 
     if (!userId || !educationId) {
       return true;
+    }
+
+    if (!isUUID(educationId)) {
+      throw new BadRequestException('Invalid UUID format');
     }
 
     const exists = await this.prisma.userEducations.findFirst({

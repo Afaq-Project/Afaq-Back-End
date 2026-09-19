@@ -3,8 +3,10 @@ import {
   CanActivate,
   ExecutionContext,
   NotFoundException,
+  BadRequestException,
 } from '@nestjs/common';
 import { PrismaService } from '../../../prisma/prisma.service';
+import { isUUID } from 'class-validator';
 
 @Injectable()
 export class SkillOwnershipGuard implements CanActivate {
@@ -17,6 +19,10 @@ export class SkillOwnershipGuard implements CanActivate {
 
     if (!userId || !skillId) {
       return true;
+    }
+
+    if (!isUUID(skillId)) {
+      throw new BadRequestException('Invalid UUID format');
     }
 
     const exists = await this.prisma.userSkills.findUnique({

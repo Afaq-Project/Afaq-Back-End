@@ -3,27 +3,22 @@ set -uo pipefail
 
 # ================================================================
 # Levora API - Full Test Suite with File Logging
-# Ubuntu / Bash / curl / jq
 # ================================================================
 
 BASE_URL="${BASE_URL:-http://localhost:3000/api/v1}"
 LOG_FILE="${LOG_FILE:-levora_test_log_$(date +%Y%m%d_%H%M%S).txt}"
 
-# ملفات العدّادات المؤقتة (لحل مشكلة subshell)
 COUNTER_DIR="$(mktemp -d)"
 trap 'rm -rf "$COUNTER_DIR"' EXIT
 
-# بيانات المستخدم الأساسي
 EMAIL="levora_test_$(date +%s)@example.com"
 PASSWORD='P@ssw0rd123!'
 FIRST_NAME="John"
 LAST_NAME="Doe"
 
-# بيانات مستخدم ثانٍ لاختبار IDOR الحقيقي
 EMAIL_B="levora_test_b_$(date +%s)@example.com"
 PASSWORD_B='P@ssw0rd456!'
 
-# ألوان
 GREEN='\033[0;32m'
 RED='\033[0;31m'
 YELLOW='\033[1;33m'
@@ -37,9 +32,6 @@ if ! command -v jq >/dev/null 2>&1; then
   exit 1
 fi
 
-# ================================================================
-# عدّادات عبر ملفات (subshell-safe)
-# ================================================================
 counter_inc() {
   local name="$1"
   local file="$COUNTER_DIR/$name"
@@ -55,9 +47,6 @@ counter_get() {
   [[ -f "$file" ]] && cat "$file" || echo 0
 }
 
-# ================================================================
-# تسجيل في الملف
-# ================================================================
 init_log() {
   {
     echo "═══════════════════════════════════════════════════════════════"
@@ -90,10 +79,7 @@ log_sub() {
 }
 
 # ================================================================
-# دالة تنفيذ الطلبات
-#   - stdout : جسم الاستجابة فقط
-#   - stderr : رسائل بشرية
-#   - log    : كل التفاصيل
+# request: stdout = body only, stderr = human messages
 # ================================================================
 request() {
   local method="$1"
@@ -119,7 +105,6 @@ request() {
   fi
   args+=("${curl_headers[@]}")
 
-  # تسجيل الطلب
   log "▶ REQUEST #$n"
   log "  Method     : $method"
   log "  URL        : $url"
@@ -129,7 +114,6 @@ request() {
   log "  Expected   : HTTP $expected"
   log ""
 
-  # التنفيذ
   local response
   if ! response="$(curl "${args[@]}")"; then
     counter_inc FAILED >/dev/null
@@ -143,7 +127,6 @@ request() {
   body="${response%$'\n'*}"
   code="${response##*$'\n'}"
 
-  # تسجيل الاستجابة
   log "◀ RESPONSE"
   log "  Status Code: $code"
   if [[ "$code" == "204" || -z "$body" ]]; then
@@ -156,7 +139,6 @@ request() {
   fi
   log ""
 
-  # التحقق
   if [[ ",$expected," == *",$code,"* ]]; then
     counter_inc PASSED >/dev/null
     log "  ✅ PASS"
@@ -174,9 +156,6 @@ request() {
   fi
 }
 
-# ================================================================
-# البداية
-# ================================================================
 init_log
 
 echo -e "${CYAN}"
@@ -187,7 +166,7 @@ echo "════════════════════════�
 echo -e "${NC}"
 
 # ================================================================
-# 1) AUTH - Register user A
+# 1) AUTH - Register (User A)
 # ================================================================
 log_section "1) AUTH - Register (User A)"
 REGISTER_BODY=$(request POST "/auth/register" \
@@ -198,15 +177,15 @@ USER_ID=$(echo "$REGISTER_BODY" | jq -r '.data.id // empty' 2>/dev/null)
 log "  → userId A = $USER_ID"
 
 # ================================================================
-# 2) AUTH - Login user A
+# 2) AUTH - Login (User A)
 # ================================================================
 log_section "2) AUTH - Login (User A)"
 LOGIN_BODY=$(request POST "/auth/login" \
   "{\"email\":\"$EMAIL\",\"password\":\"$PASSWORD\"}" \
   "" "200" "تسجيل دخول A")
 
-ACCESS_TOKEN=$(echo "$LOGIN_BODY" | jq -r '.data.accessToken // .data.tokens.accessToken // empty' 2>/dev/null)
-REFRESH_TOKEN=$(echo "$LOGIN_BODY" | jq -r '.data.refreshToken // .data.tokens.refreshToken // empty' 2>/dev/null)
+ACCESS_TOKEN=$(echo "$LOGIN_BODY" | jq -r '.data.accessToken // empty' 2>/dev/null)
+REFRESH_TOKEN=$(echo "$LOGIN_BODY" | jq -r '.data.refreshToken // empty' 2>/dev/null)
 
 log "  → accessToken  = ${ACCESS_TOKEN:0:40}..."
 log "  → refreshToken = ${REFRESH_TOKEN:0:40}..."
@@ -263,7 +242,7 @@ EDU_CREATE_BODY=$(request POST "/profile/educations" \
   '{"degree":"Bachelor of Science","major":"Computer Science","institution":"Technical University of Munich","graduationYear":2024}' \
   "$ACCESS_TOKEN" "201" "إنشاء سجل تعليمي")
 
-EDU_ID=$(echo "$EDU_CREATE_BODY" | jq -r '.data.id // .data.education.id // empty' 2>/dev/null)
+EDU_ID=$(echo "$EDU_CREATE_BODY" | jq -r '.data.id // empty' 2>/dev/null)
 log "  → educationId = $EDU_ID"
 
 request GET "/profile/educations" "" "$ACCESS_TOKEN" "200" "قائمة التعليمات بعد الإضافة" >/dev/null
@@ -279,7 +258,6 @@ if [[ -n "$EDU_ID" ]]; then
 
   request GET "/profile/educations" "" "$ACCESS_TOKEN" "200" "التحقق من الحذف" >/dev/null
 
-  # حذف مرة ثانية -> 404
   log_sub "Delete education twice (يجب 404)"
   request DELETE "/profile/educations/$EDU_ID" "" "$ACCESS_TOKEN" "404" "حذف سجل محذوف" >/dev/null || true
 fi
@@ -370,8 +348,8 @@ REFRESH_BODY=$(request POST "/auth/refresh" \
   "{\"refreshToken\":\"$REFRESH_TOKEN\"}" \
   "" "200" "تحديث التوكن")
 
-NEW_ACCESS=$(echo "$REFRESH_BODY" | jq -r '.data.accessToken // .data.tokens.accessToken // empty' 2>/dev/null)
-NEW_REFRESH=$(echo "$REFRESH_BODY" | jq -r '.data.refreshToken // .data.tokens.refreshToken // empty' 2>/dev/null)
+NEW_ACCESS=$(echo "$REFRESH_BODY" | jq -r '.data.accessToken // empty' 2>/dev/null)
+NEW_REFRESH=$(echo "$REFRESH_BODY" | jq -r '.data.refreshToken // empty' 2>/dev/null)
 
 if [[ -n "$NEW_ACCESS" ]]; then
   ACCESS_TOKEN="$NEW_ACCESS"
@@ -425,11 +403,10 @@ log_sub "13.8 Pagination - page كبير"
 request GET "/profile/skills?page=9999&limit=20" "" "$ACCESS_TOKEN" "200" "Pagination page=9999" >/dev/null || true
 
 # ================================================================
-# 14) SECURITY - Real IDOR (User B tries to access User A's resource)
+# 14) SECURITY - Real IDOR (Skills)
 # ================================================================
-log_section "14) SECURITY - Real IDOR Test"
+log_section "14) SECURITY - Real IDOR Test (Skills)"
 
-# 14.1 Register user B
 log_sub "14.1 Register User B"
 REGISTER_B=$(request POST "/auth/register" \
   "{\"email\":\"$EMAIL_B\",\"password\":\"$PASSWORD_B\",\"firstName\":\"Bob\",\"lastName\":\"Smith\"}" \
@@ -438,7 +415,6 @@ REGISTER_B=$(request POST "/auth/register" \
 USER_B_ID=$(echo "$REGISTER_B" | jq -r '.data.id // empty' 2>/dev/null)
 log "  → userId B = $USER_B_ID"
 
-# 14.2 Login user B
 log_sub "14.2 Login User B"
 LOGIN_B=$(request POST "/auth/login" \
   "{\"email\":\"$EMAIL_B\",\"password\":\"$PASSWORD_B\"}" \
@@ -447,7 +423,6 @@ LOGIN_B=$(request POST "/auth/login" \
 ACCESS_TOKEN_B=$(echo "$LOGIN_B" | jq -r '.data.accessToken // empty' 2>/dev/null)
 log "  → accessToken B = ${ACCESS_TOKEN_B:0:40}..."
 
-# 14.3 User A ينشئ skill
 log_sub "14.3 User A ينشئ skill"
 SKILL_A_BODY=$(request POST "/profile/skills" \
   "{\"skillId\":\"$SKILL_ID\",\"proficiency\":3}" \
@@ -456,7 +431,6 @@ SKILL_A_BODY=$(request POST "/profile/skills" \
 SKILL_A_ID=$(echo "$SKILL_A_BODY" | jq -r '.data.skillId // .data.id // empty' 2>/dev/null)
 log "  → skill A id = $SKILL_A_ID"
 
-# 14.4 User B يحاول الوصول لمهارة User A
 if [[ -n "$SKILL_A_ID" && -n "$ACCESS_TOKEN_B" ]]; then
   log_sub "14.4 IDOR: User B يحاول قراءة مهارة User A"
   request GET "/profile/skills/$SKILL_A_ID" \
@@ -464,48 +438,239 @@ if [[ -n "$SKILL_A_ID" && -n "$ACCESS_TOKEN_B" ]]; then
 
   log_sub "14.5 IDOR: User B يحاول تحديث مهارة User A"
   request PATCH "/profile/skills/$SKILL_A_ID" \
-    '{"proficiency":99}' \
+    '{"proficiency":2}' \
     "$ACCESS_TOKEN_B" "403,404" "IDOR: B updates A's skill" >/dev/null || true
 
   log_sub "14.6 IDOR: User B يحاول حذف مهارة User A"
   request DELETE "/profile/skills/$SKILL_A_ID" \
     "" "$ACCESS_TOKEN_B" "403,404" "IDOR: B deletes A's skill" >/dev/null || true
-
-  # تنظيف
-  log_sub "14.7 User A يحذف مهارته (تنظيف)"
-  request DELETE "/profile/skills/$SKILL_A_ID" \
-    "" "$ACCESS_TOKEN" "200,204" "cleanup A's skill" >/dev/null || true
 fi
 
 # ================================================================
+# 15) PROFILE - Complete Core Fields & Publish
 # ================================================================
-# 14b) PROFILE - Publish
+log_section "15) PROFILE - Complete Core Fields & Publish"
+
+log_sub "15.0 جلب مجال الدراسة (مطلوب لـ coreFieldsComplete)"
+FOS_BODY=$(request GET "/reference/fields-of-study" "" "" "200" "جلب مجالات الدراسة")
+
+FOS_ID=$(echo "$FOS_BODY" | jq -r '.data[0].id // .data[0].data[0].id // empty' 2>/dev/null)
+if [[ -z "$FOS_ID" || "$FOS_ID" == "null" ]]; then
+  FOS_ID=$(echo "$FOS_BODY" | grep -oE '[0-9a-fA-F-]{36}' | head -n1 || true)
+fi
+log "  → fieldOfStudy UUID = $FOS_ID"
+
+if [[ -z "$FOS_ID" || "$FOS_ID" == "null" ]]; then
+  log_both "${RED}❌ لم يتم استخراج fieldOfStudy UUID - توقف قسم 15${NC}"
+else
+  log_sub "15.1 إكمال الحقول الأساسية للبروفايل (بما فيها fieldOfStudy)"
+  request PATCH "/profile" \
+    "{
+      \"fullName\":\"Jane Doe\",
+      \"dateOfBirth\":\"1995-05-15\",
+      \"nationality\":\"Jordanian\",
+      \"educationLevel\":\"bachelor\",
+      \"fieldOfStudy\":[\"$FOS_ID\"],
+      \"currentCountry\":\"Jordan\",
+      \"currentCity\":\"Amman\",
+      \"phone\":\"+962791234567\",
+      \"experienceLevel\":\"Mid\",
+      \"hasFinancialNeed\":false
+    }" \
+    "$ACCESS_TOKEN" "200" "إكمال الحقول الأساسية" >/dev/null
+
+  log_sub "15.2 التحقق من اكتمال الحقول الأساسية"
+  CORE_CHECK=$(request GET "/profile" "" "$ACCESS_TOKEN" "200" "التحقق من coreFieldsComplete")
+  CORE_STATUS=$(echo "$CORE_CHECK" | jq -r '.data.coreFieldsComplete // empty' 2>/dev/null)
+  log "  → coreFieldsComplete = $CORE_STATUS"
+
+  if [[ "$CORE_STATUS" == "true" ]]; then
+    log "  ✅ الحقول الأساسية مكتملة"
+  else
+    log "  ❌ الحقول الأساسية لا تزال غير مكتملة"
+  fi
+
+  log_sub "15.3 نشر البروفايل لأول مرة"
+  request POST "/profile/publish" "" "$ACCESS_TOKEN" "200" "Publish profile" >/dev/null
+
+  log_sub "15.4 التحقق من isDraft بعد النشر"
+  PUBLISH_VERIFY=$(request GET "/profile" "" "$ACCESS_TOKEN" "200" "Verify isDraft=false")
+  IS_DRAFT=$(echo "$PUBLISH_VERIFY" | jq -r '.data.isDraft // empty' 2>/dev/null)
+  log "  → isDraft = $IS_DRAFT"
+  if [[ "$IS_DRAFT" == "false" ]]; then
+    log "  ✅ البروفايل منشور"
+  else
+    log "  ❌ isDraft لم يصبح false"
+  fi
+
+  log_sub "15.5 نشر مرتين (يجب 409)"
+  request POST "/profile/publish" "" "$ACCESS_TOKEN" "409" "Publish twice" >/dev/null || true
+fi
+
 # ================================================================
-log_section "14b) PROFILE - Publish"
-
-# 14b.0 Set Core Fields Complete
-log_sub "14b.0 Set Core Fields Complete"
-EDU_LVL_ID=$(request GET "/reference/education-levels" "" "" "200" "Get Edu Levels" | jq -r '.data[0].id')
-request PATCH "/profile" "{\"nationality\":\"JO\",\"educationLevelId\":\"$EDU_LVL_ID\",\"fieldOfStudy\":[\"Computer Science\"]}" "$ACCESS_TOKEN" "200" "Update Core Fields" >/dev/null
-
-# 14b.1 Publish Profile successfully
-log_sub "14b.1 Publish Profile"
-request POST "/profile/publish" "" "$ACCESS_TOKEN" "200" "Publish Profile" >/dev/null
-
-# 14b.2 Publish Profile already published
-log_sub "14b.2 Publish Profile already published"
-request POST "/profile/publish" "" "$ACCESS_TOKEN" "409" "Publish Profile Already Published" >/dev/null
-
-# 15) SECURITY - Rate Limiting
+# 16) ADDITIONAL VALIDATION TESTS
 # ================================================================
-log_section "15) SECURITY - Rate Limiting (15 attempts)"
+log_section "16) ADDITIONAL VALIDATION TESTS"
+
+log_sub "16.1 Register بكلمة سر ضعيفة جداً"
+request POST "/auth/register" \
+  '{"email":"weakpass_'$(date +%s)'@levora.com","password":"123","firstName":"Weak","lastName":"Pass"}' \
+  "" "400" "Weak password" >/dev/null || true
+
+log_sub "16.2 Register بكلمة سر بدون رقم"
+request POST "/auth/register" \
+  '{"email":"nonum_'$(date +%s)'@levora.com","password":"OnlyLettersHere","firstName":"No","lastName":"Num"}' \
+  "" "400" "Password without number" >/dev/null || true
+
+log_sub "16.3 Email بصيغة غير صحيحة"
+request POST "/auth/register" \
+  '{"email":"not-an-email","password":"P@ssw0rd123!","firstName":"Bad","lastName":"Email"}' \
+  "" "400" "Invalid email format" >/dev/null || true
+
+log_sub "16.4 proficiency = 6 (> 5) بملكية صحيحة"
+request POST "/profile/skills" \
+  "{\"skillId\":\"$SKILL_ID\",\"proficiency\":6}" \
+  "$ACCESS_TOKEN" "400" "proficiency > 5" >/dev/null || true
+
+log_sub "16.5 proficiency = 0 (< 1)"
+request POST "/profile/skills" \
+  "{\"skillId\":\"$SKILL_ID\",\"proficiency\":0}" \
+  "$ACCESS_TOKEN" "400" "proficiency < 1" >/dev/null || true
+
+log_sub "16.6 proficiency = -1"
+request POST "/profile/skills" \
+  "{\"skillId\":\"$SKILL_ID\",\"proficiency\":-1}" \
+  "$ACCESS_TOKEN" "400" "proficiency negative" >/dev/null || true
+
+log_sub "16.7 Update proficiency = 6 (على مهارة موجودة)"
+if [[ -n "$SKILL_A_ID" ]]; then
+  request PATCH "/profile/skills/$SKILL_A_ID" \
+    '{"proficiency":6}' \
+    "$ACCESS_TOKEN" "400" "PATCH proficiency > 5" >/dev/null || true
+fi
+
+# ================================================================
+# 17) PAGINATION BOUNDARIES
+# ================================================================
+log_section "17) PAGINATION BOUNDARIES"
+
+log_sub "17.1 إنشاء 3 سجلات تعليمية للاختبار"
+EDU_1=$(request POST "/profile/educations" \
+  '{"degree":"BSc","major":"CS","institution":"Uni1","graduationYear":2020}' \
+  "$ACCESS_TOKEN" "201" "edu 1" 2>/dev/null | jq -r '.data.id // empty')
+EDU_2=$(request POST "/profile/educations" \
+  '{"degree":"MSc","major":"CS","institution":"Uni2","graduationYear":2022}' \
+  "$ACCESS_TOKEN" "201" "edu 2" 2>/dev/null | jq -r '.data.id // empty')
+EDU_3=$(request POST "/profile/educations" \
+  '{"degree":"PhD","major":"CS","institution":"Uni3","graduationYear":2025}' \
+  "$ACCESS_TOKEN" "201" "edu 3" 2>/dev/null | jq -r '.data.id // empty')
+
+log "  → Created: $EDU_1 / $EDU_2 / $EDU_3"
+
+log_sub "17.2 page=1&limit=2 (يجب hasNext=true, hasPrev=false)"
+PAGE1=$(request GET "/profile/educations?page=1&limit=2" "" "$ACCESS_TOKEN" "200" "page 1 limit 2")
+HAS_NEXT_1=$(echo "$PAGE1" | jq -r '.meta.pagination.hasNext' 2>/dev/null)
+HAS_PREV_1=$(echo "$PAGE1" | jq -r '.meta.pagination.hasPrev' 2>/dev/null)
+log "  → hasNext=$HAS_NEXT_1, hasPrev=$HAS_PREV_1"
+
+log_sub "17.3 page=2&limit=2 (يجب hasNext=false, hasPrev=true)"
+PAGE2=$(request GET "/profile/educations?page=2&limit=2" "" "$ACCESS_TOKEN" "200" "page 2 limit 2")
+HAS_NEXT_2=$(echo "$PAGE2" | jq -r '.meta.pagination.hasNext' 2>/dev/null)
+HAS_PREV_2=$(echo "$PAGE2" | jq -r '.meta.pagination.hasPrev' 2>/dev/null)
+log "  → hasNext=$HAS_NEXT_2, hasPrev=$HAS_PREV_2"
+
+log_sub "17.4 page=0 (يجب 400)"
+request GET "/profile/educations?page=0" "" "$ACCESS_TOKEN" "400" "page=0" >/dev/null || true
+
+log_sub "17.5 limit=0 (يجب 400)"
+request GET "/profile/educations?limit=0" "" "$ACCESS_TOKEN" "400" "limit=0" >/dev/null || true
+
+log_sub "17.6 limit=1000 (يجب 400)"
+request GET "/profile/educations?limit=1000" "" "$ACCESS_TOKEN" "400" "limit=1000" >/dev/null || true
+
+log_sub "17.7 تنظيف السجلات"
+for id in "$EDU_1" "$EDU_2" "$EDU_3"; do
+  [[ -n "$id" && "$id" != "null" ]] && request DELETE "/profile/educations/$id" "" "$ACCESS_TOKEN" "200,204" "cleanup edu" >/dev/null || true
+done
+
+# ================================================================
+# 18) REAL IDOR - Educations
+# ================================================================
+log_section "18) REAL IDOR - Educations"
+
+log_sub "18.1 User A ينشئ سجل تعليمي"
+EDU_A_BODY=$(request POST "/profile/educations" \
+  '{"degree":"BSc","major":"Physics","institution":"A University","graduationYear":2020}' \
+  "$ACCESS_TOKEN" "201" "A's education")
+
+EDU_A_ID=$(echo "$EDU_A_BODY" | jq -r '.data.id // empty' 2>/dev/null)
+log "  → education A id = $EDU_A_ID"
+
+if [[ -n "$EDU_A_ID" && -n "$ACCESS_TOKEN_B" ]]; then
+  log_sub "18.2 IDOR: B يحاول قراءة education of A"
+  request GET "/profile/educations/$EDU_A_ID" \
+    "" "$ACCESS_TOKEN_B" "403,404,405" "IDOR: B reads A's edu" >/dev/null || true
+
+  log_sub "18.3 IDOR: B يحاول تحديث education of A"
+  request PATCH "/profile/educations/$EDU_A_ID" \
+    '{"degree":"Hacked"}' \
+    "$ACCESS_TOKEN_B" "403,404" "IDOR: B updates A's edu" >/dev/null || true
+
+  log_sub "18.4 IDOR: B يحاول حذف education of A"
+  request DELETE "/profile/educations/$EDU_A_ID" \
+    "" "$ACCESS_TOKEN_B" "403,404" "IDOR: B deletes A's edu" >/dev/null || true
+
+  log_sub "18.5 التأكد أن السجل لا يزال موجودًا"
+  request GET "/profile/educations" "" "$ACCESS_TOKEN" "200" "A's educations still there" >/dev/null || true
+fi
+
+# ================================================================
+# 19) REAL IDOR - Languages
+# ================================================================
+log_section "19) REAL IDOR - Languages"
+
+log_sub "19.1 User A ينشئ لغة"
+LANG_A_BODY=$(request POST "/profile/languages" \
+  "{\"languageId\":\"$LANG_ID\",\"proficiency\":\"Basic\"}" \
+  "$ACCESS_TOKEN" "201" "A's language")
+
+LANG_A_ID=$(echo "$LANG_A_BODY" | jq -r '.data.languageId // empty' 2>/dev/null)
+log "  → language A id = $LANG_A_ID"
+
+if [[ -n "$LANG_A_ID" && -n "$ACCESS_TOKEN_B" ]]; then
+  log_sub "19.2 IDOR: B يحاول قراءة language of A"
+  request GET "/profile/languages/$LANG_A_ID" \
+    "" "$ACCESS_TOKEN_B" "403,404,405" "IDOR: B reads A's lang" >/dev/null || true
+
+  log_sub "19.3 IDOR: B يحاول تحديث language of A"
+  request PATCH "/profile/languages/$LANG_A_ID" \
+    '{"proficiency":"Native"}' \
+    "$ACCESS_TOKEN_B" "403,404" "IDOR: B updates A's lang" >/dev/null || true
+
+  log_sub "19.4 IDOR: B يحاول حذف language of A"
+  request DELETE "/profile/languages/$LANG_A_ID" \
+    "" "$ACCESS_TOKEN_B" "403,404" "IDOR: B deletes A's lang" >/dev/null || true
+fi
+
+# ================================================================
+# 20) Cleanup - حذف موارد User A المتبقية
+# ================================================================
+log_section "20) Cleanup User A resources"
+
+[[ -n "$EDU_A_ID" ]] && request DELETE "/profile/educations/$EDU_A_ID" "" "$ACCESS_TOKEN" "200,204" "cleanup edu A" >/dev/null || true
+[[ -n "$LANG_A_ID" ]] && request DELETE "/profile/languages/$LANG_A_ID" "" "$ACCESS_TOKEN" "200,204" "cleanup lang A" >/dev/null || true
+[[ -n "$SKILL_A_ID" ]] && request DELETE "/profile/skills/$SKILL_A_ID" "" "$ACCESS_TOKEN" "200,204" "cleanup skill A" >/dev/null || true
+
+# ================================================================
+# 21) SECURITY - Rate Limiting
+# ================================================================
+log_section "21) SECURITY - Rate Limiting (15 attempts)"
 
 RATE_HIT=0
 for i in $(seq 1 15); do
   resp=$(request POST "/auth/login" \
     '{"email":"ratelimit@levora.com","password":"x"}' \
     "" "401,429" "Rate limit attempt $i" 2>/dev/null) || true
-  # نستخرج الكود
   code=$(echo "$resp" | jq -r '.status // empty' 2>/dev/null)
   if [[ "$code" == "429" ]]; then
     RATE_HIT=1
@@ -521,14 +686,23 @@ else
 fi
 
 # ================================================================
-# 16) LOGOUT
+# 22) LOGOUT (User A)
 # ================================================================
-log_section "16) AUTH - Logout (User A)"
+log_section "22) AUTH - Logout (User A)"
 request POST "/auth/logout" "" "$ACCESS_TOKEN" "200,204" "تسجيل الخروج" >/dev/null
 
-# 16.b: استخدام توكن بعد logout
-log_sub "16.b استخدام accessToken بعد Logout"
+log_sub "22.b استخدام accessToken بعد Logout"
 request GET "/profile" "" "$ACCESS_TOKEN" "401,403" "Token after logout" >/dev/null || true
+
+# ================================================================
+# 23) REFRESH TOKEN بعد Logout
+# ================================================================
+log_section "23) AUTH - Refresh Token after Logout"
+
+log_sub "23.1 محاولة استخدام refreshToken بعد Logout"
+request POST "/auth/refresh" \
+  "{\"refreshToken\":\"$REFRESH_TOKEN\"}" \
+  "" "401,403" "Refresh after logout" >/dev/null || true
 
 # ================================================================
 # SUMMARY

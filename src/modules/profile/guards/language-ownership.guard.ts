@@ -3,8 +3,10 @@ import {
   CanActivate,
   ExecutionContext,
   NotFoundException,
+  BadRequestException,
 } from '@nestjs/common';
 import { PrismaService } from '../../../prisma/prisma.service';
+import { isUUID } from 'class-validator';
 
 @Injectable()
 export class LanguageOwnershipGuard implements CanActivate {
@@ -17,6 +19,10 @@ export class LanguageOwnershipGuard implements CanActivate {
 
     if (!userId || !languageId) {
       return true;
+    }
+
+    if (!isUUID(languageId)) {
+      throw new BadRequestException('Invalid UUID format');
     }
 
     const exists = await this.prisma.userLanguages.findUnique({

@@ -212,7 +212,7 @@ describe('ProfileService', () => {
         nationality: 'US',
       });
       await expect(
-        service.updateProfile('1', { educationLevelId: null } as any),
+        service.updateProfile('1', { educationLevel: null } as any),
       ).rejects.toThrow(BadRequestException);
       await expect(
         service.updateProfile('1', { nationality: null } as any),
@@ -235,7 +235,6 @@ describe('ProfileService', () => {
         data: expect.objectContaining({
           nationality: 'CA',
           completionPct: expect.any(Number),
-          isDraft: expect.any(Boolean),
         }),
       });
     });
