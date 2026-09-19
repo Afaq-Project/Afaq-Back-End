@@ -51,7 +51,11 @@ export class AllExceptionsFilter implements ExceptionFilter {
         string,
         unknown
       >;
-      if (meta && Array.isArray(meta.target) && meta.target.includes('email')) {
+      if (meta && (
+        (Array.isArray(meta.target) && meta.target.includes('email')) ||
+        meta.target === 'email' ||
+        (typeof meta.target === 'string' && meta.target.includes('email'))
+      )) {
         status = HttpStatus.CONFLICT;
         code = ErrorCode.USER_EMAIL_DUPLICATE;
         message = 'This email is already registered';

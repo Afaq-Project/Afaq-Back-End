@@ -200,7 +200,7 @@
           "response": []
         },
         {
-          "name": "OAuth Google \u2192 Initiate",
+          "name": "OAuth Google → Initiate",
           "request": {
             "method": "GET",
             "header": [],
@@ -230,7 +230,7 @@
           ]
         },
         {
-          "name": "OAuth Google \u2192 Callback (Doc Only)",
+          "name": "OAuth Google → Callback (Doc Only)",
           "request": {
             "method": "GET",
             "header": [],
@@ -256,7 +256,7 @@
           "response": []
         },
         {
-          "name": "OAuth LinkedIn \u2192 Initiate",
+          "name": "OAuth LinkedIn → Initiate",
           "request": {
             "method": "GET",
             "header": [],
@@ -286,7 +286,7 @@
           ]
         },
         {
-          "name": "OAuth LinkedIn \u2192 Callback (Doc Only)",
+          "name": "OAuth LinkedIn → Callback (Doc Only)",
           "request": {
             "method": "GET",
             "header": [],
@@ -533,7 +533,7 @@
                 "description": "Update user profile details",
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"fullName\": \"Jane Doe\",\n  \"experienceLevel\": \"Mid\",\n  \"hasFinancialNeed\": false\n}"
+                  "raw": "{\n  \"fullName\": \"Jane Doe\",\n  \"dateOfBirth\": \"1995-05-15\",\n  \"nationality\": \"Jordanian\",\n  \"educationLevel\": \"bachelor\",\n  \"fieldOfStudy\": [\n    \"Computer Science\"\n  ],\n  \"currentCountry\": \"Jordan\",\n  \"currentCity\": \"Amman\",\n  \"phone\": \"+962791234567\",\n  \"experienceLevel\": \"Mid\",\n  \"hasFinancialNeed\": false\n}"
                 }
               },
               "response": []

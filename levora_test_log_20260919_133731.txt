@@ -1,9 +1,9 @@
 ═══════════════════════════════════════════════════════════════
   Levora API - Test Report
-  Date   : 2026-09-19 13:09:01
+  Date   : 2026-09-19 13:37:31
   BaseURL: http://localhost:3000/api/v1
-  Email A: levora_test_1789812541@example.com
-  Email B: levora_test_b_1789812541@example.com
+  Email A: levora_test_1789814251@example.com
+  Email B: levora_test_b_1789814251@example.com
 ═══════════════════════════════════════════════════════════════
 
 
@@ -15,7 +15,7 @@
   Method     : POST
   URL        : http://localhost:3000/api/v1/auth/register
   Description: تسجيل المستخدم A
-  Body       : {"email":"levora_test_1789812541@example.com","password":"P@ssw0rd123!","firstName":"John","lastName":"Doe"}
+  Body       : {"email":"levora_test_1789814251@example.com","password":"P@ssw0rd123!","firstName":"John","lastName":"Doe"}
   Expected   : HTTP 201
 
 ◀ RESPONSE
@@ -25,32 +25,35 @@
       "statusCode": 201,
       "message": "Created successfully",
       "data": {
-        "id": "655c1931-a0c1-4f06-9951-f209f4b57c0b",
-        "email": "levora_test_1789812541@example.com",
+        "id": "715bb343-d4bf-4854-a1b0-92b2fa048103",
+        "email": "levora_test_1789814251@example.com",
         "firstName": "John",
         "lastName": "Doe",
-        "isEmailVerified": false,
         "isActive": true,
-        "lastLoginAt": null,
-        "createdAt": "2026-09-19T10:09:02.372Z",
-        "userProfile": {
-          "fullName": "John Doe",
-          "completionPct": 0,
-          "isDraft": true
-        },
+        "isEmailVerified": false,
         "roles": [
           "user"
-        ]
+        ],
+        "lastLoginAt": null,
+        "userProfile": {
+          "fullName": "John Doe",
+          "completionPct": 5,
+          "isDraft": true,
+          "educations": [],
+          "skills": [],
+          "languages": [],
+          "documents": []
+        }
       },
       "meta": {
-        "requestId": "380a13c9-6ac9-45de-9d8e-c8947429624a"
+        "requestId": "bb9bd3e8-3841-443e-8dd8-f47058d59dcb"
       },
-      "timestamp": "2026-09-19T10:09:02+00:00"
+      "timestamp": "2026-09-19T10:37:32+00:00"
     }
 
   ✅ PASS
 
-  → userId A = 655c1931-a0c1-4f06-9951-f209f4b57c0b
+  → userId A = 715bb343-d4bf-4854-a1b0-92b2fa048103
 
 ───────────────────────────────────────────────────────────────
   2) AUTH - Login (User A)
@@ -60,7 +63,7 @@
   Method     : POST
   URL        : http://localhost:3000/api/v1/auth/login
   Description: تسجيل دخول A
-  Body       : {"email":"levora_test_1789812541@example.com","password":"P@ssw0rd123!"}
+  Body       : {"email":"levora_test_1789814251@example.com","password":"P@ssw0rd123!"}
   Expected   : HTTP 200
 
 ◀ RESPONSE
@@ -70,20 +73,20 @@
       "statusCode": 200,
       "message": "OK",
       "data": {
-        "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2NTVjMTkzMS1hMGMxLTRmMDYtOTk1MS1mMjA5ZjRiNTdjMGIiLCJlbWFpbCI6Imxldm9yYV90ZXN0XzE3ODk4MTI1NDFAZXhhbXBsZS5jb20iLCJyb2xlIjoidXNlciIsImlhdCI6MTc4OTgxMjU0MywiZXhwIjoxNzg5ODEzNDQzfQ.koOjAX2pdPjkAj6gytk2kNY2tBh9gCZNaiFbbhOgNuo",
-        "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2NTVjMTkzMS1hMGMxLTRmMDYtOTk1MS1mMjA5ZjRiNTdjMGIiLCJlbWFpbCI6Imxldm9yYV90ZXN0XzE3ODk4MTI1NDFAZXhhbXBsZS5jb20iLCJyb2xlIjoidXNlciIsImlhdCI6MTc4OTgxMjU0MywiZXhwIjoxNzkwNDE3MzQzfQ.oSEqZ_vvM_7cCYXinRCcXho5SkpbK0K76sUi--3Rw5w",
+        "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI3MTViYjM0My1kNGJmLTQ4NTQtYTFiMC05MmIyZmEwNDgxMDMiLCJlbWFpbCI6Imxldm9yYV90ZXN0XzE3ODk4MTQyNTFAZXhhbXBsZS5jb20iLCJyb2xlIjoidXNlciIsImlhdCI6MTc4OTgxNDI1MywiZXhwIjoxNzg5ODE1MTUzfQ.7qmTdk_lXzd9TschWBTHi0Tk1mJBKw5sfXoelBvfYtg",
+        "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI3MTViYjM0My1kNGJmLTQ4NTQtYTFiMC05MmIyZmEwNDgxMDMiLCJlbWFpbCI6Imxldm9yYV90ZXN0XzE3ODk4MTQyNTFAZXhhbXBsZS5jb20iLCJyb2xlIjoidXNlciIsImlhdCI6MTc4OTgxNDI1MywiZXhwIjoxNzkwNDE5MDUzfQ.pUCPxugyHPOgvXtnvWaSdVPeW0xeaB5EVtF4c85l2fc",
         "user": {
-          "id": "655c1931-a0c1-4f06-9951-f209f4b57c0b",
-          "email": "levora_test_1789812541@example.com",
+          "id": "715bb343-d4bf-4854-a1b0-92b2fa048103",
+          "email": "levora_test_1789814251@example.com",
           "firstName": "John",
           "lastName": "Doe",
           "isEmailVerified": false,
           "isActive": true,
-          "lastLoginAt": "2026-09-19T10:09:03.426Z",
-          "createdAt": "2026-09-19T10:09:02.372Z",
+          "lastLoginAt": "2026-09-19T10:37:33.607Z",
+          "createdAt": "2026-09-19T10:37:32.638Z",
           "userProfile": {
             "fullName": "John Doe",
-            "completionPct": 0,
+            "completionPct": 5,
             "isDraft": true
           },
           "roles": [
@@ -92,9 +95,9 @@
         }
       },
       "meta": {
-        "requestId": "cd2fcb59-9ab1-4592-82ed-d56ea4dfbf06"
+        "requestId": "9db4778b-791f-4ec8-94d7-5123e58fa26d"
       },
-      "timestamp": "2026-09-19T10:09:03+00:00"
+      "timestamp": "2026-09-19T10:37:33+00:00"
     }
 
   ✅ PASS
@@ -120,27 +123,30 @@
       "statusCode": 200,
       "message": "OK",
       "data": {
-        "id": "655c1931-a0c1-4f06-9951-f209f4b57c0b",
-        "email": "levora_test_1789812541@example.com",
+        "id": "715bb343-d4bf-4854-a1b0-92b2fa048103",
+        "email": "levora_test_1789814251@example.com",
         "firstName": "John",
         "lastName": "Doe",
-        "isEmailVerified": false,
         "isActive": true,
-        "lastLoginAt": "2026-09-19T10:09:03.426Z",
-        "createdAt": "2026-09-19T10:09:02.372Z",
-        "userProfile": {
-          "fullName": "John Doe",
-          "completionPct": 0,
-          "isDraft": true
-        },
+        "isEmailVerified": false,
         "roles": [
           "user"
-        ]
+        ],
+        "lastLoginAt": "2026-09-19T10:37:33.607Z",
+        "userProfile": {
+          "fullName": "John Doe",
+          "completionPct": 5,
+          "isDraft": true,
+          "educations": [],
+          "skills": [],
+          "languages": [],
+          "documents": []
+        }
       },
       "meta": {
-        "requestId": "d965ad91-03b5-46fd-acf3-ca8f3794607b"
+        "requestId": "697c2659-f931-475f-b122-f63754151047"
       },
-      "timestamp": "2026-09-19T10:09:03+00:00"
+      "timestamp": "2026-09-19T10:37:34+00:00"
     }
 
   ✅ PASS
@@ -164,8 +170,8 @@
       "statusCode": 200,
       "message": "Profile retrieved successfully",
       "data": {
-        "id": "655c1931-a0c1-4f06-9951-f209f4b57c0b",
-        "email": "levora_test_1789812541@example.com",
+        "id": "715bb343-d4bf-4854-a1b0-92b2fa048103",
+        "email": "levora_test_1789814251@example.com",
         "firstName": "John",
         "lastName": "Doe",
         "isActive": true,
@@ -173,10 +179,10 @@
         "roles": [
           "user"
         ],
-        "lastLoginAt": "2026-09-19T10:09:03.426Z",
+        "lastLoginAt": "2026-09-19T10:37:33.607Z",
         "userProfile": {
           "fullName": "John Doe",
-          "completionPct": 0,
+          "completionPct": 5,
           "isDraft": true,
           "educations": [],
           "skills": [],
@@ -185,9 +191,9 @@
         }
       },
       "meta": {
-        "requestId": "86266630-0fa0-43be-91b4-986f53aae8f9"
+        "requestId": "cd160a66-0555-4632-8894-739c02aff24c"
       },
-      "timestamp": "2026-09-19T10:09:04+00:00"
+      "timestamp": "2026-09-19T10:37:34+00:00"
     }
 
   ✅ PASS
@@ -211,7 +217,7 @@
       "statusCode": 200,
       "message": "OK",
       "data": {
-        "userId": "655c1931-a0c1-4f06-9951-f209f4b57c0b",
+        "userId": "715bb343-d4bf-4854-a1b0-92b2fa048103",
         "fullName": "John Doe",
         "dateOfBirth": null,
         "nationality": null,
@@ -233,13 +239,13 @@
         "skills": [],
         "languages": [],
         "documents": [],
-        "createdAt": "2026-09-19T10:09:02.372Z",
-        "updatedAt": "2026-09-19T10:09:02.372Z"
+        "createdAt": "2026-09-19T10:37:32.638Z",
+        "updatedAt": "2026-09-19T10:37:32.666Z"
       },
       "meta": {
-        "requestId": "9bbea509-1625-4143-b128-684571b52519"
+        "requestId": "23c8c03c-e72a-41a2-bbde-4ef3ce18e4d0"
       },
-      "timestamp": "2026-09-19T10:09:05+00:00"
+      "timestamp": "2026-09-19T10:37:35+00:00"
     }
 
   ✅ PASS
@@ -264,15 +270,15 @@
       "statusCode": 200,
       "message": "Updated successfully",
       "data": {
-        "userId": "655c1931-a0c1-4f06-9951-f209f4b57c0b",
+        "userId": "715bb343-d4bf-4854-a1b0-92b2fa048103",
         "completionPct": 15,
         "coreFieldsComplete": false,
-        "updatedAt": "2026-09-19T10:09:06.055Z"
+        "updatedAt": "2026-09-19T10:37:36.912Z"
       },
       "meta": {
-        "requestId": "15d3fee2-0851-4495-8bea-0558a6787c36"
+        "requestId": "b9f8a504-3a90-4329-9a89-2f80ef473138"
       },
-      "timestamp": "2026-09-19T10:09:06+00:00"
+      "timestamp": "2026-09-19T10:37:36+00:00"
     }
 
   ✅ PASS
@@ -296,7 +302,7 @@
       "statusCode": 200,
       "message": "OK",
       "data": {
-        "userId": "655c1931-a0c1-4f06-9951-f209f4b57c0b",
+        "userId": "715bb343-d4bf-4854-a1b0-92b2fa048103",
         "fullName": "Jane Doe",
         "dateOfBirth": null,
         "nationality": null,
@@ -318,13 +324,13 @@
         "skills": [],
         "languages": [],
         "documents": [],
-        "createdAt": "2026-09-19T10:09:02.372Z",
-        "updatedAt": "2026-09-19T10:09:06.055Z"
+        "createdAt": "2026-09-19T10:37:32.638Z",
+        "updatedAt": "2026-09-19T10:37:36.912Z"
       },
       "meta": {
-        "requestId": "d64a3eea-c436-4c88-a3e8-3ed40f2d9519"
+        "requestId": "1a894009-94c3-4bbe-8b78-8280421c41f5"
       },
-      "timestamp": "2026-09-19T10:09:06+00:00"
+      "timestamp": "2026-09-19T10:37:38+00:00"
     }
 
   ✅ PASS
@@ -359,9 +365,9 @@
           "hasNext": false,
           "hasPrev": false
         },
-        "requestId": "60fe3e1b-5190-4f8b-b75f-ddf23bb7db55"
+        "requestId": "d02dab79-6b3b-44cb-b7ff-50380b3fa723"
       },
-      "timestamp": "2026-09-19T10:09:08+00:00"
+      "timestamp": "2026-09-19T10:37:39+00:00"
     }
 
   ✅ PASS
@@ -381,8 +387,8 @@
       "statusCode": 201,
       "message": "Created successfully",
       "data": {
-        "id": "77248d83-1fe5-481c-94c1-e558099f2495",
-        "userId": "655c1931-a0c1-4f06-9951-f209f4b57c0b",
+        "id": "2f537fa6-b7ad-442c-89f4-9f0df328c6b1",
+        "userId": "715bb343-d4bf-4854-a1b0-92b2fa048103",
         "degree": "Bachelor of Science",
         "major": "Computer Science",
         "institution": "Technical University of Munich",
@@ -390,18 +396,18 @@
         "gpaRaw": null,
         "gpaRawScale": null,
         "gpaNormalized4": null,
-        "createdAt": "2026-09-19T10:09:08.802Z",
-        "updatedAt": "2026-09-19T10:09:08.802Z"
+        "createdAt": "2026-09-19T10:37:40.424Z",
+        "updatedAt": "2026-09-19T10:37:40.424Z"
       },
       "meta": {
-        "requestId": "05392cf3-05f8-46db-827d-263f4a3c4a2e"
+        "requestId": "8c2a27ea-8f67-4b47-955e-8fec6d5ef513"
       },
-      "timestamp": "2026-09-19T10:09:08+00:00"
+      "timestamp": "2026-09-19T10:37:40+00:00"
     }
 
   ✅ PASS
 
-  → educationId = 77248d83-1fe5-481c-94c1-e558099f2495
+  → educationId = 2f537fa6-b7ad-442c-89f4-9f0df328c6b1
 ▶ REQUEST #10
   Method     : GET
   URL        : http://localhost:3000/api/v1/profile/educations
@@ -417,8 +423,8 @@
       "message": "OK",
       "data": [
         {
-          "id": "77248d83-1fe5-481c-94c1-e558099f2495",
-          "userId": "655c1931-a0c1-4f06-9951-f209f4b57c0b",
+          "id": "2f537fa6-b7ad-442c-89f4-9f0df328c6b1",
+          "userId": "715bb343-d4bf-4854-a1b0-92b2fa048103",
           "degree": "Bachelor of Science",
           "major": "Computer Science",
           "institution": "Technical University of Munich",
@@ -426,8 +432,8 @@
           "gpaRaw": null,
           "gpaRawScale": null,
           "gpaNormalized4": null,
-          "createdAt": "2026-09-19T10:09:08.802Z",
-          "updatedAt": "2026-09-19T10:09:08.802Z"
+          "createdAt": "2026-09-19T10:37:40.424Z",
+          "updatedAt": "2026-09-19T10:37:40.424Z"
         }
       ],
       "meta": {
@@ -439,16 +445,16 @@
           "hasNext": false,
           "hasPrev": false
         },
-        "requestId": "f2ed0388-7e8d-4f94-9d3c-b065d3d05f74"
+        "requestId": "3b560a13-6e3d-4b3c-bec4-afbd8e3e2c23"
       },
-      "timestamp": "2026-09-19T10:09:09+00:00"
+      "timestamp": "2026-09-19T10:37:40+00:00"
     }
 
   ✅ PASS
 
 ▶ REQUEST #11
   Method     : PATCH
-  URL        : http://localhost:3000/api/v1/profile/educations/77248d83-1fe5-481c-94c1-e558099f2495
+  URL        : http://localhost:3000/api/v1/profile/educations/2f537fa6-b7ad-442c-89f4-9f0df328c6b1
   Description: تحديث السجل التعليمي
   Auth       : Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6Ik...
   Body       : {"gpaValue":3.8,"gpaScale":"4.0"}
@@ -461,8 +467,8 @@
       "statusCode": 200,
       "message": "Updated successfully",
       "data": {
-        "id": "77248d83-1fe5-481c-94c1-e558099f2495",
-        "userId": "655c1931-a0c1-4f06-9951-f209f4b57c0b",
+        "id": "2f537fa6-b7ad-442c-89f4-9f0df328c6b1",
+        "userId": "715bb343-d4bf-4854-a1b0-92b2fa048103",
         "degree": "Bachelor of Science",
         "major": "Computer Science",
         "institution": "Technical University of Munich",
@@ -470,13 +476,13 @@
         "gpaRaw": "3.8",
         "gpaRawScale": "4.0",
         "gpaNormalized4": "3.8",
-        "createdAt": "2026-09-19T10:09:08.802Z",
-        "updatedAt": "2026-09-19T10:09:09.830Z"
+        "createdAt": "2026-09-19T10:37:40.424Z",
+        "updatedAt": "2026-09-19T10:37:41.547Z"
       },
       "meta": {
-        "requestId": "9b13884a-2b20-4d5d-9d3e-a952722d424a"
+        "requestId": "1e7633de-e70e-48cd-8465-34458e16356f"
       },
-      "timestamp": "2026-09-19T10:09:09+00:00"
+      "timestamp": "2026-09-19T10:37:41+00:00"
     }
 
   ✅ PASS
@@ -496,8 +502,8 @@
       "message": "OK",
       "data": [
         {
-          "id": "77248d83-1fe5-481c-94c1-e558099f2495",
-          "userId": "655c1931-a0c1-4f06-9951-f209f4b57c0b",
+          "id": "2f537fa6-b7ad-442c-89f4-9f0df328c6b1",
+          "userId": "715bb343-d4bf-4854-a1b0-92b2fa048103",
           "degree": "Bachelor of Science",
           "major": "Computer Science",
           "institution": "Technical University of Munich",
@@ -505,8 +511,8 @@
           "gpaRaw": "3.8",
           "gpaRawScale": "4.0",
           "gpaNormalized4": "3.8",
-          "createdAt": "2026-09-19T10:09:08.802Z",
-          "updatedAt": "2026-09-19T10:09:09.830Z"
+          "createdAt": "2026-09-19T10:37:40.424Z",
+          "updatedAt": "2026-09-19T10:37:41.547Z"
         }
       ],
       "meta": {
@@ -518,16 +524,16 @@
           "hasNext": false,
           "hasPrev": false
         },
-        "requestId": "f1c67e09-10fe-4819-af84-b57a478dc008"
+        "requestId": "59fa3c5a-51a1-4b4d-ab97-beaef29e5e69"
       },
-      "timestamp": "2026-09-19T10:09:10+00:00"
+      "timestamp": "2026-09-19T10:37:42+00:00"
     }
 
   ✅ PASS
 
 ▶ REQUEST #13
   Method     : DELETE
-  URL        : http://localhost:3000/api/v1/profile/educations/77248d83-1fe5-481c-94c1-e558099f2495
+  URL        : http://localhost:3000/api/v1/profile/educations/2f537fa6-b7ad-442c-89f4-9f0df328c6b1
   Description: حذف السجل التعليمي
   Auth       : Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6Ik...
   Expected   : HTTP 200,204
@@ -561,9 +567,9 @@
           "hasNext": false,
           "hasPrev": false
         },
-        "requestId": "280e4d36-dbed-4276-909b-ebc07578d7ab"
+        "requestId": "6ff775a1-3ee7-4d99-be96-81740ef59661"
       },
-      "timestamp": "2026-09-19T10:09:11+00:00"
+      "timestamp": "2026-09-19T10:37:44+00:00"
     }
 
   ✅ PASS
@@ -572,7 +578,7 @@
   ⋯ Delete education twice (يجب 404)
 ▶ REQUEST #15
   Method     : DELETE
-  URL        : http://localhost:3000/api/v1/profile/educations/77248d83-1fe5-481c-94c1-e558099f2495
+  URL        : http://localhost:3000/api/v1/profile/educations/2f537fa6-b7ad-442c-89f4-9f0df328c6b1
   Description: حذف سجل محذوف
   Auth       : Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6Ik...
   Expected   : HTTP 404
@@ -592,7 +598,7 @@
           "message": "Education record not found"
         }
       ],
-      "timestamp": "2026-09-19T10:09:11+00:00"
+      "timestamp": "2026-09-19T10:37:45+00:00"
     }
 
   ✅ PASS
@@ -725,9 +731,9 @@
           "hasNext": true,
           "hasPrev": false
         },
-        "requestId": "53642c8b-dd7a-4810-a323-9831f1ea4015"
+        "requestId": "a13112d9-8164-42b5-afd8-b71629abdf36"
       },
-      "timestamp": "2026-09-19T10:09:12+00:00"
+      "timestamp": "2026-09-19T10:37:46+00:00"
     }
 
   ✅ PASS
@@ -756,9 +762,9 @@
           "hasNext": false,
           "hasPrev": false
         },
-        "requestId": "9358a27d-bea1-4c65-89dd-ce954955f1e1"
+        "requestId": "dd786468-c66c-40d2-8192-5b7bfd9978ef"
       },
-      "timestamp": "2026-09-19T10:09:13+00:00"
+      "timestamp": "2026-09-19T10:37:47+00:00"
     }
 
   ✅ PASS
@@ -778,14 +784,14 @@
       "statusCode": 201,
       "message": "Created successfully",
       "data": {
-        "userId": "655c1931-a0c1-4f06-9951-f209f4b57c0b",
+        "userId": "715bb343-d4bf-4854-a1b0-92b2fa048103",
         "skillId": "9671c49d-369e-4165-8b12-17bdbf626107",
         "proficiency": 4
       },
       "meta": {
-        "requestId": "99934d2f-0411-47a4-97ac-07da576a74cc"
+        "requestId": "fd270781-c1a9-4ced-97b5-ac00a7a173ac"
       },
-      "timestamp": "2026-09-19T10:09:15+00:00"
+      "timestamp": "2026-09-19T10:37:48+00:00"
     }
 
   ✅ PASS
@@ -820,9 +826,9 @@
           "hasNext": false,
           "hasPrev": false
         },
-        "requestId": "1a3070a4-665b-47b8-81bb-4d4e8759a668"
+        "requestId": "fb7d5d22-d9f0-4c97-b254-687129482cb6"
       },
-      "timestamp": "2026-09-19T10:09:15+00:00"
+      "timestamp": "2026-09-19T10:37:48+00:00"
     }
 
   ✅ PASS
@@ -841,7 +847,7 @@
       "statusCode": 200,
       "message": "OK",
       "data": {
-        "userId": "655c1931-a0c1-4f06-9951-f209f4b57c0b",
+        "userId": "715bb343-d4bf-4854-a1b0-92b2fa048103",
         "skillId": "9671c49d-369e-4165-8b12-17bdbf626107",
         "proficiency": 4,
         "skill": {
@@ -852,9 +858,9 @@
         }
       },
       "meta": {
-        "requestId": "72b65084-bd15-4047-a49e-9602009eb95b"
+        "requestId": "1f6471fe-7f73-45be-b7ea-ac52826e2764"
       },
-      "timestamp": "2026-09-19T10:09:16+00:00"
+      "timestamp": "2026-09-19T10:37:49+00:00"
     }
 
   ✅ PASS
@@ -874,14 +880,14 @@
       "statusCode": 200,
       "message": "Updated successfully",
       "data": {
-        "userId": "655c1931-a0c1-4f06-9951-f209f4b57c0b",
+        "userId": "715bb343-d4bf-4854-a1b0-92b2fa048103",
         "skillId": "9671c49d-369e-4165-8b12-17bdbf626107",
         "proficiency": 5
       },
       "meta": {
-        "requestId": "a0e7a158-ce32-4f7f-8f2c-7ce2adf13ae5"
+        "requestId": "9c127d3f-6e2d-4734-9103-052c5a497256"
       },
-      "timestamp": "2026-09-19T10:09:16+00:00"
+      "timestamp": "2026-09-19T10:37:50+00:00"
     }
 
   ✅ PASS
@@ -900,7 +906,7 @@
       "statusCode": 200,
       "message": "OK",
       "data": {
-        "userId": "655c1931-a0c1-4f06-9951-f209f4b57c0b",
+        "userId": "715bb343-d4bf-4854-a1b0-92b2fa048103",
         "skillId": "9671c49d-369e-4165-8b12-17bdbf626107",
         "proficiency": 5,
         "skill": {
@@ -911,9 +917,9 @@
         }
       },
       "meta": {
-        "requestId": "d967bf48-b759-4c99-9360-b194f47bce1e"
+        "requestId": "f2237ac6-202a-484f-b838-d2214fc48dfd"
       },
-      "timestamp": "2026-09-19T10:09:17+00:00"
+      "timestamp": "2026-09-19T10:37:50+00:00"
     }
 
   ✅ PASS
@@ -954,9 +960,9 @@
           "hasNext": false,
           "hasPrev": false
         },
-        "requestId": "434d745b-3ac5-4481-b65a-9473826f7ca7"
+        "requestId": "040fee2a-4bb4-42e1-b421-e19cbcad883e"
       },
-      "timestamp": "2026-09-19T10:09:18+00:00"
+      "timestamp": "2026-09-19T10:37:53+00:00"
     }
 
   ✅ PASS
@@ -1029,9 +1035,9 @@
           "hasNext": false,
           "hasPrev": false
         },
-        "requestId": "b236657c-4499-4a41-a5f1-59e810f69032"
+        "requestId": "56540fb8-60d1-46d4-9d92-658a7a9dfae4"
       },
-      "timestamp": "2026-09-19T10:09:18+00:00"
+      "timestamp": "2026-09-19T10:37:54+00:00"
     }
 
   ✅ PASS
@@ -1060,9 +1066,9 @@
           "hasNext": false,
           "hasPrev": false
         },
-        "requestId": "398487c7-deb5-4b7f-b41f-639b6477000d"
+        "requestId": "112e121b-737f-4fd2-a8ba-8c143bc36983"
       },
-      "timestamp": "2026-09-19T10:09:19+00:00"
+      "timestamp": "2026-09-19T10:38:00+00:00"
     }
 
   ✅ PASS
@@ -1082,14 +1088,14 @@
       "statusCode": 201,
       "message": "Created successfully",
       "data": {
-        "userId": "655c1931-a0c1-4f06-9951-f209f4b57c0b",
+        "userId": "715bb343-d4bf-4854-a1b0-92b2fa048103",
         "languageId": "0c47b6a4-ded1-4b44-8286-ad8f2e336018",
         "proficiency": "Fluent"
       },
       "meta": {
-        "requestId": "a6a1f791-d6a8-46ae-a0be-bceb432a0d72"
+        "requestId": "4d9ea81d-6547-49bd-9785-d008f1fceea9"
       },
-      "timestamp": "2026-09-19T10:09:19+00:00"
+      "timestamp": "2026-09-19T10:38:01+00:00"
     }
 
   ✅ PASS
@@ -1124,9 +1130,9 @@
           "hasNext": false,
           "hasPrev": false
         },
-        "requestId": "54d7c137-89f6-4523-b817-919a30829f89"
+        "requestId": "ce909af4-719e-4a96-9109-5d62243ea75e"
       },
-      "timestamp": "2026-09-19T10:09:20+00:00"
+      "timestamp": "2026-09-19T10:38:01+00:00"
     }
 
   ✅ PASS
@@ -1145,7 +1151,7 @@
       "statusCode": 200,
       "message": "OK",
       "data": {
-        "userId": "655c1931-a0c1-4f06-9951-f209f4b57c0b",
+        "userId": "715bb343-d4bf-4854-a1b0-92b2fa048103",
         "languageId": "0c47b6a4-ded1-4b44-8286-ad8f2e336018",
         "proficiency": "Fluent",
         "language": {
@@ -1154,9 +1160,9 @@
         }
       },
       "meta": {
-        "requestId": "ff772ace-73b1-40ec-a05e-06e2b9845701"
+        "requestId": "59c428f4-6d31-4139-a4cc-590bdfe26033"
       },
-      "timestamp": "2026-09-19T10:09:22+00:00"
+      "timestamp": "2026-09-19T10:38:02+00:00"
     }
 
   ✅ PASS
@@ -1176,14 +1182,14 @@
       "statusCode": 200,
       "message": "Updated successfully",
       "data": {
-        "userId": "655c1931-a0c1-4f06-9951-f209f4b57c0b",
+        "userId": "715bb343-d4bf-4854-a1b0-92b2fa048103",
         "languageId": "0c47b6a4-ded1-4b44-8286-ad8f2e336018",
         "proficiency": "Native"
       },
       "meta": {
-        "requestId": "b66f3b59-18b9-4f93-b9aa-f0daa680a2bc"
+        "requestId": "2cefd419-b1bc-4493-aff9-5b0b3ec87241"
       },
-      "timestamp": "2026-09-19T10:09:23+00:00"
+      "timestamp": "2026-09-19T10:38:03+00:00"
     }
 
   ✅ PASS
@@ -1202,7 +1208,7 @@
       "statusCode": 200,
       "message": "OK",
       "data": {
-        "userId": "655c1931-a0c1-4f06-9951-f209f4b57c0b",
+        "userId": "715bb343-d4bf-4854-a1b0-92b2fa048103",
         "languageId": "0c47b6a4-ded1-4b44-8286-ad8f2e336018",
         "proficiency": "Native",
         "language": {
@@ -1211,9 +1217,9 @@
         }
       },
       "meta": {
-        "requestId": "a712c861-9794-4e37-a3e4-b43034795772"
+        "requestId": "7d92848e-5ea9-4fe0-80cd-1ad44c184d9f"
       },
-      "timestamp": "2026-09-19T10:09:24+00:00"
+      "timestamp": "2026-09-19T10:38:03+00:00"
     }
 
   ✅ PASS
@@ -1254,9 +1260,9 @@
           "hasNext": false,
           "hasPrev": false
         },
-        "requestId": "80413fec-4811-49ef-8b14-c7f1d7b51c7c"
+        "requestId": "4dba83e8-56b5-4967-b878-eb41f9fd8595"
       },
-      "timestamp": "2026-09-19T10:09:25+00:00"
+      "timestamp": "2026-09-19T10:38:05+00:00"
     }
 
   ✅ PASS
@@ -1379,9 +1385,9 @@
           "hasNext": false,
           "hasPrev": false
         },
-        "requestId": "fa903b4f-00a4-44e2-a47b-e734b2904f0a"
+        "requestId": "cd0ce87c-71b4-4aaa-a008-bc9a9b3fec10"
       },
-      "timestamp": "2026-09-19T10:09:25+00:00"
+      "timestamp": "2026-09-19T10:38:07+00:00"
     }
 
   ✅ PASS
@@ -1509,9 +1515,9 @@
           "hasNext": true,
           "hasPrev": false
         },
-        "requestId": "a853345e-d086-4a25-900e-2dcb2dfcf8d0"
+        "requestId": "fe7bc475-4905-40d7-9fc1-88769ea29dc8"
       },
-      "timestamp": "2026-09-19T10:09:25+00:00"
+      "timestamp": "2026-09-19T10:38:08+00:00"
     }
 
   ✅ PASS
@@ -1579,9 +1585,9 @@
           "hasNext": false,
           "hasPrev": false
         },
-        "requestId": "28a3c7a5-8d14-4de0-a8f0-03d8d948489e"
+        "requestId": "1be271f8-a64b-419e-8d05-11fff73e2ccd"
       },
-      "timestamp": "2026-09-19T10:09:26+00:00"
+      "timestamp": "2026-09-19T10:38:08+00:00"
     }
 
   ✅ PASS
@@ -1650,9 +1656,9 @@
         }
       ],
       "meta": {
-        "requestId": "4e23bd3d-d494-4120-b667-175a74035956"
+        "requestId": "03c1ca91-b4c9-4eed-ab9d-b12e3872c0fc"
       },
-      "timestamp": "2026-09-19T10:09:26+00:00"
+      "timestamp": "2026-09-19T10:38:09+00:00"
     }
 
   ✅ PASS
@@ -1708,9 +1714,9 @@
         }
       ],
       "meta": {
-        "requestId": "bc464241-6676-4bc9-b8f1-221c0f53f834"
+        "requestId": "41b445a1-e542-40cc-afdc-f859fc5a8e70"
       },
-      "timestamp": "2026-09-19T10:09:27+00:00"
+      "timestamp": "2026-09-19T10:38:09+00:00"
     }
 
   ✅ PASS
@@ -1724,7 +1730,7 @@
   Method     : POST
   URL        : http://localhost:3000/api/v1/auth/refresh
   Description: تحديث التوكن
-  Body       : {"refreshToken":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2NTVjMTkzMS1hMGMxLTRmMDYtOTk1MS1mMjA5ZjRiNTdjMGIiLCJlbWFpbCI6Imxldm9yYV90ZXN0XzE3ODk4MTI1NDFAZXhhbXBsZS5jb20iLCJyb2xlIjoidXNlciIsImlhdCI6MTc4OTgxMjU0MywiZXhwIjoxNzkwNDE3MzQzfQ.oSEqZ_vvM_7cCYXinRCcXho5SkpbK0K76sUi--3Rw5w"}
+  Body       : {"refreshToken":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI3MTViYjM0My1kNGJmLTQ4NTQtYTFiMC05MmIyZmEwNDgxMDMiLCJlbWFpbCI6Imxldm9yYV90ZXN0XzE3ODk4MTQyNTFAZXhhbXBsZS5jb20iLCJyb2xlIjoidXNlciIsImlhdCI6MTc4OTgxNDI1MywiZXhwIjoxNzkwNDE5MDUzfQ.pUCPxugyHPOgvXtnvWaSdVPeW0xeaB5EVtF4c85l2fc"}
   Expected   : HTTP 200
 
 ◀ RESPONSE
@@ -1734,13 +1740,13 @@
       "statusCode": 200,
       "message": "OK",
       "data": {
-        "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2NTVjMTkzMS1hMGMxLTRmMDYtOTk1MS1mMjA5ZjRiNTdjMGIiLCJlbWFpbCI6Imxldm9yYV90ZXN0XzE3ODk4MTI1NDFAZXhhbXBsZS5jb20iLCJyb2xlIjoidXNlciIsImlhdCI6MTc4OTgxMjU2NywiZXhwIjoxNzg5ODEzNDY3fQ.0n0RwQBbm1kFI_xgWv2fXbmrmXpQZHVPR7rVe1FoXRI",
-        "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2NTVjMTkzMS1hMGMxLTRmMDYtOTk1MS1mMjA5ZjRiNTdjMGIiLCJlbWFpbCI6Imxldm9yYV90ZXN0XzE3ODk4MTI1NDFAZXhhbXBsZS5jb20iLCJyb2xlIjoidXNlciIsImlhdCI6MTc4OTgxMjU2NywiZXhwIjoxNzkwNDE3MzY3fQ.gluXxzHFYMwgQ-5WFLRxjj6JSu2VuKSFHq3T-kOXx8g"
+        "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI3MTViYjM0My1kNGJmLTQ4NTQtYTFiMC05MmIyZmEwNDgxMDMiLCJlbWFpbCI6Imxldm9yYV90ZXN0XzE3ODk4MTQyNTFAZXhhbXBsZS5jb20iLCJyb2xlIjoidXNlciIsImlhdCI6MTc4OTgxNDI5MCwiZXhwIjoxNzg5ODE1MTkwfQ.tGeLLFRRkdXNTUKB40R2rVTqH-wOG-lIrGslgI98sKU",
+        "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI3MTViYjM0My1kNGJmLTQ4NTQtYTFiMC05MmIyZmEwNDgxMDMiLCJlbWFpbCI6Imxldm9yYV90ZXN0XzE3ODk4MTQyNTFAZXhhbXBsZS5jb20iLCJyb2xlIjoidXNlciIsImlhdCI6MTc4OTgxNDI5MCwiZXhwIjoxNzkwNDE5MDkwfQ.U2G3zjEO1-n4ScgUdAaJ9TTabq9L-iTd-SmXfcg511k"
       },
       "meta": {
-        "requestId": "a7274bb0-8971-467a-a8fd-44b77ef33fd9"
+        "requestId": "83b5d46c-aeb9-4617-8d00-7610a197033d"
       },
-      "timestamp": "2026-09-19T10:09:27+00:00"
+      "timestamp": "2026-09-19T10:38:10+00:00"
     }
 
   ✅ PASS
@@ -1767,9 +1773,9 @@
         "status": "ok"
       },
       "meta": {
-        "requestId": "5e63ee25-84f1-4680-8c5d-acf01daed6b9"
+        "requestId": "0473516b-e5a3-4eaf-90a3-7c3531f74e20"
       },
-      "timestamp": "2026-09-19T10:09:28+00:00"
+      "timestamp": "2026-09-19T10:38:10+00:00"
     }
 
   ✅ PASS
@@ -1807,9 +1813,9 @@
         }
       },
       "meta": {
-        "requestId": "0340b29f-22c0-4231-97d1-c667f57e249c"
+        "requestId": "02d65c97-2705-46b2-8592-a17c69a7c81a"
       },
-      "timestamp": "2026-09-19T10:09:28+00:00"
+      "timestamp": "2026-09-19T10:38:11+00:00"
     }
 
   ✅ PASS
@@ -1825,7 +1831,7 @@
   Method     : POST
   URL        : http://localhost:3000/api/v1/auth/register
   Description: Duplicate register
-  Body       : {"email":"levora_test_1789812541@example.com","password":"P@ssw0rd123!","firstName":"John","lastName":"Doe"}
+  Body       : {"email":"levora_test_1789814251@example.com","password":"P@ssw0rd123!","firstName":"John","lastName":"Doe"}
   Expected   : HTTP 400,409
 
 ◀ RESPONSE
@@ -1839,11 +1845,11 @@
       "meta": null,
       "errors": [
         {
-          "code": "SYSTEM_REQUEST_IN_PROGRESS",
+          "code": "USER_EMAIL_DUPLICATE",
           "message": "Email already registered"
         }
       ],
-      "timestamp": "2026-09-19T10:09:29+00:00"
+      "timestamp": "2026-09-19T10:38:11+00:00"
     }
 
   ✅ PASS
@@ -1873,7 +1879,7 @@
           "message": "Password must be at least 8 characters long and contain at least one letter and one number"
         }
       ],
-      "timestamp": "2026-09-19T10:09:29+00:00"
+      "timestamp": "2026-09-19T10:38:11+00:00"
     }
 
   ✅ PASS
@@ -1884,7 +1890,7 @@
   Method     : POST
   URL        : http://localhost:3000/api/v1/auth/login
   Description: Login invalid password
-  Body       : {"email":"levora_test_1789812541@example.com","password":"WrongPassword!"}
+  Body       : {"email":"levora_test_1789814251@example.com","password":"WrongPassword!"}
   Expected   : HTTP 401
 
 ◀ RESPONSE
@@ -1898,11 +1904,11 @@
       "meta": null,
       "errors": [
         {
-          "code": "AUTH_TOKEN_MISSING",
+          "code": "AUTH_INVALID_CREDENTIALS",
           "message": "Invalid credentials"
         }
       ],
-      "timestamp": "2026-09-19T10:09:30+00:00"
+      "timestamp": "2026-09-19T10:38:12+00:00"
     }
 
   ✅ PASS
@@ -1930,7 +1936,7 @@
           "message": "Missing authentication: provide a cookie or Bearer token"
         }
       ],
-      "timestamp": "2026-09-19T10:09:30+00:00"
+      "timestamp": "2026-09-19T10:38:13+00:00"
     }
 
   ✅ PASS
@@ -1959,7 +1965,7 @@
           "message": "Invalid or expired access token"
         }
       ],
-      "timestamp": "2026-09-19T10:09:30+00:00"
+      "timestamp": "2026-09-19T10:38:14+00:00"
     }
 
   ✅ PASS
@@ -1984,11 +1990,11 @@
       "meta": null,
       "errors": [
         {
-          "code": "AUTH_TOKEN_MISSING",
+          "code": "AUTH_REFRESH_TOKEN_INVALID",
           "message": "Invalid or expired refresh token"
         }
       ],
-      "timestamp": "2026-09-19T10:09:30+00:00"
+      "timestamp": "2026-09-19T10:38:15+00:00"
     }
 
   ✅ PASS
@@ -2017,7 +2023,7 @@
           "message": "User skill not found"
         }
       ],
-      "timestamp": "2026-09-19T10:09:31+00:00"
+      "timestamp": "2026-09-19T10:38:16+00:00"
     }
 
   ✅ PASS
@@ -2047,9 +2053,9 @@
           "hasNext": false,
           "hasPrev": false
         },
-        "requestId": "59d4c195-b074-4232-aae8-bffe436a2358"
+        "requestId": "a5b7a231-bda1-49a1-b252-5c3eca174d80"
       },
-      "timestamp": "2026-09-19T10:09:31+00:00"
+      "timestamp": "2026-09-19T10:38:17+00:00"
     }
 
   ✅ PASS
@@ -2065,7 +2071,7 @@
   Method     : POST
   URL        : http://localhost:3000/api/v1/auth/register
   Description: تسجيل المستخدم B
-  Body       : {"email":"levora_test_b_1789812541@example.com","password":"P@ssw0rd456!","firstName":"Bob","lastName":"Smith"}
+  Body       : {"email":"levora_test_b_1789814251@example.com","password":"P@ssw0rd456!","firstName":"Bob","lastName":"Smith"}
   Expected   : HTTP 201
 
 ◀ RESPONSE
@@ -2075,39 +2081,42 @@
       "statusCode": 201,
       "message": "Created successfully",
       "data": {
-        "id": "5157aeb0-6ff6-4408-aa28-2ca741f54ca5",
-        "email": "levora_test_b_1789812541@example.com",
+        "id": "c6755e99-547d-4e02-9a2b-45fefee0be17",
+        "email": "levora_test_b_1789814251@example.com",
         "firstName": "Bob",
         "lastName": "Smith",
-        "isEmailVerified": false,
         "isActive": true,
-        "lastLoginAt": null,
-        "createdAt": "2026-09-19T10:09:32.373Z",
-        "userProfile": {
-          "fullName": "Bob Smith",
-          "completionPct": 0,
-          "isDraft": true
-        },
+        "isEmailVerified": false,
         "roles": [
           "user"
-        ]
+        ],
+        "lastLoginAt": null,
+        "userProfile": {
+          "fullName": "Bob Smith",
+          "completionPct": 5,
+          "isDraft": true,
+          "educations": [],
+          "skills": [],
+          "languages": [],
+          "documents": []
+        }
       },
       "meta": {
-        "requestId": "46713861-a2dc-4312-b0ef-54e5eefa9ad5"
+        "requestId": "7f1ff1db-6329-4ab9-9f63-eeb39195f393"
       },
-      "timestamp": "2026-09-19T10:09:32+00:00"
+      "timestamp": "2026-09-19T10:38:18+00:00"
     }
 
   ✅ PASS
 
-  → userId B = 5157aeb0-6ff6-4408-aa28-2ca741f54ca5
+  → userId B = c6755e99-547d-4e02-9a2b-45fefee0be17
 
   ⋯ 14.2 Login User B
 ▶ REQUEST #51
   Method     : POST
   URL        : http://localhost:3000/api/v1/auth/login
   Description: تسجيل دخول B
-  Body       : {"email":"levora_test_b_1789812541@example.com","password":"P@ssw0rd456!"}
+  Body       : {"email":"levora_test_b_1789814251@example.com","password":"P@ssw0rd456!"}
   Expected   : HTTP 200
 
 ◀ RESPONSE
@@ -2117,20 +2126,20 @@
       "statusCode": 200,
       "message": "OK",
       "data": {
-        "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI1MTU3YWViMC02ZmY2LTQ0MDgtYWEyOC0yY2E3NDFmNTRjYTUiLCJlbWFpbCI6Imxldm9yYV90ZXN0X2JfMTc4OTgxMjU0MUBleGFtcGxlLmNvbSIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNzg5ODEyNTczLCJleHAiOjE3ODk4MTM0NzN9.6MPez78lD2tenxLkFwyZ_e_5OtN1Hu9vHBgvcH7VBww",
-        "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI1MTU3YWViMC02ZmY2LTQ0MDgtYWEyOC0yY2E3NDFmNTRjYTUiLCJlbWFpbCI6Imxldm9yYV90ZXN0X2JfMTc4OTgxMjU0MUBleGFtcGxlLmNvbSIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNzg5ODEyNTczLCJleHAiOjE3OTA0MTczNzN9.stYBstyTs9Qjqwow8rAbTsWvB7yWzHszf_JBTyABrBY",
+        "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJjNjc1NWU5OS01NDdkLTRlMDItOWEyYi00NWZlZmVlMGJlMTciLCJlbWFpbCI6Imxldm9yYV90ZXN0X2JfMTc4OTgxNDI1MUBleGFtcGxlLmNvbSIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNzg5ODE0Mjk5LCJleHAiOjE3ODk4MTUxOTl9.nmnfnyYRUIxS42-WQK48x7GTtspAFMoc6nKvplX8vdI",
+        "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJjNjc1NWU5OS01NDdkLTRlMDItOWEyYi00NWZlZmVlMGJlMTciLCJlbWFpbCI6Imxldm9yYV90ZXN0X2JfMTc4OTgxNDI1MUBleGFtcGxlLmNvbSIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNzg5ODE0Mjk5LCJleHAiOjE3OTA0MTkwOTl9.YXD3CS9b8GM2R24wTkTAs5LtVqmk6FUS5r51rioSgcY",
         "user": {
-          "id": "5157aeb0-6ff6-4408-aa28-2ca741f54ca5",
-          "email": "levora_test_b_1789812541@example.com",
+          "id": "c6755e99-547d-4e02-9a2b-45fefee0be17",
+          "email": "levora_test_b_1789814251@example.com",
           "firstName": "Bob",
           "lastName": "Smith",
           "isEmailVerified": false,
           "isActive": true,
-          "lastLoginAt": "2026-09-19T10:09:33.096Z",
-          "createdAt": "2026-09-19T10:09:32.373Z",
+          "lastLoginAt": "2026-09-19T10:38:19.801Z",
+          "createdAt": "2026-09-19T10:38:18.839Z",
           "userProfile": {
             "fullName": "Bob Smith",
-            "completionPct": 0,
+            "completionPct": 5,
             "isDraft": true
           },
           "roles": [
@@ -2139,9 +2148,9 @@
         }
       },
       "meta": {
-        "requestId": "62975642-def9-4d74-81e3-5d7b2b77c9bf"
+        "requestId": "3437f697-be9f-4c64-8d58-6c5429b26683"
       },
-      "timestamp": "2026-09-19T10:09:33+00:00"
+      "timestamp": "2026-09-19T10:38:19+00:00"
     }
 
   ✅ PASS
@@ -2164,14 +2173,14 @@
       "statusCode": 201,
       "message": "Created successfully",
       "data": {
-        "userId": "655c1931-a0c1-4f06-9951-f209f4b57c0b",
+        "userId": "715bb343-d4bf-4854-a1b0-92b2fa048103",
         "skillId": "9671c49d-369e-4165-8b12-17bdbf626107",
         "proficiency": 3
       },
       "meta": {
-        "requestId": "316aa61e-ac64-4efd-bc2f-c8406add4216"
+        "requestId": "966610e9-81a8-4c6e-bbcf-dedc21c13fc9"
       },
-      "timestamp": "2026-09-19T10:09:33+00:00"
+      "timestamp": "2026-09-19T10:38:20+00:00"
     }
 
   ✅ PASS
@@ -2201,7 +2210,7 @@
           "message": "User skill not found"
         }
       ],
-      "timestamp": "2026-09-19T10:09:34+00:00"
+      "timestamp": "2026-09-19T10:38:22+00:00"
     }
 
   ✅ PASS
@@ -2231,7 +2240,7 @@
           "message": "User skill not found"
         }
       ],
-      "timestamp": "2026-09-19T10:09:35+00:00"
+      "timestamp": "2026-09-19T10:38:23+00:00"
     }
 
   ✅ PASS
@@ -2260,7 +2269,7 @@
           "message": "User skill not found"
         }
       ],
-      "timestamp": "2026-09-19T10:09:35+00:00"
+      "timestamp": "2026-09-19T10:38:23+00:00"
     }
 
   ✅ PASS
@@ -2303,11 +2312,11 @@
       "meta": null,
       "errors": [
         {
-          "code": "AUTH_TOKEN_MISSING",
+          "code": "AUTH_INVALID_CREDENTIALS",
           "message": "Invalid credentials"
         }
       ],
-      "timestamp": "2026-09-19T10:09:36+00:00"
+      "timestamp": "2026-09-19T10:38:24+00:00"
     }
 
   ✅ PASS
@@ -2330,11 +2339,11 @@
       "meta": null,
       "errors": [
         {
-          "code": "AUTH_TOKEN_MISSING",
+          "code": "AUTH_INVALID_CREDENTIALS",
           "message": "Invalid credentials"
         }
       ],
-      "timestamp": "2026-09-19T10:09:36+00:00"
+      "timestamp": "2026-09-19T10:38:24+00:00"
     }
 
   ✅ PASS
@@ -2357,11 +2366,11 @@
       "meta": null,
       "errors": [
         {
-          "code": "AUTH_TOKEN_MISSING",
+          "code": "AUTH_INVALID_CREDENTIALS",
           "message": "Invalid credentials"
         }
       ],
-      "timestamp": "2026-09-19T10:09:37+00:00"
+      "timestamp": "2026-09-19T10:38:26+00:00"
     }
 
   ✅ PASS
@@ -2384,11 +2393,11 @@
       "meta": null,
       "errors": [
         {
-          "code": "AUTH_TOKEN_MISSING",
+          "code": "AUTH_INVALID_CREDENTIALS",
           "message": "Invalid credentials"
         }
       ],
-      "timestamp": "2026-09-19T10:09:37+00:00"
+      "timestamp": "2026-09-19T10:38:28+00:00"
     }
 
   ✅ PASS
@@ -2411,11 +2420,11 @@
       "meta": null,
       "errors": [
         {
-          "code": "AUTH_TOKEN_MISSING",
+          "code": "AUTH_INVALID_CREDENTIALS",
           "message": "Invalid credentials"
         }
       ],
-      "timestamp": "2026-09-19T10:09:37+00:00"
+      "timestamp": "2026-09-19T10:38:28+00:00"
     }
 
   ✅ PASS
@@ -2438,11 +2447,11 @@
       "meta": null,
       "errors": [
         {
-          "code": "AUTH_TOKEN_MISSING",
+          "code": "AUTH_INVALID_CREDENTIALS",
           "message": "Invalid credentials"
         }
       ],
-      "timestamp": "2026-09-19T10:09:37+00:00"
+      "timestamp": "2026-09-19T10:38:29+00:00"
     }
 
   ✅ PASS
@@ -2465,11 +2474,11 @@
       "meta": null,
       "errors": [
         {
-          "code": "AUTH_TOKEN_MISSING",
+          "code": "AUTH_INVALID_CREDENTIALS",
           "message": "Invalid credentials"
         }
       ],
-      "timestamp": "2026-09-19T10:09:38+00:00"
+      "timestamp": "2026-09-19T10:38:30+00:00"
     }
 
   ✅ PASS
@@ -2496,7 +2505,7 @@
           "message": "ThrottlerException: Too Many Requests"
         }
       ],
-      "timestamp": "2026-09-19T10:09:38+00:00"
+      "timestamp": "2026-09-19T10:38:30+00:00"
     }
 
   ✅ PASS
@@ -2545,7 +2554,7 @@
           "message": "Token has been revoked"
         }
       ],
-      "timestamp": "2026-09-19T10:09:41+00:00"
+      "timestamp": "2026-09-19T10:38:32+00:00"
     }
 
   ✅ PASS

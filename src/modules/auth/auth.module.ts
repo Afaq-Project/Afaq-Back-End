@@ -5,6 +5,7 @@ import { PassportModule } from '@nestjs/passport';
 import { ConfigService } from '@nestjs/config';
 import { PrismaModule } from '@/prisma';
 import { UsersModule } from '@/modules/users/users.module';
+import { ProfileModule } from '../profile/profile.module';
 import {
   UsersRepository,
   UserRolesRepository,
@@ -43,6 +44,7 @@ import { getAllSupportedProviders } from './config/providers.config';
     PrismaModule,
     RedisModule,
     forwardRef(() => UsersModule),
+    ProfileModule,
   ],
   controllers: [AuthController],
   providers: [

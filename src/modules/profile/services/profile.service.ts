@@ -2,6 +2,7 @@ import {
   Injectable,
   BadRequestException,
   NotFoundException,
+  ConflictException,
 } from '@nestjs/common';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { Prisma } from '@prisma/client';
@@ -275,7 +276,7 @@ export class ProfileService {
       hasFinancialNeed: profile.hasFinancialNeed,
       careerGoals: profile.careerGoals,
       profilePhotoUrl: profile.profilePhotoUrl,
-      completionPct: this.calculateCompletionPct(profile),
+      completionPct: profile.completionPct,
       coreFieldsComplete: this.isCoreFieldsComplete(profile),
       lastCompletedStep: this.calculateLastCompletedStep(profile),
       gpaNormalized4:
@@ -283,6 +284,7 @@ export class ProfileService {
           ? null
           : gpaNormalized4,
       isDraft: profile.isDraft,
+      publishedAt: profile.publishedAt,
       educations,
       skills,
       languages,
@@ -316,7 +318,7 @@ export class ProfileService {
       );
     }
 
-    if (currentProfile.educationLevelId && data.educationLevelId === null) {
+    if (currentProfile.educationLevelId && data.educationLevel === null) {
       throw new BadRequestException(
         'Cannot clear required field educationLevel',
       );
@@ -332,12 +334,25 @@ export class ProfileService {
       throw new BadRequestException('Cannot clear required field fieldOfStudy');
     }
 
-    const { educationLevelId, ...restData } = data;
+    const { educationLevel, ...restData } = data;
     const profileData: Prisma.UserProfilesUncheckedUpdateInput = {
       ...restData,
     };
-    if (educationLevelId !== undefined) {
-      profileData.educationLevelId = educationLevelId;
+
+    if (educationLevel !== undefined && educationLevel !== null) {
+      const isUuid =
+        /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
+          educationLevel,
+        );
+      const eduLevel = await this.prisma.educationLevel.findFirst({
+        where: isUuid ? { id: educationLevel } : { name: educationLevel },
+      });
+      if (!eduLevel) {
+        throw new BadRequestException('Invalid educationLevel');
+      }
+      profileData.educationLevelId = eduLevel.id;
+    } else if (educationLevel === null) {
+      profileData.educationLevelId = null;
     }
 
     // Build a merged in-memory view of the profile after applying updates,
@@ -354,7 +369,6 @@ export class ProfileService {
     };
 
     const newPct = this.calculateCompletionPct(mergedProfile);
-    const newIsCore = this.isCoreFieldsComplete(mergedProfile);
 
     // Single profile update (includes pct + isDraft)
     await this.prisma.userProfiles.update({
@@ -362,7 +376,6 @@ export class ProfileService {
       data: {
         ...profileData,
         completionPct: newPct,
-        isDraft: !newIsCore,
       },
     });
 
@@ -399,14 +412,55 @@ export class ProfileService {
     };
 
     const newPct = this.calculateCompletionPct(mergedProfile);
-    const newIsCore = this.isCoreFieldsComplete(mergedProfile);
 
     await this.prisma.userProfiles.update({
       where: { userId },
       data: {
         completionPct: newPct,
-        isDraft: !newIsCore,
       },
     });
+  }
+
+  async publishProfile(userId: string) {
+    const profile = await this.prisma.userProfiles.findUnique({
+      where: { userId },
+      include: {
+        user: {
+          select: {
+            userSkills: true,
+            userLanguages: true,
+            documents: true,
+          },
+        },
+      },
+    });
+
+    if (!profile) {
+      throw new NotFoundException({
+        message: 'Profile not found',
+        code: 'PROFILE_NOT_FOUND',
+      });
+    }
+
+    if (!profile.isDraft) {
+      throw new ConflictException({
+        message: 'Profile already published',
+        code: 'PROFILE_ALREADY_PUBLISHED',
+      });
+    }
+
+    if (!this.isCoreFieldsComplete(profile)) {
+      throw new ConflictException({
+        message: 'Core fields incomplete',
+        code: 'PROFILE_INCOMPLETE',
+      });
+    }
+
+    await this.prisma.userProfiles.update({
+      where: { userId },
+      data: { isDraft: false, publishedAt: new Date() },
+    });
+
+    return this.getProfileWithDetails(userId);
   }
 }

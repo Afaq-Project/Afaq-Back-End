@@ -57,9 +57,10 @@ export class AuthGuard implements CanActivate {
       return this.validateJwt(request, authHeader.slice(7));
     }
 
-    throw new UnauthorizedException(
-      'Missing authentication: provide a cookie or Bearer token',
-    );
+    throw new UnauthorizedException({
+      message: 'Missing token',
+      code: 'AUTH_TOKEN_MISSING',
+    });
   }
 
   private async validateJwt(
@@ -70,8 +71,22 @@ export class AuthGuard implements CanActivate {
       const payload = await this.jwt.verifyAsync<JwtPayload>(token);
       request.user = await this.authService.validateUser(payload);
       return true;
-    } catch {
-      throw new UnauthorizedException('Invalid or expired access token');
+    } catch (error: unknown) {
+      if (
+        error &&
+        typeof error === 'object' &&
+        'name' in error &&
+        error.name === 'TokenExpiredError'
+      ) {
+        throw new UnauthorizedException({
+          message: 'Token expired',
+          code: 'AUTH_TOKEN_EXPIRED',
+        });
+      }
+      throw new UnauthorizedException({
+        message: 'Invalid token',
+        code: 'AUTH_TOKEN_INVALID',
+      });
     }
   }
 }

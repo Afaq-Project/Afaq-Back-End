@@ -117,6 +117,7 @@ model UserProfiles {
   completionPct   Int       @default(0) @map("completion_pct")
   preferences     Json      @default("{}")
   isDraft         Boolean   @default(true) @map("is_draft")
+  publishedAt     DateTime? @map("published_at")
 
   matchingVersion Int       @default(1) @map("matching_version")
 

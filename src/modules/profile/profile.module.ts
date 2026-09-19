@@ -40,5 +40,6 @@ import { LanguagesService } from './services/languages.service';
     SkillsService,
     LanguagesService,
   ],
+  exports: [ProfileService],
 })
 export class ProfileModule {}

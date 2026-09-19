@@ -478,6 +478,24 @@ if [[ -n "$SKILL_A_ID" && -n "$ACCESS_TOKEN_B" ]]; then
 fi
 
 # ================================================================
+# ================================================================
+# 14b) PROFILE - Publish
+# ================================================================
+log_section "14b) PROFILE - Publish"
+
+# 14b.0 Set Core Fields Complete
+log_sub "14b.0 Set Core Fields Complete"
+EDU_LVL_ID=$(request GET "/reference/education-levels" "" "" "200" "Get Edu Levels" | jq -r '.data[0].id')
+request PATCH "/profile" "{\"nationality\":\"JO\",\"educationLevelId\":\"$EDU_LVL_ID\",\"fieldOfStudy\":[\"Computer Science\"]}" "$ACCESS_TOKEN" "200" "Update Core Fields" >/dev/null
+
+# 14b.1 Publish Profile successfully
+log_sub "14b.1 Publish Profile"
+request POST "/profile/publish" "" "$ACCESS_TOKEN" "200" "Publish Profile" >/dev/null
+
+# 14b.2 Publish Profile already published
+log_sub "14b.2 Publish Profile already published"
+request POST "/profile/publish" "" "$ACCESS_TOKEN" "409" "Publish Profile Already Published" >/dev/null
+
 # 15) SECURITY - Rate Limiting
 # ================================================================
 log_section "15) SECURITY - Rate Limiting (15 attempts)"

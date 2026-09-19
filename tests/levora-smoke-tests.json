@@ -468,7 +468,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"nationality\": \"US\"\n}"
+              "raw": "{\n  \"nationality\": \"US\",\n  \"fieldOfStudy\": [\n    \"Computer Science\"\n  ]\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/profile",
@@ -512,7 +512,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"educationLevelId\": \"{{education_level_id}}\"\n}"
+              "raw": "{\n  \"educationLevel\": \"{{education_level_id}}\",\n  \"fieldOfStudy\": [\n    \"Computer Science\"\n  ]\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/profile",

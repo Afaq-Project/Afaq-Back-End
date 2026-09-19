@@ -200,7 +200,7 @@
           "response": []
         },
         {
-          "name": "OAuth Google \u2192 Initiate",
+          "name": "OAuth Google → Initiate",
           "request": {
             "method": "GET",
             "header": [],
@@ -230,7 +230,7 @@
           ]
         },
         {
-          "name": "OAuth Google \u2192 Callback (Doc Only)",
+          "name": "OAuth Google → Callback (Doc Only)",
           "request": {
             "method": "GET",
             "header": [],
@@ -256,7 +256,7 @@
           "response": []
         },
         {
-          "name": "OAuth LinkedIn \u2192 Initiate",
+          "name": "OAuth LinkedIn → Initiate",
           "request": {
             "method": "GET",
             "header": [],
@@ -286,7 +286,7 @@
           ]
         },
         {
-          "name": "OAuth LinkedIn \u2192 Callback (Doc Only)",
+          "name": "OAuth LinkedIn → Callback (Doc Only)",
           "request": {
             "method": "GET",
             "header": [],
@@ -533,8 +533,102 @@
                 "description": "Update user profile details",
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"fullName\": \"Jane Doe\",\n  \"experienceLevel\": \"Mid\",\n  \"hasFinancialNeed\": false\n}"
+                  "raw": "{\n  \"fullName\": \"Jane Doe\",\n  \"dateOfBirth\": \"1995-05-15\",\n  \"nationality\": \"Jordanian\",\n  \"educationLevel\": \"bachelor\",\n  \"fieldOfStudy\": [\n    \"Computer Science\"\n  ],\n  \"currentCountry\": \"Jordan\",\n  \"currentCity\": \"Amman\",\n  \"phone\": \"+962791234567\",\n  \"experienceLevel\": \"Mid\",\n  \"hasFinancialNeed\": false\n}"
                 }
+              },
+              "response": []
+            },
+            {
+              "name": "Publish Profile",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test(\"Status code is 200\", function () {",
+                      "    pm.response.to.have.status(200);",
+                      "});",
+                      "pm.test(\"isDraft is false\", function () {",
+                      "    var jsonData = pm.response.json();",
+                      "    pm.expect(jsonData.data.isDraft).to.eql(false);",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {}
+                  }
+                }
+              ],
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{accessToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/profile/publish",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "profile",
+                    "publish"
+                  ]
+                },
+                "description": "Publish user profile"
+              },
+              "response": []
+            },
+            {
+              "name": "Publish Profile (Already Published)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test(\"Status code is 409\", function () {",
+                      "    pm.response.to.have.status(409);",
+                      "});",
+                      "pm.test(\"Error code is PROFILE_ALREADY_PUBLISHED\", function () {",
+                      "    var jsonData = pm.response.json();",
+                      "    pm.expect(jsonData.errors[0].code).to.eql(\"PROFILE_ALREADY_PUBLISHED\");",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {}
+                  }
+                }
+              ],
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{accessToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/profile/publish",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "profile",
+                    "publish"
+                  ]
+                },
+                "description": "Publish user profile already published"
               },
               "response": []
             }

@@ -1,6 +1,7 @@
 import {
   Controller,
   Get,
+  Post,
   Patch,
   Body,
   UseGuards,
@@ -58,5 +59,14 @@ export class ProfileController {
       coreFieldsComplete: updatedProfile.coreFieldsComplete,
       updatedAt: updatedProfile.updatedAt,
     };
+  }
+
+  @Post('publish')
+  @ApiOperation({ summary: 'Publish user profile' })
+  @ApiResponse({ status: 200, description: 'Profile published successfully' })
+  @ApiResponse({ status: 409, description: 'Profile already published or core fields incomplete' })
+  async publishProfile(@Req() req: RequestWithUser) {
+    const userId = req.user.id;
+    return await this.profileService.publishProfile(userId);
   }
 }

@@ -7,7 +7,6 @@ import {
   Length,
   ArrayMaxSize,
   MaxLength,
-  IsUUID,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import { ApiPropertyOptional } from '@nestjs/swagger';
@@ -36,9 +35,9 @@ export class UpdateProfileDto {
 
   @ApiPropertyOptional()
   @IsOptional()
-  @IsUUID('4')
+  @IsString()
   @SanitizeString()
-  educationLevelId?: string;
+  educationLevel?: string;
 
   @ApiPropertyOptional({ type: [String] })
   @IsOptional()

@@ -1,3 +1,6 @@
+import { RedisService } from '../../redis/redis.service';
+import { formatUserResponse } from '../../common/utils/user-mapper.util';
+import { ProfileService } from '../profile/services/profile.service';
 import {
   Injectable,
   UnauthorizedException,
@@ -56,6 +59,8 @@ export class AuthService {
     private readonly jwt: JwtService,
     private readonly config: ConfigService,
     private readonly prisma: PrismaService,
+    private readonly profileService: ProfileService,
+    private readonly redisService: RedisService,
   ) {}
 
   // ── Register ─────────────────────────────────
@@ -65,7 +70,10 @@ export class AuthService {
       this.logger.warn(
         `Registration failed: email ${dto.email} already exists`,
       );
-      throw new ConflictException('Email already registered');
+      throw new ConflictException({
+        message: 'Email already registered',
+        code: 'USER_EMAIL_DUPLICATE',
+      });
     }
 
     const hashedPassword = await bcrypt.hash(dto.password, 12);
@@ -78,8 +86,9 @@ export class AuthService {
     });
 
     this.logger.info(`User registered successfully: ${user.email}`);
-
-    return this.formatUserResponse(user);
+    await this.profileService.recalculateProfileProgress(user.id);
+    const updatedUser = await this.usersService.getUserWithProfile(user.id);
+    return formatUserResponse(updatedUser) as unknown as UserResponseDto;
   }
 
   // ── Login ────────────────────────────────────
@@ -103,7 +112,10 @@ export class AuthService {
       this.logger.warn(
         `Failed login attempt: ${dto.email} (user not found or inactive)`,
       );
-      throw new UnauthorizedException('Invalid credentials');
+      throw new UnauthorizedException({
+        message: 'Invalid credentials',
+        code: 'AUTH_INVALID_CREDENTIALS',
+      });
     }
 
     if (!user.password) {
@@ -118,7 +130,10 @@ export class AuthService {
     const passwordValid = await bcrypt.compare(dto.password, user.password);
     if (!passwordValid) {
       this.logger.warn(`Failed login attempt: ${dto.email} (wrong password)`);
-      throw new UnauthorizedException('Invalid credentials');
+      throw new UnauthorizedException({
+        message: 'Invalid credentials',
+        code: 'AUTH_INVALID_CREDENTIALS',
+      });
     }
 
     const updatedUser = await this.prisma.users.update({
@@ -176,7 +191,18 @@ export class AuthService {
   async refreshToken(dto: RefreshTokenDto | string) {
     const token = typeof dto === 'string' ? dto : dto.refreshToken;
     if (!token) {
-      throw new UnauthorizedException('Refresh token is required');
+      throw new UnauthorizedException({
+        message: 'Refresh token is required',
+        code: 'AUTH_REFRESH_TOKEN_MISSING',
+      });
+    }
+
+    const isBlacklisted = await this.redisService.client.get(`bl_${token}`);
+    if (isBlacklisted) {
+      throw new UnauthorizedException({
+        message: 'Refresh token revoked',
+        code: 'AUTH_REFRESH_TOKEN_REVOKED',
+      });
     }
     try {
       const payload = await this.jwt.verifyAsync<JwtPayload>(token);
@@ -187,14 +213,29 @@ export class AuthService {
       }
 
       const role = await this.userRolesRepo.getCurrentRoleName(user.id);
+
       const tokens = await this.generateTokens(user.id, user.email, role);
+
+      const ttl: number = (payload as { exp?: number }).exp
+        ? Number((payload as { exp?: number }).exp) -
+          Math.floor(Date.now() / 1000)
+        : 0;
+      if (ttl > 0) {
+        await this.redisService.client.set(`bl_${token}`, 'revoked', 'EX', ttl);
+      }
 
       return {
         accessToken: tokens.accessToken,
         refreshToken: tokens.refreshToken,
       };
-    } catch {
-      throw new UnauthorizedException('Invalid or expired refresh token');
+    } catch (err: unknown) {
+      if (err instanceof UnauthorizedException) {
+        throw err;
+      }
+      throw new UnauthorizedException({
+        message: 'Invalid or expired refresh token',
+        code: 'AUTH_REFRESH_TOKEN_INVALID',
+      });
     }
   }
 
@@ -219,7 +260,7 @@ export class AuthService {
   // ── Get Profile (GET /auth/me) ────────────────
   async getProfile(userId: string): Promise<UserResponseDto> {
     const user = await this.usersService.getUserWithProfile(userId);
-    return this.formatUserResponse(user);
+    return formatUserResponse(user) as unknown as UserResponseDto;
   }
 
   async getMe(userId: string): Promise<UserResponseDto> {
@@ -227,27 +268,6 @@ export class AuthService {
   }
 
   // ── Helpers ──────────────────────────────────
-  private formatUserResponse(user: UserWithRelations): UserResponseDto {
-    let roles: string[] = ['user'];
-    if (Array.isArray(user.userRoles) && user.userRoles.length > 0) {
-      roles = user.userRoles.map((ur) => ur.roles?.name ?? 'user');
-    } else if (Array.isArray(user.roles)) {
-      roles = user.roles;
-    }
-
-    return {
-      id: user.id,
-      email: user.email,
-      firstName: user.firstName,
-      lastName: user.lastName,
-      isEmailVerified: user.isEmailVerified,
-      isActive: user.isActive,
-      lastLoginAt: user.lastLoginAt,
-      createdAt: user.createdAt,
-      userProfile: user.userProfile,
-      roles,
-    };
-  }
 
   private async generateTokens(
     userId: string,
