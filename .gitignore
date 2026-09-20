@@ -93,3 +93,6 @@ levora_test_log_*.txt
 debug.txt
 __pycache__/
 *.pyc
+swagger.json
+fix-tests.js
+test-prisma.ts
