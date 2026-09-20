@@ -80,3 +80,16 @@ test_redis.js
 manual-test.js
 fix-collections.js
 levora_test_log_*.txt
+
+# Temp agent scripts
+patch_*.js
+patch_*.py
+fix_*.js
+test_jwt.js
+test_redis.js
+manual-test.js
+fix-collections.js
+levora_test_log_*.txt
+debug.txt
+__pycache__/
+*.pyc
