@@ -124,6 +124,11 @@ jobs:
       - name: Push Schema to Test Database
         run: pnpm exec prisma db push --skip-generate
 
+      - name: Seed database
+        run: npx prisma db seed
+        env:
+          DATABASE_URL: ${{ env.DATABASE_URL }}
+
       - name: Run Unit & Integration Tests
         run: pnpm test -- --passWithNoTests
 
