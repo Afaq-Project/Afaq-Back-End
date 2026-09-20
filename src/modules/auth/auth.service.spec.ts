@@ -8,6 +8,8 @@ import { UsersService } from '@/modules/users/users.service';
 import { PrismaService } from '@/prisma';
 import { UsersRepository } from '@/modules/users/repositories';
 import { UnauthorizedException, ConflictException } from '@nestjs/common';
+import { ProfileService } from '../profile/services/profile.service';
+import { RedisService } from '../../redis/redis.service';
 import * as bcrypt from 'bcryptjs';
 
 jest.mock('bcryptjs');
@@ -49,7 +51,13 @@ describe('AuthService', () => {
         },
         {
           provide: ConfigService,
-          useValue: { get: jest.fn().mockReturnValue('secret') },
+          useValue: {
+            get: jest
+              .fn()
+              .mockReturnValue(
+                '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef',
+              ),
+          },
         },
         {
           provide: UsersService,
@@ -58,11 +66,37 @@ describe('AuthService', () => {
             updateLastLogin: jest.fn(),
             findById: jest.fn(),
             createUser: jest.fn(),
+            getUserWithProfile: jest.fn(),
           },
         },
         { provide: UsersRepository, useValue: usersRepo },
         { provide: UserRolesRepository, useValue: userRolesRepo },
         { provide: PrismaService, useValue: prisma },
+        {
+          provide: ProfileService,
+          useValue: {
+            recalculateProfileProgress: jest.fn(),
+            recalculateProfileStatus: jest.fn(),
+          },
+        },
+        {
+          provide: RedisService,
+          useValue: {
+            client: {
+              get: jest.fn(),
+              exists: jest.fn().mockResolvedValue(1),
+              pipeline: jest.fn().mockReturnValue({
+                set: jest.fn(),
+                sadd: jest.fn(),
+                expire: jest.fn(),
+                exec: jest.fn(),
+                del: jest.fn(),
+                srem: jest.fn(),
+              }),
+              smembers: jest.fn(),
+            },
+          },
+        },
         {
           provide: getLoggerToken(AuthService.name),
           useValue: { info: jest.fn(), error: jest.fn(), warn: jest.fn() },
@@ -143,6 +177,12 @@ describe('AuthService', () => {
       usersService.findByEmail.mockResolvedValue(null);
       (bcrypt.hash as jest.Mock).mockResolvedValue('hashed');
       usersService.createUser.mockResolvedValue({
+        id: '1',
+        email: 'a@a.com',
+        isActive: true,
+        userRoles: [{ roles: { name: 'user' } }],
+      } as any);
+      usersService.getUserWithProfile.mockResolvedValue({
         id: '1',
         email: 'a@a.com',
         isActive: true,

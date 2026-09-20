@@ -1,6 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { JwtService } from '@nestjs/jwt';
+import { RedisService } from '../../redis/redis.service';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { OAuthProcessorService } from './services/oauth-processor.service';
@@ -23,7 +25,11 @@ describe('AuthController', () => {
   };
 
   const mockConfigService = {
-    get: jest.fn().mockReturnValue(undefined),
+    get: jest
+      .fn()
+      .mockReturnValue(
+        '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef',
+      ),
   };
 
   beforeEach(async () => {
@@ -41,6 +47,14 @@ describe('AuthController', () => {
         {
           provide: ConfigService,
           useValue: mockConfigService,
+        },
+        {
+          provide: JwtService,
+          useValue: {},
+        },
+        {
+          provide: RedisService,
+          useValue: {},
         },
       ],
     })

@@ -133,7 +133,7 @@ describe('ProfileModule (e2e)', () => {
 
       const updatePayload = {
         nationality: 'US',
-        educationLevelId: eduId,
+        educationLevel: eduId,
         fieldOfStudy: ['Computer Science'],
       };
 

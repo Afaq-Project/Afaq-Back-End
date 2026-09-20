@@ -41,7 +41,8 @@ describe('AuthModule Boot Testing', () => {
         get: jest.fn().mockImplementation((key: string) => {
           if (
             key === 'oauth.OAUTH_ENCRYPTION_KEY' ||
-            key === 'OAUTH_ENCRYPTION_KEY'
+            key === 'OAUTH_ENCRYPTION_KEY' ||
+            key === 'storage.encryption.key'
           ) {
             return '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef';
           }
