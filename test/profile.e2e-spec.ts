@@ -43,12 +43,20 @@ describe('ProfileModule (e2e)', () => {
     if (educationLevelCount === 0) {
       await prisma.educationLevel.createMany({
         data: [
-          { name: 'high_school', labelEn: 'High School', labelAr: 'ثانوية عامة' },
+          {
+            name: 'high_school',
+            labelEn: 'High School',
+            labelAr: 'ثانوية عامة',
+          },
           { name: 'diploma', labelEn: 'Diploma', labelAr: 'دبلوم' },
           { name: 'bachelor', labelEn: 'Bachelor', labelAr: 'بكالوريوس' },
           { name: 'master', labelEn: 'Master', labelAr: 'ماجستير' },
           { name: 'phd', labelEn: 'PhD', labelAr: 'دكتوراه' },
-          { name: 'certificate', labelEn: 'Certificate', labelAr: 'شهادة مهنية' },
+          {
+            name: 'certificate',
+            labelEn: 'Certificate',
+            labelAr: 'شهادة مهنية',
+          },
           { name: 'other', labelEn: 'Other', labelAr: 'أخرى' },
         ],
         skipDuplicates: true,
