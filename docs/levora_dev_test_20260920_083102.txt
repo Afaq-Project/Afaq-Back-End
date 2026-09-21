@@ -1,0 +1,3552 @@
+═══════════════════════════════════════════════════════════════
+  Levora API - Dev/Prod Test Report
+  Date   : 2026-09-20 08:31:02
+  BaseURL: https://levora-back-end.onrender.com/api/v1
+  Email A: levora_test_1789882262@example.com
+  Email B: levora_test_b_1789882262@example.com
+  RateLimit test: 0
+  Admin tests   : SKIPPED
+═══════════════════════════════════════════════════════════════
+
+
+───────────────────────────────────────────────────────────────
+  1) AUTH - Register & Login (User A)
+───────────────────────────────────────────────────────────────
+
+▶ REQUEST #1
+  Method     : POST
+  URL        : https://levora-back-end.onrender.com/api/v1/auth/register
+  Description: Register user A
+  Body       : {"email":"levora_test_1789882262@example.com","password":"P@ssw0rd123!","firstName":"John","lastName":"Doe"}
+  Expected   : HTTP 201
+
+◀ RESPONSE
+  Status Code: 201
+  Body (JSON):
+    {
+      "statusCode": 201,
+      "message": "Created successfully",
+      "data": {
+        "id": "d9fcf426-3cd4-4e8f-aa9a-f9449acd7910",
+        "email": "levora_test_1789882262@example.com",
+        "firstName": "John",
+        "lastName": "Doe",
+        "isActive": true,
+        "isEmailVerified": false,
+        "roles": [
+          "user"
+        ],
+        "lastLoginAt": null,
+        "userProfile": {
+          "fullName": "John Doe",
+          "completionPct": 5,
+          "isDraft": true,
+          "educations": [],
+          "skills": [],
+          "languages": [],
+          "documents": []
+        }
+      },
+      "meta": {
+        "requestId": "391c9552-640b-4d96-b29f-5ee424acda25"
+      },
+      "timestamp": "2026-09-20T05:31:18+00:00"
+    }
+
+  ✅ PASS
+
+  → userId A = d9fcf426-3cd4-4e8f-aa9a-f9449acd7910
+▶ REQUEST #2
+  Method     : POST
+  URL        : https://levora-back-end.onrender.com/api/v1/auth/login
+  Description: Login user A
+  Body       : {"email":"levora_test_1789882262@example.com","password":"P@ssw0rd123!"}
+  Expected   : HTTP 200
+
+◀ RESPONSE
+  Status Code: 200
+  Body (JSON):
+    {
+      "statusCode": 200,
+      "message": "OK",
+      "data": {
+        "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkOWZjZjQyNi0zY2Q0LTRlOGYtYWE5YS1mOTQ0OWFjZDc5MTAiLCJlbWFpbCI6Imxldm9yYV90ZXN0XzE3ODk4ODIyNjJAZXhhbXBsZS5jb20iLCJyb2xlIjoidXNlciIsImlhdCI6MTc4OTg4MjI4NywiZXhwIjoxNzg5ODgzMTg3fQ.JZ2wKiVWa-pvykNfcePYQcBn4vdASvpY2lj9s_9avbQ",
+        "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkOWZjZjQyNi0zY2Q0LTRlOGYtYWE5YS1mOTQ0OWFjZDc5MTAiLCJlbWFpbCI6Imxldm9yYV90ZXN0XzE3ODk4ODIyNjJAZXhhbXBsZS5jb20iLCJyb2xlIjoidXNlciIsImlhdCI6MTc4OTg4MjI4NywiZXhwIjoxNzkwNDg3MDg3fQ.5SwcUt4Fec4NEBoFH_FDoyeQ1t75ZpvNziY7bPE_zFk",
+        "user": {
+          "id": "d9fcf426-3cd4-4e8f-aa9a-f9449acd7910",
+          "email": "levora_test_1789882262@example.com",
+          "firstName": "John",
+          "lastName": "Doe",
+          "isEmailVerified": false,
+          "isActive": true,
+          "lastLoginAt": "2026-09-20T05:31:23.235Z",
+          "createdAt": "2026-09-20T05:31:07.833Z",
+          "userProfile": {
+            "fullName": "John Doe",
+            "completionPct": 5,
+            "isDraft": true
+          },
+          "roles": [
+            "user"
+          ]
+        }
+      },
+      "meta": {
+        "requestId": "8363ed1f-767c-444d-b8bb-e8b1a4425ced"
+      },
+      "timestamp": "2026-09-20T05:31:27+00:00"
+    }
+
+  ✅ PASS
+
+  → accessToken  = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ...
+  → refreshToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ...
+
+───────────────────────────────────────────────────────────────
+  2) AUTH - Me & Users Profile
+───────────────────────────────────────────────────────────────
+
+▶ REQUEST #3
+  Method     : GET
+  URL        : https://levora-back-end.onrender.com/api/v1/auth/me
+  Description: Current user via /auth/me
+  Auth       : Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6Ik...
+  Expected   : HTTP 200
+
+◀ RESPONSE
+  Status Code: 200
+  Body (JSON):
+    {
+      "statusCode": 200,
+      "message": "OK",
+      "data": {
+        "id": "d9fcf426-3cd4-4e8f-aa9a-f9449acd7910",
+        "email": "levora_test_1789882262@example.com",
+        "firstName": "John",
+        "lastName": "Doe",
+        "isActive": true,
+        "isEmailVerified": false,
+        "roles": [
+          "user"
+        ],
+        "lastLoginAt": "2026-09-20T05:31:23.235Z",
+        "userProfile": {
+          "fullName": "John Doe",
+          "completionPct": 5,
+          "isDraft": true,
+          "educations": [],
+          "skills": [],
+          "languages": [],
+          "documents": []
+        }
+      },
+      "meta": {
+        "requestId": "872c9cf0-a039-4da3-8694-8219a8ac1726"
+      },
+      "timestamp": "2026-09-20T05:31:30+00:00"
+    }
+
+  ✅ PASS
+
+▶ REQUEST #4
+  Method     : GET
+  URL        : https://levora-back-end.onrender.com/api/v1/users/profile
+  Description: Own profile via /users/profile
+  Auth       : Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6Ik...
+  Expected   : HTTP 200
+
+◀ RESPONSE
+  Status Code: 200
+  Body (JSON):
+    {
+      "statusCode": 200,
+      "message": "Profile retrieved successfully",
+      "data": {
+        "id": "d9fcf426-3cd4-4e8f-aa9a-f9449acd7910",
+        "email": "levora_test_1789882262@example.com",
+        "firstName": "John",
+        "lastName": "Doe",
+        "isActive": true,
+        "isEmailVerified": false,
+        "roles": [
+          "user"
+        ],
+        "lastLoginAt": "2026-09-20T05:31:23.235Z",
+        "userProfile": {
+          "fullName": "John Doe",
+          "completionPct": 5,
+          "isDraft": true,
+          "educations": [],
+          "skills": [],
+          "languages": [],
+          "documents": []
+        }
+      },
+      "meta": {
+        "requestId": "bc10e3c0-2767-466b-9d96-15b9a13197c8"
+      },
+      "timestamp": "2026-09-20T05:31:33+00:00"
+    }
+
+  ✅ PASS
+
+
+───────────────────────────────────────────────────────────────
+  3) REFERENCE DATA (Public)
+───────────────────────────────────────────────────────────────
+
+▶ REQUEST #5
+  Method     : GET
+  URL        : https://levora-back-end.onrender.com/api/v1/reference/fields-of-study
+  Description: Fields of study
+  Expected   : HTTP 200
+
+◀ RESPONSE
+  Status Code: 200
+  Body (JSON):
+    {
+      "statusCode": 200,
+      "message": "Fields of study retrieved successfully",
+      "data": [
+        {
+          "id": "5f3efa96-9fcb-4dff-ac86-fbfe8a3e50b1",
+          "name": "Artificial Intelligence",
+          "category": "STEM"
+        },
+        {
+          "id": "c9e3d9ba-b055-4581-a6b3-d26f4ba49859",
+          "name": "Biology",
+          "category": "Science"
+        },
+        {
+          "id": "db668747-5d56-4344-99ab-c3edc8ce9d1b",
+          "name": "Business Administration",
+          "category": "Business"
+        },
+        {
+          "id": "e9392777-bd62-4c3c-a3ab-f93953356294",
+          "name": "Chemistry",
+          "category": "Science"
+        },
+        {
+          "id": "fa017b75-34e8-4330-8700-f9dcecf6d8e2",
+          "name": "Civil Engineering",
+          "category": "Engineering"
+        },
+        {
+          "id": "9135aeb4-e832-4e1c-b4d7-6d35ea605e47",
+          "name": "Computer Science",
+          "category": "STEM"
+        },
+        {
+          "id": "d29cbb00-1398-45ec-99c4-d6f6ac2a2770",
+          "name": "Data Science",
+          "category": "STEM"
+        },
+        {
+          "id": "6a625cc9-dab7-4301-9ef9-a59243220710",
+          "name": "Electrical Engineering",
+          "category": "Engineering"
+        },
+        {
+          "id": "1b893493-dfc6-423e-a9ec-b1c4fe1d79c5",
+          "name": "Finance",
+          "category": "Business"
+        },
+        {
+          "id": "cba5dea2-87a5-4d60-953e-617a08f69ef5",
+          "name": "Fine Arts",
+          "category": "Arts"
+        },
+        {
+          "id": "238f167d-237b-4690-9062-bc52b9be7151",
+          "name": "Graphic Design",
+          "category": "Arts"
+        },
+        {
+          "id": "dd653867-abe8-4090-93f6-ea58061871d3",
+          "name": "Marketing",
+          "category": "Business"
+        },
+        {
+          "id": "0abac943-9c1b-44f0-80bb-bef2c7716ec3",
+          "name": "Mechanical Engineering",
+          "category": "Engineering"
+        },
+        {
+          "id": "b25cb7b7-9449-48d0-bb65-f62e3fb7d9c8",
+          "name": "Medicine",
+          "category": "Healthcare"
+        },
+        {
+          "id": "afd0ba9d-1b62-4068-ab1b-e4fdea77a34a",
+          "name": "Nursing",
+          "category": "Healthcare"
+        },
+        {
+          "id": "6150943b-73f4-4817-9b76-0f02c77c217d",
+          "name": "Physics",
+          "category": "Science"
+        },
+        {
+          "id": "099520ee-836e-4985-8c7c-efd80f5d5325",
+          "name": "Public Health",
+          "category": "Healthcare"
+        },
+        {
+          "id": "22cd187e-7bb8-4ce9-a99c-1d9131602f46",
+          "name": "Software Engineering",
+          "category": "STEM"
+        }
+      ],
+      "meta": {
+        "pagination": {
+          "page": 1,
+          "limit": 20,
+          "total": 18,
+          "totalPages": 1,
+          "hasNext": false,
+          "hasPrev": false
+        },
+        "requestId": "72af5cd7-6c65-4659-8ab7-ba57929b54eb"
+      },
+      "timestamp": "2026-09-20T05:31:36+00:00"
+    }
+
+  ✅ PASS
+
+▶ REQUEST #6
+  Method     : GET
+  URL        : https://levora-back-end.onrender.com/api/v1/reference/skills-taxonomy
+  Description: Skills taxonomy
+  Expected   : HTTP 200
+
+◀ RESPONSE
+  Status Code: 200
+  Body (JSON):
+    {
+      "statusCode": 200,
+      "message": "Skills taxonomy retrieved successfully",
+      "data": [
+        {
+          "id": "7286e2ad-7f57-4a2a-8634-3bf1033d9716",
+          "name": "AutoCAD",
+          "category": "Engineering"
+        },
+        {
+          "id": "8969d179-3043-4fe2-b73b-992aecd3451d",
+          "name": "AWS",
+          "category": "Tech"
+        },
+        {
+          "id": "2fa51554-fef8-45d9-bdc6-8c536bb2f16c",
+          "name": "Business Development",
+          "category": "Business"
+        },
+        {
+          "id": "90b95c68-e944-4a20-ba6b-4d5714e67ff5",
+          "name": "C++",
+          "category": "Tech"
+        },
+        {
+          "id": "879e1665-3cf6-469f-895b-a3135ce3e55c",
+          "name": "Data Analysis",
+          "category": "Business"
+        },
+        {
+          "id": "0098eb00-7196-46f8-aec1-0438921c2d5d",
+          "name": "Docker",
+          "category": "Tech"
+        },
+        {
+          "id": "b9fba0f7-9b91-41c5-8dbe-f91f19bb53e4",
+          "name": "Financial Modeling",
+          "category": "Business"
+        },
+        {
+          "id": "df11b7e6-5d76-43d7-bfa1-104542a70d88",
+          "name": "Illustration",
+          "category": "Arts"
+        },
+        {
+          "id": "8105c96c-f0ec-49d7-80c4-19694f370b00",
+          "name": "Java",
+          "category": "Tech"
+        },
+        {
+          "id": "a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d",
+          "name": "JavaScript",
+          "category": "Tech"
+        },
+        {
+          "id": "31e1c7ad-0c78-4afb-93f0-db24f655ed11",
+          "name": "Kubernetes",
+          "category": "Tech"
+        },
+        {
+          "id": "2b620022-4164-4693-8367-65467f8e962e",
+          "name": "Marketing Strategy",
+          "category": "Business"
+        },
+        {
+          "id": "4927bccd-42bb-4539-b35a-813382374e5d",
+          "name": "MATLAB",
+          "category": "Engineering"
+        },
+        {
+          "id": "b5c6a601-8c7b-4005-910d-ab088e71fbc2",
+          "name": "Medical Research",
+          "category": "Healthcare"
+        },
+        {
+          "id": "42a98dba-7497-4eee-b1ef-ea303d84866e",
+          "name": "MongoDB",
+          "category": "Tech"
+        },
+        {
+          "id": "bde4255a-60f1-4788-b2cb-9b34ef992205",
+          "name": "Node.js",
+          "category": "Tech"
+        },
+        {
+          "id": "ad92e9ca-e241-42ff-a62e-9bb15900e72f",
+          "name": "Patient Care",
+          "category": "Healthcare"
+        },
+        {
+          "id": "5a4a6a06-f8b5-4b97-af9c-eca3067f55bd",
+          "name": "Photography",
+          "category": "Arts"
+        },
+        {
+          "id": "f88e106c-2f82-4f2f-8c2f-14dd75b34ec3",
+          "name": "PostgreSQL",
+          "category": "Tech"
+        },
+        {
+          "id": "71c22b6b-e10d-4adb-8265-c7f285787f7c",
+          "name": "Project Management",
+          "category": "Business"
+        }
+      ],
+      "meta": {
+        "pagination": {
+          "page": 1,
+          "limit": 20,
+          "total": 27,
+          "totalPages": 2,
+          "hasNext": true,
+          "hasPrev": false
+        },
+        "requestId": "828b44d2-2628-4761-805c-465d77951d27"
+      },
+      "timestamp": "2026-09-20T05:31:38+00:00"
+    }
+
+  ✅ PASS
+
+▶ REQUEST #7
+  Method     : GET
+  URL        : https://levora-back-end.onrender.com/api/v1/reference/languages
+  Description: Languages master
+  Expected   : HTTP 200
+
+◀ RESPONSE
+  Status Code: 200
+  Body (JSON):
+    {
+      "statusCode": 200,
+      "message": "Languages retrieved successfully",
+      "data": [
+        {
+          "id": "2f8fa260-6093-4080-a74b-8162452dfd00",
+          "name": "Arabic"
+        },
+        {
+          "id": "fecefb74-f429-4e13-9a05-dea6dd7ebf14",
+          "name": "Chinese"
+        },
+        {
+          "id": "b2c3d4e5-f6a7-8b9c-0d1e-2f3a4b5c6d7e",
+          "name": "English"
+        },
+        {
+          "id": "33bfa3e2-b287-4c2f-99c6-1a88993b139a",
+          "name": "French"
+        },
+        {
+          "id": "606ab515-c702-4d6c-8d43-96a497c7108b",
+          "name": "German"
+        },
+        {
+          "id": "6f23a2cc-a262-46cf-9807-4a95f56aa954",
+          "name": "Italian"
+        },
+        {
+          "id": "80e3bae4-dcbd-4e87-b2d7-9008f96ebe10",
+          "name": "Japanese"
+        },
+        {
+          "id": "9a52d4d8-a03c-416e-ad68-33b80576db4b",
+          "name": "Portuguese"
+        },
+        {
+          "id": "bf71a1fb-7a70-4af1-848f-a4ccfe0ca3d5",
+          "name": "Russian"
+        },
+        {
+          "id": "509c6b32-ad2b-45b6-b899-2c7d01ce0cfc",
+          "name": "Spanish"
+        }
+      ],
+      "meta": {
+        "pagination": {
+          "page": 1,
+          "limit": 20,
+          "total": 10,
+          "totalPages": 1,
+          "hasNext": false,
+          "hasPrev": false
+        },
+        "requestId": "0446a1f7-fd35-4dd2-a9c4-63fd6edb9f99"
+      },
+      "timestamp": "2026-09-20T05:31:40+00:00"
+    }
+
+  ✅ PASS
+
+▶ REQUEST #8
+  Method     : GET
+  URL        : https://levora-back-end.onrender.com/api/v1/reference/education-levels
+  Description: Education levels
+  Expected   : HTTP 200
+
+◀ RESPONSE
+  Status Code: 200
+  Body (JSON):
+    {
+      "statusCode": 200,
+      "message": "Education levels retrieved successfully",
+      "data": [
+        {
+          "id": "b132b209-a066-4d54-bbfc-b30a3ae831c4",
+          "name": "bachelor",
+          "labelEn": "Bachelor",
+          "labelAr": "بكالوريوس",
+          "isActive": true
+        },
+        {
+          "id": "0c05d38d-49c3-4eda-a2fb-219ac4edb7bd",
+          "name": "certificate",
+          "labelEn": "Certificate",
+          "labelAr": "شهادة مهنية",
+          "isActive": true
+        },
+        {
+          "id": "09e5b648-0c9a-48eb-bbcc-732d13f138bf",
+          "name": "diploma",
+          "labelEn": "Diploma",
+          "labelAr": "دبلوم",
+          "isActive": true
+        },
+        {
+          "id": "ea4ca35f-2832-41ef-b234-1dedb0bb52cf",
+          "name": "high_school",
+          "labelEn": "High School",
+          "labelAr": "ثانوية عامة",
+          "isActive": true
+        },
+        {
+          "id": "efa0ad2d-09f1-4244-a23d-fb4fb92af33c",
+          "name": "master",
+          "labelEn": "Master",
+          "labelAr": "ماجستير",
+          "isActive": true
+        },
+        {
+          "id": "67bbdc36-8115-43d6-bed2-9afa7ef9a30a",
+          "name": "other",
+          "labelEn": "Other",
+          "labelAr": "أخرى",
+          "isActive": true
+        },
+        {
+          "id": "f4f44d97-4a16-4ae8-a2fa-53414e22a929",
+          "name": "phd",
+          "labelEn": "PhD",
+          "labelAr": "دكتوراه",
+          "isActive": true
+        }
+      ],
+      "meta": {
+        "requestId": "61fa08f4-1670-4427-b36d-39e14bbfabc0"
+      },
+      "timestamp": "2026-09-20T05:31:42+00:00"
+    }
+
+  ✅ PASS
+
+▶ REQUEST #9
+  Method     : GET
+  URL        : https://levora-back-end.onrender.com/api/v1/reference/app-languages
+  Description: App UI languages
+  Expected   : HTTP 200
+
+◀ RESPONSE
+  Status Code: 200
+  Body (JSON):
+    {
+      "statusCode": 200,
+      "message": "App languages retrieved successfully",
+      "data": [
+        {
+          "code": "en",
+          "name": "English",
+          "nativeName": "English",
+          "dir": "ltr"
+        },
+        {
+          "code": "ar",
+          "name": "Arabic",
+          "nativeName": "العربية",
+          "dir": "rtl"
+        },
+        {
+          "code": "fr",
+          "name": "French",
+          "nativeName": "Français",
+          "dir": "ltr"
+        },
+        {
+          "code": "de",
+          "name": "German",
+          "nativeName": "Deutsch",
+          "dir": "ltr"
+        },
+        {
+          "code": "es",
+          "name": "Spanish",
+          "nativeName": "Español",
+          "dir": "ltr"
+        },
+        {
+          "code": "tr",
+          "name": "Turkish",
+          "nativeName": "Türkçe",
+          "dir": "ltr"
+        }
+      ],
+      "meta": {
+        "requestId": "88549653-4734-4711-b3e0-e968fc8c8782"
+      },
+      "timestamp": "2026-09-20T05:31:42+00:00"
+    }
+
+  ✅ PASS
+
+▶ REQUEST #10
+  Method     : GET
+  URL        : https://levora-back-end.onrender.com/api/v1/reference/skills-taxonomy
+  Description: fetch skill id
+  Expected   : HTTP 200
+
+◀ RESPONSE
+  Status Code: 200
+  Body (JSON):
+    {
+      "statusCode": 200,
+      "message": "Skills taxonomy retrieved successfully",
+      "data": [
+        {
+          "id": "7286e2ad-7f57-4a2a-8634-3bf1033d9716",
+          "name": "AutoCAD",
+          "category": "Engineering"
+        },
+        {
+          "id": "8969d179-3043-4fe2-b73b-992aecd3451d",
+          "name": "AWS",
+          "category": "Tech"
+        },
+        {
+          "id": "2fa51554-fef8-45d9-bdc6-8c536bb2f16c",
+          "name": "Business Development",
+          "category": "Business"
+        },
+        {
+          "id": "90b95c68-e944-4a20-ba6b-4d5714e67ff5",
+          "name": "C++",
+          "category": "Tech"
+        },
+        {
+          "id": "879e1665-3cf6-469f-895b-a3135ce3e55c",
+          "name": "Data Analysis",
+          "category": "Business"
+        },
+        {
+          "id": "0098eb00-7196-46f8-aec1-0438921c2d5d",
+          "name": "Docker",
+          "category": "Tech"
+        },
+        {
+          "id": "b9fba0f7-9b91-41c5-8dbe-f91f19bb53e4",
+          "name": "Financial Modeling",
+          "category": "Business"
+        },
+        {
+          "id": "df11b7e6-5d76-43d7-bfa1-104542a70d88",
+          "name": "Illustration",
+          "category": "Arts"
+        },
+        {
+          "id": "8105c96c-f0ec-49d7-80c4-19694f370b00",
+          "name": "Java",
+          "category": "Tech"
+        },
+        {
+          "id": "a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d",
+          "name": "JavaScript",
+          "category": "Tech"
+        },
+        {
+          "id": "31e1c7ad-0c78-4afb-93f0-db24f655ed11",
+          "name": "Kubernetes",
+          "category": "Tech"
+        },
+        {
+          "id": "2b620022-4164-4693-8367-65467f8e962e",
+          "name": "Marketing Strategy",
+          "category": "Business"
+        },
+        {
+          "id": "4927bccd-42bb-4539-b35a-813382374e5d",
+          "name": "MATLAB",
+          "category": "Engineering"
+        },
+        {
+          "id": "b5c6a601-8c7b-4005-910d-ab088e71fbc2",
+          "name": "Medical Research",
+          "category": "Healthcare"
+        },
+        {
+          "id": "42a98dba-7497-4eee-b1ef-ea303d84866e",
+          "name": "MongoDB",
+          "category": "Tech"
+        },
+        {
+          "id": "bde4255a-60f1-4788-b2cb-9b34ef992205",
+          "name": "Node.js",
+          "category": "Tech"
+        },
+        {
+          "id": "ad92e9ca-e241-42ff-a62e-9bb15900e72f",
+          "name": "Patient Care",
+          "category": "Healthcare"
+        },
+        {
+          "id": "5a4a6a06-f8b5-4b97-af9c-eca3067f55bd",
+          "name": "Photography",
+          "category": "Arts"
+        },
+        {
+          "id": "f88e106c-2f82-4f2f-8c2f-14dd75b34ec3",
+          "name": "PostgreSQL",
+          "category": "Tech"
+        },
+        {
+          "id": "71c22b6b-e10d-4adb-8265-c7f285787f7c",
+          "name": "Project Management",
+          "category": "Business"
+        }
+      ],
+      "meta": {
+        "pagination": {
+          "page": 1,
+          "limit": 20,
+          "total": 27,
+          "totalPages": 2,
+          "hasNext": true,
+          "hasPrev": false
+        },
+        "requestId": "e7083fe7-2349-4540-8b70-5f7a406ae166"
+      },
+      "timestamp": "2026-09-20T05:31:44+00:00"
+    }
+
+  ✅ PASS
+
+▶ REQUEST #11
+  Method     : GET
+  URL        : https://levora-back-end.onrender.com/api/v1/reference/languages
+  Description: fetch language id
+  Expected   : HTTP 200
+
+◀ RESPONSE
+  Status Code: 200
+  Body (JSON):
+    {
+      "statusCode": 200,
+      "message": "Languages retrieved successfully",
+      "data": [
+        {
+          "id": "2f8fa260-6093-4080-a74b-8162452dfd00",
+          "name": "Arabic"
+        },
+        {
+          "id": "fecefb74-f429-4e13-9a05-dea6dd7ebf14",
+          "name": "Chinese"
+        },
+        {
+          "id": "b2c3d4e5-f6a7-8b9c-0d1e-2f3a4b5c6d7e",
+          "name": "English"
+        },
+        {
+          "id": "33bfa3e2-b287-4c2f-99c6-1a88993b139a",
+          "name": "French"
+        },
+        {
+          "id": "606ab515-c702-4d6c-8d43-96a497c7108b",
+          "name": "German"
+        },
+        {
+          "id": "6f23a2cc-a262-46cf-9807-4a95f56aa954",
+          "name": "Italian"
+        },
+        {
+          "id": "80e3bae4-dcbd-4e87-b2d7-9008f96ebe10",
+          "name": "Japanese"
+        },
+        {
+          "id": "9a52d4d8-a03c-416e-ad68-33b80576db4b",
+          "name": "Portuguese"
+        },
+        {
+          "id": "bf71a1fb-7a70-4af1-848f-a4ccfe0ca3d5",
+          "name": "Russian"
+        },
+        {
+          "id": "509c6b32-ad2b-45b6-b899-2c7d01ce0cfc",
+          "name": "Spanish"
+        }
+      ],
+      "meta": {
+        "pagination": {
+          "page": 1,
+          "limit": 20,
+          "total": 10,
+          "totalPages": 1,
+          "hasNext": false,
+          "hasPrev": false
+        },
+        "requestId": "16eb5dbf-16ad-4d01-92b2-a2adbc2e59be"
+      },
+      "timestamp": "2026-09-20T05:31:46+00:00"
+    }
+
+  ✅ PASS
+
+▶ REQUEST #12
+  Method     : GET
+  URL        : https://levora-back-end.onrender.com/api/v1/reference/education-levels
+  Description: fetch edu level id
+  Expected   : HTTP 200
+
+◀ RESPONSE
+  Status Code: 200
+  Body (JSON):
+    {
+      "statusCode": 200,
+      "message": "Education levels retrieved successfully",
+      "data": [
+        {
+          "id": "b132b209-a066-4d54-bbfc-b30a3ae831c4",
+          "name": "bachelor",
+          "labelEn": "Bachelor",
+          "labelAr": "بكالوريوس",
+          "isActive": true
+        },
+        {
+          "id": "0c05d38d-49c3-4eda-a2fb-219ac4edb7bd",
+          "name": "certificate",
+          "labelEn": "Certificate",
+          "labelAr": "شهادة مهنية",
+          "isActive": true
+        },
+        {
+          "id": "09e5b648-0c9a-48eb-bbcc-732d13f138bf",
+          "name": "diploma",
+          "labelEn": "Diploma",
+          "labelAr": "دبلوم",
+          "isActive": true
+        },
+        {
+          "id": "ea4ca35f-2832-41ef-b234-1dedb0bb52cf",
+          "name": "high_school",
+          "labelEn": "High School",
+          "labelAr": "ثانوية عامة",
+          "isActive": true
+        },
+        {
+          "id": "efa0ad2d-09f1-4244-a23d-fb4fb92af33c",
+          "name": "master",
+          "labelEn": "Master",
+          "labelAr": "ماجستير",
+          "isActive": true
+        },
+        {
+          "id": "67bbdc36-8115-43d6-bed2-9afa7ef9a30a",
+          "name": "other",
+          "labelEn": "Other",
+          "labelAr": "أخرى",
+          "isActive": true
+        },
+        {
+          "id": "f4f44d97-4a16-4ae8-a2fa-53414e22a929",
+          "name": "phd",
+          "labelEn": "PhD",
+          "labelAr": "دكتوراه",
+          "isActive": true
+        }
+      ],
+      "meta": {
+        "requestId": "2102f813-0ed5-41ce-9f97-f528917767aa"
+      },
+      "timestamp": "2026-09-20T05:31:48+00:00"
+    }
+
+  ✅ PASS
+
+▶ REQUEST #13
+  Method     : GET
+  URL        : https://levora-back-end.onrender.com/api/v1/reference/fields-of-study
+  Description: fetch fos id
+  Expected   : HTTP 200
+
+◀ RESPONSE
+  Status Code: 200
+  Body (JSON):
+    {
+      "statusCode": 200,
+      "message": "Fields of study retrieved successfully",
+      "data": [
+        {
+          "id": "5f3efa96-9fcb-4dff-ac86-fbfe8a3e50b1",
+          "name": "Artificial Intelligence",
+          "category": "STEM"
+        },
+        {
+          "id": "c9e3d9ba-b055-4581-a6b3-d26f4ba49859",
+          "name": "Biology",
+          "category": "Science"
+        },
+        {
+          "id": "db668747-5d56-4344-99ab-c3edc8ce9d1b",
+          "name": "Business Administration",
+          "category": "Business"
+        },
+        {
+          "id": "e9392777-bd62-4c3c-a3ab-f93953356294",
+          "name": "Chemistry",
+          "category": "Science"
+        },
+        {
+          "id": "fa017b75-34e8-4330-8700-f9dcecf6d8e2",
+          "name": "Civil Engineering",
+          "category": "Engineering"
+        },
+        {
+          "id": "9135aeb4-e832-4e1c-b4d7-6d35ea605e47",
+          "name": "Computer Science",
+          "category": "STEM"
+        },
+        {
+          "id": "d29cbb00-1398-45ec-99c4-d6f6ac2a2770",
+          "name": "Data Science",
+          "category": "STEM"
+        },
+        {
+          "id": "6a625cc9-dab7-4301-9ef9-a59243220710",
+          "name": "Electrical Engineering",
+          "category": "Engineering"
+        },
+        {
+          "id": "1b893493-dfc6-423e-a9ec-b1c4fe1d79c5",
+          "name": "Finance",
+          "category": "Business"
+        },
+        {
+          "id": "cba5dea2-87a5-4d60-953e-617a08f69ef5",
+          "name": "Fine Arts",
+          "category": "Arts"
+        },
+        {
+          "id": "238f167d-237b-4690-9062-bc52b9be7151",
+          "name": "Graphic Design",
+          "category": "Arts"
+        },
+        {
+          "id": "dd653867-abe8-4090-93f6-ea58061871d3",
+          "name": "Marketing",
+          "category": "Business"
+        },
+        {
+          "id": "0abac943-9c1b-44f0-80bb-bef2c7716ec3",
+          "name": "Mechanical Engineering",
+          "category": "Engineering"
+        },
+        {
+          "id": "b25cb7b7-9449-48d0-bb65-f62e3fb7d9c8",
+          "name": "Medicine",
+          "category": "Healthcare"
+        },
+        {
+          "id": "afd0ba9d-1b62-4068-ab1b-e4fdea77a34a",
+          "name": "Nursing",
+          "category": "Healthcare"
+        },
+        {
+          "id": "6150943b-73f4-4817-9b76-0f02c77c217d",
+          "name": "Physics",
+          "category": "Science"
+        },
+        {
+          "id": "099520ee-836e-4985-8c7c-efd80f5d5325",
+          "name": "Public Health",
+          "category": "Healthcare"
+        },
+        {
+          "id": "22cd187e-7bb8-4ce9-a99c-1d9131602f46",
+          "name": "Software Engineering",
+          "category": "STEM"
+        }
+      ],
+      "meta": {
+        "pagination": {
+          "page": 1,
+          "limit": 20,
+          "total": 18,
+          "totalPages": 1,
+          "hasNext": false,
+          "hasPrev": false
+        },
+        "requestId": "8efd6e28-1528-4bdf-8726-fcb1c552daa3"
+      },
+      "timestamp": "2026-09-20T05:31:49+00:00"
+    }
+
+  ✅ PASS
+
+  → skillId     = 7286e2ad-7f57-4a2a-8634-3bf1033d9716
+  → languageId  = 2f8fa260-6093-4080-a74b-8162452dfd00
+  → eduLevelId  = b132b209-a066-4d54-bbfc-b30a3ae831c4
+  → fieldOfStudy= 5f3efa96-9fcb-4dff-ac86-fbfe8a3e50b1
+
+───────────────────────────────────────────────────────────────
+  4) PROFILE - Get / Update / Verify
+───────────────────────────────────────────────────────────────
+
+▶ REQUEST #14
+  Method     : GET
+  URL        : https://levora-back-end.onrender.com/api/v1/profile
+  Description: Get profile
+  Auth       : Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6Ik...
+  Expected   : HTTP 200
+
+◀ RESPONSE
+  Status Code: 200
+  Body (JSON):
+    {
+      "statusCode": 200,
+      "message": "OK",
+      "data": {
+        "userId": "d9fcf426-3cd4-4e8f-aa9a-f9449acd7910",
+        "fullName": "John Doe",
+        "dateOfBirth": null,
+        "nationality": null,
+        "educationLevel": null,
+        "fieldOfStudy": [],
+        "currentCountry": null,
+        "currentCity": null,
+        "phone": null,
+        "experienceLevel": null,
+        "hasFinancialNeed": null,
+        "careerGoals": null,
+        "profilePhotoUrl": null,
+        "completionPct": 5,
+        "coreFieldsComplete": false,
+        "lastCompletedStep": 0,
+        "gpaNormalized4": null,
+        "isDraft": true,
+        "publishedAt": null,
+        "educations": [],
+        "skills": [],
+        "languages": [],
+        "documents": [],
+        "createdAt": "2026-09-20T05:31:07.833Z",
+        "updatedAt": "2026-09-20T05:31:14.816Z"
+      },
+      "meta": {
+        "requestId": "af5497b1-c218-43f1-82ef-96366a8d9365"
+      },
+      "timestamp": "2026-09-20T05:31:53+00:00"
+    }
+
+  ✅ PASS
+
+▶ REQUEST #15
+  Method     : PATCH
+  URL        : https://levora-back-end.onrender.com/api/v1/profile
+  Description: Update basic fields
+  Auth       : Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6Ik...
+  Body       : {"fullName":"Jane Doe","experienceLevel":"Mid","hasFinancialNeed":false}
+  Expected   : HTTP 200
+
+◀ RESPONSE
+  Status Code: 200
+  Body (JSON):
+    {
+      "statusCode": 200,
+      "message": "Updated successfully",
+      "data": {
+        "userId": "d9fcf426-3cd4-4e8f-aa9a-f9449acd7910",
+        "completionPct": 15,
+        "coreFieldsComplete": false,
+        "updatedAt": "2026-09-20T05:31:56.751Z"
+      },
+      "meta": {
+        "requestId": "94214b97-c5f3-4e64-ae11-d7f113bdd505"
+      },
+      "timestamp": "2026-09-20T05:32:00+00:00"
+    }
+
+  ✅ PASS
+
+▶ REQUEST #16
+  Method     : GET
+  URL        : https://levora-back-end.onrender.com/api/v1/profile
+  Description: Verify update
+  Auth       : Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6Ik...
+  Expected   : HTTP 200
+
+◀ RESPONSE
+  Status Code: 200
+  Body (JSON):
+    {
+      "statusCode": 200,
+      "message": "OK",
+      "data": {
+        "userId": "d9fcf426-3cd4-4e8f-aa9a-f9449acd7910",
+        "fullName": "Jane Doe",
+        "dateOfBirth": null,
+        "nationality": null,
+        "educationLevel": null,
+        "fieldOfStudy": [],
+        "currentCountry": null,
+        "currentCity": null,
+        "phone": null,
+        "experienceLevel": "Mid",
+        "hasFinancialNeed": false,
+        "careerGoals": null,
+        "profilePhotoUrl": null,
+        "completionPct": 15,
+        "coreFieldsComplete": false,
+        "lastCompletedStep": 0,
+        "gpaNormalized4": null,
+        "isDraft": true,
+        "publishedAt": null,
+        "educations": [],
+        "skills": [],
+        "languages": [],
+        "documents": [],
+        "createdAt": "2026-09-20T05:31:07.833Z",
+        "updatedAt": "2026-09-20T05:31:56.751Z"
+      },
+      "meta": {
+        "requestId": "939a2bfb-66dc-4884-882d-b7e4bc750f47"
+      },
+      "timestamp": "2026-09-20T05:32:04+00:00"
+    }
+
+  ✅ PASS
+
+  → fullName after update = Jane Doe
+
+───────────────────────────────────────────────────────────────
+  5) PROFILE / EDUCATIONS - Full CRUD
+───────────────────────────────────────────────────────────────
+
+▶ REQUEST #17
+  Method     : GET
+  URL        : https://levora-back-end.onrender.com/api/v1/profile/educations
+  Description: List (empty)
+  Auth       : Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6Ik...
+  Expected   : HTTP 200
+
+◀ RESPONSE
+  Status Code: 200
+  Body (JSON):
+    {
+      "statusCode": 200,
+      "message": "OK",
+      "data": [],
+      "meta": {
+        "pagination": {
+          "page": 1,
+          "limit": 20,
+          "total": 0,
+          "totalPages": 0,
+          "hasNext": false,
+          "hasPrev": false
+        },
+        "requestId": "f8c3f85c-c177-43f6-9635-35cb803ec479"
+      },
+      "timestamp": "2026-09-20T05:32:06+00:00"
+    }
+
+  ✅ PASS
+
+▶ REQUEST #18
+  Method     : POST
+  URL        : https://levora-back-end.onrender.com/api/v1/profile/educations
+  Description: Create education
+  Auth       : Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6Ik...
+  Body       : {"degree":"Bachelor of Science","major":"Computer Science","institution":"Technical University of Munich","graduationYear":2024}
+  Expected   : HTTP 201
+
+◀ RESPONSE
+  Status Code: 201
+  Body (JSON):
+    {
+      "statusCode": 201,
+      "message": "Created successfully",
+      "data": {
+        "id": "59b86f4c-973c-4356-9801-f418c0c8dbc9",
+        "userId": "d9fcf426-3cd4-4e8f-aa9a-f9449acd7910",
+        "degree": "Bachelor of Science",
+        "major": "Computer Science",
+        "institution": "Technical University of Munich",
+        "graduationYear": 2024,
+        "gpaRaw": null,
+        "gpaRawScale": null,
+        "gpaNormalized4": null,
+        "createdAt": "2026-09-20T05:32:06.576Z",
+        "updatedAt": "2026-09-20T05:32:06.576Z"
+      },
+      "meta": {
+        "requestId": "c8c66018-5539-4ea4-93a9-27da62821bc3"
+      },
+      "timestamp": "2026-09-20T05:32:14+00:00"
+    }
+
+  ✅ PASS
+
+  → educationId = 59b86f4c-973c-4356-9801-f418c0c8dbc9
+▶ REQUEST #19
+  Method     : GET
+  URL        : https://levora-back-end.onrender.com/api/v1/profile/educations
+  Description: List after create
+  Auth       : Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6Ik...
+  Expected   : HTTP 200
+
+◀ RESPONSE
+  Status Code: 200
+  Body (JSON):
+    {
+      "statusCode": 200,
+      "message": "OK",
+      "data": [
+        {
+          "id": "59b86f4c-973c-4356-9801-f418c0c8dbc9",
+          "userId": "d9fcf426-3cd4-4e8f-aa9a-f9449acd7910",
+          "degree": "Bachelor of Science",
+          "major": "Computer Science",
+          "institution": "Technical University of Munich",
+          "graduationYear": 2024,
+          "gpaRaw": null,
+          "gpaRawScale": null,
+          "gpaNormalized4": null,
+          "createdAt": "2026-09-20T05:32:06.576Z",
+          "updatedAt": "2026-09-20T05:32:06.576Z"
+        }
+      ],
+      "meta": {
+        "pagination": {
+          "page": 1,
+          "limit": 20,
+          "total": 1,
+          "totalPages": 1,
+          "hasNext": false,
+          "hasPrev": false
+        },
+        "requestId": "880a99a4-31ef-41c2-a8be-484a62ada640"
+      },
+      "timestamp": "2026-09-20T05:32:16+00:00"
+    }
+
+  ✅ PASS
+
+▶ REQUEST #20
+  Method     : PATCH
+  URL        : https://levora-back-end.onrender.com/api/v1/profile/educations/59b86f4c-973c-4356-9801-f418c0c8dbc9
+  Description: Update education (GPA)
+  Auth       : Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6Ik...
+  Body       : {"gpaValue":3.8,"gpaScale":"4.0"}
+  Expected   : HTTP 200
+
+◀ RESPONSE
+  Status Code: 200
+  Body (JSON):
+    {
+      "statusCode": 200,
+      "message": "Updated successfully",
+      "data": {
+        "id": "59b86f4c-973c-4356-9801-f418c0c8dbc9",
+        "userId": "d9fcf426-3cd4-4e8f-aa9a-f9449acd7910",
+        "degree": "Bachelor of Science",
+        "major": "Computer Science",
+        "institution": "Technical University of Munich",
+        "graduationYear": 2024,
+        "gpaRaw": "3.8",
+        "gpaRawScale": "4.0",
+        "gpaNormalized4": "3.8",
+        "createdAt": "2026-09-20T05:32:06.576Z",
+        "updatedAt": "2026-09-20T05:32:18.570Z"
+      },
+      "meta": {
+        "requestId": "7c34fb8b-937e-4ad9-9312-167d8bc03883"
+      },
+      "timestamp": "2026-09-20T05:32:19+00:00"
+    }
+
+  ✅ PASS
+
+▶ REQUEST #21
+  Method     : GET
+  URL        : https://levora-back-end.onrender.com/api/v1/profile/educations
+  Description: Verify update
+  Auth       : Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6Ik...
+  Expected   : HTTP 200
+
+◀ RESPONSE
+  Status Code: 200
+  Body (JSON):
+    {
+      "statusCode": 200,
+      "message": "OK",
+      "data": [
+        {
+          "id": "59b86f4c-973c-4356-9801-f418c0c8dbc9",
+          "userId": "d9fcf426-3cd4-4e8f-aa9a-f9449acd7910",
+          "degree": "Bachelor of Science",
+          "major": "Computer Science",
+          "institution": "Technical University of Munich",
+          "graduationYear": 2024,
+          "gpaRaw": "3.8",
+          "gpaRawScale": "4.0",
+          "gpaNormalized4": "3.8",
+          "createdAt": "2026-09-20T05:32:06.576Z",
+          "updatedAt": "2026-09-20T05:32:18.570Z"
+        }
+      ],
+      "meta": {
+        "pagination": {
+          "page": 1,
+          "limit": 20,
+          "total": 1,
+          "totalPages": 1,
+          "hasNext": false,
+          "hasPrev": false
+        },
+        "requestId": "d8caead4-3563-4932-9833-63560c698a7b"
+      },
+      "timestamp": "2026-09-20T05:32:21+00:00"
+    }
+
+  ✅ PASS
+
+▶ REQUEST #22
+  Method     : DELETE
+  URL        : https://levora-back-end.onrender.com/api/v1/profile/educations/59b86f4c-973c-4356-9801-f418c0c8dbc9
+  Description: Delete education
+  Auth       : Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6Ik...
+  Expected   : HTTP 200,204
+
+◀ RESPONSE
+  Status Code: 204
+  Body       : (no content)
+
+  ✅ PASS
+
+▶ REQUEST #23
+  Method     : GET
+  URL        : https://levora-back-end.onrender.com/api/v1/profile/educations
+  Description: Verify delete
+  Auth       : Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6Ik...
+  Expected   : HTTP 200
+
+◀ RESPONSE
+  Status Code: 200
+  Body (JSON):
+    {
+      "statusCode": 200,
+      "message": "OK",
+      "data": [],
+      "meta": {
+        "pagination": {
+          "page": 1,
+          "limit": 20,
+          "total": 0,
+          "totalPages": 0,
+          "hasNext": false,
+          "hasPrev": false
+        },
+        "requestId": "89ed8cb1-1454-49af-b19c-e4b720a31097"
+      },
+      "timestamp": "2026-09-20T05:32:33+00:00"
+    }
+
+  ✅ PASS
+
+▶ REQUEST #24
+  Method     : DELETE
+  URL        : https://levora-back-end.onrender.com/api/v1/profile/educations/59b86f4c-973c-4356-9801-f418c0c8dbc9
+  Description: Delete twice → 404
+  Auth       : Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6Ik...
+  Expected   : HTTP 404
+
+◀ RESPONSE
+  Status Code: 404
+  Body (JSON):
+    {
+      "success": false,
+      "status": 404,
+      "message": "Education record not found",
+      "data": null,
+      "meta": null,
+      "errors": [
+        {
+          "code": "SYSTEM_RESOURCE_NOT_FOUND",
+          "message": "Education record not found"
+        }
+      ],
+      "timestamp": "2026-09-20T05:32:34+00:00"
+    }
+
+  ✅ PASS
+
+
+───────────────────────────────────────────────────────────────
+  6) PROFILE / SKILLS - Full CRUD
+───────────────────────────────────────────────────────────────
+
+▶ REQUEST #25
+  Method     : GET
+  URL        : https://levora-back-end.onrender.com/api/v1/profile/skills
+  Description: List skills (empty)
+  Auth       : Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6Ik...
+  Expected   : HTTP 200
+
+◀ RESPONSE
+  Status Code: 200
+  Body (JSON):
+    {
+      "statusCode": 200,
+      "message": "OK",
+      "data": [],
+      "meta": {
+        "pagination": {
+          "page": 1,
+          "limit": 20,
+          "total": 0,
+          "totalPages": 0,
+          "hasNext": false,
+          "hasPrev": false
+        },
+        "requestId": "1874475f-ee8a-45e6-be40-b041c5f2954c"
+      },
+      "timestamp": "2026-09-20T05:32:36+00:00"
+    }
+
+  ✅ PASS
+
+▶ REQUEST #26
+  Method     : POST
+  URL        : https://levora-back-end.onrender.com/api/v1/profile/skills
+  Description: Add skill
+  Auth       : Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6Ik...
+  Body       : {"skillId":"7286e2ad-7f57-4a2a-8634-3bf1033d9716","proficiency":4}
+  Expected   : HTTP 201
+
+◀ RESPONSE
+  Status Code: 201
+  Body (JSON):
+    {
+      "statusCode": 201,
+      "message": "Created successfully",
+      "data": {
+        "userId": "d9fcf426-3cd4-4e8f-aa9a-f9449acd7910",
+        "skillId": "7286e2ad-7f57-4a2a-8634-3bf1033d9716",
+        "proficiency": 4
+      },
+      "meta": {
+        "requestId": "9421583d-9408-4bf6-a649-8d2eb4a3b731"
+      },
+      "timestamp": "2026-09-20T05:32:45+00:00"
+    }
+
+  ✅ PASS
+
+  → skillRecordId = 7286e2ad-7f57-4a2a-8634-3bf1033d9716
+▶ REQUEST #27
+  Method     : GET
+  URL        : https://levora-back-end.onrender.com/api/v1/profile/skills
+  Description: List after add
+  Auth       : Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6Ik...
+  Expected   : HTTP 200
+
+◀ RESPONSE
+  Status Code: 200
+  Body (JSON):
+    {
+      "statusCode": 200,
+      "message": "OK",
+      "data": [
+        {
+          "skillId": "7286e2ad-7f57-4a2a-8634-3bf1033d9716",
+          "name": "AutoCAD",
+          "proficiency": 4
+        }
+      ],
+      "meta": {
+        "pagination": {
+          "page": 1,
+          "limit": 20,
+          "total": 1,
+          "totalPages": 1,
+          "hasNext": false,
+          "hasPrev": false
+        },
+        "requestId": "eb45c3b8-59cf-425d-8ab1-41d161725be9"
+      },
+      "timestamp": "2026-09-20T05:32:47+00:00"
+    }
+
+  ✅ PASS
+
+▶ REQUEST #28
+  Method     : GET
+  URL        : https://levora-back-end.onrender.com/api/v1/profile/skills/7286e2ad-7f57-4a2a-8634-3bf1033d9716
+  Description: Get by ID
+  Auth       : Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6Ik...
+  Expected   : HTTP 200
+
+◀ RESPONSE
+  Status Code: 200
+  Body (JSON):
+    {
+      "statusCode": 200,
+      "message": "OK",
+      "data": {
+        "userId": "d9fcf426-3cd4-4e8f-aa9a-f9449acd7910",
+        "skillId": "7286e2ad-7f57-4a2a-8634-3bf1033d9716",
+        "proficiency": 4,
+        "skill": {
+          "id": "7286e2ad-7f57-4a2a-8634-3bf1033d9716",
+          "name": "AutoCAD",
+          "category": "Engineering",
+          "isActive": true
+        }
+      },
+      "meta": {
+        "requestId": "3811729a-02b3-407c-b30d-e93a0c908b81"
+      },
+      "timestamp": "2026-09-20T05:32:50+00:00"
+    }
+
+  ✅ PASS
+
+▶ REQUEST #29
+  Method     : PATCH
+  URL        : https://levora-back-end.onrender.com/api/v1/profile/skills/7286e2ad-7f57-4a2a-8634-3bf1033d9716
+  Description: Update proficiency
+  Auth       : Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6Ik...
+  Body       : {"proficiency":5}
+  Expected   : HTTP 200
+
+◀ RESPONSE
+  Status Code: 200
+  Body (JSON):
+    {
+      "statusCode": 200,
+      "message": "Updated successfully",
+      "data": {
+        "userId": "d9fcf426-3cd4-4e8f-aa9a-f9449acd7910",
+        "skillId": "7286e2ad-7f57-4a2a-8634-3bf1033d9716",
+        "proficiency": 5
+      },
+      "meta": {
+        "requestId": "022fed0d-a4e0-45f8-b7f4-c6d26d3a71c8"
+      },
+      "timestamp": "2026-09-20T05:32:58+00:00"
+    }
+
+  ✅ PASS
+
+▶ REQUEST #30
+  Method     : GET
+  URL        : https://levora-back-end.onrender.com/api/v1/profile/skills/7286e2ad-7f57-4a2a-8634-3bf1033d9716
+  Description: Verify update
+  Auth       : Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6Ik...
+  Expected   : HTTP 200
+
+◀ RESPONSE
+  Status Code: 200
+  Body (JSON):
+    {
+      "statusCode": 200,
+      "message": "OK",
+      "data": {
+        "userId": "d9fcf426-3cd4-4e8f-aa9a-f9449acd7910",
+        "skillId": "7286e2ad-7f57-4a2a-8634-3bf1033d9716",
+        "proficiency": 5,
+        "skill": {
+          "id": "7286e2ad-7f57-4a2a-8634-3bf1033d9716",
+          "name": "AutoCAD",
+          "category": "Engineering",
+          "isActive": true
+        }
+      },
+      "meta": {
+        "requestId": "e8296a30-d732-4e82-8432-19eb8ad0cc11"
+      },
+      "timestamp": "2026-09-20T05:33:01+00:00"
+    }
+
+  ✅ PASS
+
+▶ REQUEST #31
+  Method     : DELETE
+  URL        : https://levora-back-end.onrender.com/api/v1/profile/skills/7286e2ad-7f57-4a2a-8634-3bf1033d9716
+  Description: Delete skill
+  Auth       : Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6Ik...
+  Expected   : HTTP 200,204
+
+◀ RESPONSE
+  Status Code: 204
+  Body       : (no content)
+
+  ✅ PASS
+
+▶ REQUEST #32
+  Method     : GET
+  URL        : https://levora-back-end.onrender.com/api/v1/profile/skills
+  Description: Verify delete
+  Auth       : Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6Ik...
+  Expected   : HTTP 200
+
+◀ RESPONSE
+  Status Code: 200
+  Body (JSON):
+    {
+      "statusCode": 200,
+      "message": "OK",
+      "data": [],
+      "meta": {
+        "pagination": {
+          "page": 1,
+          "limit": 20,
+          "total": 0,
+          "totalPages": 0,
+          "hasNext": false,
+          "hasPrev": false
+        },
+        "requestId": "e5c48f34-1950-417a-8a20-d73666f5aefd"
+      },
+      "timestamp": "2026-09-20T05:33:11+00:00"
+    }
+
+  ✅ PASS
+
+
+───────────────────────────────────────────────────────────────
+  7) PROFILE / LANGUAGES - Full CRUD
+───────────────────────────────────────────────────────────────
+
+▶ REQUEST #33
+  Method     : GET
+  URL        : https://levora-back-end.onrender.com/api/v1/profile/languages
+  Description: List languages (empty)
+  Auth       : Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6Ik...
+  Expected   : HTTP 200
+
+◀ RESPONSE
+  Status Code: 200
+  Body (JSON):
+    {
+      "statusCode": 200,
+      "message": "OK",
+      "data": [],
+      "meta": {
+        "pagination": {
+          "page": 1,
+          "limit": 20,
+          "total": 0,
+          "totalPages": 0,
+          "hasNext": false,
+          "hasPrev": false
+        },
+        "requestId": "59b7cd9b-d5e7-47f3-8919-08c69d9225d7"
+      },
+      "timestamp": "2026-09-20T05:33:12+00:00"
+    }
+
+  ✅ PASS
+
+▶ REQUEST #34
+  Method     : POST
+  URL        : https://levora-back-end.onrender.com/api/v1/profile/languages
+  Description: Add language
+  Auth       : Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6Ik...
+  Body       : {"languageId":"2f8fa260-6093-4080-a74b-8162452dfd00","proficiency":"Fluent"}
+  Expected   : HTTP 201
+
+◀ RESPONSE
+  Status Code: 201
+  Body (JSON):
+    {
+      "statusCode": 201,
+      "message": "Created successfully",
+      "data": {
+        "userId": "d9fcf426-3cd4-4e8f-aa9a-f9449acd7910",
+        "languageId": "2f8fa260-6093-4080-a74b-8162452dfd00",
+        "proficiency": "Fluent"
+      },
+      "meta": {
+        "requestId": "d2933e65-0eb9-49fb-8a9a-15dc9be85f4c"
+      },
+      "timestamp": "2026-09-20T05:33:21+00:00"
+    }
+
+  ✅ PASS
+
+  → languageRecordId = 2f8fa260-6093-4080-a74b-8162452dfd00
+▶ REQUEST #35
+  Method     : GET
+  URL        : https://levora-back-end.onrender.com/api/v1/profile/languages
+  Description: List after add
+  Auth       : Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6Ik...
+  Expected   : HTTP 200
+
+◀ RESPONSE
+  Status Code: 200
+  Body (JSON):
+    {
+      "statusCode": 200,
+      "message": "OK",
+      "data": [
+        {
+          "languageId": "2f8fa260-6093-4080-a74b-8162452dfd00",
+          "name": "Arabic",
+          "proficiency": "Fluent"
+        }
+      ],
+      "meta": {
+        "pagination": {
+          "page": 1,
+          "limit": 20,
+          "total": 1,
+          "totalPages": 1,
+          "hasNext": false,
+          "hasPrev": false
+        },
+        "requestId": "b06e7107-dc5c-425c-80b7-8bbd849886dc"
+      },
+      "timestamp": "2026-09-20T05:33:24+00:00"
+    }
+
+  ✅ PASS
+
+▶ REQUEST #36
+  Method     : GET
+  URL        : https://levora-back-end.onrender.com/api/v1/profile/languages/2f8fa260-6093-4080-a74b-8162452dfd00
+  Description: Get by ID
+  Auth       : Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6Ik...
+  Expected   : HTTP 200
+
+◀ RESPONSE
+  Status Code: 200
+  Body (JSON):
+    {
+      "statusCode": 200,
+      "message": "OK",
+      "data": {
+        "userId": "d9fcf426-3cd4-4e8f-aa9a-f9449acd7910",
+        "languageId": "2f8fa260-6093-4080-a74b-8162452dfd00",
+        "proficiency": "Fluent",
+        "language": {
+          "id": "2f8fa260-6093-4080-a74b-8162452dfd00",
+          "name": "Arabic"
+        }
+      },
+      "meta": {
+        "requestId": "4e17ea56-d101-4bcb-94af-14cae64a34a1"
+      },
+      "timestamp": "2026-09-20T05:33:26+00:00"
+    }
+
+  ✅ PASS
+
+▶ REQUEST #37
+  Method     : PATCH
+  URL        : https://levora-back-end.onrender.com/api/v1/profile/languages/2f8fa260-6093-4080-a74b-8162452dfd00
+  Description: Update proficiency
+  Auth       : Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6Ik...
+  Body       : {"proficiency":"Native"}
+  Expected   : HTTP 200
+
+◀ RESPONSE
+  Status Code: 200
+  Body (JSON):
+    {
+      "statusCode": 200,
+      "message": "Updated successfully",
+      "data": {
+        "userId": "d9fcf426-3cd4-4e8f-aa9a-f9449acd7910",
+        "languageId": "2f8fa260-6093-4080-a74b-8162452dfd00",
+        "proficiency": "Native"
+      },
+      "meta": {
+        "requestId": "47db48f0-11b1-4e47-8774-947af67e2de9"
+      },
+      "timestamp": "2026-09-20T05:33:35+00:00"
+    }
+
+  ✅ PASS
+
+▶ REQUEST #38
+  Method     : GET
+  URL        : https://levora-back-end.onrender.com/api/v1/profile/languages/2f8fa260-6093-4080-a74b-8162452dfd00
+  Description: Verify update
+  Auth       : Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6Ik...
+  Expected   : HTTP 200
+
+◀ RESPONSE
+  Status Code: 200
+  Body (JSON):
+    {
+      "statusCode": 200,
+      "message": "OK",
+      "data": {
+        "userId": "d9fcf426-3cd4-4e8f-aa9a-f9449acd7910",
+        "languageId": "2f8fa260-6093-4080-a74b-8162452dfd00",
+        "proficiency": "Native",
+        "language": {
+          "id": "2f8fa260-6093-4080-a74b-8162452dfd00",
+          "name": "Arabic"
+        }
+      },
+      "meta": {
+        "requestId": "8d44bef3-33a6-4255-ac52-29cbd60661b3"
+      },
+      "timestamp": "2026-09-20T05:33:37+00:00"
+    }
+
+  ✅ PASS
+
+▶ REQUEST #39
+  Method     : DELETE
+  URL        : https://levora-back-end.onrender.com/api/v1/profile/languages/2f8fa260-6093-4080-a74b-8162452dfd00
+  Description: Delete language
+  Auth       : Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6Ik...
+  Expected   : HTTP 200,204
+
+◀ RESPONSE
+  Status Code: 204
+  Body       : (no content)
+
+  ✅ PASS
+
+▶ REQUEST #40
+  Method     : GET
+  URL        : https://levora-back-end.onrender.com/api/v1/profile/languages
+  Description: Verify delete
+  Auth       : Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6Ik...
+  Expected   : HTTP 200
+
+◀ RESPONSE
+  Status Code: 200
+  Body (JSON):
+    {
+      "statusCode": 200,
+      "message": "OK",
+      "data": [],
+      "meta": {
+        "pagination": {
+          "page": 1,
+          "limit": 20,
+          "total": 0,
+          "totalPages": 0,
+          "hasNext": false,
+          "hasPrev": false
+        },
+        "requestId": "3d0bb989-50a8-41eb-886e-0ce8d5e90edc"
+      },
+      "timestamp": "2026-09-20T05:33:48+00:00"
+    }
+
+  ✅ PASS
+
+
+───────────────────────────────────────────────────────────────
+  8) PROFILE / DOCUMENTS - Full CRUD + Storage
+───────────────────────────────────────────────────────────────
+
+▶ REQUEST #41 (multipart)
+  Method     : POST
+  URL        : https://levora-back-end.onrender.com/api/v1/profile/documents
+  Description: Upload PDF
+  Auth       : Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6Ik...
+  File       : /tmp/tmp.XDRFfY9JTY.pdf
+  docType    : resume
+  Expected   : HTTP 201
+
+◀ RESPONSE
+  Status Code: 201
+  Body (JSON):
+    {
+      "statusCode": 201,
+      "message": "Created successfully",
+      "data": {
+        "id": "861cc539-3183-438b-a7c1-2384a8bc122e",
+        "docType": "resume",
+        "displayName": "tmp.XDRFfY9JTY.pdf",
+        "storagePath": "986c30ec-42b1-47df-88bb-f94caac57271-90012d38-d311-4142-91cb-a06b44402092.pdf",
+        "mimeType": "application/pdf",
+        "sizeBytes": 221,
+        "createdAt": "2026-09-20T05:33:50.063Z"
+      },
+      "meta": {
+        "requestId": "0f5df761-f28c-4680-b762-0db510a438c1"
+      },
+      "timestamp": "2026-09-20T05:33:51+00:00"
+    }
+
+  ✅ PASS
+
+  → documentId = 861cc539-3183-438b-a7c1-2384a8bc122e
+▶ REQUEST #42
+  Method     : GET
+  URL        : https://levora-back-end.onrender.com/api/v1/profile/documents
+  Description: List documents
+  Auth       : Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6Ik...
+  Expected   : HTTP 200
+
+◀ RESPONSE
+  Status Code: 200
+  Body (JSON):
+    {
+      "statusCode": 200,
+      "message": "OK",
+      "data": [
+        {
+          "id": "861cc539-3183-438b-a7c1-2384a8bc122e",
+          "userId": "d9fcf426-3cd4-4e8f-aa9a-f9449acd7910",
+          "docType": "resume",
+          "displayName": "tmp.XDRFfY9JTY.pdf",
+          "mimeType": "application/pdf",
+          "sizeBytes": 221,
+          "isEncrypted": true,
+          "createdAt": "2026-09-20T05:33:50.063Z",
+          "updatedAt": "2026-09-20T05:33:50.063Z",
+          "deletedAt": null
+        }
+      ],
+      "meta": {
+        "pagination": {
+          "page": 1,
+          "limit": 20,
+          "total": 1,
+          "totalPages": 1,
+          "hasNext": false,
+          "hasPrev": false
+        },
+        "requestId": "ba88388b-7693-42df-9c3c-899bf82f2813"
+      },
+      "timestamp": "2026-09-20T05:33:53+00:00"
+    }
+
+  ✅ PASS
+
+▶ REQUEST #43
+  Method     : GET
+  URL        : https://levora-back-end.onrender.com/api/v1/profile/documents/861cc539-3183-438b-a7c1-2384a8bc122e/download
+  Description: Get download URL
+  Auth       : Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6Ik...
+  Expected   : HTTP 200
+
+◀ RESPONSE
+  Status Code: 200
+  Body (JSON):
+    {
+      "statusCode": 200,
+      "message": "OK",
+      "data": {
+        "url": "/api/v1/local-storage/986c30ec-42b1-47df-88bb-f94caac57271-90012d38-d311-4142-91cb-a06b44402092.pdf?token=eyJwYXlsb2FkIjoie1wia2V5XCI6XCI5ODZjMzBlYy00MmIxLTQ3ZGYtODhiYi1mOTRjYWFjNTcyNzEtOTAwMTJkMzgtZDMxMS00MTQyLTkxY2ItYTA2YjQ0NDAyMDkyLnBkZlwiLFwiZXhwXCI6MTc4OTg4MjczNTU0M30iLCJzaWduYXR1cmUiOiI4NDc1ZTExNDRiYzk2OWQxOWU0MWNiMjVmZDNmMzA0NGVmMWQ4YTVlNjQ2OTI0NWM0MzM2NTU4MWM5NzVkNTBlIn0=",
+        "expiresAt": "2026-09-20T05:38:55.543Z"
+      },
+      "meta": {
+        "requestId": "ee68b8de-e742-4f31-bab0-98e24e4cda06"
+      },
+      "timestamp": "2026-09-20T05:33:55+00:00"
+    }
+
+  ✅ PASS
+
+  → download URL = /api/v1/local-storage/986c30ec-42b1-47df-88bb-f94caac57271-90012d38-d311-4142-91cb-a06b44402092.pdf?token=eyJwYXlsb2FkIjoie1wia2V5XCI6XCI5ODZjMzBlYy00MmIxLTQ3ZGYtODhiYi1mOTRjYWFjNTcyNzEtOTAwMTJkMzgtZDMxMS00MTQyLTkxY2ItYTA2YjQ0NDAyMDkyLnBkZlwiLFwiZXhwXCI6MTc4OTg4MjczNTU0M30iLCJzaWduYXR1cmUiOiI4NDc1ZTExNDRiYzk2OWQxOWU0MWNiMjVmZDNmMzA0NGVmMWQ4YTVlNjQ2OTI0NWM0MzM2NTU4MWM5NzVkNTBlIn0=
+  → fileKey = 986c30ec-42b1-47df-88bb-f94caac57271-90012d38-d311-4142-91cb-a06b44402092.pdf
+  → token   = eyJwYXlsb2FkIjoie1wia2V5XCI6XC...
+
+  ⋯ Local Storage download
+▶ REQUEST #44
+  Method     : GET
+  URL        : https://levora-back-end.onrender.com/api/v1/local-storage/986c30ec-42b1-47df-88bb-f94caac57271-90012d38-d311-4142-91cb-a06b44402092.pdf?token=eyJwYXlsb2FkIjoie1wia2V5XCI6XCI5ODZjMzBlYy00MmIxLTQ3ZGYtODhiYi1mOTRjYWFjNTcyNzEtOTAwMTJkMzgtZDMxMS00MTQyLTkxY2ItYTA2YjQ0NDAyMDkyLnBkZlwiLFwiZXhwXCI6MTc4OTg4MjczNTU0M30iLCJzaWduYXR1cmUiOiI4NDc1ZTExNDRiYzk2OWQxOWU0MWNiMjVmZDNmMzA0NGVmMWQ4YTVlNjQ2OTI0NWM0MzM2NTU4MWM5NzVkNTBlIn0=
+  Description: Download file from local storage
+  Expected   : HTTP 200
+
+◀ RESPONSE
+  Status Code: 200
+  Body (raw) : %PDF-1.4
+1 0 obj<</Type/Catalog/Pages 2 0 R>>endobj
+2 0 obj<</Type/Pages/Kids[3 0 R]/Count 1>>endobj
+3 0 obj<</Type/Page/Parent 2 0 R/MediaBox[0 0 612 792]>>endobj
+xref
+0 4
+trailer<</Size 4/Root 1 0 R>>
+startxref
+0
+%%EOF
+
+
+  ✅ PASS
+
+
+  ⋯ Upload rejected type (.exe disguised)
+▶ REQUEST #45 (multipart)
+  Method     : POST
+  URL        : https://levora-back-end.onrender.com/api/v1/profile/documents
+  Description: Reject fake PDF
+  Auth       : Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6Ik...
+  File       : /tmp/tmp.6vs0DsHhrv.pdf
+  docType    : resume
+  Expected   : HTTP 400
+
+◀ RESPONSE
+  Status Code: 400
+  Body (JSON):
+    {
+      "success": false,
+      "status": 400,
+      "message": "Invalid file content signature",
+      "data": null,
+      "meta": null,
+      "errors": [
+        {
+          "code": "SYSTEM_BAD_REQUEST",
+          "message": "Invalid file content signature"
+        }
+      ],
+      "timestamp": "2026-09-20T05:33:57+00:00"
+    }
+
+  ✅ PASS
+
+▶ REQUEST #46
+  Method     : DELETE
+  URL        : https://levora-back-end.onrender.com/api/v1/profile/documents/861cc539-3183-438b-a7c1-2384a8bc122e
+  Description: Delete document
+  Auth       : Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6Ik...
+  Expected   : HTTP 200,204
+
+◀ RESPONSE
+  Status Code: 204
+  Body       : (no content)
+
+  ✅ PASS
+
+▶ REQUEST #47
+  Method     : GET
+  URL        : https://levora-back-end.onrender.com/api/v1/profile/documents
+  Description: Verify delete
+  Auth       : Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6Ik...
+  Expected   : HTTP 200
+
+◀ RESPONSE
+  Status Code: 200
+  Body (JSON):
+    {
+      "statusCode": 200,
+      "message": "OK",
+      "data": [],
+      "meta": {
+        "pagination": {
+          "page": 1,
+          "limit": 20,
+          "total": 0,
+          "totalPages": 0,
+          "hasNext": false,
+          "hasPrev": false
+        },
+        "requestId": "363b506e-93d5-43f8-869f-ab0d44dd90aa"
+      },
+      "timestamp": "2026-09-20T05:34:03+00:00"
+    }
+
+  ✅ PASS
+
+
+───────────────────────────────────────────────────────────────
+  9) PROFILE - Complete Core Fields & Publish
+───────────────────────────────────────────────────────────────
+
+▶ REQUEST #48
+  Method     : PATCH
+  URL        : https://levora-back-end.onrender.com/api/v1/profile
+  Description: Complete core fields
+  Auth       : Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6Ik...
+  Body       : {
+  "fullName": "Jane Doe",
+  "dateOfBirth": "1995-05-15",
+  "nationality": "Jordanian",
+  "educationLevel": "b132b209-a066-4d54-bbfc-b30a3ae831c4",
+  "fieldOfStudy": [
+    "5f3efa96-9fcb-4dff-ac86-fbfe8a3e50b1"
+  ],
+  "currentCountry": "Jordan",
+  "currentCity": "Amman",
+  "phone": "+962791234567",
+  "experienceLevel": "Mid",
+  "hasFinancialNeed": false
+}
+  Expected   : HTTP 200
+
+◀ RESPONSE
+  Status Code: 200
+  Body (JSON):
+    {
+      "statusCode": 200,
+      "message": "Updated successfully",
+      "data": {
+        "userId": "d9fcf426-3cd4-4e8f-aa9a-f9449acd7910",
+        "completionPct": 75,
+        "coreFieldsComplete": true,
+        "updatedAt": "2026-09-20T05:34:07.951Z"
+      },
+      "meta": {
+        "requestId": "e1a9909e-3c8a-4d70-a25a-984ef5563568"
+      },
+      "timestamp": "2026-09-20T05:34:12+00:00"
+    }
+
+  ✅ PASS
+
+▶ REQUEST #49
+  Method     : GET
+  URL        : https://levora-back-end.onrender.com/api/v1/profile
+  Description: Check coreFieldsComplete
+  Auth       : Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6Ik...
+  Expected   : HTTP 200
+
+◀ RESPONSE
+  Status Code: 200
+  Body (JSON):
+    {
+      "statusCode": 200,
+      "message": "OK",
+      "data": {
+        "userId": "d9fcf426-3cd4-4e8f-aa9a-f9449acd7910",
+        "fullName": "Jane Doe",
+        "dateOfBirth": "1995-05-15T00:00:00.000Z",
+        "nationality": "Jordanian",
+        "educationLevel": "b132b209-a066-4d54-bbfc-b30a3ae831c4",
+        "fieldOfStudy": [
+          "5f3efa96-9fcb-4dff-ac86-fbfe8a3e50b1"
+        ],
+        "currentCountry": "Jordan",
+        "currentCity": "Amman",
+        "phone": "+962791234567",
+        "experienceLevel": "Mid",
+        "hasFinancialNeed": false,
+        "careerGoals": null,
+        "profilePhotoUrl": null,
+        "completionPct": 75,
+        "coreFieldsComplete": true,
+        "lastCompletedStep": 2,
+        "gpaNormalized4": null,
+        "isDraft": true,
+        "publishedAt": null,
+        "educations": [],
+        "skills": [],
+        "languages": [],
+        "documents": [],
+        "createdAt": "2026-09-20T05:31:07.833Z",
+        "updatedAt": "2026-09-20T05:34:07.951Z"
+      },
+      "meta": {
+        "requestId": "c7e19aad-2378-46c6-b28d-8521478350bb"
+      },
+      "timestamp": "2026-09-20T05:34:16+00:00"
+    }
+
+  ✅ PASS
+
+  → coreFieldsComplete = true
+▶ REQUEST #50
+  Method     : POST
+  URL        : https://levora-back-end.onrender.com/api/v1/profile/publish
+  Description: Publish profile
+  Auth       : Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6Ik...
+  Expected   : HTTP 200
+
+◀ RESPONSE
+  Status Code: 200
+  Body (JSON):
+    {
+      "statusCode": 200,
+      "message": "OK",
+      "data": {
+        "userId": "d9fcf426-3cd4-4e8f-aa9a-f9449acd7910",
+        "fullName": "Jane Doe",
+        "dateOfBirth": "1995-05-15T00:00:00.000Z",
+        "nationality": "Jordanian",
+        "educationLevel": "b132b209-a066-4d54-bbfc-b30a3ae831c4",
+        "fieldOfStudy": [
+          "5f3efa96-9fcb-4dff-ac86-fbfe8a3e50b1"
+        ],
+        "currentCountry": "Jordan",
+        "currentCity": "Amman",
+        "phone": "+962791234567",
+        "experienceLevel": "Mid",
+        "hasFinancialNeed": false,
+        "careerGoals": null,
+        "profilePhotoUrl": null,
+        "completionPct": 75,
+        "coreFieldsComplete": true,
+        "lastCompletedStep": 2,
+        "gpaNormalized4": null,
+        "isDraft": false,
+        "publishedAt": "2026-09-20T05:34:19.763Z",
+        "educations": [],
+        "skills": [],
+        "languages": [],
+        "documents": [],
+        "createdAt": "2026-09-20T05:31:07.833Z",
+        "updatedAt": "2026-09-20T05:34:19.764Z"
+      },
+      "meta": {
+        "requestId": "2554d546-0c84-402a-a46f-7368e5d03a5a"
+      },
+      "timestamp": "2026-09-20T05:34:24+00:00"
+    }
+
+  ✅ PASS
+
+▶ REQUEST #51
+  Method     : GET
+  URL        : https://levora-back-end.onrender.com/api/v1/profile
+  Description: Verify isDraft=false
+  Auth       : Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6Ik...
+  Expected   : HTTP 200
+
+◀ RESPONSE
+  Status Code: 200
+  Body (JSON):
+    {
+      "statusCode": 200,
+      "message": "OK",
+      "data": {
+        "userId": "d9fcf426-3cd4-4e8f-aa9a-f9449acd7910",
+        "fullName": "Jane Doe",
+        "dateOfBirth": "1995-05-15T00:00:00.000Z",
+        "nationality": "Jordanian",
+        "educationLevel": "b132b209-a066-4d54-bbfc-b30a3ae831c4",
+        "fieldOfStudy": [
+          "5f3efa96-9fcb-4dff-ac86-fbfe8a3e50b1"
+        ],
+        "currentCountry": "Jordan",
+        "currentCity": "Amman",
+        "phone": "+962791234567",
+        "experienceLevel": "Mid",
+        "hasFinancialNeed": false,
+        "careerGoals": null,
+        "profilePhotoUrl": null,
+        "completionPct": 75,
+        "coreFieldsComplete": true,
+        "lastCompletedStep": 2,
+        "gpaNormalized4": null,
+        "isDraft": false,
+        "publishedAt": "2026-09-20T05:34:19.763Z",
+        "educations": [],
+        "skills": [],
+        "languages": [],
+        "documents": [],
+        "createdAt": "2026-09-20T05:31:07.833Z",
+        "updatedAt": "2026-09-20T05:34:19.764Z"
+      },
+      "meta": {
+        "requestId": "2d8e9ca2-ff9c-4cf3-948b-4f1dd05ee367"
+      },
+      "timestamp": "2026-09-20T05:34:28+00:00"
+    }
+
+  ✅ PASS
+
+  → isDraft = 
+▶ REQUEST #52
+  Method     : POST
+  URL        : https://levora-back-end.onrender.com/api/v1/profile/publish
+  Description: Publish twice → 409
+  Auth       : Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6Ik...
+  Expected   : HTTP 409
+
+◀ RESPONSE
+  Status Code: 409
+  Body (JSON):
+    {
+      "success": false,
+      "status": 409,
+      "message": "Profile already published",
+      "data": null,
+      "meta": null,
+      "errors": [
+        {
+          "code": "PROFILE_ALREADY_PUBLISHED",
+          "message": "Profile already published"
+        }
+      ],
+      "timestamp": "2026-09-20T05:34:31+00:00"
+    }
+
+  ✅ PASS
+
+
+───────────────────────────────────────────────────────────────
+  10) USERS (Admin) - RBAC check
+───────────────────────────────────────────────────────────────
+
+▶ REQUEST #53
+  Method     : GET
+  URL        : https://levora-back-end.onrender.com/api/v1/users?page=1&limit=20
+  Description: Regular user cannot list users
+  Auth       : Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6Ik...
+  Expected   : HTTP 403
+
+◀ RESPONSE
+  Status Code: 403
+  Body (JSON):
+    {
+      "success": false,
+      "status": 403,
+      "message": "Requires one of the following roles: system_admin, ADMIN, content_admin",
+      "data": null,
+      "meta": null,
+      "errors": [
+        {
+          "code": "AUTH_PERMISSION_DENIED",
+          "message": "Requires one of the following roles: system_admin, ADMIN, content_admin"
+        }
+      ],
+      "timestamp": "2026-09-20T05:34:32+00:00"
+    }
+
+  ✅ PASS
+
+▶ REQUEST #54
+  Method     : GET
+  URL        : https://levora-back-end.onrender.com/api/v1/users/d9fcf426-3cd4-4e8f-aa9a-f9449acd7910
+  Description: Regular user get by ID
+  Auth       : Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6Ik...
+  Expected   : HTTP 403,200
+
+◀ RESPONSE
+  Status Code: 403
+  Body (JSON):
+    {
+      "success": false,
+      "status": 403,
+      "message": "Requires one of the following roles: system_admin, ADMIN, content_admin",
+      "data": null,
+      "meta": null,
+      "errors": [
+        {
+          "code": "AUTH_PERMISSION_DENIED",
+          "message": "Requires one of the following roles: system_admin, ADMIN, content_admin"
+        }
+      ],
+      "timestamp": "2026-09-20T05:34:33+00:00"
+    }
+
+  ✅ PASS
+
+
+───────────────────────────────────────────────────────────────
+  11) OAUTH - Initiate (302 redirects)
+───────────────────────────────────────────────────────────────
+
+▶ REQUEST #55
+  Method     : GET
+  URL        : https://levora-back-end.onrender.com/api/v1/auth/google
+  Description: Google OAuth redirect
+  Expected   : HTTP 302
+
+◀ RESPONSE
+  Status Code: 302
+  Body       : (no content)
+
+  ✅ PASS
+
+▶ REQUEST #56
+  Method     : GET
+  URL        : https://levora-back-end.onrender.com/api/v1/auth/linkedin
+  Description: LinkedIn OAuth redirect
+  Expected   : HTTP 302
+
+◀ RESPONSE
+  Status Code: 400
+  Body (JSON):
+    {
+      "success": false,
+      "status": 400,
+      "message": "Provider linkedin is not configured. Please check environment variables.",
+      "data": null,
+      "meta": null,
+      "errors": [
+        {
+          "code": "SYSTEM_BAD_REQUEST",
+          "message": "Provider linkedin is not configured. Please check environment variables."
+        }
+      ],
+      "timestamp": "2026-09-20T05:34:34+00:00"
+    }
+
+  ❌ FAIL (expected 302, got 400)
+
+
+  ⋯ OAuth callbacks without code
+▶ REQUEST #57
+  Method     : GET
+  URL        : https://levora-back-end.onrender.com/api/v1/auth/google/callback
+  Description: Google callback no code
+  Expected   : HTTP 400,401,302
+
+◀ RESPONSE
+  Status Code: 302
+  Body       : (no content)
+
+  ✅ PASS
+
+▶ REQUEST #58
+  Method     : GET
+  URL        : https://levora-back-end.onrender.com/api/v1/auth/linkedin/callback
+  Description: LinkedIn callback no code
+  Expected   : HTTP 400,401,302
+
+◀ RESPONSE
+  Status Code: 400
+  Body (JSON):
+    {
+      "success": false,
+      "status": 400,
+      "message": "Provider linkedin is not configured. Please check environment variables.",
+      "data": null,
+      "meta": null,
+      "errors": [
+        {
+          "code": "SYSTEM_BAD_REQUEST",
+          "message": "Provider linkedin is not configured. Please check environment variables."
+        }
+      ],
+      "timestamp": "2026-09-20T05:34:35+00:00"
+    }
+
+  ✅ PASS
+
+
+───────────────────────────────────────────────────────────────
+  12) AUTH - Refresh Token
+───────────────────────────────────────────────────────────────
+
+▶ REQUEST #59
+  Method     : POST
+  URL        : https://levora-back-end.onrender.com/api/v1/auth/refresh
+  Description: Refresh access token
+  Body       : {"refreshToken":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkOWZjZjQyNi0zY2Q0LTRlOGYtYWE5YS1mOTQ0OWFjZDc5MTAiLCJlbWFpbCI6Imxldm9yYV90ZXN0XzE3ODk4ODIyNjJAZXhhbXBsZS5jb20iLCJyb2xlIjoidXNlciIsImlhdCI6MTc4OTg4MjI4NywiZXhwIjoxNzkwNDg3MDg3fQ.5SwcUt4Fec4NEBoFH_FDoyeQ1t75ZpvNziY7bPE_zFk"}
+  Expected   : HTTP 200
+
+◀ RESPONSE
+  Status Code: 200
+  Body (JSON):
+    {
+      "statusCode": 200,
+      "message": "OK",
+      "data": {
+        "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkOWZjZjQyNi0zY2Q0LTRlOGYtYWE5YS1mOTQ0OWFjZDc5MTAiLCJlbWFpbCI6Imxldm9yYV90ZXN0XzE3ODk4ODIyNjJAZXhhbXBsZS5jb20iLCJyb2xlIjoidXNlciIsImlhdCI6MTc4OTg4MjQ4MSwiZXhwIjoxNzg5ODgzMzgxfQ.x87iE7Pl8wWJgWdg0HgOoJH9PeU5Kig68oap9n8cdUY",
+        "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkOWZjZjQyNi0zY2Q0LTRlOGYtYWE5YS1mOTQ0OWFjZDc5MTAiLCJlbWFpbCI6Imxldm9yYV90ZXN0XzE3ODk4ODIyNjJAZXhhbXBsZS5jb20iLCJyb2xlIjoidXNlciIsImlhdCI6MTc4OTg4MjQ4MSwiZXhwIjoxNzkwNDg3MjgxfQ.SbL1C6Yit1om-ZKhbjRwhiyymjT144JJPmo1exSovQg"
+      },
+      "meta": {
+        "requestId": "7a9d582b-2656-43de-9602-5aadcf7a1104"
+      },
+      "timestamp": "2026-09-20T05:34:41+00:00"
+    }
+
+  ✅ PASS
+
+  → accessToken rotated
+
+───────────────────────────────────────────────────────────────
+  13) HEALTH
+───────────────────────────────────────────────────────────────
+
+▶ REQUEST #60
+  Method     : GET
+  URL        : https://levora-back-end.onrender.com/api/v1/health
+  Description: Liveness
+  Expected   : HTTP 200
+
+◀ RESPONSE
+  Status Code: 200
+  Body (JSON):
+    {
+      "statusCode": 200,
+      "message": "OK",
+      "data": {
+        "status": "ok"
+      },
+      "meta": {
+        "requestId": "f21ad9f4-7523-4313-a850-a64e74836f76"
+      },
+      "timestamp": "2026-09-20T05:34:42+00:00"
+    }
+
+  ✅ PASS
+
+▶ REQUEST #61
+  Method     : GET
+  URL        : https://levora-back-end.onrender.com/api/v1/health/ready
+  Description: Readiness
+  Expected   : HTTP 200
+
+◀ RESPONSE
+  Status Code: 200
+  Body (JSON):
+    {
+      "statusCode": 200,
+      "message": "OK",
+      "data": {
+        "status": "ok",
+        "info": {
+          "database": {
+            "status": "up"
+          },
+          "redis": {
+            "status": "up"
+          }
+        },
+        "error": {},
+        "details": {
+          "database": {
+            "status": "up"
+          },
+          "redis": {
+            "status": "up"
+          }
+        }
+      },
+      "meta": {
+        "requestId": "a6246398-8062-4a0f-8636-b147027f4b63"
+      },
+      "timestamp": "2026-09-20T05:34:44+00:00"
+    }
+
+  ✅ PASS
+
+
+───────────────────────────────────────────────────────────────
+  14) SECURITY - Negative Tests
+───────────────────────────────────────────────────────────────
+
+
+  ⋯ 14.1 Duplicate register
+▶ REQUEST #62
+  Method     : POST
+  URL        : https://levora-back-end.onrender.com/api/v1/auth/register
+  Description: Duplicate email
+  Body       : {"email":"levora_test_1789882262@example.com","password":"P@ssw0rd123!","firstName":"John","lastName":"Doe"}
+  Expected   : HTTP 400,409
+
+◀ RESPONSE
+  Status Code: 409
+  Body (JSON):
+    {
+      "success": false,
+      "status": 409,
+      "message": "Email already registered",
+      "data": null,
+      "meta": null,
+      "errors": [
+        {
+          "code": "USER_EMAIL_DUPLICATE",
+          "message": "Email already registered"
+        }
+      ],
+      "timestamp": "2026-09-20T05:34:48+00:00"
+    }
+
+  ✅ PASS
+
+
+  ⋯ 14.2 Register missing fields
+▶ REQUEST #63
+  Method     : POST
+  URL        : https://levora-back-end.onrender.com/api/v1/auth/register
+  Description: Missing password
+  Body       : {"email":"incomplete@levora.com"}
+  Expected   : HTTP 400
+
+◀ RESPONSE
+  Status Code: 400
+  Body (JSON):
+    {
+      "success": false,
+      "status": 400,
+      "message": "Validation failed",
+      "data": null,
+      "meta": null,
+      "errors": [
+        {
+          "field": "password",
+          "code": "VALIDATION_INVALID_FORMAT",
+          "message": "Password must be at least 8 characters long and contain at least one letter and one number"
+        }
+      ],
+      "timestamp": "2026-09-20T05:34:49+00:00"
+    }
+
+  ✅ PASS
+
+
+  ⋯ 14.3 Wrong password
+▶ REQUEST #64
+  Method     : POST
+  URL        : https://levora-back-end.onrender.com/api/v1/auth/login
+  Description: Invalid credentials
+  Body       : {"email":"levora_test_1789882262@example.com","password":"WrongPassword!"}
+  Expected   : HTTP 401
+
+◀ RESPONSE
+  Status Code: 401
+  Body (JSON):
+    {
+      "success": false,
+      "status": 401,
+      "message": "Invalid credentials",
+      "data": null,
+      "meta": null,
+      "errors": [
+        {
+          "code": "AUTH_INVALID_CREDENTIALS",
+          "message": "Invalid credentials"
+        }
+      ],
+      "timestamp": "2026-09-20T05:34:54+00:00"
+    }
+
+  ✅ PASS
+
+
+  ⋯ 14.4 No token
+▶ REQUEST #65
+  Method     : GET
+  URL        : https://levora-back-end.onrender.com/api/v1/profile
+  Description: Missing auth
+  Expected   : HTTP 401
+
+◀ RESPONSE
+  Status Code: 401
+  Body (JSON):
+    {
+      "success": false,
+      "status": 401,
+      "message": "Missing token",
+      "data": null,
+      "meta": null,
+      "errors": [
+        {
+          "code": "AUTH_TOKEN_MISSING",
+          "message": "Missing token"
+        }
+      ],
+      "timestamp": "2026-09-20T05:34:55+00:00"
+    }
+
+  ✅ PASS
+
+
+  ⋯ 14.5 Invalid token
+▶ REQUEST #66
+  Method     : GET
+  URL        : https://levora-back-end.onrender.com/api/v1/profile
+  Description: Invalid token
+  Auth       : Bearer invalid.token.here...
+  Expected   : HTTP 401
+
+◀ RESPONSE
+  Status Code: 401
+  Body (JSON):
+    {
+      "success": false,
+      "status": 401,
+      "message": "Invalid token",
+      "data": null,
+      "meta": null,
+      "errors": [
+        {
+          "code": "AUTH_TOKEN_INVALID",
+          "message": "Invalid token"
+        }
+      ],
+      "timestamp": "2026-09-20T05:34:56+00:00"
+    }
+
+  ✅ PASS
+
+
+  ⋯ 14.6 Invalid refresh token
+▶ REQUEST #67
+  Method     : POST
+  URL        : https://levora-back-end.onrender.com/api/v1/auth/refresh
+  Description: Invalid refresh
+  Body       : {"refreshToken":"invalid.refresh.token"}
+  Expected   : HTTP 401
+
+◀ RESPONSE
+  Status Code: 401
+  Body (JSON):
+    {
+      "success": false,
+      "status": 401,
+      "message": "Refresh token invalid or expired",
+      "data": null,
+      "meta": null,
+      "errors": [
+        {
+          "code": "AUTH_REFRESH_TOKEN_INVALID",
+          "message": "Refresh token invalid or expired"
+        }
+      ],
+      "timestamp": "2026-09-20T05:34:57+00:00"
+    }
+
+  ✅ PASS
+
+
+  ⋯ 14.7 Weak password
+▶ REQUEST #68
+  Method     : POST
+  URL        : https://levora-back-end.onrender.com/api/v1/auth/register
+  Description: Weak password
+  Body       : {"email":"weak_1789882497@levora.com","password":"123","firstName":"W","lastName":"P"}
+  Expected   : HTTP 400
+
+◀ RESPONSE
+  Status Code: 400
+  Body (JSON):
+    {
+      "success": false,
+      "status": 400,
+      "message": "Validation failed",
+      "data": null,
+      "meta": null,
+      "errors": [
+        {
+          "field": "password",
+          "code": "VALIDATION_INVALID_FORMAT",
+          "message": "Password must be at least 8 characters long and contain at least one letter and one number"
+        }
+      ],
+      "timestamp": "2026-09-20T05:34:58+00:00"
+    }
+
+  ✅ PASS
+
+
+  ⋯ 14.8 Bad email format
+▶ REQUEST #69
+  Method     : POST
+  URL        : https://levora-back-end.onrender.com/api/v1/auth/register
+  Description: Invalid email
+  Body       : {"email":"not-an-email","password":"P@ssw0rd123!","firstName":"B","lastName":"E"}
+  Expected   : HTTP 400
+
+◀ RESPONSE
+  Status Code: 400
+  Body (JSON):
+    {
+      "success": false,
+      "status": 400,
+      "message": "Validation failed",
+      "data": null,
+      "meta": null,
+      "errors": [
+        {
+          "field": "email",
+          "code": "VALIDATION_INVALID_FORMAT",
+          "message": "Invalid email address format"
+        }
+      ],
+      "timestamp": "2026-09-20T05:34:59+00:00"
+    }
+
+  ✅ PASS
+
+
+  ⋯ 14.9 proficiency = 6
+▶ REQUEST #70
+  Method     : POST
+  URL        : https://levora-back-end.onrender.com/api/v1/profile/skills
+  Description: Proficiency > 5
+  Auth       : Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6Ik...
+  Body       : {"skillId":"7286e2ad-7f57-4a2a-8634-3bf1033d9716","proficiency":6}
+  Expected   : HTTP 400
+
+◀ RESPONSE
+  Status Code: 400
+  Body (JSON):
+    {
+      "success": false,
+      "status": 400,
+      "message": "Validation failed",
+      "data": null,
+      "meta": null,
+      "errors": [
+        {
+          "field": "proficiency",
+          "code": "VALIDATION_TOO_LARGE",
+          "message": "proficiency must not be greater than 5"
+        }
+      ],
+      "timestamp": "2026-09-20T05:35:00+00:00"
+    }
+
+  ✅ PASS
+
+
+  ⋯ 14.10 proficiency = -1
+▶ REQUEST #71
+  Method     : POST
+  URL        : https://levora-back-end.onrender.com/api/v1/profile/skills
+  Description: Proficiency < 1
+  Auth       : Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6Ik...
+  Body       : {"skillId":"7286e2ad-7f57-4a2a-8634-3bf1033d9716","proficiency":-1}
+  Expected   : HTTP 400
+
+◀ RESPONSE
+  Status Code: 400
+  Body (JSON):
+    {
+      "success": false,
+      "status": 400,
+      "message": "Validation failed",
+      "data": null,
+      "meta": null,
+      "errors": [
+        {
+          "field": "proficiency",
+          "code": "VALIDATION_TOO_SMALL",
+          "message": "proficiency must not be less than 1"
+        }
+      ],
+      "timestamp": "2026-09-20T05:35:01+00:00"
+    }
+
+  ✅ PASS
+
+
+  ⋯ 14.11 UUID صفري (IDOR)
+▶ REQUEST #72
+  Method     : GET
+  URL        : https://levora-back-end.onrender.com/api/v1/profile/skills/00000000-0000-0000-0000-000000000000
+  Description: Zero UUID
+  Auth       : Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6Ik...
+  Expected   : HTTP 403,404
+
+◀ RESPONSE
+  Status Code: 404
+  Body (JSON):
+    {
+      "success": false,
+      "status": 404,
+      "message": "User skill not found",
+      "data": null,
+      "meta": null,
+      "errors": [
+        {
+          "code": "SYSTEM_RESOURCE_NOT_FOUND",
+          "message": "User skill not found"
+        }
+      ],
+      "timestamp": "2026-09-20T05:35:03+00:00"
+    }
+
+  ✅ PASS
+
+
+  ⋯ 14.12 Pagination page=9999
+▶ REQUEST #73
+  Method     : GET
+  URL        : https://levora-back-end.onrender.com/api/v1/profile/skills?page=9999&limit=20
+  Description: Deep page
+  Auth       : Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6Ik...
+  Expected   : HTTP 200
+
+◀ RESPONSE
+  Status Code: 200
+  Body (JSON):
+    {
+      "statusCode": 200,
+      "message": "OK",
+      "data": [],
+      "meta": {
+        "pagination": {
+          "page": 9999,
+          "limit": 20,
+          "total": 0,
+          "totalPages": 0,
+          "hasNext": false,
+          "hasPrev": false
+        },
+        "requestId": "5c69936a-33f8-4c09-84bb-ce0272de1a6a"
+      },
+      "timestamp": "2026-09-20T05:35:05+00:00"
+    }
+
+  ✅ PASS
+
+
+  ⋯ 14.13 page=0
+▶ REQUEST #74
+  Method     : GET
+  URL        : https://levora-back-end.onrender.com/api/v1/profile/educations?page=0
+  Description: page=0
+  Auth       : Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6Ik...
+  Expected   : HTTP 400
+
+◀ RESPONSE
+  Status Code: 400
+  Body (JSON):
+    {
+      "success": false,
+      "status": 400,
+      "message": "Validation failed",
+      "data": null,
+      "meta": null,
+      "errors": [
+        {
+          "field": "page",
+          "code": "VALIDATION_TOO_SMALL",
+          "message": "page must not be less than 1"
+        }
+      ],
+      "timestamp": "2026-09-20T05:35:06+00:00"
+    }
+
+  ✅ PASS
+
+
+  ⋯ 14.14 limit=1000
+▶ REQUEST #75
+  Method     : GET
+  URL        : https://levora-back-end.onrender.com/api/v1/profile/educations?limit=1000
+  Description: limit too large
+  Auth       : Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6Ik...
+  Expected   : HTTP 400
+
+◀ RESPONSE
+  Status Code: 400
+  Body (JSON):
+    {
+      "success": false,
+      "status": 400,
+      "message": "Validation failed",
+      "data": null,
+      "meta": null,
+      "errors": [
+        {
+          "field": "limit",
+          "code": "VALIDATION_TOO_LARGE",
+          "message": "limit must not be greater than 100"
+        }
+      ],
+      "timestamp": "2026-09-20T05:35:07+00:00"
+    }
+
+  ✅ PASS
+
+
+───────────────────────────────────────────────────────────────
+  15) SECURITY - Real IDOR (User B)
+───────────────────────────────────────────────────────────────
+
+▶ REQUEST #76
+  Method     : POST
+  URL        : https://levora-back-end.onrender.com/api/v1/auth/register
+  Description: Register user B
+  Body       : {"email":"levora_test_b_1789882262@example.com","password":"P@ssw0rd456!","firstName":"Bob","lastName":"Smith"}
+  Expected   : HTTP 201
+
+◀ RESPONSE
+  Status Code: 201
+  Body (JSON):
+    {
+      "statusCode": 201,
+      "message": "Created successfully",
+      "data": {
+        "id": "2763f875-7a78-45dc-8f96-33e928048ed9",
+        "email": "levora_test_b_1789882262@example.com",
+        "firstName": "Bob",
+        "lastName": "Smith",
+        "isActive": true,
+        "isEmailVerified": false,
+        "roles": [
+          "user"
+        ],
+        "lastLoginAt": null,
+        "userProfile": {
+          "fullName": "Bob Smith",
+          "completionPct": 5,
+          "isDraft": true,
+          "educations": [],
+          "skills": [],
+          "languages": [],
+          "documents": []
+        }
+      },
+      "meta": {
+        "requestId": "fbb4df12-0e4d-4d58-ad89-f586a87a60be"
+      },
+      "timestamp": "2026-09-20T05:35:23+00:00"
+    }
+
+  ✅ PASS
+
+▶ REQUEST #77
+  Method     : POST
+  URL        : https://levora-back-end.onrender.com/api/v1/auth/login
+  Description: Login user B
+  Body       : {"email":"levora_test_b_1789882262@example.com","password":"P@ssw0rd456!"}
+  Expected   : HTTP 200
+
+◀ RESPONSE
+  Status Code: 200
+  Body (JSON):
+    {
+      "statusCode": 200,
+      "message": "OK",
+      "data": {
+        "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIyNzYzZjg3NS03YTc4LTQ1ZGMtOGY5Ni0zM2U5MjgwNDhlZDkiLCJlbWFpbCI6Imxldm9yYV90ZXN0X2JfMTc4OTg4MjI2MkBleGFtcGxlLmNvbSIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNzg5ODgyNTMxLCJleHAiOjE3ODk4ODM0MzF9.G4_UOAcJ4yP62v5pmE4Wl7SDK3DyHy665kAbtw9-wY4",
+        "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIyNzYzZjg3NS03YTc4LTQ1ZGMtOGY5Ni0zM2U5MjgwNDhlZDkiLCJlbWFpbCI6Imxldm9yYV90ZXN0X2JfMTc4OTg4MjI2MkBleGFtcGxlLmNvbSIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNzg5ODgyNTMxLCJleHAiOjE3OTA0ODczMzF9.JNCm3gaf2wxnNRjmIYmgDn7p4PbCqJCvZoPQOwcHZPY",
+        "user": {
+          "id": "2763f875-7a78-45dc-8f96-33e928048ed9",
+          "email": "levora_test_b_1789882262@example.com",
+          "firstName": "Bob",
+          "lastName": "Smith",
+          "isEmailVerified": false,
+          "isActive": true,
+          "lastLoginAt": "2026-09-20T05:35:27.936Z",
+          "createdAt": "2026-09-20T05:35:12.239Z",
+          "userProfile": {
+            "fullName": "Bob Smith",
+            "completionPct": 5,
+            "isDraft": true
+          },
+          "roles": [
+            "user"
+          ]
+        }
+      },
+      "meta": {
+        "requestId": "48c2890f-8bb1-4c33-8946-5889368a3fa5"
+      },
+      "timestamp": "2026-09-20T05:35:31+00:00"
+    }
+
+  ✅ PASS
+
+  → accessToken B = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ...
+▶ REQUEST #78
+  Method     : POST
+  URL        : https://levora-back-end.onrender.com/api/v1/profile/skills
+  Description: User A: add skill
+  Auth       : Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6Ik...
+  Body       : {"skillId":"7286e2ad-7f57-4a2a-8634-3bf1033d9716","proficiency":3}
+  Expected   : HTTP 201
+
+◀ RESPONSE
+  Status Code: 201
+  Body (JSON):
+    {
+      "statusCode": 201,
+      "message": "Created successfully",
+      "data": {
+        "userId": "d9fcf426-3cd4-4e8f-aa9a-f9449acd7910",
+        "skillId": "7286e2ad-7f57-4a2a-8634-3bf1033d9716",
+        "proficiency": 3
+      },
+      "meta": {
+        "requestId": "7e57606a-5c43-4dbd-b4df-4c378869f364"
+      },
+      "timestamp": "2026-09-20T05:35:41+00:00"
+    }
+
+  ✅ PASS
+
+▶ REQUEST #79
+  Method     : POST
+  URL        : https://levora-back-end.onrender.com/api/v1/profile/educations
+  Description: User A: add education
+  Auth       : Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6Ik...
+  Body       : {"degree":"BSc","major":"Physics","institution":"A University","graduationYear":2020}
+  Expected   : HTTP 201
+
+◀ RESPONSE
+  Status Code: 201
+  Body (JSON):
+    {
+      "statusCode": 201,
+      "message": "Created successfully",
+      "data": {
+        "id": "668f922e-2c3b-4248-a613-3f91282e6df9",
+        "userId": "d9fcf426-3cd4-4e8f-aa9a-f9449acd7910",
+        "degree": "BSc",
+        "major": "Physics",
+        "institution": "A University",
+        "graduationYear": 2020,
+        "gpaRaw": null,
+        "gpaRawScale": null,
+        "gpaNormalized4": null,
+        "createdAt": "2026-09-20T05:35:42.321Z",
+        "updatedAt": "2026-09-20T05:35:42.321Z"
+      },
+      "meta": {
+        "requestId": "2f6d072e-5dd9-4c52-a7f3-bd03b1b8821b"
+      },
+      "timestamp": "2026-09-20T05:35:51+00:00"
+    }
+
+  ✅ PASS
+
+▶ REQUEST #80
+  Method     : POST
+  URL        : https://levora-back-end.onrender.com/api/v1/profile/languages
+  Description: User A: add language
+  Auth       : Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6Ik...
+  Body       : {"languageId":"2f8fa260-6093-4080-a74b-8162452dfd00","proficiency":"Basic"}
+  Expected   : HTTP 201
+
+◀ RESPONSE
+  Status Code: 201
+  Body (JSON):
+    {
+      "statusCode": 201,
+      "message": "Created successfully",
+      "data": {
+        "userId": "d9fcf426-3cd4-4e8f-aa9a-f9449acd7910",
+        "languageId": "2f8fa260-6093-4080-a74b-8162452dfd00",
+        "proficiency": "Basic"
+      },
+      "meta": {
+        "requestId": "5a06b6df-d0a2-4de4-ba5e-ae61ee2dfd5e"
+      },
+      "timestamp": "2026-09-20T05:36:00+00:00"
+    }
+
+  ✅ PASS
+
+
+  ⋯ IDOR on Skills
+▶ REQUEST #81
+  Method     : GET
+  URL        : https://levora-back-end.onrender.com/api/v1/profile/skills/7286e2ad-7f57-4a2a-8634-3bf1033d9716
+  Description: B reads A's skill
+  Auth       : Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6Ik...
+  Expected   : HTTP 403,404
+
+◀ RESPONSE
+  Status Code: 404
+  Body (JSON):
+    {
+      "success": false,
+      "status": 404,
+      "message": "User skill not found",
+      "data": null,
+      "meta": null,
+      "errors": [
+        {
+          "code": "SYSTEM_RESOURCE_NOT_FOUND",
+          "message": "User skill not found"
+        }
+      ],
+      "timestamp": "2026-09-20T05:36:02+00:00"
+    }
+
+  ✅ PASS
+
+▶ REQUEST #82
+  Method     : PATCH
+  URL        : https://levora-back-end.onrender.com/api/v1/profile/skills/7286e2ad-7f57-4a2a-8634-3bf1033d9716
+  Description: B updates A's skill
+  Auth       : Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6Ik...
+  Body       : {"proficiency":2}
+  Expected   : HTTP 403,404
+
+◀ RESPONSE
+  Status Code: 404
+  Body (JSON):
+    {
+      "success": false,
+      "status": 404,
+      "message": "User skill not found",
+      "data": null,
+      "meta": null,
+      "errors": [
+        {
+          "code": "SYSTEM_RESOURCE_NOT_FOUND",
+          "message": "User skill not found"
+        }
+      ],
+      "timestamp": "2026-09-20T05:36:04+00:00"
+    }
+
+  ✅ PASS
+
+▶ REQUEST #83
+  Method     : DELETE
+  URL        : https://levora-back-end.onrender.com/api/v1/profile/skills/7286e2ad-7f57-4a2a-8634-3bf1033d9716
+  Description: B deletes A's skill
+  Auth       : Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6Ik...
+  Expected   : HTTP 403,404
+
+◀ RESPONSE
+  Status Code: 404
+  Body (JSON):
+    {
+      "success": false,
+      "status": 404,
+      "message": "User skill not found",
+      "data": null,
+      "meta": null,
+      "errors": [
+        {
+          "code": "SYSTEM_RESOURCE_NOT_FOUND",
+          "message": "User skill not found"
+        }
+      ],
+      "timestamp": "2026-09-20T05:36:05+00:00"
+    }
+
+  ✅ PASS
+
+
+  ⋯ IDOR on Educations
+▶ REQUEST #84
+  Method     : GET
+  URL        : https://levora-back-end.onrender.com/api/v1/profile/educations/668f922e-2c3b-4248-a613-3f91282e6df9
+  Description: B reads A's edu
+  Auth       : Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6Ik...
+  Expected   : HTTP 403,404,405
+
+◀ RESPONSE
+  Status Code: 404
+  Body (JSON):
+    {
+      "success": false,
+      "status": 404,
+      "message": "Cannot GET /api/v1/profile/educations/668f922e-2c3b-4248-a613-3f91282e6df9",
+      "data": null,
+      "meta": null,
+      "errors": [
+        {
+          "code": "SYSTEM_RESOURCE_NOT_FOUND",
+          "message": "Cannot GET /api/v1/profile/educations/668f922e-2c3b-4248-a613-3f91282e6df9"
+        }
+      ],
+      "timestamp": "2026-09-20T05:36:06+00:00"
+    }
+
+  ✅ PASS
+
+▶ REQUEST #85
+  Method     : PATCH
+  URL        : https://levora-back-end.onrender.com/api/v1/profile/educations/668f922e-2c3b-4248-a613-3f91282e6df9
+  Description: B updates A's edu
+  Auth       : Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6Ik...
+  Body       : {"degree":"Hacked"}
+  Expected   : HTTP 403,404
+
+◀ RESPONSE
+  Status Code: 404
+  Body (JSON):
+    {
+      "success": false,
+      "status": 404,
+      "message": "Education record not found",
+      "data": null,
+      "meta": null,
+      "errors": [
+        {
+          "code": "SYSTEM_RESOURCE_NOT_FOUND",
+          "message": "Education record not found"
+        }
+      ],
+      "timestamp": "2026-09-20T05:36:08+00:00"
+    }
+
+  ✅ PASS
+
+▶ REQUEST #86
+  Method     : DELETE
+  URL        : https://levora-back-end.onrender.com/api/v1/profile/educations/668f922e-2c3b-4248-a613-3f91282e6df9
+  Description: B deletes A's edu
+  Auth       : Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6Ik...
+  Expected   : HTTP 403,404
+
+◀ RESPONSE
+  Status Code: 404
+  Body (JSON):
+    {
+      "success": false,
+      "status": 404,
+      "message": "Education record not found",
+      "data": null,
+      "meta": null,
+      "errors": [
+        {
+          "code": "SYSTEM_RESOURCE_NOT_FOUND",
+          "message": "Education record not found"
+        }
+      ],
+      "timestamp": "2026-09-20T05:36:10+00:00"
+    }
+
+  ✅ PASS
+
+
+  ⋯ IDOR on Languages
+▶ REQUEST #87
+  Method     : GET
+  URL        : https://levora-back-end.onrender.com/api/v1/profile/languages/2f8fa260-6093-4080-a74b-8162452dfd00
+  Description: B reads A's lang
+  Auth       : Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6Ik...
+  Expected   : HTTP 403,404,405
+
+◀ RESPONSE
+  Status Code: 404
+  Body (JSON):
+    {
+      "success": false,
+      "status": 404,
+      "message": "Language not found",
+      "data": null,
+      "meta": null,
+      "errors": [
+        {
+          "code": "SYSTEM_RESOURCE_NOT_FOUND",
+          "message": "Language not found"
+        }
+      ],
+      "timestamp": "2026-09-20T05:36:13+00:00"
+    }
+
+  ✅ PASS
+
+▶ REQUEST #88
+  Method     : PATCH
+  URL        : https://levora-back-end.onrender.com/api/v1/profile/languages/2f8fa260-6093-4080-a74b-8162452dfd00
+  Description: B updates A's lang
+  Auth       : Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6Ik...
+  Body       : {"proficiency":"Native"}
+  Expected   : HTTP 403,404
+
+◀ RESPONSE
+  Status Code: 404
+  Body (JSON):
+    {
+      "success": false,
+      "status": 404,
+      "message": "User language not found",
+      "data": null,
+      "meta": null,
+      "errors": [
+        {
+          "code": "SYSTEM_RESOURCE_NOT_FOUND",
+          "message": "User language not found"
+        }
+      ],
+      "timestamp": "2026-09-20T05:36:14+00:00"
+    }
+
+  ✅ PASS
+
+▶ REQUEST #89
+  Method     : DELETE
+  URL        : https://levora-back-end.onrender.com/api/v1/profile/languages/2f8fa260-6093-4080-a74b-8162452dfd00
+  Description: B deletes A's lang
+  Auth       : Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6Ik...
+  Expected   : HTTP 403,404
+
+◀ RESPONSE
+  Status Code: 404
+  Body (JSON):
+    {
+      "success": false,
+      "status": 404,
+      "message": "User language not found",
+      "data": null,
+      "meta": null,
+      "errors": [
+        {
+          "code": "SYSTEM_RESOURCE_NOT_FOUND",
+          "message": "User language not found"
+        }
+      ],
+      "timestamp": "2026-09-20T05:36:17+00:00"
+    }
+
+  ✅ PASS
+
+▶ REQUEST #90
+  Method     : DELETE
+  URL        : https://levora-back-end.onrender.com/api/v1/profile/educations/668f922e-2c3b-4248-a613-3f91282e6df9
+  Description: cleanup edu A
+  Auth       : Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6Ik...
+  Expected   : HTTP 200,204
+
+◀ RESPONSE
+  Status Code: 204
+  Body       : (no content)
+
+  ✅ PASS
+
+▶ REQUEST #91
+  Method     : DELETE
+  URL        : https://levora-back-end.onrender.com/api/v1/profile/languages/2f8fa260-6093-4080-a74b-8162452dfd00
+  Description: cleanup lang A
+  Auth       : Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6Ik...
+  Expected   : HTTP 200,204
+
+◀ RESPONSE
+  Status Code: 204
+  Body       : (no content)
+
+  ✅ PASS
+
+▶ REQUEST #92
+  Method     : DELETE
+  URL        : https://levora-back-end.onrender.com/api/v1/profile/skills/7286e2ad-7f57-4a2a-8634-3bf1033d9716
+  Description: cleanup skill A
+  Auth       : Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6Ik...
+  Expected   : HTTP 200,204
+
+◀ RESPONSE
+  Status Code: 204
+  Body       : (no content)
+
+  ✅ PASS
+
+
+───────────────────────────────────────────────────────────────
+  16) Rate Limiting - SKIPPED (set RUN_RATE_LIMIT=1 to enable)
+───────────────────────────────────────────────────────────────
+
+
+───────────────────────────────────────────────────────────────
+  17) AUTH - Logout
+───────────────────────────────────────────────────────────────
+
+▶ REQUEST #93
+  Method     : POST
+  URL        : https://levora-back-end.onrender.com/api/v1/auth/logout
+  Description: Logout user A
+  Auth       : Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6Ik...
+  Expected   : HTTP 200,204
+
+◀ RESPONSE
+  Status Code: 204
+  Body       : (no content)
+
+  ✅ PASS
+
+
+  ⋯ 17.b accessToken after logout
+▶ REQUEST #94
+  Method     : GET
+  URL        : https://levora-back-end.onrender.com/api/v1/profile
+  Description: Access after logout
+  Auth       : Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6Ik...
+  Expected   : HTTP 401,403
+
+◀ RESPONSE
+  Status Code: 401
+  Body (JSON):
+    {
+      "success": false,
+      "status": 401,
+      "message": "Token has been revoked",
+      "data": null,
+      "meta": null,
+      "errors": [
+        {
+          "code": "AUTH_TOKEN_REVOKED",
+          "message": "Token has been revoked"
+        }
+      ],
+      "timestamp": "2026-09-20T05:36:50+00:00"
+    }
+
+  ✅ PASS
+
+
+  ⋯ 17.c refreshToken after logout
+▶ REQUEST #95
+  Method     : POST
+  URL        : https://levora-back-end.onrender.com/api/v1/auth/refresh
+  Description: Refresh after logout
+  Body       : {"refreshToken":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkOWZjZjQyNi0zY2Q0LTRlOGYtYWE5YS1mOTQ0OWFjZDc5MTAiLCJlbWFpbCI6Imxldm9yYV90ZXN0XzE3ODk4ODIyNjJAZXhhbXBsZS5jb20iLCJyb2xlIjoidXNlciIsImlhdCI6MTc4OTg4MjQ4MSwiZXhwIjoxNzkwNDg3MjgxfQ.SbL1C6Yit1om-ZKhbjRwhiyymjT144JJPmo1exSovQg"}
+  Expected   : HTTP 401,403
+
+◀ RESPONSE
+  Status Code: 401
+  Body (JSON):
+    {
+      "success": false,
+      "status": 401,
+      "message": "Refresh token revoked",
+      "data": null,
+      "meta": null,
+      "errors": [
+        {
+          "code": "AUTH_REFRESH_TOKEN_REVOKED",
+          "message": "Refresh token revoked"
+        }
+      ],
+      "timestamp": "2026-09-20T05:36:51+00:00"
+    }
+
+  ✅ PASS
+
+
+═══════════════════════════════════════════════════════════════
+  SUMMARY
+═══════════════════════════════════════════════════════════════
+  Total  : 95
+  Passed : 94
+  Failed : 1
+═══════════════════════════════════════════════════════════════
