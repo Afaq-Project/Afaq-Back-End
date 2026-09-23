@@ -103,8 +103,8 @@ describe('EducationsService', () => {
         where: { id: educationId, userId },
         data: expect.objectContaining({
           gpaRaw: null,
-          gpaRawScale: null,
-          gpaNormalized4: 4.0,
+          gpaScale: null,
+          gpaNormalized: 4.0,
         }),
       });
     });
@@ -123,8 +123,8 @@ describe('EducationsService', () => {
         where: { id: educationId, userId },
         data: expect.objectContaining({
           gpaRaw: 0,
-          gpaRawScale: 4.0,
-          gpaNormalized4: 0.0,
+          gpaScale: 'OUT_OF_4',
+          gpaNormalized: 0.0,
         }),
       });
     });

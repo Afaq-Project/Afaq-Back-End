@@ -36,7 +36,7 @@ export class EducationsService {
       data: {
         userId,
         ...data,
-      } as Prisma.UserEducationsUncheckedCreateInput,
+      } as unknown as Prisma.UserEducationsUncheckedCreateInput, // TODO(T039): full rewrite in Batch 2
     });
 
     await this.profileService.updateProfile(userId, {});
@@ -70,12 +70,13 @@ export class EducationsService {
       throw new NotFoundException('Education record not found');
     }
 
+    // TODO(T039): full rewrite in Batch 2
     const updateData: Prisma.UserEducationsUpdateInput = {
-      degree: data.degree,
-      major: data.major,
-      institution: data.institution,
+      educationLevelId: data.degree,
+      majorId: data.major,
+      institutionId: data.institution,
       graduationYear: data.graduationYear,
-    };
+    } as unknown as Prisma.UserEducationsUpdateInput;
 
     // Remove undefined fields
     Object.keys(updateData).forEach((key) => {
@@ -88,8 +89,8 @@ export class EducationsService {
     if (data.gpaScale !== undefined) {
       if (data.gpaScale === 'letter') {
         updateData.gpaRaw = null;
-        updateData.gpaRawScale = null;
-        updateData.gpaNormalized4 = data.gpaValue
+        updateData.gpaScale = null;
+        updateData.gpaNormalized = data.gpaValue
           ? normalizeGPA(data.gpaValue, 'letter')
           : null;
       } else {
@@ -97,14 +98,11 @@ export class EducationsService {
           updateData.gpaRaw = data.gpaValue;
 
           if (data.gpaScale === '4.0') {
-            updateData.gpaRawScale = 4.0;
+            updateData.gpaScale = 'OUT_OF_4';
           } else if (data.gpaScale === 'percentage') {
-            updateData.gpaRawScale = 100.0;
+            updateData.gpaScale = 'OUT_OF_100';
           }
-          updateData.gpaNormalized4 = normalizeGPA(
-            data.gpaValue,
-            data.gpaScale,
-          );
+          updateData.gpaNormalized = normalizeGPA(data.gpaValue, data.gpaScale);
         }
       }
     } else if (data.gpaValue !== undefined && data.gpaValue !== null) {

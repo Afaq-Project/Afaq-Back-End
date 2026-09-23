@@ -21,6 +21,15 @@ describe('ProfileService', () => {
     cities: {
       findUnique: jest.fn(),
     },
+    countries: {
+      findUnique: jest.fn(),
+    },
+    educationLevel: {
+      findUnique: jest.fn(),
+    },
+    maritalStatuses: {
+      findUnique: jest.fn(),
+    },
   };
 
   const mockSystemSettingsService = {
@@ -44,6 +53,14 @@ describe('ProfileService', () => {
 
     service = module.get<ProfileService>(ProfileService);
     jest.clearAllMocks();
+
+    mockPrisma.countries.findUnique.mockResolvedValue({ id: 'dummy' });
+    mockPrisma.cities.findUnique.mockResolvedValue({
+      id: 'dummy',
+      countryId: 'dummy',
+    });
+    mockPrisma.educationLevel.findUnique.mockResolvedValue({ id: 'dummy' });
+    mockPrisma.maritalStatuses.findUnique.mockResolvedValue({ id: 'dummy' });
 
     // Default mock for system settings
     mockSystemSettingsService.getNumber.mockImplementation(
@@ -284,6 +301,7 @@ describe('ProfileService', () => {
         targetMajors: [{}],
         targetInstitutions: [{}],
         specialStatuses: [{}],
+        maritalStatusId: 'm1',
       });
 
       await service.recalculate('1');
@@ -304,7 +322,8 @@ describe('ProfileService', () => {
         firstName: 'John',
         lastName: 'Doe',
         dateOfBirth: new Date(),
-        gender: 'MALE', // 18
+        gender: 'MALE', // 18 (with maritalStatusId)
+        maritalStatusId: 'm1',
         educationLevelId: 'e1',
         educations: [{}], // 35
         testResults: [{}], // 7 -> 18+35+7 = 60
@@ -383,7 +402,7 @@ describe('ProfileService', () => {
       expect(mockPrisma.userProfiles.update).toHaveBeenCalledWith(
         expect.objectContaining({
           data: expect.objectContaining({
-            completionPct: 5, // 4.5 rounded
+            completionPct: 3, // 3 rounded
             isMatchable: false, // Drops to false
             matchingVersion: { increment: 1 },
           }),
@@ -401,11 +420,11 @@ describe('ProfileService', () => {
 
       await service.recalculate('1');
 
-      // 0.34 * 15 + 0.33 * 15 = 5.1 + 4.95 = 10.05 => 10
+      // 8 + 7 = 15
       expect(mockPrisma.userProfiles.update).toHaveBeenCalledWith(
         expect.objectContaining({
           data: expect.objectContaining({
-            completionPct: 10,
+            completionPct: 15,
             isMatchable: false,
           }),
         }),

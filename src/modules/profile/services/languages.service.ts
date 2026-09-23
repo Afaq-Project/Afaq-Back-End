@@ -55,8 +55,9 @@ export class LanguagesService {
       data: {
         userId,
         languageId: data.languageId,
-        proficiency: data.proficiency,
-      } as import('@prisma/client').Prisma.UserLanguagesUncheckedCreateInput,
+        // TODO(T050): full rewrite in Batch 3
+        proficiencyLevelId: data.proficiency,
+      },
     });
 
     const profileSvc = this
@@ -145,8 +146,9 @@ export class LanguagesService {
       },
       data: {
         languageId: data.languageId,
-        proficiency: data.proficiency,
-      } as import('@prisma/client').Prisma.UserLanguagesUncheckedUpdateInput,
+        // TODO(T050): full rewrite in Batch 3
+        proficiencyLevelId: data.proficiency,
+      },
     });
 
     const profileSvc = this

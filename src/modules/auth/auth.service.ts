@@ -297,7 +297,7 @@ export class AuthService {
   // ── Get Profile (GET /auth/me) ────────────────
   async getProfile(userId: string): Promise<UserResponseDto> {
     const user = await this.usersService.getUserWithProfile(userId);
-    return formatUserResponse(user);
+    return formatUserResponse(user) as unknown as UserResponseDto;
   }
 
   async getMe(userId: string): Promise<UserResponseDto> {
