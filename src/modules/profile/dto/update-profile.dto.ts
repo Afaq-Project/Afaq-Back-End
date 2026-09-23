@@ -1,14 +1,13 @@
 import {
   IsOptional,
   IsString,
-  IsArray,
-  IsBoolean,
-  IsDate,
-  Length,
-  ArrayMaxSize,
+  IsEmail,
+  IsISO8601,
+  IsUUID,
   MaxLength,
+  IsIn,
+  IsUrl,
 } from 'class-validator';
-import { Type } from 'class-transformer';
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { SanitizeString } from '../../../common/utils/sanitizer.util';
 
@@ -18,79 +17,74 @@ export class UpdateProfileDto {
   @IsString()
   @MaxLength(255)
   @SanitizeString()
-  fullName?: string;
-
-  @ApiPropertyOptional()
-  @IsOptional()
-  @Type(() => Date)
-  @IsDate()
-  dateOfBirth?: Date;
+  firstName?: string;
 
   @ApiPropertyOptional()
   @IsOptional()
   @IsString()
   @MaxLength(255)
   @SanitizeString()
-  nationality?: string;
+  lastName?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsEmail()
+  email?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsISO8601()
+  dateOfBirth?: string;
+
+  @ApiPropertyOptional({
+    enum: ['MALE', 'FEMALE'],
+  })
+  @IsOptional()
+  @IsIn(['MALE', 'FEMALE'])
+  gender?: 'MALE' | 'FEMALE';
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsUUID()
+  maritalStatusId?: string;
 
   @ApiPropertyOptional()
   @IsOptional()
   @IsString()
-  @SanitizeString()
-  educationLevel?: string;
-
-  @ApiPropertyOptional({ type: [String] })
-  @IsOptional()
-  @IsArray()
-  @IsString({ each: true })
-  @ArrayMaxSize(5)
-  @SanitizeString()
-  fieldOfStudy?: string[];
-
-  @ApiPropertyOptional()
-  @IsOptional()
-  @IsString()
-  @MaxLength(255)
-  @SanitizeString()
-  currentCountry?: string;
-
-  @ApiPropertyOptional()
-  @IsOptional()
-  @IsString()
-  @MaxLength(255)
-  @SanitizeString()
-  currentCity?: string;
-
-  @ApiPropertyOptional()
-  @IsOptional()
-  @IsString()
-  @MaxLength(255)
+  @MaxLength(30)
   @SanitizeString()
   phone?: string;
 
   @ApiPropertyOptional()
   @IsOptional()
   @IsString()
-  @MaxLength(255)
   @SanitizeString()
-  experienceLevel?: string;
-
-  @ApiPropertyOptional()
-  @IsOptional()
-  @IsBoolean()
-  hasFinancialNeed?: boolean;
+  bio?: string;
 
   @ApiPropertyOptional()
   @IsOptional()
   @IsString()
-  @SanitizeString()
-  @Length(0, 500)
-  careerGoals?: string;
-
-  @ApiPropertyOptional()
-  @IsOptional()
-  @IsString()
-  @MaxLength(255)
+  @IsUrl()
   @SanitizeString()
   profilePhotoUrl?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsUUID()
+  countryOfResidenceId?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsUUID()
+  nationalityId?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsUUID()
+  currentCityId?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsUUID()
+  educationLevelId?: string;
 }

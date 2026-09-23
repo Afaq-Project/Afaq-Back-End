@@ -88,9 +88,9 @@ describe('DocumentsService', () => {
 
     it('should throw BadRequestException if max documents reached', async () => {
       mockPrisma.documents.count.mockResolvedValue(20);
-      await expect(
-        service.uploadDocument('user-1', mockFile, 'resume'),
-      ).rejects.toThrow(BadRequestException);
+      await expect(service.uploadDocument('user-1', mockFile)).rejects.toThrow(
+        BadRequestException,
+      );
     });
 
     it('should upload document successfully', async () => {
@@ -98,7 +98,7 @@ describe('DocumentsService', () => {
       mockStorage.upload.mockResolvedValue({ key: 'test-key' });
       const createdDoc = {
         id: 'doc-1',
-        docType: 'resume',
+
         displayName: 'test.pdf',
         storagePath: 'test-key',
         mimeType: 'application/pdf',
@@ -107,7 +107,7 @@ describe('DocumentsService', () => {
       };
       mockPrisma.documents.create.mockResolvedValue(createdDoc);
 
-      const result = await service.uploadDocument('user-1', mockFile, 'resume');
+      const result = await service.uploadDocument('user-1', mockFile);
 
       expect(result).toEqual(createdDoc);
       expect(mockStorage.upload).toHaveBeenCalledWith(
@@ -118,12 +118,11 @@ describe('DocumentsService', () => {
       expect(mockPrisma.documents.create).toHaveBeenCalledWith({
         data: {
           userId: 'user-1',
-          docType: 'resume',
+
           displayName: 'test.pdf',
           storagePath: 'test-key',
           mimeType: 'application/pdf',
           sizeBytes: 1024,
-          isEncrypted: true,
         },
         select: expect.any(Object),
       });
@@ -205,21 +204,19 @@ describe('DocumentsService', () => {
       expect(result.data).toEqual(docs);
       expect(result.meta.pagination.total).toBe(1);
       expect(mockPrisma.documents.findMany).toHaveBeenCalledWith({
-        where: { userId: 'user-1', deletedAt: null },
+        where: { userId: 'user-1' },
         skip: 0,
         take: 10,
         orderBy: { createdAt: 'desc' },
         select: {
           id: true,
           userId: true,
-          docType: true,
           mimeType: true,
           sizeBytes: true,
           displayName: true,
-          isEncrypted: true,
+
           createdAt: true,
           updatedAt: true,
-          deletedAt: true,
         },
       });
     });

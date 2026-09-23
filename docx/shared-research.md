@@ -102,11 +102,15 @@ duplicating its content.
 ## 7. Document Upload Constraints
 
 **Decision**: File size and MIME type whitelist are read from `SystemSettings`:
-- Key `MAX_DOCUMENT_SIZE_BYTES` → default 10 MB (10,485,760 bytes)
-- Key `ALLOWED_DOCUMENT_MIME_TYPES` → stored as JSON array, e.g.:
+- Key `documents.max_size_bytes` → default 10 MB (10,485,760 bytes)
+- Key `documents.allowed_mime_types` → stored as JSON array, e.g.:
   `["application/pdf", "image/jpeg", "image/png", "application/msword", "application/vnd.openxmlformats-officedocument.wordprocessingml.document"]`
 
 Validation occurs in `DocumentsService.upload()` before any storage call.
+
+All SystemSettings keys follow the `<domain>.<setting_name>` pattern. Code-level
+constants in `system-settings.keys.ts` map descriptive names to these keys
+(e.g., `MAX_DOCUMENT_SIZE_BYTES = 'documents.max_size_bytes'`).
 
 ---
 

@@ -47,13 +47,9 @@ export class DocumentsService {
     return doc;
   }
 
-  async uploadDocument(
-    userId: string,
-    file: Express.Multer.File,
-    docType: string,
-  ) {
+  async uploadDocument(userId: string, file: Express.Multer.File) {
     const count = await this.prisma.documents.count({
-      where: { userId, deletedAt: null },
+      where: { userId },
     });
     if (count >= this.maxDocuments) {
       throw new BadRequestException(
@@ -76,16 +72,14 @@ export class DocumentsService {
     const document = await this.prisma.documents.create({
       data: {
         userId,
-        docType,
         displayName: file.originalname,
         storagePath: key,
         mimeType: file.mimetype,
         sizeBytes: file.size,
-        isEncrypted: true,
-      },
+      } as any,
       select: {
         id: true,
-        docType: true,
+
         displayName: true,
         storagePath: true,
         mimeType: true,
@@ -135,24 +129,23 @@ export class DocumentsService {
   async getDocuments(userId: string, dto: PaginationDto) {
     const [documents, total] = await Promise.all([
       this.prisma.documents.findMany({
-        where: { userId, deletedAt: null },
+        where: { userId },
         skip: dto.skip,
         take: dto.limit,
         orderBy: { createdAt: 'desc' },
         select: {
           id: true,
           userId: true,
-          docType: true,
+
           displayName: true,
           mimeType: true,
           sizeBytes: true,
-          isEncrypted: true,
+
           createdAt: true,
           updatedAt: true,
-          deletedAt: true,
         },
       }),
-      this.prisma.documents.count({ where: { userId, deletedAt: null } }),
+      this.prisma.documents.count({ where: { userId } }),
     ]);
 
     return {

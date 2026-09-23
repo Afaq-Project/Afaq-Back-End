@@ -31,6 +31,60 @@ describe('AuthController (e2e)', () => {
     await app.init();
   });
 
+  describe('/auth/register and /auth/login (POST)', () => {
+    it('should register and return token without userProfile (EC-063)', async () => {
+      const email = `test-${Date.now()}@example.com`;
+      const res = await request(app.getHttpServer())
+        .post('/api/auth/register')
+        .send({
+          email,
+          password: 'Password1!',
+          firstName: 'John',
+          lastName: 'Doe',
+        })
+        .expect(201);
+
+      expect(res.body.data).toBeDefined();
+      expect(res.body.data.userProfile).toBeUndefined(); // EC-063
+      if (res.body.data.user) {
+        expect(res.body.data.user.userProfile).toBeUndefined();
+      } // EC-063
+    });
+
+    it('should login and return token without userProfile (EC-063)', async () => {
+      const email = `test-login-${Date.now()}@example.com`;
+      await request(app.getHttpServer()).post('/api/auth/register').send({
+        email,
+        password: 'Password1!',
+        firstName: 'John',
+        lastName: 'Doe',
+      });
+
+      const res = await request(app.getHttpServer())
+        .post('/api/auth/login')
+        .send({
+          email,
+          password: 'Password1!',
+        })
+        .expect(200);
+
+      expect(res.body.data).toBeDefined();
+      expect(res.body.data.accessToken).toBeDefined();
+
+      const token = res.body.data.accessToken;
+      const payloadBase64 = token.split('.')[1];
+      const payload = JSON.parse(
+        Buffer.from(payloadBase64, 'base64').toString('ascii'),
+      );
+      expect(payload).toBeDefined();
+      expect(payload.userProfile).toBeUndefined();
+      expect(payload.completionPct).toBeUndefined();
+      expect(res.body.data.userProfile).toBeUndefined(); // EC-063
+      if (res.body.data.user) {
+        expect(res.body.data.user.userProfile).toBeUndefined();
+      } // EC-063
+    });
+  });
   afterAll(async () => {
     await app.close();
   });

@@ -1,0 +1,13 @@
+--- test/auth.e2e-spec.ts
++++ test/auth.e2e-spec.ts
+@@ -62,2 +62,10 @@
+       } // EC-063
++
++      // [FR-006] Inspect JWT payload
++      const token = res.body.data.accessToken;
++      const payloadBase64 = token.split('.')[1];
++      const payload = JSON.parse(Buffer.from(payloadBase64, 'base64').toString('ascii'));
++      expect(payload).toBeDefined();
++      expect(payload.userProfile).toBeUndefined();
++      expect(payload.completionPct).toBeUndefined();
+     });

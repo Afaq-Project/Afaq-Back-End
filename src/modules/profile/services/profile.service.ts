@@ -1,80 +1,48 @@
 import {
   Injectable,
-  BadRequestException,
   NotFoundException,
-  ConflictException,
+  BadRequestException,
+  InternalServerErrorException,
 } from '@nestjs/common';
 import { PrismaService } from '../../../prisma/prisma.service';
-import { Prisma } from '@prisma/client';
+import { SystemSettingsService } from './system-settings.service';
 import { UpdateProfileDto } from '../dto/update-profile.dto';
-
-export interface ProfileWithRelations {
-  fullName?: string | null;
-  educationLevelId?: string | null;
-  fieldOfStudy?: string[] | null;
-  nationality?: string | null;
-  dateOfBirth?: Date | null;
-  currentCountry?: string | null;
-  currentCity?: string | null;
-  phone?: string | null;
-  experienceLevel?: string | null;
-  hasFinancialNeed?: boolean | null;
-  careerGoals?: string | null;
-  profilePhotoUrl?: string | null;
-  user?: {
-    userEducations?: unknown[];
-    userSkills?: unknown[];
-    userLanguages?: unknown[];
-    documents?: unknown[];
-  } | null;
-}
+import { SystemSettingKeys } from '../constants/system-settings.keys';
 
 @Injectable()
 export class ProfileService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly systemSettingsService: SystemSettingsService,
+  ) {}
 
   async getProfile(userId: string) {
     let profile = await this.prisma.userProfiles.findUnique({
       where: { userId },
       include: {
-        user: {
-          select: {
-            userEducations: true,
-            userSkills: {
-              include: {
-                skill: true,
-              },
-            },
-            userLanguages: {
-              include: {
-                language: true,
-              },
-            },
-            documents: true,
-          },
-        },
+        specialStatuses: true,
+        targetDegrees: true,
+        targetMajors: true,
+        targetInstitutions: true,
+        educations: true,
+        languages: true,
+        testResults: true,
+        documents: true,
       },
     });
 
     if (!profile) {
       profile = await this.prisma.userProfiles.create({
-        data: {
-          userId,
-          isDraft: true,
-        },
+        data: { userId },
         include: {
-          user: {
-            select: {
-              userEducations: true,
-              userSkills: {
-                include: { skill: true },
-              },
-              userLanguages: {
-                include: { language: true },
-              },
-              documents: true,
-            },
-          },
+          specialStatuses: true,
+          targetDegrees: true,
+          targetMajors: true,
+          targetInstitutions: true,
+          educations: true,
+          languages: true,
+          testResults: true,
+          documents: true,
         },
       });
     }
@@ -82,385 +50,226 @@ export class ProfileService {
     return profile;
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private hasValidFieldOfStudy(fos: any): boolean {
-    if (!fos) {
-      return false;
-    }
-    if (Array.isArray(fos)) {
-      return fos.length > 0;
-    }
-    if (typeof fos === 'string') {
-      try {
-        const parsed = JSON.parse(fos);
-        if (Array.isArray(parsed)) {
-          return parsed.length > 0;
-        }
-      } catch {
-        /* ignore */
-      }
-      return fos.trim().length > 0;
-    }
-    if (typeof fos === 'object') {
-      return Object.keys(fos as Record<string, unknown>).length > 0;
-    }
-    return false;
-  }
-
-  isCoreFieldsComplete(profile: ProfileWithRelations): boolean {
-    const hasEdu =
-      typeof profile.educationLevelId === 'string' &&
-      profile.educationLevelId.trim().length > 0;
-    const hasNat =
-      typeof profile.nationality === 'string' &&
-      profile.nationality.trim().length > 0;
-    const hasFos = this.hasValidFieldOfStudy(profile.fieldOfStudy);
-    return hasEdu && hasFos && hasNat;
-  }
-
-  calculateCompletionPct(profile: ProfileWithRelations): number {
-    let pct = 0;
-
-    // Core fields (40%)
-    if (profile.educationLevelId) {
-      pct += 15;
-    }
-    if (this.hasValidFieldOfStudy(profile.fieldOfStudy)) {
-      pct += 15;
-    }
-    if (profile.nationality) {
-      pct += 10;
-    }
-
-    // Additional fields (60% total -> 12 fields * 5%)
-    if (profile.fullName && profile.fullName.trim().length > 0) {
-      pct += 5;
-    }
-    if (profile.dateOfBirth) {
-      pct += 5;
-    }
-    if (profile.currentCountry) {
-      pct += 5;
-    }
-    if (profile.currentCity) {
-      pct += 5;
-    }
-    if (profile.phone) {
-      pct += 5;
-    }
-    if (profile.experienceLevel) {
-      pct += 5;
-    }
-    if (
-      profile.hasFinancialNeed !== null &&
-      profile.hasFinancialNeed !== undefined
-    ) {
-      pct += 5;
-    }
-    if (profile.careerGoals && profile.careerGoals.length > 20) {
-      pct += 5;
-    }
-    if (profile.user?.userSkills && profile.user.userSkills.length > 0) {
-      pct += 5;
-    }
-    if (profile.user?.userLanguages && profile.user.userLanguages.length > 0) {
-      pct += 5;
-    }
-    if (profile.user?.documents && profile.user.documents.length > 0) {
-      pct += 5;
-    }
-    if (profile.profilePhotoUrl) {
-      pct += 5;
-    }
-
-    return pct > 100 ? 100 : pct;
-  }
-
-  calculateLastCompletedStep(profile: ProfileWithRelations): number {
-    let step = 0;
-
-    const hasFos = this.hasValidFieldOfStudy(profile.fieldOfStudy);
-
-    // Step 1: Education
-    if (profile.educationLevelId && hasFos && profile.nationality) {
-      step = 1;
-    } else if (profile.educationLevelId && profile.nationality) {
-      return 1; // Partial step 1
-    }
-
-    // Step 2: Background
-    if (
-      step === 1 &&
-      (profile.experienceLevel ||
-        (profile.hasFinancialNeed !== null &&
-          profile.hasFinancialNeed !== undefined) ||
-        profile.careerGoals)
-    ) {
-      step = 2;
-    }
-
-    // Step 3: Skills & Languages
-    if (
-      step === 2 &&
-      profile.user?.userSkills &&
-      profile.user.userSkills.length > 0 &&
-      profile.user?.userLanguages &&
-      profile.user.userLanguages.length > 0
-    ) {
-      step = 3;
-    }
-
-    // Step 4: Documents
-    if (
-      step === 3 &&
-      profile.user?.documents &&
-      profile.user.documents.length > 0
-    ) {
-      step = 4;
-    }
-
-    return step || (profile.nationality ? 1 : 0);
-  }
-
-  async getProfileWithDetails(userId: string) {
-    const profile = await this.getProfile(userId);
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const educations = profile.user.userEducations.map((edu: any) => ({
-      ...edu,
-      gpaRawScale:
-        edu.gpaRawScale !== null && edu.gpaRawScale !== undefined
-          ? Number.isInteger(Number(edu.gpaRawScale))
-            ? Number(edu.gpaRawScale).toFixed(1)
-            : String(edu.gpaRawScale)
-          : null,
-    }));
-    const skills = profile.user.userSkills.map(
-      (us: {
-        skillId: string;
-        skill: { name: string };
-        proficiency: number | null;
-      }) => ({
-        skillId: us.skillId,
-        name: us.skill.name,
-        proficiency: us.proficiency,
-      }),
-    );
-    const languages = profile.user.userLanguages.map(
-      (ul: {
-        languageId: string;
-        language: { name: string };
-        proficiency: string;
-      }) => ({
-        languageId: ul.languageId,
-        name: ul.language.name,
-        proficiency: ul.proficiency,
-      }),
-    );
-    const documents = profile.user.documents;
-
-    const gpaNormalized4 =
-      educations.length > 0 ? Number(educations[0].gpaNormalized4) : null;
-
-    return {
-      userId: profile.userId,
-      fullName: profile.fullName,
-      dateOfBirth: profile.dateOfBirth,
-      nationality: profile.nationality,
-      educationLevel: profile.educationLevelId,
-      fieldOfStudy: profile.fieldOfStudy,
-      currentCountry: profile.currentCountry,
-      currentCity: profile.currentCity,
-      phone: profile.phone,
-      experienceLevel: profile.experienceLevel,
-      hasFinancialNeed: profile.hasFinancialNeed,
-      careerGoals: profile.careerGoals,
-      profilePhotoUrl: profile.profilePhotoUrl,
-      completionPct: profile.completionPct,
-      coreFieldsComplete: this.isCoreFieldsComplete(profile),
-      lastCompletedStep: this.calculateLastCompletedStep(profile),
-      gpaNormalized4:
-        gpaNormalized4 === null || isNaN(gpaNormalized4)
-          ? null
-          : gpaNormalized4,
-      isDraft: profile.isDraft,
-      publishedAt: profile.publishedAt,
-      educations,
-      skills,
-      languages,
-      documents,
-      createdAt: profile.createdAt,
-      updatedAt: profile.updatedAt,
-    };
-  }
-
+  /**
+   * Updates a user profile with new data and triggers recalculation.
+   * @param userId - The ID of the user whose profile is being updated.
+   * @param data - The data to update the profile with.
+   * @returns The updated profile.
+   */
   async updateProfile(userId: string, data: UpdateProfileDto) {
-    const currentProfile = await this.prisma.userProfiles.findUnique({
-      where: { userId },
-      include: {
-        user: {
-          select: {
-            userSkills: true,
-            userLanguages: true,
-            documents: true,
-          },
-        },
-      },
-    });
-
-    if (!currentProfile) {
-      throw new NotFoundException('Profile not found');
-    }
-
-    if (data.fieldOfStudy !== undefined && data.fieldOfStudy.length === 0) {
-      throw new BadRequestException(
-        'fieldOfStudy must contain at least one value',
-      );
-    }
-
-    if (currentProfile.educationLevelId && data.educationLevel === null) {
-      throw new BadRequestException(
-        'Cannot clear required field educationLevel',
-      );
-    }
-    if (currentProfile.nationality && data.nationality === null) {
-      throw new BadRequestException('Cannot clear required field nationality');
-    }
-    if (
-      currentProfile.fieldOfStudy?.length > 0 &&
-      data.fieldOfStudy &&
-      data.fieldOfStudy.length === 0
-    ) {
-      throw new BadRequestException('Cannot clear required field fieldOfStudy');
-    }
-
-    const { educationLevel, ...restData } = data;
-    const profileData: Prisma.UserProfilesUncheckedUpdateInput = {
-      ...restData,
-    };
-
-    if (educationLevel !== undefined && educationLevel !== null) {
-      const isUuid =
-        /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
-          educationLevel,
-        );
-      const eduLevel = await this.prisma.educationLevel.findFirst({
-        where: isUuid ? { id: educationLevel } : { name: educationLevel },
-      });
-      if (!eduLevel) {
-        throw new BadRequestException('Invalid educationLevel');
-      }
-      profileData.educationLevelId = eduLevel.id;
-    } else if (educationLevel === null) {
-      profileData.educationLevelId = null;
-    }
-
-    // Build a merged in-memory view of the profile after applying updates,
-    // so we can calculate completionPct / isDraft without an extra DB round-trip.
-    const mergedProfile: ProfileWithRelations = {
-      ...currentProfile,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      ...(profileData as any),
-      user: {
-        userSkills: currentProfile.user?.userSkills ?? [],
-        userLanguages: currentProfile.user?.userLanguages ?? [],
-        documents: currentProfile.user?.documents ?? [],
-      },
-    };
-
-    const newPct = this.calculateCompletionPct(mergedProfile);
-
-    // Single profile update (includes pct + isDraft)
-    await this.prisma.userProfiles.update({
-      where: { userId },
-      data: {
-        ...profileData,
-        completionPct: newPct,
-      },
-    });
-
-    // Single final read to return the fully-shaped response
-    const result = await this.getProfileWithDetails(userId);
-    return result;
-  }
-
-  async recalculateProfileProgress(userId: string) {
-    const currentProfile = await this.prisma.userProfiles.findUnique({
-      where: { userId },
-      include: {
-        user: {
-          select: {
-            userSkills: true,
-            userLanguages: true,
-            documents: true,
-          },
-        },
-      },
-    });
-
-    if (!currentProfile) {
-      throw new NotFoundException('Profile not found');
-    }
-
-    const mergedProfile: ProfileWithRelations = {
-      ...currentProfile,
-      user: {
-        userSkills: currentProfile.user?.userSkills ?? [],
-        userLanguages: currentProfile.user?.userLanguages ?? [],
-        documents: currentProfile.user?.documents ?? [],
-      },
-    };
-
-    const newPct = this.calculateCompletionPct(mergedProfile);
-
-    await this.prisma.userProfiles.update({
-      where: { userId },
-      data: {
-        completionPct: newPct,
-      },
-    });
-  }
-
-  async publishProfile(userId: string) {
     const profile = await this.prisma.userProfiles.findUnique({
       where: { userId },
-      include: {
-        user: {
-          select: {
-            userSkills: true,
-            userLanguages: true,
-            documents: true,
-          },
-        },
-      },
     });
 
     if (!profile) {
-      throw new NotFoundException({
-        message: 'Profile not found',
-        code: 'PROFILE_NOT_FOUND',
-      });
+      throw new NotFoundException('Profile not found');
     }
 
-    if (!profile.isDraft) {
-      throw new ConflictException({
-        message: 'Profile already published',
-        code: 'PROFILE_ALREADY_PUBLISHED',
-      });
+    if (data.bio) {
+      const maxBioLength = await this.systemSettingsService.getNumber(
+        SystemSettingKeys.MAX_BIO_LENGTH,
+        1000,
+      );
+      if (data.bio.length > maxBioLength) {
+        throw new BadRequestException({
+          message: `Bio exceeds maximum length of ${maxBioLength}`,
+          code: 'BIO_TOO_LONG',
+        });
+      }
     }
 
-    if (!this.isCoreFieldsComplete(profile)) {
-      throw new ConflictException({
-        message: 'Core fields incomplete',
-        code: 'PROFILE_INCOMPLETE',
+    // clean undefined from data
+    const updateData: Record<string, any> = {};
+    for (const [key, value] of Object.entries(data)) {
+      if (value !== undefined) {
+        updateData[key] = value;
+      }
+    }
+
+    const countryId =
+      data.countryOfResidenceId !== undefined
+        ? data.countryOfResidenceId
+        : profile.countryOfResidenceId;
+    const cityId =
+      data.currentCityId !== undefined
+        ? data.currentCityId
+        : profile.currentCityId;
+
+    if (cityId && countryId) {
+      const city = await this.prisma.cities.findUnique({
+        where: { id: cityId },
       });
+      if (city && city.countryId !== countryId) {
+        if (data.currentCityId !== undefined) {
+          throw new BadRequestException({
+            message: 'City and country do not match',
+            code: 'CITY_COUNTRY_MISMATCH',
+          });
+        } else {
+          // EC-006: changing country clears an incompatible existing city
+          updateData.currentCityId = null;
+        }
+      }
+    } else if (cityId && !countryId) {
+      throw new BadRequestException(
+        'Cannot set city without a country of residence',
+      );
     }
 
     await this.prisma.userProfiles.update({
       where: { userId },
-      data: { isDraft: false, publishedAt: new Date() },
+      data: updateData,
     });
 
-    return this.getProfileWithDetails(userId);
+    return this.recalculate(userId);
+  }
+
+  /**
+   * Pure function to compute completion percentage based on profile and weights.
+   * @param profile - The profile object.
+   * @param weights - The configured weights.
+   * @returns The computed completion percentage.
+   */
+  private computeCompletionPct(
+    profile: Record<string, any>,
+    weights: Record<string, number>,
+  ): number {
+    let totalWeight = 0;
+
+    // Personal Identity: firstName, lastName, dateOfBirth, gender
+    let personalScore = 0;
+    if (profile.firstName) {
+      personalScore += 0.25;
+    }
+    if (profile.lastName) {
+      personalScore += 0.25;
+    }
+    if (profile.dateOfBirth) {
+      personalScore += 0.25;
+    }
+    if (profile.gender) {
+      personalScore += 0.25;
+    }
+    totalWeight += personalScore * weights.personalIdentity;
+
+    // Location Origin: countryOfResidenceId, nationalityId, currentCityId
+    let locationScore = 0;
+    if (profile.countryOfResidenceId) {
+      locationScore += 0.34;
+    }
+    if (profile.nationalityId) {
+      locationScore += 0.33;
+    }
+    if (profile.currentCityId) {
+      locationScore += 0.33;
+    }
+    totalWeight += locationScore * weights.locationOrigin;
+
+    // Education
+    let educationScore = 0;
+    if (profile.educationLevelId) {
+      educationScore += 0.5;
+    }
+    if (profile.educations && profile.educations.length > 0) {
+      educationScore += 0.5;
+    }
+    totalWeight += educationScore * weights.education;
+
+    // Languages
+    if (profile.languages && profile.languages.length > 0) {
+      totalWeight += weights.languages;
+    }
+
+    // Tests
+    if (profile.testResults && profile.testResults.length > 0) {
+      totalWeight += weights.tests;
+    }
+
+    // Preferences & Statuses
+    let prefScore = 0;
+    if (profile.targetDegrees && profile.targetDegrees.length > 0) {
+      prefScore += 0.25;
+    }
+    if (profile.targetMajors && profile.targetMajors.length > 0) {
+      prefScore += 0.25;
+    }
+    if (profile.targetInstitutions && profile.targetInstitutions.length > 0) {
+      prefScore += 0.25;
+    }
+    if (profile.specialStatuses && profile.specialStatuses.length > 0) {
+      prefScore += 0.25;
+    }
+    totalWeight += prefScore * weights.preferencesStatuses;
+
+    return Math.round(totalWeight);
+  }
+
+  /**
+   * Recalculates the profile completion percentage and matchable status based on current data and weights.
+   * @param userId - The ID of the user whose profile is being recalculated.
+   * @returns The updated profile with the new completion percentage and matching version.
+   * @throws {InternalServerErrorException} If the total configured weights do not sum to 100.
+   */
+  async recalculate(userId: string) {
+    const profile = await this.getProfile(userId);
+
+    const weights = {
+      personalIdentity: await this.systemSettingsService.getNumber(
+        SystemSettingKeys.WEIGHT_PERSONAL_IDENTITY,
+        18,
+      ),
+      locationOrigin: await this.systemSettingsService.getNumber(
+        SystemSettingKeys.WEIGHT_LOCATION_ORIGIN,
+        15,
+      ),
+      education: await this.systemSettingsService.getNumber(
+        SystemSettingKeys.WEIGHT_EDUCATION,
+        35,
+      ),
+      languages: await this.systemSettingsService.getNumber(
+        SystemSettingKeys.WEIGHT_LANGUAGES,
+        10,
+      ),
+      tests: await this.systemSettingsService.getNumber(
+        SystemSettingKeys.WEIGHT_TESTS,
+        7,
+      ),
+      preferencesStatuses: await this.systemSettingsService.getNumber(
+        SystemSettingKeys.WEIGHT_PREFERENCES_STATUSES,
+        15,
+      ),
+    };
+
+    const totalConfiguredWeight = Object.values(weights).reduce(
+      (sum, val) => sum + val,
+      0,
+    );
+
+    if (totalConfiguredWeight !== 100) {
+      throw new InternalServerErrorException(
+        `Configured completion weights must total exactly 100. Current total is ${totalConfiguredWeight}.`,
+      );
+    }
+
+    const completionPct = this.computeCompletionPct(profile, weights);
+
+    const matchingThreshold = await this.systemSettingsService.getNumber(
+      SystemSettingKeys.MATCHING_THRESHOLD,
+      60,
+    );
+    const isMatchable = completionPct >= matchingThreshold;
+
+    const updatedProfile = await this.prisma.userProfiles.update({
+      where: { userId },
+      data: {
+        completionPct,
+        isMatchable,
+        matchingVersion: {
+          increment: 1,
+        },
+      },
+    });
+
+    return updatedProfile;
   }
 }

@@ -5,7 +5,7 @@ import { ProfileService } from './profile.service';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 
 interface ProfileServiceWithRecalculate {
-  recalculateProfileProgress(userId: string): Promise<void>;
+  recalculate(userId: string): Promise<void>;
 }
 
 describe('LanguagesService', () => {
@@ -36,7 +36,7 @@ describe('LanguagesService', () => {
         {
           provide: ProfileService,
           useValue: {
-            recalculateProfileProgress: jest.fn(),
+            recalculate: jest.fn(),
           },
         },
       ],
@@ -44,7 +44,9 @@ describe('LanguagesService', () => {
 
     service = module.get<LanguagesService>(LanguagesService);
     prismaService = module.get<PrismaService>(PrismaService);
-    profileService = module.get<ProfileService>(ProfileService);
+    profileService = module.get<ProfileService>(
+      ProfileService,
+    ) as unknown as ProfileServiceWithRecalculate;
   });
 
   it('should be defined', () => {
@@ -79,14 +81,22 @@ describe('LanguagesService', () => {
       jest.spyOn(prismaService.userLanguages, 'count').mockResolvedValue(2);
       jest
         .spyOn(prismaService.languagesMaster, 'findUnique')
-        .mockResolvedValue({ id: 'langId', name: 'English' });
+        .mockResolvedValue({
+          id: 'langId',
+          nameEn: 'English',
+          nameAr: 'English',
+          isoCode: 'en',
+          isActive: true,
+          sortOrder: 1,
+        });
       jest
         .spyOn(prismaService.userLanguages, 'findUnique')
         .mockResolvedValue(null);
       jest.spyOn(prismaService.userLanguages, 'create').mockResolvedValue({
         userId: 'userId',
         languageId: 'langId',
-        proficiency: 'Native',
+        proficiencyLevelId: 'Native',
+        isNative: false,
       });
 
       const result = await service.create('userId', {
@@ -99,9 +109,9 @@ describe('LanguagesService', () => {
       ).toHaveBeenCalled();
       // Wait for async call to finish
       await new Promise((resolve) => process.nextTick(resolve));
-      expect(
-        jest.spyOn(profileService, 'recalculateProfileProgress'),
-      ).toHaveBeenCalledWith('userId');
+      expect(jest.spyOn(profileService, 'recalculate')).toHaveBeenCalledWith(
+        'userId',
+      );
     });
   });
 
@@ -119,21 +129,23 @@ describe('LanguagesService', () => {
       jest.spyOn(prismaService.userLanguages, 'findUnique').mockResolvedValue({
         userId: 'userId',
         languageId: 'langId',
-        proficiency: 'Native',
+        proficiencyLevelId: 'Native',
+        isNative: false,
       });
       jest.spyOn(prismaService.userLanguages, 'delete').mockResolvedValue({
         userId: 'userId',
         languageId: 'langId',
-        proficiency: 'Native',
+        proficiencyLevelId: 'Native',
+        isNative: false,
       });
 
       await service.remove('userId', 'langId');
       expect(
         jest.spyOn(prismaService.userLanguages, 'delete'),
       ).toHaveBeenCalled();
-      expect(
-        jest.spyOn(profileService, 'recalculateProfileProgress'),
-      ).toHaveBeenCalledWith('userId');
+      expect(jest.spyOn(profileService, 'recalculate')).toHaveBeenCalledWith(
+        'userId',
+      );
     });
   });
 });

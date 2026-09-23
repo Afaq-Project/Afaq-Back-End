@@ -37,6 +37,8 @@ function constraintToErrorCode(constraintKey: string): string {
     isString: ErrorCode.VALIDATION_INVALID_TYPE,
     isDate: ErrorCode.VALIDATION_INVALID_DATE,
     isDateString: ErrorCode.VALIDATION_INVALID_DATE,
+    whitelistValidation: ErrorCode.UNKNOWN_FIELD,
+    isUuid: ErrorCode.VALIDATION_ERROR,
   };
   return map[constraintKey] ?? ErrorCode.VALIDATION_INVALID_FORMAT;
 }
@@ -93,7 +95,9 @@ async function bootstrap() {
         const errList = errors.flatMap((err) =>
           Object.keys(err.constraints ?? {}).map((constraintKey) => ({
             field: err.property,
-            code: constraintToErrorCode(constraintKey),
+            code:
+              err.contexts?.[constraintKey]?.errorCode ||
+              constraintToErrorCode(constraintKey),
             message: (err.constraints ?? {})[constraintKey],
           })),
         );

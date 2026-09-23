@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ProfileController } from './controllers/profile.controller';
 import { ProfileService } from './services/profile.service';
+import { SystemSettingsService } from './services/system-settings.service';
 
 import { ReferenceController } from './controllers/reference.controller';
 import { ReferenceService } from './services/reference.service';
@@ -14,9 +15,6 @@ import { LocalStorageService } from './storage/local-storage.service';
 import { EducationsController } from './controllers/educations.controller';
 import { EducationsService } from './services/educations.service';
 
-import { SkillsController } from './controllers/skills.controller';
-import { SkillsService } from './services/skills.service';
-
 import { LanguagesController } from './controllers/languages.controller';
 import { LanguagesService } from './services/languages.service';
 
@@ -27,19 +25,18 @@ import { LanguagesService } from './services/languages.service';
     DocumentsController,
     LocalStorageController,
     EducationsController,
-    SkillsController,
     LanguagesController,
   ],
   providers: [
     ProfileService,
+    SystemSettingsService,
     ReferenceService,
     DocumentsService,
     StorageServiceProvider,
     LocalStorageService,
     EducationsService,
-    SkillsService,
     LanguagesService,
   ],
-  exports: [ProfileService],
+  exports: [ProfileService, SystemSettingsService],
 })
 export class ProfileModule {}

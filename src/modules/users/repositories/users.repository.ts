@@ -15,15 +15,13 @@ export const USER_SELECT = {
   deletedAt: true,
   userProfile: {
     select: {
-      fullName: true,
       completionPct: true,
-      isDraft: true,
     },
   },
   userRoles: {
     where: { isActive: true },
     select: {
-      roles: {
+      role: {
         select: {
           name: true,
         },
@@ -113,12 +111,11 @@ export class UsersRepository {
     });
   }
 
-  createProfile(userId: string, fullName?: string) {
+  createProfile(userId: string) {
     return this.prisma.userProfiles.create({
       data: {
         userId,
-        fullName,
-        isDraft: true,
+        isMatchable: false,
         completionPct: 0,
       },
     });

@@ -11,7 +11,7 @@ import { PaginationDto } from '../../../common/dto/pagination.dto';
 import { buildMeta } from '../../../common/utils/paginate.util';
 
 interface ProfileServiceWithRecalculate {
-  recalculateProfileProgress?(userId: string): Promise<void>;
+  recalculate?(userId: string): Promise<void>;
 }
 
 @Injectable()
@@ -56,13 +56,13 @@ export class LanguagesService {
         userId,
         languageId: data.languageId,
         proficiency: data.proficiency,
-      },
+      } as any,
     });
 
     const profileSvc = this
       .profileService as unknown as ProfileServiceWithRecalculate;
-    if (typeof profileSvc.recalculateProfileProgress === 'function') {
-      await profileSvc.recalculateProfileProgress(userId);
+    if (typeof profileSvc.recalculate === 'function') {
+      await profileSvc.recalculate(userId);
     }
 
     return result;
@@ -75,17 +75,17 @@ export class LanguagesService {
         skip: dto.skip,
         take: dto.limit,
         include: {
-          language: { select: { name: true } },
+          language: { select: { nameEn: true } },
         },
-      }),
+      } as any),
       this.prisma.userLanguages.count({ where: { userId } }),
     ]);
 
     return {
-      data: languages.map((l) => ({
+      data: (languages as any[]).map((l) => ({
         languageId: l.languageId,
-        name: l.language.name,
-        proficiency: l.proficiency,
+        name: l.language?.nameEn,
+        proficiency: l.proficiencyLevelId,
       })),
       meta: buildMeta(total, dto.page, dto.limit),
     };
@@ -146,13 +146,13 @@ export class LanguagesService {
       data: {
         languageId: data.languageId,
         proficiency: data.proficiency,
-      },
+      } as any,
     });
 
     const profileSvc = this
       .profileService as unknown as ProfileServiceWithRecalculate;
-    if (typeof profileSvc.recalculateProfileProgress === 'function') {
-      await profileSvc.recalculateProfileProgress(userId);
+    if (typeof profileSvc.recalculate === 'function') {
+      await profileSvc.recalculate(userId);
     }
 
     return result;
@@ -172,8 +172,8 @@ export class LanguagesService {
 
     const profileSvc = this
       .profileService as unknown as ProfileServiceWithRecalculate;
-    if (typeof profileSvc.recalculateProfileProgress === 'function') {
-      await profileSvc.recalculateProfileProgress(userId);
+    if (typeof profileSvc.recalculate === 'function') {
+      await profileSvc.recalculate(userId);
     }
   }
 }

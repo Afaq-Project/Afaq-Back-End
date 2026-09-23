@@ -1,0 +1,8 @@
+#!/usr/bin/expect -f
+set timeout -1
+spawn pnpm prisma migrate dev --name v2-profile-redesign
+expect {
+    "Are you sure you want to create this migration" { send "y\r"; exp_continue }
+    "Do you want to continue" { send "y\r"; exp_continue }
+    eof
+}

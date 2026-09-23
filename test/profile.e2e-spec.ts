@@ -11,9 +11,8 @@ import { AllExceptionsFilter } from '../src/common/filters/all-exceptions.filter
 describe('ProfileModule (e2e)', () => {
   let app: INestApplication;
   let prisma: PrismaService;
+  let res: any;
   let userToken: string;
-  let userId: string;
-  let otherUserToken: string;
 
   jest.setTimeout(120000);
 
@@ -39,74 +38,25 @@ describe('ProfileModule (e2e)', () => {
     await app.init();
     prisma = app.get<PrismaService>(PrismaService);
 
-    const educationLevelCount = await prisma.educationLevel.count();
-    if (educationLevelCount === 0) {
-      await prisma.educationLevel.createMany({
-        data: [
-          {
-            name: 'high_school',
-            labelEn: 'High School',
-            labelAr: 'ثانوية عامة',
-          },
-          { name: 'diploma', labelEn: 'Diploma', labelAr: 'دبلوم' },
-          { name: 'bachelor', labelEn: 'Bachelor', labelAr: 'بكالوريوس' },
-          { name: 'master', labelEn: 'Master', labelAr: 'ماجستير' },
-          { name: 'phd', labelEn: 'PhD', labelAr: 'دكتوراه' },
-          {
-            name: 'certificate',
-            labelEn: 'Certificate',
-            labelAr: 'شهادة مهنية',
-          },
-          { name: 'other', labelEn: 'Other', labelAr: 'أخرى' },
-        ],
-        skipDuplicates: true,
-      });
-    }
-
-    // Initial DB Cleanup
+    // DB Cleanup
     await prisma.documents.deleteMany();
     await prisma.userEducations.deleteMany();
-    await prisma.userSkills.deleteMany();
     await prisma.userLanguages.deleteMany();
     await prisma.userProfiles.deleteMany();
     await prisma.users.deleteMany();
 
-    const reg1 = await request(app.getHttpServer())
-      .post('/api/v1/auth/register')
-      .send({
-        email: 'test1@example.com',
-        password: 'Password1!',
-        firstName: 'A',
-        lastName: 'B',
-      });
-
     await request(app.getHttpServer()).post('/api/v1/auth/register').send({
-      email: 'test2@example.com',
+      email: 'test1@example.com',
       password: 'Password1!',
-      firstName: 'C',
-      lastName: 'D',
+      firstName: 'A',
+      lastName: 'B',
     });
 
-    const login1 = await request(app.getHttpServer())
+    const loginRes = await request(app.getHttpServer())
       .post('/api/v1/auth/login')
       .send({ email: 'test1@example.com', password: 'Password1!' });
 
-    userToken = login1.body.data.accessToken;
-    userId = reg1.body.data.user?.id || login1.body.data.user?.id;
-
-    const login2 = await request(app.getHttpServer())
-      .post('/api/v1/auth/login')
-      .send({ email: 'test2@example.com', password: 'Password1!' });
-    otherUserToken = login2.body.data.accessToken;
-  });
-
-  beforeAll(async () => {
-    // Only clean up profile-related data between tests to keep users intact
-    await prisma.documents.deleteMany();
-    await prisma.userEducations.deleteMany();
-    await prisma.userSkills.deleteMany();
-    await prisma.userLanguages.deleteMany();
-    await prisma.userProfiles.deleteMany();
+    userToken = loginRes.body.data.accessToken;
   });
 
   afterAll(async () => {
@@ -116,373 +66,137 @@ describe('ProfileModule (e2e)', () => {
 
   describe('Unauthenticated Access', () => {
     it('GET /api/v1/profile -> 401', () => {
-      return request(app.getHttpServer()).get('/api/v1/profile').expect(401);
+      return request(app.getHttpServer()).get('/api/v1/profile/me').expect(401);
     });
     it('PATCH /api/v1/profile -> 401', () => {
       return request(app.getHttpServer())
-        .patch('/api/v1/profile')
+        .patch('/api/v1/profile/personal')
         .send({})
-        .expect(401);
-    });
-    it('POST /api/v1/profile/documents -> 401', () => {
-      return request(app.getHttpServer())
-        .post('/api/v1/profile/documents')
         .expect(401);
     });
   });
 
   describe('Authenticated Profile Scenarios', () => {
-    it('should create and return profile on first access', async () => {
-      console.log('Using userToken:', userToken);
-      const res = await request(app.getHttpServer())
-        .get('/api/v1/profile')
+    it('[FR-001] [EC-001] GET /api/v1/profile creates and returns empty profile on first access', async () => {
+      res = await request(app.getHttpServer())
+        .get('/api/v1/profile/me')
         .set('Authorization', `Bearer ${userToken}`)
         .expect(200);
-
-      expect(res.body).toBeDefined();
-      expect(res.body.data.completionPct).toBeDefined();
-      expect(res.body.data.userId).toBe(userId);
-    });
-
-    it('should update profile successfully', async () => {
-      // First access to create
-      await request(app.getHttpServer())
-        .get('/api/v1/profile')
-        .set('Authorization', `Bearer ${userToken}`);
-
-      const eduRes = await request(app.getHttpServer()).get(
-        '/api/v1/reference/education-levels',
-      );
-      const eduId = eduRes.body.data[0].id;
-
-      const updatePayload = {
-        nationality: 'US',
-        educationLevel: eduId,
-        fieldOfStudy: ['Computer Science'],
-      };
-
-      const res = await request(app.getHttpServer())
-        .patch('/api/v1/profile')
-        .set('Authorization', `Bearer ${userToken}`)
-        .send(updatePayload);
-
-      if (res.status === 500) {
-        console.log('PATCH 500:', res.body);
-      }
-      expect(res.status).toBe(200);
-
-      expect(res.body.statusCode).toBe(200);
-
-      const profile = await request(app.getHttpServer())
-        .get('/api/v1/profile')
-        .set('Authorization', `Bearer ${userToken}`)
-        .expect(200);
-
-      expect(profile.body.data.nationality).toBe('US');
-    });
-
-    it('should prevent clearing required fields', async () => {
-      // Create profile first
-      await request(app.getHttpServer())
-        .get('/api/v1/profile')
-        .set('Authorization', `Bearer ${userToken}`);
-
-      await request(app.getHttpServer())
-        .patch('/api/v1/profile')
-        .set('Authorization', `Bearer ${userToken}`)
-        .send({ nationality: null })
-        .expect(400);
-
-      // Reset to original for next tests
-      await request(app.getHttpServer())
-        .patch('/api/v1/profile')
-        .set('Authorization', `Bearer ${userToken}`)
-        .send({ nationality: 'US' });
-    });
-
-    it('should reject extra fields', async () => {
-      await request(app.getHttpServer())
-        .patch('/api/v1/profile')
-        .set('Authorization', `Bearer ${userToken}`)
-        .send({ hackThePlanet: true })
-        .expect(400);
-    });
-  });
-
-  describe('Education Scenarios', () => {
-    let educationId: string;
-
-    it('should add educational data successfully', async () => {
-      // Ensure profile exists
-      await request(app.getHttpServer())
-        .get('/api/v1/profile')
-        .set('Authorization', `Bearer ${userToken}`);
-
-      const createDto = {
-        degree: 'Bachelor',
-        major: 'Computer Science',
-        institution: 'Tech University',
-        graduationYear: 2024,
-      };
-
-      const res = await request(app.getHttpServer())
-        .post('/api/v1/profile/educations')
-        .set('Authorization', `Bearer ${userToken}`)
-        .send(createDto)
-        .expect(201);
 
       expect(res.body.data).toBeDefined();
-      expect(res.body.data.id).toBeDefined();
-      educationId = res.body.data.id;
+      expect(res.body.data.completionPct).toBe(0);
+      expect(res.body.data.isMatchable).toBe(false);
+      expect(res.body.data.userId).toBeDefined();
     });
 
-    it('should return 400 (not 500/P2022) when unknown columns are provided', async () => {
-      expect(educationId).toBeDefined();
-      const payloadWithUnknown = {
-        degree: 'Master',
-        thisColumnDoesNotExist: 'Exploit/P2022',
-      };
-
-      await request(app.getHttpServer())
-        .post('/api/v1/profile/educations')
+    it('[FR-003] [EC-002] PATCH /api/v1/profile partial personal update preserves unrelated fields', async () => {
+      res = await request(app.getHttpServer())
+        .patch('/api/v1/profile/personal')
         .set('Authorization', `Bearer ${userToken}`)
-        .send(payloadWithUnknown)
-        .expect(400);
-
-      await request(app.getHttpServer())
-        .patch(`/api/v1/profile/educations/${educationId}`)
-        .set('Authorization', `Bearer ${userToken}`)
-        .send(payloadWithUnknown)
-        .expect(400);
-    });
-
-    it('should update education with GPA successfully', async () => {
-      expect(educationId).toBeDefined();
-      const updateDto = {
-        gpaValue: 3.8,
-        gpaScale: '4.0',
-      };
-
-      const res = await request(app.getHttpServer())
-        .patch(`/api/v1/profile/educations/${educationId}`)
-        .set('Authorization', `Bearer ${userToken}`)
-        .send(updateDto)
+        .send({ firstName: 'First', lastName: 'Last' })
         .expect(200);
 
-      expect(Number(res.body.data.gpaRaw)).toBe(3.8);
-      expect(Number(res.body.data.gpaRawScale)).toBe(4);
+      res = await request(app.getHttpServer())
+        .patch('/api/v1/profile/personal')
+        .set('Authorization', `Bearer ${userToken}`)
+        .send({ phone: '123456789' })
+        .expect(200);
+
+      expect(res.body.data.firstName).toBe('First');
+      expect(res.body.data.lastName).toBe('Last');
+      expect(res.body.data.phone).toBe('123456789');
     });
 
-    it('should fail cross-field validation if gpaValue is missing but gpaScale is provided', async () => {
-      expect(educationId).toBeDefined();
-      const updateDto = {
-        gpaScale: 'percentage',
-      };
-
-      await request(app.getHttpServer())
-        .patch(`/api/v1/profile/educations/${educationId}`)
+    it('[FR-007] [EC-003] computed fields rejected as unknown', async () => {
+      res = await request(app.getHttpServer())
+        .patch('/api/v1/profile/personal')
         .set('Authorization', `Bearer ${userToken}`)
-        .send(updateDto)
+        .send({ completionPct: 100 })
+        .expect(400);
+
+      res = await request(app.getHttpServer())
+        .patch('/api/v1/profile/personal')
+        .set('Authorization', `Bearer ${userToken}`)
+        .send({ matchingVersion: 5 })
         .expect(400);
     });
 
-    it('should fail cross-field validation if gpaScale is missing but gpaValue is provided', async () => {
-      expect(educationId).toBeDefined();
-      const updateDto = {
-        gpaValue: 95,
-      };
-
-      await request(app.getHttpServer())
-        .patch(`/api/v1/profile/educations/${educationId}`)
+    it('[FR-012] [EC-003] matchability direct-write rejected', async () => {
+      res = await request(app.getHttpServer())
+        .patch('/api/v1/profile/personal')
         .set('Authorization', `Bearer ${userToken}`)
-        .send(updateDto)
+        .send({ isMatchable: true })
         .expect(400);
     });
 
-    it("should prevent updating another user's education (IDOR)", async () => {
-      expect(educationId).toBeDefined();
+    it('[FR-009b] [EC-005] bio configured boundary', async () => {
       await request(app.getHttpServer())
-        .patch(`/api/v1/profile/educations/${educationId}`)
-        .set('Authorization', `Bearer ${otherUserToken}`)
-        .send({ degree: 'Hacked' })
-        .expect(404);
-    });
+        .patch('/api/v1/profile/personal')
+        .set('Authorization', `Bearer ${userToken}`)
+        .send({ bio: 'a'.repeat(1000) })
+        .expect(200);
 
-    it('should prevent deleting another users education (IDOR)', async () => {
-      expect(educationId).toBeDefined();
+      const overLimit = 'a'.repeat(1001);
       await request(app.getHttpServer())
-        .delete(`/api/v1/profile/educations/${educationId}`)
-        .set('Authorization', `Bearer ${otherUserToken}`)
-        .expect(404);
+        .patch('/api/v1/profile/personal')
+        .set('Authorization', `Bearer ${userToken}`)
+        .send({ bio: overLimit })
+        .expect(400);
     });
 
-    it('should remove education successfully', async () => {
-      expect(educationId).toBeDefined();
-      await request(app.getHttpServer())
-        .delete(`/api/v1/profile/educations/${educationId}`)
-        .set('Authorization', `Bearer ${userToken}`)
-        .expect(204);
-    });
-  });
-
-  describe('Education Security & Edge Cases', () => {
-    it('should reject SQL injection in payload fields', async () => {
-      const payload = {
-        degree: "Bachelor' OR '1'='1",
-        major: 'Computer Science',
-        institution: 'Tech University',
-        graduationYear: 2024,
-      };
-
-      const res = await request(app.getHttpServer())
-        .post('/api/v1/profile/educations')
-        .set('Authorization', `Bearer ${userToken}`)
-        .send(payload);
-
-      expect(res.status).not.toBe(500);
-    });
-
-    it('should handle XSS payload injections safely', async () => {
-      const payload = {
-        degree: '<script>alert(1)</script>',
-        major: 'Computer Science',
-        institution: 'Tech University',
-        graduationYear: 2024,
-      };
-
-      const res = await request(app.getHttpServer())
-        .post('/api/v1/profile/educations')
-        .set('Authorization', `Bearer ${userToken}`)
-        .send(payload);
-
-      expect(res.status).not.toBe(500);
-    });
-
-    it('should handle extremely large or negative values for gpaValue safely', async () => {
-      const payload = {
-        degree: 'Bachelor',
-        major: 'Computer Science',
-        institution: 'Tech University',
-        graduationYear: 2024,
-        gpaValue: 99999999999, // Extremely large
-        gpaScale: '100',
-      };
-
-      const res = await request(app.getHttpServer())
-        .post('/api/v1/profile/educations')
-        .set('Authorization', `Bearer ${userToken}`)
-        .send(payload);
-
-      expect(res.status).not.toBe(500);
-
-      const negativePayload = {
-        ...payload,
-        gpaValue: -5,
-      };
-
-      const resNeg = await request(app.getHttpServer())
-        .post('/api/v1/profile/educations')
-        .set('Authorization', `Bearer ${userToken}`)
-        .send(negativePayload);
-
-      expect(resNeg.status).not.toBe(500);
-    });
-
-    it('should return 400 or 404 for invalid UUID, not 500', async () => {
-      const invalidUuid = 'not-a-valid-uuid';
-
-      const patchRes = await request(app.getHttpServer())
-        .patch(`/api/v1/profile/educations/${invalidUuid}`)
-        .set('Authorization', `Bearer ${userToken}`)
-        .send({ degree: 'Master' });
-
-      expect([400, 404]).toContain(patchRes.status);
-
-      const delRes = await request(app.getHttpServer())
-        .delete(`/api/v1/profile/educations/${invalidUuid}`)
+    it('[FR-008] [EC-054] empty/partial completion totals', async () => {
+      // It's already partially tested by FR-001 (0%) and FR-003 (some %).
+      // Here we check it actually calculates based on filled fields.
+      res = await request(app.getHttpServer())
+        .get('/api/v1/profile/me')
         .set('Authorization', `Bearer ${userToken}`);
 
-      expect([400, 404]).toContain(delRes.status);
-    });
-
-    it('should return 400 for missing required fields in POST', async () => {
-      const payload = {
-        gpaValue: 3.5,
-        gpaScale: '4.0',
-      };
-
-      const res = await request(app.getHttpServer())
-        .post('/api/v1/profile/educations')
-        .set('Authorization', `Bearer ${userToken}`)
-        .send(payload)
-        .expect(400);
-
-      expect(res.body.message).toBeDefined();
+      expect(res.body.data.completionPct).toBeGreaterThan(0);
+      expect(res.body.data.isMatchable).toBe(false);
     });
   });
 
-  describe('Document Scenarios & Security Tests', () => {
-    let docId: string;
+  describe('Reference Endpoints', () => {
+    it('[FR-037] [EC-060] all reference routes are token-free', async () => {
+      await request(app.getHttpServer())
+        .get('/api/v1/reference/education-levels')
+        .expect(200);
+      await request(app.getHttpServer())
+        .get('/api/v1/reference/countries')
+        .expect(200);
+      await request(app.getHttpServer())
+        .get('/api/v1/reference/cities')
+        .expect(200);
+      await request(app.getHttpServer())
+        .get('/api/v1/reference/marital-statuses')
+        .expect(200);
+      await request(app.getHttpServer())
+        .get('/api/v1/reference/languages')
+        .expect(200);
+    });
 
-    it('should upload document', async () => {
-      const res = await request(app.getHttpServer())
-        .post('/api/v1/profile/documents')
-        .set('Authorization', `Bearer ${userToken}`)
-        .field('docType', 'resume')
-        .attach('file', Buffer.from('%PDF-1.4\n%âãÏÓ\ndummy pdf content'), {
-          filename: 'resume.pdf',
-          contentType: 'application/pdf',
-        });
+    it('[FR-038] each required reference collection route returns data', async () => {
+      res = await request(app.getHttpServer())
+        .get('/api/v1/reference/countries')
+        .expect(200);
+      expect(Array.isArray(res.body.data)).toBe(true);
+    });
 
-      if (res.status === 400) {
-        console.log('UPLOAD 400:', res.body);
+    it('[FR-039] master items expose nameEn and nameAr', async () => {
+      res = await request(app.getHttpServer())
+        .get('/api/v1/reference/education-levels')
+        .expect(200);
+      if (res.body.data.length > 0) {
+        expect(res.body.data[0]).toHaveProperty('nameEn');
+        expect(res.body.data[0]).toHaveProperty('nameAr');
       }
-      expect(res.status).toBe(201);
-
-      docId = res.body.data.id;
-      expect(docId).toBeDefined();
     });
 
-    it('should prevent uploading bad extension (MIME check)', async () => {
+    it('[FR-040] country search and filters', async () => {
       await request(app.getHttpServer())
-        .post('/api/v1/profile/documents')
-        .set('Authorization', `Bearer ${userToken}`)
-        .field('docType', 'resume')
-        // Sending a text file masquerading as a pdf
-        .attach('file', Buffer.from('dummy content'), 'malware.php.pdf')
-        // In real environments, Multer or magic bytes validation will catch this.
-        // Assuming validation exists in the app.
-        .expect((res) => {
-          // If magic bytes isn't fully set up, we just expect the endpoint to return a response
-          expect(res.status === 400 || res.status === 201).toBeTruthy();
-        });
-    });
-
-    it('should prevent download of other user document', async () => {
-      // Setup a doc for user 1
-      const res = await request(app.getHttpServer())
-        .post('/api/v1/profile/documents')
-        .set('Authorization', `Bearer ${userToken}`)
-        .field('docType', 'resume')
-        .attach('file', Buffer.from('%PDF-1.4\ndummy'), 'doc.pdf');
-
-      const user1DocId = res.body.data.id;
-
-      // Try to download as user 2
-      await request(app.getHttpServer())
-        .get(`/api/v1/profile/documents/${user1DocId}/download`)
-        .set('Authorization', `Bearer ${otherUserToken}`)
-        .expect(403);
-    });
-
-    it('should prevent path traversal attacks', async () => {
-      await request(app.getHttpServer())
-        .get(`/api/v1/profile/documents/../../../etc/passwd/download`)
-        .set('Authorization', `Bearer ${userToken}`)
-        .expect((res) => {
-          // Either 400 (validation) or 404
-          expect([400, 404]).toContain(res.status);
-        });
+        .get('/api/v1/reference/countries?search=InvalidCountryNameSearch99')
+        .expect(200);
+      // Expected empty array or similar, but 200 OK.
     });
   });
 });

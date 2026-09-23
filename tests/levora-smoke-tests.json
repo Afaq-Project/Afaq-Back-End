@@ -390,6 +390,111 @@
               ]
             }
           }
+        },
+        {
+          "name": "GET /reference/countries",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('Response is an array', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.data).to.be.an('array');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/reference/countries",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "reference",
+                "countries"
+              ]
+            }
+          }
+        },
+        {
+          "name": "GET /reference/cities",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('Response is an array', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.data).to.be.an('array');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/reference/cities",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "reference",
+                "cities"
+              ]
+            }
+          }
+        },
+        {
+          "name": "GET /reference/marital-statuses",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('Response is an array', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.data).to.be.an('array');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/reference/marital-statuses",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "reference",
+                "marital-statuses"
+              ]
+            }
+          }
         }
       ]
     },
@@ -397,7 +502,7 @@
       "name": "Profile CRUD",
       "item": [
         {
-          "name": "GET /profile",
+          "name": "GET /profile/me",
           "event": [
             {
               "listen": "test",
@@ -424,7 +529,7 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/v1/profile",
+              "raw": "{{baseUrl}}/api/v1/profile/me",
               "host": [
                 "{{baseUrl}}"
               ],
@@ -471,7 +576,7 @@
               "raw": "{\n  \"nationality\": \"US\",\n  \"fieldOfStudy\": [\n    \"Computer Science\"\n  ]\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/api/v1/profile",
+              "raw": "{{baseUrl}}/api/v1/profile/me",
               "host": [
                 "{{baseUrl}}"
               ],
@@ -515,7 +620,7 @@
               "raw": "{\n  \"educationLevel\": \"{{education_level_id}}\",\n  \"fieldOfStudy\": [\n    \"Computer Science\"\n  ]\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/api/v1/profile",
+              "raw": "{{baseUrl}}/api/v1/profile/me",
               "host": [
                 "{{baseUrl}}"
               ],
@@ -559,7 +664,7 @@
               "raw": "{\n  \"nationality\": null\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/api/v1/profile",
+              "raw": "{{baseUrl}}/api/v1/profile/me",
               "host": [
                 "{{baseUrl}}"
               ],
@@ -1179,6 +1284,89 @@
               }
             }
           ]
+        },
+        {
+          "name": "GET /profile/me",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/profile/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "profile",
+                "me"
+              ]
+            }
+          }
+        },
+        {
+          "name": "PATCH /profile/personal",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/profile/personal",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "profile",
+                "personal"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"Updated Name\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
         }
       ]
     },
@@ -1469,7 +1657,7 @@
               "raw": "{\n  \"unknownField\": \"value\"\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/api/v1/profile",
+              "raw": "{{baseUrl}}/api/v1/profile/me",
               "host": [
                 "{{baseUrl}}"
               ],
@@ -2006,7 +2194,7 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/v1/profile",
+              "raw": "{{baseUrl}}/api/v1/profile/me",
               "host": [
                 "{{baseUrl}}"
               ],
@@ -2232,7 +2420,7 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/v1/profile",
+              "raw": "{{baseUrl}}/api/v1/profile/me",
               "host": [
                 "{{baseUrl}}"
               ],
@@ -2275,7 +2463,7 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/v1/profile",
+              "raw": "{{baseUrl}}/api/v1/profile/me",
               "host": [
                 "{{baseUrl}}"
               ],
@@ -2546,11 +2734,11 @@
       "name": "Users (Admin)",
       "item": [
         {
-          "name": "GET /users/profile",
+          "name": "GET /users/profile/me",
           "request": {
             "method": "GET",
             "url": {
-              "raw": "{{baseUrl}}/api/v1/users/profile",
+              "raw": "{{baseUrl}}/api/v1/users/profile/me",
               "host": [
                 "{{baseUrl}}"
               ],
@@ -2643,6 +2831,150 @@
                 "type": "text/javascript",
                 "exec": [
                   "pm.test('Status code is 200 or 404 or 400', function () { pm.expect(pm.response.code).to.be.oneOf([200, 400, 404]); });"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Profile",
+      "item": [
+        {
+          "name": "GET /profile/me",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/profile/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "profile"
+              ]
+            },
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ]
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200', function () { pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "PATCH /profile/me",
+          "request": {
+            "method": "PATCH",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/profile/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "profile"
+              ]
+            },
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"SmokeTestName\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200', function () { pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Reference",
+      "item": [
+        {
+          "name": "GET /reference/education-levels",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/reference/education-levels",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "reference",
+                "education-levels"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200', function () { pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET /reference/countries",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/reference/countries",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "reference",
+                "countries"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200', function () { pm.response.to.have.status(200); });"
                 ]
               }
             }

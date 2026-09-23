@@ -129,9 +129,16 @@ export class AuthService {
     });
 
     this.logger.info(`User registered successfully: ${user.email}`);
-    await this.profileService.recalculateProfileProgress(user.id);
+    await this.profileService.recalculate(user.id);
     const updatedUser = await this.usersService.getUserWithProfile(user.id);
-    return formatUserResponse(updatedUser) as unknown as UserResponseDto;
+    const role = updatedUser.userRoles?.[0]?.role?.name || 'user';
+    const tokens = await this.generateTokens(
+      updatedUser.id,
+      updatedUser.email,
+      role,
+    );
+    await this.storeRefreshToken(updatedUser.id, tokens.refreshToken);
+    return tokens;
   }
 
   // ── Login ────────────────────────────────────
@@ -185,14 +192,12 @@ export class AuthService {
       include: {
         userProfile: {
           select: {
-            fullName: true,
             completionPct: true,
-            isDraft: true,
           },
         },
         userRoles: {
           include: {
-            roles: {
+            role: {
               select: {
                 name: true,
               },
@@ -202,7 +207,7 @@ export class AuthService {
       },
     });
 
-    const role = updatedUser.userRoles?.[0]?.roles?.name || 'user';
+    const role = updatedUser.userRoles?.[0]?.role?.name || 'user';
     const tokens = await this.generateTokens(
       updatedUser.id,
       updatedUser.email,
@@ -210,24 +215,11 @@ export class AuthService {
     );
     await this.storeRefreshToken(updatedUser.id, tokens.refreshToken);
 
-    const userOutput: UserResponseDto = {
-      id: updatedUser.id,
-      email: updatedUser.email,
-      firstName: updatedUser.firstName,
-      lastName: updatedUser.lastName,
-      isEmailVerified: updatedUser.isEmailVerified,
-      isActive: updatedUser.isActive,
-      lastLoginAt: updatedUser.lastLoginAt,
-      createdAt: updatedUser.createdAt,
-      userProfile: updatedUser.userProfile,
-      roles: [role],
-    };
-
     this.logger.info(`User logged in: ${updatedUser.email}`);
 
     return {
-      ...tokens,
-      user: userOutput,
+      accessToken: tokens.accessToken,
+      refreshToken: tokens.refreshToken,
     };
   }
 
@@ -305,7 +297,7 @@ export class AuthService {
   // ── Get Profile (GET /auth/me) ────────────────
   async getProfile(userId: string): Promise<UserResponseDto> {
     const user = await this.usersService.getUserWithProfile(userId);
-    return formatUserResponse(user) as unknown as UserResponseDto;
+    return formatUserResponse(user);
   }
 
   async getMe(userId: string): Promise<UserResponseDto> {

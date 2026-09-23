@@ -32,7 +32,7 @@ export class OauthIdentityService {
             userProfile: true,
             userRoles: {
               include: {
-                roles: true,
+                role: true,
               },
             },
           },

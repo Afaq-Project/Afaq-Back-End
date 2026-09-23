@@ -631,6 +631,63 @@
                 "description": "Publish user profile already published"
               },
               "response": []
+            },
+            {
+              "name": "Get User Profile (me)",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{access_token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/profile/me",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "profile",
+                    "me"
+                  ]
+                }
+              }
+            },
+            {
+              "name": "Update Personal Profile",
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{access_token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/profile/personal",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "profile",
+                    "personal"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"firstName\": \"Updated Name\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              }
             }
           ]
         },
@@ -745,142 +802,6 @@
                   ]
                 },
                 "description": "Delete an education record"
-              },
-              "response": []
-            }
-          ]
-        },
-        {
-          "name": "Skills",
-          "description": "Skills management.",
-          "item": [
-            {
-              "name": "Get All Skills",
-              "request": {
-                "method": "GET",
-                "header": [],
-                "url": {
-                  "raw": "{{baseUrl}}/profile/skills",
-                  "host": [
-                    "{{baseUrl}}"
-                  ],
-                  "path": [
-                    "profile",
-                    "skills"
-                  ]
-                },
-                "description": "Get all skills for the user"
-              },
-              "response": []
-            },
-            {
-              "name": "Get Skill By ID",
-              "request": {
-                "method": "GET",
-                "header": [],
-                "url": {
-                  "raw": "{{baseUrl}}/profile/skills/{{skillId}}",
-                  "host": [
-                    "{{baseUrl}}"
-                  ],
-                  "path": [
-                    "profile",
-                    "skills",
-                    "{{skillId}}"
-                  ]
-                },
-                "description": "Get a specific skill for the user"
-              },
-              "response": []
-            },
-            {
-              "name": "Add Skill",
-              "request": {
-                "method": "POST",
-                "header": [
-                  {
-                    "key": "Content-Type",
-                    "value": "application/json"
-                  }
-                ],
-                "url": {
-                  "raw": "{{baseUrl}}/profile/skills",
-                  "host": [
-                    "{{baseUrl}}"
-                  ],
-                  "path": [
-                    "profile",
-                    "skills"
-                  ]
-                },
-                "description": "Add a new skill to user profile",
-                "body": {
-                  "mode": "raw",
-                  "raw": "{\n  \"skillId\": \"a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d\",\n  \"proficiency\": 4\n}"
-                }
-              },
-              "response": [],
-              "event": [
-                {
-                  "listen": "test",
-                  "script": {
-                    "type": "text/javascript",
-                    "exec": [
-                      "if (pm.response.code === 201) {",
-                      "    var jsonData = pm.response.json();",
-                      "    if (jsonData.data && jsonData.data.skillId) { pm.collectionVariables.set('skillId', jsonData.data.skillId); }",
-                      "}"
-                    ]
-                  }
-                }
-              ]
-            },
-            {
-              "name": "Update Skill",
-              "request": {
-                "method": "PATCH",
-                "header": [
-                  {
-                    "key": "Content-Type",
-                    "value": "application/json"
-                  }
-                ],
-                "url": {
-                  "raw": "{{baseUrl}}/profile/skills/{{skillId}}",
-                  "host": [
-                    "{{baseUrl}}"
-                  ],
-                  "path": [
-                    "profile",
-                    "skills",
-                    "{{skillId}}"
-                  ]
-                },
-                "description": "Update an existing skill",
-                "body": {
-                  "mode": "raw",
-                  "raw": "{\n  \"proficiency\": 5\n}"
-                }
-              },
-              "response": []
-            },
-            {
-              "name": "Remove Skill",
-              "request": {
-                "method": "DELETE",
-                "header": [],
-                "url": {
-                  "raw": "{{baseUrl}}/profile/skills/{{skillId}}",
-                  "host": [
-                    "{{baseUrl}}"
-                  ],
-                  "path": [
-                    "profile",
-                    "skills",
-                    "{{skillId}}"
-                  ]
-                },
-                "description": "Remove a skill from user profile"
               },
               "response": []
             }
@@ -1257,6 +1178,60 @@
               "path": [
                 "reference",
                 "app-languages"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Countries",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/reference/countries",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "reference",
+                "countries"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Cities",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/reference/cities",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "reference",
+                "cities"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Marital Statuses",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/reference/marital-statuses",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "reference",
+                "marital-statuses"
               ]
             }
           }

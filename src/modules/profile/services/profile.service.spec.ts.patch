@@ -1,0 +1,24 @@
+--- src/modules/profile/services/profile.service.spec.ts
++++ src/modules/profile/services/profile.service.spec.ts
+@@ -5,3 +5,3 @@
+-import { BadRequestException, NotFoundException } from '@nestjs/common';
++import { BadRequestException, NotFoundException, InternalServerErrorException } from '@nestjs/common';
+ import { SystemSettingKeys } from '../constants/system-settings.keys';
+@@ -355,2 +355,16 @@
+     });
++
++    it('[FR-010] should throw InternalServerErrorException if weights do not sum to 100', async () => {
++      mockPrisma.userProfiles.findUnique.mockResolvedValue({ userId: '1' });
++      mockSystemSettingsService.getNumber.mockImplementation(async (key, def) => {
++        if (key === SystemSettingKeys.WEIGHT_PERSONAL_IDENTITY) return 18;
++        if (key === SystemSettingKeys.WEIGHT_LOCATION_ORIGIN) return 15;
++        if (key === SystemSettingKeys.WEIGHT_EDUCATION) return 35;
++        if (key === SystemSettingKeys.WEIGHT_LANGUAGES) return 10;
++        if (key === SystemSettingKeys.WEIGHT_TESTS) return 7;
++        if (key === SystemSettingKeys.WEIGHT_PREFERENCES_STATUSES) return 10; // Sum is 95
++        return def;
++      });
++
++      await expect(service.recalculate('1')).rejects.toThrow(InternalServerErrorException);
++    });
+   });

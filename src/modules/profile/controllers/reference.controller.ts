@@ -1,11 +1,19 @@
 import { Controller, Get, Query } from '@nestjs/common';
 import { Throttle } from '@nestjs/throttler';
-import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBearerAuth,
+} from '@nestjs/swagger';
 import { ReferenceService } from '../services/reference.service';
 import { Public } from '../../../common/decorators/public.decorator';
 import { PaginationDto } from '../../../common/dto/pagination.dto';
+import { GetCountriesDto } from '../dto/get-countries.dto';
+import { GetCitiesDto } from '../dto/get-cities.dto';
 
 @ApiTags('profile')
+@ApiBearerAuth()
 @Controller('reference')
 export class ReferenceController {
   constructor(private readonly referenceService: ReferenceService) {}
@@ -29,45 +37,57 @@ export class ReferenceController {
 
   @Public()
   @Throttle({ default: { limit: 60, ttl: 60000 } })
-  @Get('fields-of-study')
-  @ApiOperation({ summary: 'Get all fields of study' })
+  @Get('countries')
+  @ApiOperation({ summary: 'Get all active countries' })
   @ApiResponse({
     status: 200,
-    description: 'Fields of study retrieved successfully',
+    description: 'Countries retrieved successfully',
   })
-  async getFieldsOfStudy(
-    @Query() dto: PaginationDto,
-    @Query('category') category?: string,
-  ) {
-    const params = dto as PaginationDto & { category?: string };
-    params.category = category;
-    const result = await this.referenceService.getFieldsOfStudy(params);
+  async getCountries(@Query() dto: GetCountriesDto) {
+    const data = await this.referenceService.getCountries(dto);
     return {
       statusCode: 200,
-      message: 'Fields of study retrieved successfully',
-      data: result,
+      message: 'Countries retrieved successfully',
+      data,
+      timestamp: new Date().toISOString(),
     };
   }
 
   @Public()
   @Throttle({ default: { limit: 60, ttl: 60000 } })
-  @Get('skills-taxonomy')
-  @ApiOperation({ summary: 'Get skills taxonomy grouped by category' })
+  @Get('cities')
+  @ApiOperation({
+    summary: 'Get cities optionally filtered by country and search',
+  })
   @ApiResponse({
     status: 200,
-    description: 'Skills taxonomy retrieved successfully',
+    description: 'Cities retrieved successfully',
   })
-  async getSkillsTaxonomy(
-    @Query() dto: PaginationDto,
-    @Query('category') category?: string,
-  ) {
-    const params = dto as PaginationDto & { category?: string };
-    params.category = category;
-    const result = await this.referenceService.getSkillsTaxonomy(params);
+  async getCities(@Query() dto: GetCitiesDto) {
+    const data = await this.referenceService.getCities(dto);
     return {
       statusCode: 200,
-      message: 'Skills taxonomy retrieved successfully',
-      data: result,
+      message: 'Cities retrieved successfully',
+      data,
+      timestamp: new Date().toISOString(),
+    };
+  }
+
+  @Public()
+  @Throttle({ default: { limit: 60, ttl: 60000 } })
+  @Get('marital-statuses')
+  @ApiOperation({ summary: 'Get all active marital statuses' })
+  @ApiResponse({
+    status: 200,
+    description: 'Marital statuses retrieved successfully',
+  })
+  async getMaritalStatuses() {
+    const data = await this.referenceService.getMaritalStatuses();
+    return {
+      statusCode: 200,
+      message: 'Marital statuses retrieved successfully',
+      data,
+      timestamp: new Date().toISOString(),
     };
   }
 

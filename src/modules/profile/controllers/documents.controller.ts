@@ -122,7 +122,6 @@ export class DocumentsController {
     const doc = await this.documentsService.uploadDocument(
       req.user.id,
       actualFile,
-      body.docType || 'other',
     );
     return doc;
   }

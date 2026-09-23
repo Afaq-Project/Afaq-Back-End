@@ -61,6 +61,26 @@ export class AllExceptionsFilter implements ExceptionFilter {
         code = ErrorCode.USER_EMAIL_DUPLICATE;
         message = 'This email is already registered';
       }
+    } else if (
+      exception &&
+      typeof exception === 'object' &&
+      'code' in exception &&
+      exception.code === 'P2003'
+    ) {
+      const meta = (exception as Record<string, unknown>).meta as Record<
+        string,
+        unknown
+      >;
+      if (meta && typeof meta.field_name === 'string') {
+        let fieldName = meta.field_name
+          .replace(/_fkey.*?$/, '')
+          .replace(/Id$/, '')
+          .replace(/_id$/, '');
+        fieldName = fieldName.replace(/([a-z])([A-Z])/g, '$1_$2').toUpperCase();
+        status = HttpStatus.BAD_REQUEST;
+        code = `INVALID_${fieldName}`;
+        message = 'Foreign key constraint failed';
+      }
     }
 
     if (typeof exceptionResponse === 'string') {

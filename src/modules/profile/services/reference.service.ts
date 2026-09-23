@@ -1,7 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../../prisma/prisma.service';
-import { Prisma } from '@prisma/client';
 import { PaginationDto } from '../../../common/dto/pagination.dto';
+import { GetCountriesDto } from '../dto/get-countries.dto';
+import { GetCitiesDto } from '../dto/get-cities.dto';
 import { buildMeta } from '../../../common/utils/paginate.util';
 import { APP_LANGUAGES } from '../constants/app-languages.constant';
 
@@ -11,7 +12,7 @@ export class ReferenceService {
 
   async getLanguages(dto: PaginationDto) {
     const where = dto.search
-      ? { name: { contains: dto.search, mode: 'insensitive' as const } }
+      ? { nameEn: { contains: dto.search, mode: 'insensitive' as const } }
       : {};
 
     const [data, total] = await Promise.all([
@@ -19,8 +20,8 @@ export class ReferenceService {
         where,
         skip: dto.skip,
         take: dto.limit,
-        select: { id: true, name: true },
-        orderBy: { name: 'asc' },
+        select: { id: true, nameEn: true, nameAr: true },
+        orderBy: { nameEn: 'asc' },
       }),
       this.prisma.languagesMaster.count({ where }),
     ]);
@@ -31,98 +32,44 @@ export class ReferenceService {
     };
   }
 
-  async getFieldsOfStudy(dto: PaginationDto & { category?: string }) {
-    const where: Prisma.FieldOfStudyWhereInput = { isActive: true };
-
+  async getCountries(dto: GetCountriesDto) {
+    const conditions: Record<string, any>[] = [{ isActive: true }];
     if (dto.search) {
-      where.name = { contains: dto.search, mode: 'insensitive' };
-    }
-
-    if (dto.category) {
-      where.category = dto.category;
-    }
-
-    const [data, total] = await Promise.all([
-      this.prisma.fieldOfStudy.findMany({
-        where,
-        skip: dto.skip,
-        take: dto.limit,
-        select: {
-          id: true,
-          name: true,
-          category: true,
-        },
-        orderBy: { name: 'asc' },
-      }),
-      this.prisma.fieldOfStudy.count({ where }),
-    ]);
-
-    return {
-      data,
-      meta: buildMeta(total, dto.page, dto.limit),
-    };
-  }
-
-  async getSkillsTaxonomy(dto: PaginationDto & { category?: string }) {
-    if (!dto.search && !dto.category && dto.page === 1 && dto.limit === 50) {
-      const skills = await this.prisma.skillsMaster.findMany({
-        where: { isActive: true },
-        select: {
-          id: true,
-          name: true,
-          category: true,
-        },
-        orderBy: { name: 'asc' },
+      conditions.push({
+        OR: [
+          { nameEn: { contains: dto.search, mode: 'insensitive' } },
+          { nameAr: { contains: dto.search, mode: 'insensitive' } },
+        ],
       });
-
-      const taxonomy = skills.reduce(
-        (acc, skill) => {
-          const { category, ...rest } = skill;
-          if (!acc[category]) {
-            acc[category] = [];
-          }
-          acc[category].push(rest);
-          return acc;
-        },
-        {} as Record<string, { id: string; name: string }[]>,
-      );
-
-      const data = Object.entries(taxonomy).map(
-        ([category, categorySkills]) => ({
-          category,
-          skills: categorySkills,
-        }),
-      );
-
-      return {
-        data,
-        meta: {
-          pagination: null,
-        },
-      };
     }
-
-    const where: Prisma.SkillsMasterWhereInput = { isActive: true };
-    if (dto.search) {
-      where.name = { contains: dto.search, mode: 'insensitive' };
-    }
-    if (dto.category) {
-      where.category = dto.category;
+    if (dto.region) {
+      conditions.push({
+        OR: [
+          { regionEn: { equals: dto.region, mode: 'insensitive' } },
+          { regionAr: { equals: dto.region, mode: 'insensitive' } },
+        ],
+      });
     }
 
     const [data, total] = await Promise.all([
-      this.prisma.skillsMaster.findMany({
-        where,
+      this.prisma.countries.findMany({
+        where: { AND: conditions },
         skip: dto.skip,
         take: dto.limit,
         select: {
           id: true,
-          name: true,
-          category: true,
+          nameEn: true,
+          nameAr: true,
+          nationalityNameEn: true,
+          nationalityNameAr: true,
+          isoCode: true,
+          isoCode2: true,
+          regionEn: true,
+          regionAr: true,
         },
-        orderBy: { name: 'asc' },
+        orderBy: { sortOrder: 'asc' },
       }),
-      this.prisma.skillsMaster.count({ where }),
+      this.prisma.countries.count({ where: { AND: conditions } }),
     ]);
 
     return {
@@ -131,19 +78,65 @@ export class ReferenceService {
     };
   }
 
-  async getEducationLevels() {
-    const data = await this.prisma.educationLevel.findMany({
+  async getCities(dto: GetCitiesDto) {
+    const conditions: Record<string, any>[] = [{ isActive: true }];
+    if (dto.countryId) {
+      conditions.push({ countryId: dto.countryId });
+    }
+    if (dto.search) {
+      conditions.push({
+        OR: [
+          { nameEn: { contains: dto.search, mode: 'insensitive' } },
+          { nameAr: { contains: dto.search, mode: 'insensitive' } },
+        ],
+      });
+    }
+
+    const [data, total] = await Promise.all([
+      this.prisma.cities.findMany({
+        where: { AND: conditions },
+        skip: dto.skip,
+        take: dto.limit,
+        select: {
+          id: true,
+          nameEn: true,
+          nameAr: true,
+          countryId: true,
+        },
+        orderBy: { sortOrder: 'asc' },
+      }),
+      this.prisma.cities.count({ where: { AND: conditions } }),
+    ]);
+
+    return {
+      data,
+      meta: buildMeta(total, dto.page, dto.limit),
+    };
+  }
+
+  async getMaritalStatuses() {
+    return this.prisma.maritalStatuses.findMany({
       where: { isActive: true },
       select: {
         id: true,
-        name: true,
-        labelEn: true,
-        labelAr: true,
-        isActive: true,
+        nameEn: true,
+        nameAr: true,
       },
-      orderBy: { name: 'asc' },
+      orderBy: { sortOrder: 'asc' },
     });
-    return data;
+  }
+
+  async getEducationLevels() {
+    return this.prisma.educationLevel.findMany({
+      where: { isActive: true },
+      select: {
+        id: true,
+        code: true,
+        nameEn: true,
+        nameAr: true,
+      },
+      orderBy: { sortOrder: 'asc' },
+    });
   }
 
   getAppLanguages() {
