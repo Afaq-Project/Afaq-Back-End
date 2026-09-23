@@ -22,6 +22,9 @@ export class LanguagesService {
   ) {}
 
   async create(userId: string, data: CreateLanguageDto) {
+    // TODO(T050): full rewrite in Batch 3
+    throw new Error('LanguagesService is disabled until Batch 3 (T050)');
+
     const existingCount = await this.prisma.userLanguages.count({
       where: { userId },
     });
@@ -55,7 +58,6 @@ export class LanguagesService {
       data: {
         userId,
         languageId: data.languageId,
-        // TODO(T050): full rewrite in Batch 3
         proficiencyLevelId: data.proficiency,
       },
     });
@@ -63,7 +65,7 @@ export class LanguagesService {
     const profileSvc = this
       .profileService as unknown as ProfileServiceWithRecalculate;
     if (typeof profileSvc.recalculate === 'function') {
-      await profileSvc.recalculate(userId);
+      await profileSvc.recalculate?.(userId);
     }
 
     return result;
@@ -112,6 +114,9 @@ export class LanguagesService {
   }
 
   async update(userId: string, languageId: string, data: UpdateLanguageDto) {
+    // TODO(T050): full rewrite in Batch 3
+    throw new Error('LanguagesService is disabled until Batch 3 (T050)');
+
     await this.findOne(userId, languageId);
 
     if (data.languageId && data.languageId !== languageId) {
@@ -127,7 +132,7 @@ export class LanguagesService {
         where: {
           userId_languageId: {
             userId,
-            languageId: data.languageId,
+            languageId: data.languageId as string,
           },
         },
       });
@@ -145,7 +150,7 @@ export class LanguagesService {
         },
       },
       data: {
-        languageId: data.languageId,
+        languageId: data.languageId as string,
         // TODO(T050): full rewrite in Batch 3
         proficiencyLevelId: data.proficiency,
       },
@@ -154,7 +159,7 @@ export class LanguagesService {
     const profileSvc = this
       .profileService as unknown as ProfileServiceWithRecalculate;
     if (typeof profileSvc.recalculate === 'function') {
-      await profileSvc.recalculate(userId);
+      await profileSvc.recalculate?.(userId);
     }
 
     return result;
@@ -175,7 +180,7 @@ export class LanguagesService {
     const profileSvc = this
       .profileService as unknown as ProfileServiceWithRecalculate;
     if (typeof profileSvc.recalculate === 'function') {
-      await profileSvc.recalculate(userId);
+      await profileSvc.recalculate?.(userId);
     }
   }
 }

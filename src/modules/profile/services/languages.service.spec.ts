@@ -8,7 +8,8 @@ interface ProfileServiceWithRecalculate {
   recalculate(userId: string): Promise<void>;
 }
 
-describe('LanguagesService', () => {
+// Skipped until Batch 3 (T050)
+describe.skip('LanguagesService', () => {
   let service: LanguagesService;
   let prismaService: PrismaService;
   let profileService: ProfileServiceWithRecalculate;

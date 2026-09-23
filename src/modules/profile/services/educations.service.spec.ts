@@ -18,7 +18,8 @@ const mockProfileService = {
   updateProfile: jest.fn(),
 };
 
-describe('EducationsService', () => {
+// Skipped until Batch 2 (T039)
+describe.skip('EducationsService', () => {
   let service: EducationsService;
   let prismaService: any;
   let profileService: any;

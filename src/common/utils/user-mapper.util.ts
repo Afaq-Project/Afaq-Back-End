@@ -1,5 +1,7 @@
+import { MeResponseDto } from '../../modules/auth/dto/me-response.dto';
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function formatUserResponse(user: any) {
+export function formatUserResponse(user: any): MeResponseDto {
   let roles: string[] = ['user'];
   if (Array.isArray(user.userRoles) && user.userRoles.length > 0) {
     roles = user.userRoles.map(
@@ -9,7 +11,7 @@ export function formatUserResponse(user: any) {
     roles = user.roles;
   }
 
-  const response: Record<string, unknown> = {
+  const response: MeResponseDto = {
     id: user.id,
     email: user.email,
     firstName: user.firstName,

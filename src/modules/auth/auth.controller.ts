@@ -32,6 +32,7 @@ import {
   LoginResponseDto,
   RefreshTokenResponseDto,
   UserResponseDto,
+  MeResponseDto,
 } from './dto';
 import { Public, CurrentUser } from '@common/decorators';
 import { AuthGuard } from '@common/guards';
@@ -230,14 +231,14 @@ export class AuthController {
   @ApiResponse({
     status: 200,
     description: 'Current user profile retrieved successfully',
-    type: UserResponseDto,
+    type: MeResponseDto,
   })
   @ApiResponse({
     status: 401,
     description: 'Unauthorized access',
     type: ErrorResponse,
   })
-  getProfile(@CurrentUser('id') userId: string): Promise<UserResponseDto> {
+  getProfile(@CurrentUser('id') userId: string): Promise<MeResponseDto> {
     return this.authService.getMe(userId);
   }
 

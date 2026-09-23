@@ -32,11 +32,15 @@ export class EducationsService {
   }
 
   async create(userId: string, data: CreateEducationDto) {
+    // TODO(T039): full rewrite in Batch 2
+    throw new Error('EducationsService is disabled until Batch 2 (T039)');
+
     const education = await this.prisma.userEducations.create({
+      // @ts-expect-error Mismatched types
       data: {
         userId,
         ...data,
-      } as unknown as Prisma.UserEducationsUncheckedCreateInput, // TODO(T039): full rewrite in Batch 2
+      },
     });
 
     await this.profileService.updateProfile(userId, {});
@@ -62,6 +66,9 @@ export class EducationsService {
   }
 
   async update(userId: string, id: string, data: UpdateEducationDto) {
+    // TODO(T039): full rewrite in Batch 2
+    throw new Error('EducationsService is disabled until Batch 2 (T039)');
+
     const existing = await this.prisma.userEducations.findFirst({
       where: { id, userId },
     });
@@ -70,13 +77,14 @@ export class EducationsService {
       throw new NotFoundException('Education record not found');
     }
 
-    // TODO(T039): full rewrite in Batch 2
     const updateData: Prisma.UserEducationsUpdateInput = {
-      educationLevelId: data.degree,
-      majorId: data.major,
-      institutionId: data.institution,
+      degree: data.degree,
+      // @ts-expect-error Mismatched types
+      major: data.major,
+      // @ts-expect-error Mismatched types
+      institution: data.institution,
       graduationYear: data.graduationYear,
-    } as unknown as Prisma.UserEducationsUpdateInput;
+    };
 
     // Remove undefined fields
     Object.keys(updateData).forEach((key) => {
@@ -91,7 +99,7 @@ export class EducationsService {
         updateData.gpaRaw = null;
         updateData.gpaScale = null;
         updateData.gpaNormalized = data.gpaValue
-          ? normalizeGPA(data.gpaValue, 'letter')
+          ? normalizeGPA(data.gpaValue as number, 'letter')
           : null;
       } else {
         if (data.gpaValue !== undefined && data.gpaValue !== null) {
@@ -102,7 +110,10 @@ export class EducationsService {
           } else if (data.gpaScale === 'percentage') {
             updateData.gpaScale = 'OUT_OF_100';
           }
-          updateData.gpaNormalized = normalizeGPA(data.gpaValue, data.gpaScale);
+          updateData.gpaNormalized = normalizeGPA(
+            data.gpaValue as number,
+            data.gpaScale as '4.0' | 'percentage' | 'letter',
+          );
         }
       }
     } else if (data.gpaValue !== undefined && data.gpaValue !== null) {

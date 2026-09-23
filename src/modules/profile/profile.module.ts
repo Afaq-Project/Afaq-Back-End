@@ -12,11 +12,12 @@ import { StorageServiceProvider } from './storage/storage.service';
 import { LocalStorageController } from './controllers/local-storage.controller';
 import { LocalStorageService } from './storage/local-storage.service';
 
-import { EducationsController } from './controllers/educations.controller';
-import { EducationsService } from './services/educations.service';
+// Disabled until Batch 2 (T039) / Batch 3 (T050) — see tasks.md
+// import { EducationsController } from './controllers/educations.controller';
+// import { EducationsService } from './services/educations.service';
 
-import { LanguagesController } from './controllers/languages.controller';
-import { LanguagesService } from './services/languages.service';
+// import { LanguagesController } from './controllers/languages.controller';
+// import { LanguagesService } from './services/languages.service';
 
 @Module({
   controllers: [
@@ -24,8 +25,8 @@ import { LanguagesService } from './services/languages.service';
     ReferenceController,
     DocumentsController,
     LocalStorageController,
-    EducationsController,
-    LanguagesController,
+    // EducationsController,
+    // LanguagesController,
   ],
   providers: [
     ProfileService,
@@ -34,8 +35,8 @@ import { LanguagesService } from './services/languages.service';
     DocumentsService,
     StorageServiceProvider,
     LocalStorageService,
-    EducationsService,
-    LanguagesService,
+    // EducationsService,
+    // LanguagesService,
   ],
   exports: [ProfileService, SystemSettingsService],
 })

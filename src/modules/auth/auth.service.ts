@@ -17,7 +17,13 @@ import {
   UsersRepository,
   UserRolesRepository,
 } from '@/modules/users/repositories';
-import { LoginDto, RegisterDto, RefreshTokenDto, UserResponseDto } from './dto';
+import {
+  LoginDto,
+  RegisterDto,
+  RefreshTokenDto,
+  UserResponseDto,
+  MeResponseDto,
+} from './dto';
 
 export interface JwtPayload {
   sub: string;
@@ -295,12 +301,12 @@ export class AuthService {
   }
 
   // ── Get Profile (GET /auth/me) ────────────────
-  async getProfile(userId: string): Promise<UserResponseDto> {
+  async getProfile(userId: string): Promise<MeResponseDto> {
     const user = await this.usersService.getUserWithProfile(userId);
-    return formatUserResponse(user) as unknown as UserResponseDto;
+    return formatUserResponse(user);
   }
 
-  async getMe(userId: string): Promise<UserResponseDto> {
+  async getMe(userId: string): Promise<MeResponseDto> {
     return this.getProfile(userId);
   }
 
