@@ -9,6 +9,45 @@ import { SystemSettingsService } from './system-settings.service';
 import { UpdateProfileDto } from '../dto/update-profile.dto';
 import { SystemSettingKeys } from '../constants/system-settings.keys';
 
+const DEFAULT_GROUP_WEIGHTS = {
+  personalIdentity: 18,
+  locationOrigin: 15,
+  education: 35,
+  languages: 10,
+  tests: 7,
+  preferencesStatuses: 15,
+} as const;
+
+const DEFAULT_COMPONENTS = {
+  personalIdentity: {
+    firstName: 3,
+    lastName: 3,
+    dateOfBirth: 5,
+    gender: 4,
+    maritalStatusId: 3,
+  },
+  locationOrigin: {
+    countryOfResidenceId: 8,
+    nationalityId: 7,
+  },
+  education: {
+    educationLevelId: 10,
+    hasEducationRecord: 25,
+  },
+  languages: {
+    hasLanguageRecord: 10,
+  },
+  tests: {
+    hasTestRecord: 7,
+  },
+  preferencesStatuses: {
+    hasTargetMajor: 5,
+    hasTargetDegree: 4,
+    hasTargetInstitution: 3,
+    hasSpecialStatus: 3,
+  },
+} as const;
+
 @Injectable()
 export class ProfileService {
   constructor(
@@ -56,6 +95,10 @@ export class ProfileService {
    * @param data - The data to update the profile with.
    * @returns The updated profile.
    */
+  /**
+   * Updates user profile data.
+   * FK existence is validated before update to avoid P2003 errors.
+   */
   async updateProfile(userId: string, data: UpdateProfileDto) {
     const profile = await this.prisma.userProfiles.findUnique({
       where: { userId },
@@ -78,12 +121,90 @@ export class ProfileService {
       }
     }
 
+    if (data.experiences !== undefined) {
+      const maxExperiences = await this.systemSettingsService.getNumber(
+        SystemSettingKeys.MAX_EXPERIENCES,
+        10,
+      );
+      if (data.experiences.length > maxExperiences) {
+        throw new BadRequestException({
+          message: `Experiences exceed maximum of ${maxExperiences} entries`,
+          code: 'TOO_MANY_EXPERIENCES',
+        });
+      }
+    }
+
+    // ── FK existence validation ────────────────────────────────
+    if (data.maritalStatusId !== undefined && data.maritalStatusId !== null) {
+      const exists = await this.prisma.maritalStatuses.findUnique({
+        where: { id: data.maritalStatusId },
+        select: { id: true },
+      });
+      if (!exists) {
+        throw new BadRequestException({
+          message: 'Marital status not found',
+          code: 'INVALID_MARITAL_STATUS',
+        });
+      }
+    }
+
+    if (data.countryOfResidenceId !== undefined && data.countryOfResidenceId !== null) {
+      const exists = await this.prisma.countries.findUnique({
+        where: { id: data.countryOfResidenceId },
+        select: { id: true },
+      });
+      if (!exists) {
+        throw new BadRequestException({
+          message: 'Country not found',
+          code: 'INVALID_COUNTRY',
+        });
+      }
+    }
+
+    if (data.nationalityId !== undefined && data.nationalityId !== null) {
+      const exists = await this.prisma.countries.findUnique({
+        where: { id: data.nationalityId },
+        select: { id: true },
+      });
+      if (!exists) {
+        throw new BadRequestException({
+          message: 'Country not found',
+          code: 'INVALID_COUNTRY',
+        });
+      }
+    }
+
+    if (data.educationLevelId !== undefined && data.educationLevelId !== null) {
+      const exists = await this.prisma.educationLevel.findUnique({
+        where: { id: data.educationLevelId },
+        select: { id: true },
+      });
+      if (!exists) {
+        throw new BadRequestException({
+          message: 'Education level not found',
+          code: 'INVALID_EDUCATION_LEVEL',
+        });
+      }
+    }
+
     // clean undefined from data
-    const updateData: Record<string, any> = {};
+    const updateData: Record<string, unknown> = {};
     for (const [key, value] of Object.entries(data)) {
       if (value !== undefined) {
         updateData[key] = value;
       }
+    }
+
+    // Coerce DTO date strings to native Date for Prisma.
+    // @IsISO8601() accepts "2000-01-01", but Prisma's DateTime
+    // requires a full ISO timestamp. Convert once here so every
+    // downstream call sees a native Date.
+    if (
+      updateData.dateOfBirth !== undefined &&
+      updateData.dateOfBirth !== null &&
+      typeof updateData.dateOfBirth === 'string'
+    ) {
+      updateData.dateOfBirth = new Date(updateData.dateOfBirth);
     }
 
     const countryId =
@@ -95,25 +216,31 @@ export class ProfileService {
         ? data.currentCityId
         : profile.currentCityId;
 
-    if (cityId && countryId) {
+        if (cityId && countryId) {
       const city = await this.prisma.cities.findUnique({
         where: { id: cityId },
       });
-      if (city && city.countryId !== countryId) {
+      if (!city) {
+        throw new BadRequestException({
+          message: 'City not found',
+          code: 'INVALID_CITY',
+        });
+      }
+      if (city.countryId !== countryId) {
         if (data.currentCityId !== undefined) {
           throw new BadRequestException({
             message: 'City and country do not match',
             code: 'CITY_COUNTRY_MISMATCH',
           });
         } else {
-          // EC-006: changing country clears an incompatible existing city
           updateData.currentCityId = null;
         }
       }
     } else if (cityId && !countryId) {
-      throw new BadRequestException(
-        'Cannot set city without a country of residence',
-      );
+      throw new BadRequestException({
+        message: 'Cannot set city without a country of residence',
+        code: 'CITY_WITHOUT_COUNTRY',
+      });
     }
 
     await this.prisma.userProfiles.update({
@@ -121,87 +248,97 @@ export class ProfileService {
       data: updateData,
     });
 
-    return this.recalculate(userId);
+    await this.recalculate(userId);
+    return this.getProfile(userId);
   }
 
   /**
-   * Pure function to compute completion percentage based on profile and weights.
-   * @param profile - The profile object.
-   * @param weights - The configured weights.
-   * @returns The computed completion percentage.
+   * Pure function computing the profile completion percentage.
+   *
+   * Reads the six group weights (already validated to total 100), scales each
+   * documented component weight proportionally within its group, and scores
+   * only the fields present on the profile.
+   *
+   * Excluded fields (never affect completion): bio, phone, email,
+   * profilePhotoUrl, experiences, currentCityId, all Documents.
    */
   private computeCompletionPct(
-    profile: Record<string, any>,
-    weights: Record<string, number>,
+    profile: Record<string, unknown>,
+    groupWeights: Record<keyof typeof DEFAULT_GROUP_WEIGHTS, number>,
   ): number {
-    let totalWeight = 0;
+    const scale = (g: keyof typeof DEFAULT_GROUP_WEIGHTS): number =>
+      groupWeights[g] / DEFAULT_GROUP_WEIGHTS[g];
 
-    // Personal Identity: firstName, lastName, dateOfBirth, gender
-    let personalScore = 0;
+    const hasArray = (key: string): boolean => {
+      const value = profile[key];
+      return Array.isArray(value) && value.length > 0;
+    };
+
+    let score = 0;
+
+    // Personal Identity
+    const pi = scale('personalIdentity');
     if (profile.firstName) {
-      personalScore += 0.25;
+      score += DEFAULT_COMPONENTS.personalIdentity.firstName * pi;
     }
     if (profile.lastName) {
-      personalScore += 0.25;
+      score += DEFAULT_COMPONENTS.personalIdentity.lastName * pi;
     }
     if (profile.dateOfBirth) {
-      personalScore += 0.25;
+      score += DEFAULT_COMPONENTS.personalIdentity.dateOfBirth * pi;
     }
     if (profile.gender) {
-      personalScore += 0.25;
+      score += DEFAULT_COMPONENTS.personalIdentity.gender * pi;
     }
-    totalWeight += personalScore * weights.personalIdentity;
+    if (profile.maritalStatusId) {
+      score += DEFAULT_COMPONENTS.personalIdentity.maritalStatusId * pi;
+    }
 
-    // Location Origin: countryOfResidenceId, nationalityId, currentCityId
-    let locationScore = 0;
+    // Location Origin
+    const lo = scale('locationOrigin');
     if (profile.countryOfResidenceId) {
-      locationScore += 0.34;
+      score += DEFAULT_COMPONENTS.locationOrigin.countryOfResidenceId * lo;
     }
     if (profile.nationalityId) {
-      locationScore += 0.33;
+      score += DEFAULT_COMPONENTS.locationOrigin.nationalityId * lo;
     }
-    if (profile.currentCityId) {
-      locationScore += 0.33;
-    }
-    totalWeight += locationScore * weights.locationOrigin;
 
     // Education
-    let educationScore = 0;
+    const ed = scale('education');
     if (profile.educationLevelId) {
-      educationScore += 0.5;
+      score += DEFAULT_COMPONENTS.education.educationLevelId * ed;
     }
-    if (profile.educations && profile.educations.length > 0) {
-      educationScore += 0.5;
+    if (hasArray('educations')) {
+      score += DEFAULT_COMPONENTS.education.hasEducationRecord * ed;
     }
-    totalWeight += educationScore * weights.education;
 
     // Languages
-    if (profile.languages && profile.languages.length > 0) {
-      totalWeight += weights.languages;
+    if (hasArray('languages')) {
+      score +=
+        DEFAULT_COMPONENTS.languages.hasLanguageRecord * scale('languages');
     }
 
     // Tests
-    if (profile.testResults && profile.testResults.length > 0) {
-      totalWeight += weights.tests;
+    if (hasArray('testResults')) {
+      score += DEFAULT_COMPONENTS.tests.hasTestRecord * scale('tests');
     }
 
     // Preferences & Statuses
-    let prefScore = 0;
-    if (profile.targetDegrees && profile.targetDegrees.length > 0) {
-      prefScore += 0.25;
+    const ps = scale('preferencesStatuses');
+    if (hasArray('targetMajors')) {
+      score += DEFAULT_COMPONENTS.preferencesStatuses.hasTargetMajor * ps;
     }
-    if (profile.targetMajors && profile.targetMajors.length > 0) {
-      prefScore += 0.25;
+    if (hasArray('targetDegrees')) {
+      score += DEFAULT_COMPONENTS.preferencesStatuses.hasTargetDegree * ps;
     }
-    if (profile.targetInstitutions && profile.targetInstitutions.length > 0) {
-      prefScore += 0.25;
+    if (hasArray('targetInstitutions')) {
+      score += DEFAULT_COMPONENTS.preferencesStatuses.hasTargetInstitution * ps;
     }
-    if (profile.specialStatuses && profile.specialStatuses.length > 0) {
-      prefScore += 0.25;
+    if (hasArray('specialStatuses')) {
+      score += DEFAULT_COMPONENTS.preferencesStatuses.hasSpecialStatus * ps;
     }
-    totalWeight += prefScore * weights.preferencesStatuses;
 
-    return Math.round(totalWeight);
+    return Math.round(score);
   }
 
   /**
