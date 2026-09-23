@@ -1,19 +1,13 @@
 import { Controller, Get, Query } from '@nestjs/common';
 import { Throttle } from '@nestjs/throttler';
-import {
-  ApiTags,
-  ApiOperation,
-  ApiResponse,
-  ApiBearerAuth,
-} from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { ReferenceService } from '../services/reference.service';
 import { Public } from '../../../common/decorators/public.decorator';
-import { PaginationDto } from '../../../common/dto/pagination.dto';
 import { GetCountriesDto } from '../dto/get-countries.dto';
 import { GetCitiesDto } from '../dto/get-cities.dto';
+import { GetLanguagesDto } from '../dto/get-languages.dto';
 
 @ApiTags('profile')
-@ApiBearerAuth()
 @Controller('reference')
 export class ReferenceController {
   constructor(private readonly referenceService: ReferenceService) {}
@@ -26,7 +20,7 @@ export class ReferenceController {
     status: 200,
     description: 'Languages retrieved successfully',
   })
-  async getLanguages(@Query() dto: PaginationDto) {
+  async getLanguages(@Query() dto: GetLanguagesDto) {
     const result = await this.referenceService.getLanguages(dto);
     return {
       statusCode: 200,

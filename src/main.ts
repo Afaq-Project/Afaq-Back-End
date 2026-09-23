@@ -1,12 +1,7 @@
 import { NestFactory, Reflector } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { ConfigService } from '@nestjs/config';
-import {
-  ValidationPipe,
-  VersioningType,
-  Logger,
-  BadRequestException,
-} from '@nestjs/common';
+import { VersioningType, Logger, BadRequestException } from '@nestjs/common';
 import { ValidationError } from 'class-validator';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import helmet from 'helmet';
@@ -17,6 +12,7 @@ import { AppModule } from './app.module';
 import { AllExceptionsFilter } from '@common/filters';
 import { TransformInterceptor, TimeoutInterceptor } from '@common/interceptors';
 import { ErrorCode } from '@common/dto/response.dto';
+import { ConfigurableValidationPipe } from './common/pipes/configurable-validation.pipe';
 
 function constraintToErrorCode(constraintKey: string): string {
   const map: Record<string, string> = {
@@ -60,9 +56,8 @@ async function bootstrap() {
   app.use(compression());
   app.use(cookieParser());
 
-  const express = await import('express');
-  app.use(express.json({ limit: '1mb' }));
-  app.use(express.urlencoded({ extended: true, limit: '1mb' }));
+  app.useBodyParser('json', { limit: '1mb' });
+  app.useBodyParser('urlencoded', { extended: true, limit: '1mb' });
 
   const corsOrigins = config.get<string[]>('security.CORS_ORIGINS', [
     'http://localhost:3000',
@@ -84,12 +79,12 @@ async function bootstrap() {
   app.setGlobalPrefix(prefix);
   app.enableVersioning({ type: VersioningType.URI, defaultVersion: '1' });
 
+  const reflector = app.get(Reflector);
   app.useGlobalPipes(
-    new ValidationPipe({
+    new ConfigurableValidationPipe(reflector, {
       whitelist: true,
       forbidNonWhitelisted: true,
       transform: true,
-      stopAtFirstError: true,
       transformOptions: { enableImplicitConversion: false },
       exceptionFactory: (errors: ValidationError[]) => {
         const errList = errors.flatMap((err) =>
@@ -109,7 +104,6 @@ async function bootstrap() {
     }),
   );
 
-  const reflector = app.get(Reflector);
   app.useGlobalFilters(new AllExceptionsFilter());
   app.useGlobalInterceptors(
     new TransformInterceptor(reflector),

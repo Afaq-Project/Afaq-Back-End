@@ -173,3 +173,12 @@ It serves as the source of truth for implementation. Decisions are listed by mod
 - **Status:** Final
 - **Decision:** Increased Decimal precision for standardized test scores from `Decimal(5,2)` to `Decimal(6,2)`.
 - **Rationale:** Supports SAT scores which range from 400-1600. `Decimal(5,2)` has a maximum value of 999.99, which is insufficient. `Decimal(6,2)` provides a max of 9999.99, covering the SAT bounds.
+
+### DEC-PROF-20 — Profile experiences field is free-form and excluded from completion
+
+**Decision:** `UserProfiles.experiences` is a `String[]` column storing up to N free-text entries describing the user's prior work or volunteer experience. It is updated exclusively through `PATCH /profile/personal`.
+
+- **Maximum entries:** read from `SystemSettings` key `profile.max_experiences` (default `10`).
+- **Maximum length per entry:** 500 characters.
+- **Excluded from `completionPct`**: like `bio`, `phone`, `email`, and `profilePhotoUrl`, this field does not affect completion or matchability. The weight table in DEC-PROF-04 remains unchanged.
+- **Ownership:** inherent — the field lives on `UserProfiles`, no separate guard is required.

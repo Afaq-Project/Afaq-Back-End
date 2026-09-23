@@ -13,11 +13,7 @@ export const USER_SELECT = {
   createdAt: true,
   updatedAt: true,
   deletedAt: true,
-  userProfile: {
-    select: {
-      completionPct: true,
-    },
-  },
+
   userRoles: {
     where: { isActive: true },
     select: {
@@ -116,7 +112,6 @@ export class UsersRepository {
       data: {
         userId,
         isMatchable: false,
-        completionPct: 0,
       },
     });
   }

@@ -26,9 +26,7 @@ interface OAuthUserWithRelations {
   lastLoginAt?: Date | null;
   createdAt?: Date;
   userProfile?: {
-    fullName?: string | null;
     completionPct?: number | null;
-    isDraft?: boolean | null;
   } | null;
   userRoles?: Array<{
     role?: {
@@ -61,7 +59,6 @@ export class OAuthProcessorService {
       email,
       firstName,
       lastName,
-      picture,
       accessToken,
       refreshToken,
     } = data;
@@ -177,17 +174,6 @@ export class OAuthProcessorService {
           }
           if (lastName) {
             updateData.lastName = lastName;
-          }
-
-          const profileUpdateData: Record<string, unknown> = {};
-          if (picture) {
-            profileUpdateData.profilePhotoUrl = picture;
-          }
-
-          if (Object.keys(profileUpdateData).length > 0) {
-            updateData.userProfile = {
-              update: profileUpdateData,
-            };
           }
 
           // Mark email verified if not already, update last login, and sync fields

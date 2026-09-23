@@ -95,7 +95,8 @@ curl -s -X PATCH http://localhost:3000/api/v1/profile/personal \
     "firstName": "Ahmad",
     "lastName": "Al-Najjar",
     "dateOfBirth": "2000-03-15",
-    "gender": "MALE"
+    "gender": "MALE",
+    "experiences": ["Software Engineering Intern at Acme"]
   }' | jq '.data.completionPct'
 ```
 

@@ -142,6 +142,7 @@ model UserProfiles {
   phone            String?   @db.Text
   bio              String?   @db.Text
   profilePhotoUrl  String?   @map("profile_photo_url") @db.Text
+  experiences      String[] @default([]) @map("experiences")
 
   // --- Location & Origin ---
   countryOfResidenceId String? @map("country_of_residence_id") @db.Uuid

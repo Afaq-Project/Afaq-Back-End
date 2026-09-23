@@ -17,6 +17,7 @@ This is the acceptance edge-case inventory. Sources are limited to `spec.md`, `e
 | EC-009 | Missing, malformed, or expired Bearer token on protected profile route | `401 UNAUTHORIZED` and no profile data | endpoints §1; Constitution V | ☐ |
 | EC-010 | Internal profile/storage/database failure | Uniform `500 INTERNAL_ERROR`, with no stack trace/internal details | endpoints cross-conventions; Constitution IV, IX | ☐ |
 | EC-011 | Every nullable profile field is omitted, explicitly `null`, empty where type permits, then assigned a valid value | Omitted preserves value; `null` is represented/cleared according to optional DTO semantics; empty string is validated as its field type permits; valid value persists. Fields: `firstName`, `lastName`, `email`, `dateOfBirth`, `gender`, `maritalStatusId`, `phone`, `bio`, `profilePhotoUrl`, `countryOfResidenceId`, `nationalityId`, `currentCityId`, `educationLevelId`, `updatedAt` | data-model §UserProfiles; DEC-AUTH-02; endpoints §1.2 | ☐ |
+| EC-011b | `experiences` is empty, at max, one over, or contains an entry over 500 chars | Empty → `[]`; at max → accepted; one over → `400 TOO_MANY_EXPERIENCES`; long entry → `400 VALIDATION_ERROR` | DEC-PROF-20 | ☐ |
 | EC-012 | Settings table missing key or contains unparseable value | Fallback default is used; profile calculation does not fail | FR-010; DEC-PROF-05; T027 | ☐ |
 
 ## Education

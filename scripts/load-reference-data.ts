@@ -1,7 +1,5 @@
 import { PrismaClient } from '@prisma/client';
-// @ts-ignore
-import AdmZip = require('adm-zip');
-// @ts-ignore
+import AdmZip from 'adm-zip';
 import * as XLSX from 'xlsx';
 
 const prisma = new PrismaClient();
@@ -30,13 +28,28 @@ async function fetchJson(url: string): Promise<any> {
   return response.json();
 }
 
-async function loadCountries() {
+async function processInBatches<T>(items: T[], batchSize: number, processItem: (item: T) => Promise<void>) {
+  for (let i = 0; i < items.length; i += batchSize) {
+    await Promise.all(items.slice(i, i + batchSize).map(processItem));
+  }
+}
+
+async function loadCountries(limit?: number) {
   console.log('Fetching Countries...');
   const data = await fetchJson(COUNTRIES_URL);
   const unMembers = data.filter((d: any) => d.unMember === true);
 
-  let inserted = 0;
+  const countriesToProcess = [];
   for (const country of unMembers) {
+    const isoCode = country.cca3;
+    if (!isoCode) continue;
+    
+    countriesToProcess.push(country);
+    if (limit && countriesToProcess.length >= limit) break;
+  }
+
+  let processed = 0;
+  await processInBatches(countriesToProcess, 20, async (country) => {
     const nameEn = country.name?.common || '';
     const nameAr = country.translations?.ara?.common || nameEn;
     const isoCode = country.cca3;
@@ -46,10 +59,8 @@ async function loadCountries() {
       ? country.idd.root + (country.idd.suffixes?.[0] || '')
       : null;
     const flagEmoji = country.flag || '';
-
-    if (!isoCode) {
-      continue;
-    }
+    const nationalityNameEn = country.demonyms?.eng?.m || null;
+    const nationalityNameAr = country.demonyms?.ara?.m || null;
 
     await prisma.countries.upsert({
       where: { isoCode },
@@ -60,6 +71,8 @@ async function loadCountries() {
         regionEn,
         phoneCode,
         flagEmoji,
+        nationalityNameEn,
+        nationalityNameAr,
         externalSourceId: isoCode,
       },
       create: {
@@ -70,15 +83,18 @@ async function loadCountries() {
         regionEn,
         phoneCode,
         flagEmoji,
+        nationalityNameEn,
+        nationalityNameAr,
         externalSourceId: isoCode,
       },
     });
-    inserted++;
-  }
-  console.log(`✅ Countries loaded: ${inserted}`);
+    processed++;
+  });
+  
+  console.log(`✅ Countries processed: ${processed}`);
 }
 
-async function loadCities() {
+async function loadCities(limit?: number) {
   console.log('Fetching Cities...');
   const buffer = await fetchBuffer(CITIES_URL);
   const zip = new AdmZip(buffer);
@@ -107,8 +123,9 @@ async function loadCities() {
     existingCities.map((c) => `${c.nameEn}-${c.countryId}`),
   );
 
-  let inserted = 0;
+  let processed = 0;
   let skipped = 0;
+  let validCount = 0;
 
   const newCities = [];
 
@@ -131,30 +148,33 @@ async function loadCities() {
       continue;
     }
 
+    validCount++;
+
     const key = `${nameEn}-${countryId}`;
     if (!citySet.has(key)) {
       newCities.push({ nameEn, nameAr, countryId });
       citySet.add(key);
     }
+
+    if (limit && validCount >= limit) break;
   }
 
-  // Batch insert cities
+  // Deduplication handled by in-memory citySet
   const batchSize = 5000;
   for (let i = 0; i < newCities.length; i += batchSize) {
     const batch = newCities.slice(i, i + batchSize);
-    await prisma.cities.createMany({ data: batch, skipDuplicates: true });
-    inserted += batch.length;
+    await prisma.cities.createMany({ data: batch });
+    processed += batch.length;
   }
 
-  console.log(`✅ Cities loaded: ${inserted} (Skipped unresolved: ${skipped})`);
+  console.log(`✅ Cities processed: ${processed} (Skipped unresolved: ${skipped})`);
 }
 
-async function loadMajors() {
+async function loadMajors(catLimit?: number, majorLimit?: number) {
   console.log('Fetching Majors (CIP codes)...');
   const buffer = await fetchBuffer(MAJORS_URL);
   const zip = new AdmZip(buffer);
 
-  // Find the xls file
   const entries = zip.getEntries();
   const xlsEntry = entries.find(
     (e: any) =>
@@ -174,14 +194,15 @@ async function loadMajors() {
   const sheet = workbook.Sheets[sheetName];
   const data: any[] = XLSX.utils.sheet_to_json(sheet);
 
-  let categoriesInserted = 0;
-  let majorsInserted = 0;
+  let categoriesProcessed = 0;
+  let majorsProcessed = 0;
+  let validCatCount = 0;
+  let validMajorCount = 0;
 
-  // Cache categories
   const categoriesMap = new Map<string, string>(); // Prefix -> ID
+  const majorsToProcess = [];
 
   for (const row of data) {
-    // CIPCode and CIPTitle are typical columns in this dataset
     const rawCode = row['CIPCode'] || row['CIPCODE'] || row['CIP Code'] || '';
     const rawTitle =
       row['CIPTitle'] || row['CIPTITLE'] || row['CIP Title'] || '';
@@ -190,48 +211,70 @@ async function loadMajors() {
       continue;
     }
 
-    // Convert to string and trim
-    const code = String(rawCode).trim().replace('=', '').replace(/"/g, ''); // Sometimes Excel exports as ="11.0101"
+    const code = String(rawCode).trim().replace('=', '').replace(/"/g, '');
     const title = String(rawTitle).trim();
 
-    // Category: First two digits
     if (code.length === 2 || code.endsWith('.0000')) {
-      // It's a category
       const prefix = code.substring(0, 2);
-      let cat = await prisma.majorCategories.findFirst({
-        where: { nameEn: title },
-      });
-      if (!cat) {
-        cat = await prisma.majorCategories.create({
-          data: { nameEn: title, nameAr: title }, // fallback nameAr
+      
+      if (!categoriesMap.has(prefix)) {
+        if (catLimit && validCatCount >= catLimit) continue;
+        validCatCount++;
+        
+        const cat = await prisma.majorCategories.upsert({
+          where: { nameEn: title },
+          update: { nameAr: title },
+          create: { nameEn: title, nameAr: title }
         });
-        categoriesInserted++;
+        categoriesProcessed++;
+        categoriesMap.set(prefix, cat.id);
       }
-      categoriesMap.set(prefix, cat.id);
     } else if (code.includes('.')) {
-      // It's a major
       const prefix = code.split('.')[0];
       const categoryId = categoriesMap.get(prefix) || null;
+      
+      if (majorLimit && !categoryId) {
+        continue; // Fix 4: Skip majors with no category in sample mode
+      }
 
-      await prisma.majors.upsert({
-        where: { externalSourceId: code },
-        update: { nameEn: title, nameAr: title, categoryId },
-        create: {
-          nameEn: title,
-          nameAr: title,
-          categoryId,
-          externalSourceId: code,
-        },
+      if (majorLimit && validMajorCount >= majorLimit) continue;
+      validMajorCount++;
+      
+      majorsToProcess.push({
+        code,
+        title,
+        categoryId
       });
-      majorsInserted++;
+    }
+
+    const catDone = catLimit !== undefined && validCatCount >= catLimit;
+    const majorDone = majorLimit !== undefined && validMajorCount >= majorLimit;
+    const anyLimitSet = catLimit !== undefined || majorLimit !== undefined;
+    
+    if (anyLimitSet && (catLimit === undefined || catDone) && (majorLimit === undefined || majorDone)) {
+      break;
     }
   }
+  
+  await processInBatches(majorsToProcess, 20, async (majorData) => {
+    await prisma.majors.upsert({
+      where: { externalSourceId: majorData.code },
+      update: { nameEn: majorData.title, nameAr: majorData.title, categoryId: majorData.categoryId },
+      create: {
+        nameEn: majorData.title,
+        nameAr: majorData.title,
+        categoryId: majorData.categoryId,
+        externalSourceId: majorData.code,
+      },
+    });
+    majorsProcessed++;
+  });
 
-  console.log(`✅ Major Categories loaded: ${categoriesInserted}`);
-  console.log(`✅ Majors loaded: ${majorsInserted}`);
+  console.log(`✅ Major Categories processed: ${categoriesProcessed}`);
+  console.log(`✅ Majors processed: ${majorsProcessed}`);
 }
 
-async function loadInstitutions() {
+async function loadInstitutions(limit?: number) {
   console.log('Fetching Institutions...');
   const data = await fetchJson(INSTITUTIONS_URL);
 
@@ -245,16 +288,10 @@ async function loadInstitutions() {
     }
   });
 
-  const cities = await prisma.cities.findMany({
-    select: { id: true, nameEn: true, countryId: true },
-  });
-  const cityMap = new Map<string, string>(); // 'NameEn-CountryId' -> cityId
-  cities.forEach((c) => {
-    cityMap.set(`${c.nameEn.toLowerCase()}-${c.countryId}`, c.id);
-  });
-
-  let inserted = 0;
   let skipped = 0;
+  let validCount = 0;
+  
+  const instsToProcess = [];
 
   for (const inst of data) {
     const alphaTwo = inst.alpha_two_code;
@@ -263,18 +300,22 @@ async function loadInstitutions() {
       skipped++;
       continue;
     }
+    
+    validCount++;
+    instsToProcess.push({ inst, countryId });
 
-    let cityId: string | null = null;
-    if (inst['state-province']) {
-      const stateProv = inst['state-province'].toLowerCase();
-      cityId = cityMap.get(`${stateProv}-${countryId}`) || null;
-    }
+    if (limit && validCount >= limit) break;
+  }
+
+  let processed = 0;
+  
+  await processInBatches(instsToProcess, 20, async ({ inst, countryId }) => {
+    // cityId resolution from state-province omitted due to name mismatch
+    let cityId: string | null = null; 
 
     const nameEn = inst.name;
     const nameAr = nameEn;
     const websiteUrl = inst.web_pages?.[0] || null;
-
-    // Generate a consistent ID from domains if possible, or name
     const externalSourceId = inst.domains?.[0] || nameEn;
 
     await prisma.institutions.upsert({
@@ -295,11 +336,11 @@ async function loadInstitutions() {
         externalSourceId,
       },
     });
-    inserted++;
-  }
+    processed++;
+  });
 
   console.log(
-    `✅ Institutions loaded: ${inserted} (Skipped unresolved: ${skipped})`,
+    `✅ Institutions processed: ${processed} (Skipped unresolved: ${skipped})`,
   );
 }
 
@@ -315,11 +356,80 @@ async function verify() {
 
   console.table(counts);
 
-  // Check Institutions FK
-  // We allow cityId to be null, but countryId should either be valid or null.
-  // Actually schema requires Institutions.countryId to be present if it's there.
-  // We filter skip rows with unresolved countries anyway.
-  console.log('✅ Verification complete.');
+  let hasErrors = false;
+  const errors: string[] = [];
+  const warnings: string[] = [];
+
+  const dupCountries = await prisma.$queryRaw<any[]>`SELECT "name_en", count(*) FROM "countries" GROUP BY "name_en" HAVING count(*) > 1`;
+  if (dupCountries.length > 0) {
+    hasErrors = true;
+    errors.push(`Duplicate Countries (nameEn) found: ${dupCountries.length}`);
+  }
+
+  const dupCities = await prisma.$queryRaw<any[]>`SELECT "name_en", "country_id", count(*) FROM "cities" GROUP BY "name_en", "country_id" HAVING count(*) > 1`;
+  if (dupCities.length > 0) {
+    hasErrors = true;
+    errors.push(`Duplicate Cities (nameEn, countryId) found: ${dupCities.length}`);
+  }
+
+  const dupInstExt = await prisma.$queryRaw<any[]>`SELECT "external_source_id", count(*) FROM "institutions" WHERE "external_source_id" IS NOT NULL GROUP BY "external_source_id" HAVING count(*) > 1`;
+  if (dupInstExt.length > 0) {
+    hasErrors = true;
+    errors.push(`Duplicate Institutions (externalSourceId) found: ${dupInstExt.length}`);
+  }
+
+  const dupInstNameCountry = await prisma.$queryRaw<any[]>`SELECT "name_en", "country_id", count(*) FROM "institutions" GROUP BY "name_en", "country_id" HAVING count(*) > 1`;
+  if (dupInstNameCountry.length > 0) {
+    warnings.push(`Duplicate Institutions (nameEn, countryId) found: ${dupInstNameCountry.length}`);
+  }
+
+  const dupMajorCat = await prisma.$queryRaw<any[]>`SELECT "name_en", count(*) FROM "major_categories" GROUP BY "name_en" HAVING count(*) > 1`;
+  if (dupMajorCat.length > 0) {
+    hasErrors = true;
+    errors.push(`Duplicate MajorCategories (nameEn) found: ${dupMajorCat.length}`);
+  }
+
+  const dupMajors = await prisma.$queryRaw<any[]>`SELECT "name_en", "category_id", count(*) FROM "majors" GROUP BY "name_en", "category_id" HAVING count(*) > 1`;
+  if (dupMajors.length > 0) {
+    hasErrors = true;
+    errors.push(`Duplicate Majors (nameEn, categoryId) found: ${dupMajors.length}`);
+  }
+
+  const orphanCities = await prisma.$queryRaw<any[]>`SELECT count(*) as count FROM "cities" WHERE "country_id" IS NULL OR "country_id" NOT IN (SELECT "id" FROM "countries")`;
+  if (Number(orphanCities[0]?.count || 0) > 0) {
+    hasErrors = true;
+    errors.push(`Orphan Cities (missing/invalid countryId) found: ${orphanCities[0].count}`);
+  }
+
+  const nullInstCountries = await prisma.institutions.count({ where: { countryId: null } });
+  if (nullInstCountries > 0) {
+    warnings.push(`Institutions with null countryId: ${nullInstCountries}`);
+  }
+
+  const orphanInstCities = await prisma.$queryRaw<any[]>`SELECT count(*) as count FROM "institutions" WHERE "city_id" IS NOT NULL AND "city_id" NOT IN (SELECT "id" FROM "cities")`;
+  if (Number(orphanInstCities[0]?.count || 0) > 0) {
+    hasErrors = true;
+    errors.push(`Orphan Institutions (invalid cityId) found: ${orphanInstCities[0].count}`);
+  }
+
+  const orphanMajors = await prisma.$queryRaw<any[]>`SELECT count(*) as count FROM "majors" WHERE "category_id" IS NOT NULL AND "category_id" NOT IN (SELECT "id" FROM "major_categories")`;
+  if (Number(orphanMajors[0]?.count || 0) > 0) {
+    hasErrors = true;
+    errors.push(`Orphan Majors (invalid categoryId) found: ${orphanMajors[0].count}`);
+  }
+
+  if (warnings.length > 0) {
+    console.log('\nWarnings:');
+    warnings.forEach((w) => console.log(` - ⚠️ ${w}`));
+  }
+
+  if (hasErrors) {
+    console.error('\n❌ Verification Failed:');
+    errors.forEach((e) => console.error(` - ${e}`));
+    throw new Error('Verification failed.');
+  }
+
+  console.log('\n✅ Verification complete.');
 }
 
 async function main() {
@@ -328,16 +438,29 @@ async function main() {
     `🌱 Loading Reference Data ${isSample ? '(SAMPLE MODE)' : ''}...`,
   );
 
+  let exitCode = 0;
   try {
-    await loadCountries();
-    await loadCities();
-    await loadMajors();
-    await loadInstitutions();
+    if (isSample) {
+      await loadCountries(20);
+      await loadCities(50);
+      await loadMajors(8, 40);
+      await loadInstitutions(30);
+    } else {
+      await loadCountries();
+      await loadCities();
+      await loadMajors();
+      await loadInstitutions();
+    }
     await verify();
   } catch (error) {
     console.error('❌ Error during data load:', error);
+    exitCode = 1;
   } finally {
     await prisma.$disconnect();
+  }
+  
+  if (exitCode !== 0) {
+    process.exit(exitCode);
   }
 }
 

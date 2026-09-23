@@ -27,7 +27,7 @@ export class SystemSettingsService {
 
       if (typeof setting.value === 'string') {
         const parsed = Number(setting.value);
-        if (!isNaN(parsed)) {
+        if (Number.isFinite(parsed)) {
           return parsed;
         }
       }
@@ -36,7 +36,7 @@ export class SystemSettingsService {
     } catch (error) {
       this.logger.error(
         `Failed to get setting ${key}, returning default ${defaultValue}`,
-        error,
+        error instanceof Error ? error.stack : undefined,
       );
       return defaultValue;
     }
@@ -54,11 +54,22 @@ export class SystemSettingsService {
 
       // If Prisma returns it as a string instead of an object in some cases (e.g. invalid JSON format)
       // Prisma usually returns the parsed JSON object directly for 'Json' type.
+      if (typeof setting.value === 'string') {
+        try {
+          return JSON.parse(setting.value) as T;
+        } catch {
+          this.logger.error(
+            `Failed to parse JSON string for setting ${key}, returning default`,
+          );
+          return defaultValue;
+        }
+      }
+
       return setting.value as unknown as T;
     } catch (error) {
       this.logger.error(
         `Failed to get JSON setting ${key}, returning default`,
-        error,
+        error instanceof Error ? error.stack : undefined,
       );
       return defaultValue;
     }

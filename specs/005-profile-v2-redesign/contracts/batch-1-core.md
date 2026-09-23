@@ -90,6 +90,7 @@ Updates personal info and/or location fields. All fields optional.
   "phone": "+966501234567",
   "bio": "Graduate student in Computer Science.",
   "profilePhotoUrl": "https://cdn.example.com/photos/abc.jpg",
+  "experiences": ["Software Engineering Intern at Acme", "Volunteer Tutor"],
   "countryOfResidenceId": "uuid",
   "nationalityId": "uuid",
   "currentCityId": "uuid",

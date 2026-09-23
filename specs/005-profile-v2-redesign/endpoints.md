@@ -138,6 +138,7 @@ All fields optional. At least one field must be present.
 | `phone` | `string` | `@IsOptional`, `@IsString`, `@MaxLength(30)` | Contact phone |
 | `bio` | `string` | `@IsOptional`, `@IsString` | Max length from `SystemSettings.max_bio_length` |
 | `profilePhotoUrl` | `string` | `@IsOptional`, `@IsUrl` | URL string |
+| `experiences` | `string[]` | `@IsOptional`, `@IsArray`, `@IsString({each:true})`, `@ArrayMaxSize(dynamic)`, `@MaxLength(500, {each:true})` | List of free-text experience entries |
 | `countryOfResidenceId` | `string` (UUID) | `@IsOptional`, `@IsUUID` | FK to `Countries` |
 | `nationalityId` | `string` (UUID) | `@IsOptional`, `@IsUUID` | FK to `Countries` |
 | `currentCityId` | `string` (UUID) | `@IsOptional`, `@IsUUID` | FK to `Cities` |
@@ -169,6 +170,7 @@ Returns the full updated profile (same shape as `GET /profile/me`), with `comple
 | `400` | `VALIDATION_ERROR` | `Validation failed` | DTO validation failure |
 | `400` | `UNKNOWN_FIELD` | `Property '<field>' should not exist` | Extra field sent |
 | `400` | `BIO_TOO_LONG` | `Bio exceeds maximum length of {max} characters` | `bio` length > `max_bio_length` |
+| `400` | `TOO_MANY_EXPERIENCES` | `Experiences exceed maximum of {max} entries` | Array longer than `MAX_EXPERIENCES` |
 | `400` | `CITY_COUNTRY_MISMATCH` | `Selected city does not belong to the selected country` | `currentCityId` mismatch |
 | `400` | `INVALID_MARITAL_STATUS` | `Marital status not found` | `maritalStatusId` does not exist |
 | `400` | `INVALID_COUNTRY` | `Country not found` | Country does not exist |

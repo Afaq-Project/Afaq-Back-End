@@ -1,9 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { INestApplication, ValidationPipe } from '@nestjs/common';
+import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
 import { AppModule } from '../src/app.module';
 import { PrismaService } from '../src/prisma/prisma.service';
 import { Reflector } from '@nestjs/core';
+import { ConfigurableValidationPipe } from '../src/common/pipes/configurable-validation.pipe';
 import { TransformInterceptor } from '../src/common/interceptors/transform.interceptor';
 import { TimeoutInterceptor } from '../src/common/interceptors/timeout.interceptor';
 import { AllExceptionsFilter } from '../src/common/filters/all-exceptions.filter';
@@ -23,13 +24,14 @@ describe('ProfileModule (e2e)', () => {
 
     app = moduleFixture.createNestApplication();
     app.setGlobalPrefix('api/v1');
+    const reflector = app.get(Reflector);
     app.useGlobalPipes(
-      new ValidationPipe({
+      new ConfigurableValidationPipe(reflector, {
         whitelist: true,
         forbidNonWhitelisted: true,
+        transform: true,
       }),
     );
-    const reflector = app.get(Reflector);
     app.useGlobalFilters(new AllExceptionsFilter());
     app.useGlobalInterceptors(
       new TransformInterceptor(reflector),
@@ -77,7 +79,7 @@ describe('ProfileModule (e2e)', () => {
   });
 
   describe('Authenticated Profile Scenarios', () => {
-    it('[FR-001] [EC-001] GET /api/v1/profile creates and returns empty profile on first access', async () => {
+    it('[FR-001] [EC-001] GET /api/v1/profile/me creates and returns profile with completionPct 0 on first access', async () => {
       res = await request(app.getHttpServer())
         .get('/api/v1/profile/me')
         .set('Authorization', `Bearer ${userToken}`)
@@ -87,6 +89,79 @@ describe('ProfileModule (e2e)', () => {
       expect(res.body.data.completionPct).toBe(0);
       expect(res.body.data.isMatchable).toBe(false);
       expect(res.body.data.userId).toBeDefined();
+    });
+
+    it('[FR-001] GET /profile/me returns all 8 sections as arrays or null', async () => {
+      res = await request(app.getHttpServer())
+        .get('/api/v1/profile/me')
+        .set('Authorization', `Bearer ${userToken}`)
+        .expect(200);
+
+      const d = res.body.data;
+      for (const key of [
+        'educations',
+        'languages',
+        'testResults',
+        'specialStatuses',
+        'targetDegrees',
+        'targetMajors',
+        'targetInstitutions',
+        'documents',
+      ]) {
+        expect(Array.isArray(d[key])).toBe(true);
+      }
+    });
+
+    it('[FR-004] isMatchable transitions correctly', async () => {
+      const freshEmail = `fresh-${Date.now()}@example.com`;
+      await request(app.getHttpServer()).post('/api/v1/auth/register').send({
+        email: freshEmail,
+        password: 'Password1!',
+        firstName: 'Fresh',
+        lastName: 'User',
+      });
+      const loginRes = await request(app.getHttpServer())
+        .post('/api/v1/auth/login')
+        .send({ email: freshEmail, password: 'Password1!' });
+      const token = loginRes.body.data.accessToken;
+
+      await request(app.getHttpServer())
+        .patch('/api/v1/profile/personal')
+        .set('Authorization', `Bearer ${token}`)
+        .send({
+          firstName: 'Fresh',
+          lastName: 'User',
+          gender: 'MALE',
+          bio: 'Hello world',
+        })
+        .expect(200);
+
+      const after = await request(app.getHttpServer())
+        .get('/api/v1/profile/me')
+        .set('Authorization', `Bearer ${token}`);
+      expect(after.body.data.isMatchable).toBe(false);
+    });
+
+    test.todo(
+      '[requires Batch 2+] isMatchable transitions to true when all 6 weighted groups are filled, and drops when a required record is deleted.',
+    );
+
+    it('[FR-005] matchingVersion increments on every successful PATCH', async () => {
+      const before = await request(app.getHttpServer())
+        .get('/api/v1/profile/me')
+        .set('Authorization', `Bearer ${userToken}`);
+      const v1 = before.body.data.matchingVersion;
+
+      await request(app.getHttpServer())
+        .patch('/api/v1/profile/personal')
+        .set('Authorization', `Bearer ${userToken}`)
+        .send({ phone: '999999999' })
+        .expect(200);
+
+      const after = await request(app.getHttpServer())
+        .get('/api/v1/profile/me')
+        .set('Authorization', `Bearer ${userToken}`);
+      expect(after.body.data.matchingVersion).toBe(v1 + 1);
     });
 
     it('[FR-003] [EC-002] PATCH /api/v1/profile partial personal update preserves unrelated fields', async () => {
@@ -141,6 +216,53 @@ describe('ProfileModule (e2e)', () => {
         .patch('/api/v1/profile/personal')
         .set('Authorization', `Bearer ${userToken}`)
         .send({ bio: overLimit })
+        .expect(400);
+    });
+
+    it('[DEC-PROF-20] [EC-011b] experiences boundary', async () => {
+      await request(app.getHttpServer())
+        .patch('/api/v1/profile/personal')
+        .set('Authorization', `Bearer ${userToken}`)
+        .send({
+          experiences: [
+            'Exp 1',
+            'Exp 2',
+            'Exp 3',
+            'Exp 4',
+            'Exp 5',
+            'Exp 6',
+            'Exp 7',
+            'Exp 8',
+            'Exp 9',
+            'Exp 10',
+          ],
+        })
+        .expect(200);
+
+      await request(app.getHttpServer())
+        .patch('/api/v1/profile/personal')
+        .set('Authorization', `Bearer ${userToken}`)
+        .send({
+          experiences: [
+            'Exp 1',
+            'Exp 2',
+            'Exp 3',
+            'Exp 4',
+            'Exp 5',
+            'Exp 6',
+            'Exp 7',
+            'Exp 8',
+            'Exp 9',
+            'Exp 10',
+            'Exp 11',
+          ],
+        })
+        .expect(400);
+
+      await request(app.getHttpServer())
+        .patch('/api/v1/profile/personal')
+        .set('Authorization', `Bearer ${userToken}`)
+        .send({ experiences: ['a'.repeat(501)] })
         .expect(400);
     });
 

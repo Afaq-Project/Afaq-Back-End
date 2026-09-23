@@ -148,7 +148,10 @@ export class ProfileService {
       }
     }
 
-    if (data.countryOfResidenceId !== undefined && data.countryOfResidenceId !== null) {
+    if (
+      data.countryOfResidenceId !== undefined &&
+      data.countryOfResidenceId !== null
+    ) {
       const exists = await this.prisma.countries.findUnique({
         where: { id: data.countryOfResidenceId },
         select: { id: true },
@@ -216,7 +219,7 @@ export class ProfileService {
         ? data.currentCityId
         : profile.currentCityId;
 
-        if (cityId && countryId) {
+    if (cityId && countryId) {
       const city = await this.prisma.cities.findUnique({
         where: { id: cityId },
       });

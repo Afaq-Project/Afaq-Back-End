@@ -56,7 +56,7 @@ export class LanguagesService {
         userId,
         languageId: data.languageId,
         proficiency: data.proficiency,
-      } as any,
+      } as import('@prisma/client').Prisma.UserLanguagesUncheckedCreateInput,
     });
 
     const profileSvc = this
@@ -77,12 +77,12 @@ export class LanguagesService {
         include: {
           language: { select: { nameEn: true } },
         },
-      } as any),
+      }),
       this.prisma.userLanguages.count({ where: { userId } }),
     ]);
 
     return {
-      data: (languages as any[]).map((l) => ({
+      data: languages.map((l) => ({
         languageId: l.languageId,
         name: l.language?.nameEn,
         proficiency: l.proficiencyLevelId,
@@ -146,7 +146,7 @@ export class LanguagesService {
       data: {
         languageId: data.languageId,
         proficiency: data.proficiency,
-      } as any,
+      } as import('@prisma/client').Prisma.UserLanguagesUncheckedUpdateInput,
     });
 
     const profileSvc = this

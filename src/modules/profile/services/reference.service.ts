@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { PaginationDto } from '../../../common/dto/pagination.dto';
 import { GetCountriesDto } from '../dto/get-countries.dto';
@@ -33,12 +34,14 @@ export class ReferenceService {
   }
 
   async getCountries(dto: GetCountriesDto) {
-    const conditions: Record<string, any>[] = [{ isActive: true }];
+    const conditions: Prisma.CountriesWhereInput[] = [{ isActive: true }];
     if (dto.search) {
       conditions.push({
         OR: [
           { nameEn: { contains: dto.search, mode: 'insensitive' } },
           { nameAr: { contains: dto.search, mode: 'insensitive' } },
+          { isoCode: { contains: dto.search, mode: 'insensitive' } },
+          { isoCode2: { contains: dto.search, mode: 'insensitive' } },
         ],
       });
     }
@@ -50,6 +53,9 @@ export class ReferenceService {
         ],
       });
     }
+
+    const sortField = dto.sort ?? 'nameEn';
+    const orderBy = { [sortField]: dto.order ?? 'asc' };
 
     const [data, total] = await Promise.all([
       this.prisma.countries.findMany({
@@ -67,7 +73,7 @@ export class ReferenceService {
           regionEn: true,
           regionAr: true,
         },
-        orderBy: { sortOrder: 'asc' },
+        orderBy,
       }),
       this.prisma.countries.count({ where: { AND: conditions } }),
     ]);
@@ -79,7 +85,7 @@ export class ReferenceService {
   }
 
   async getCities(dto: GetCitiesDto) {
-    const conditions: Record<string, any>[] = [{ isActive: true }];
+    const conditions: Prisma.CitiesWhereInput[] = [{ isActive: true }];
     if (dto.countryId) {
       conditions.push({ countryId: dto.countryId });
     }
@@ -92,6 +98,9 @@ export class ReferenceService {
       });
     }
 
+    const sortField = dto.sort ?? 'nameEn';
+    const orderBy = { [sortField]: dto.order ?? 'asc' };
+
     const [data, total] = await Promise.all([
       this.prisma.cities.findMany({
         where: { AND: conditions },
@@ -103,7 +112,7 @@ export class ReferenceService {
           nameAr: true,
           countryId: true,
         },
-        orderBy: { sortOrder: 'asc' },
+        orderBy,
       }),
       this.prisma.cities.count({ where: { AND: conditions } }),
     ]);

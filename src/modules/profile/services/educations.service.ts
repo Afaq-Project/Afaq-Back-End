@@ -36,7 +36,7 @@ export class EducationsService {
       data: {
         userId,
         ...data,
-      } as any,
+      } as Prisma.UserEducationsUncheckedCreateInput,
     });
 
     await this.profileService.updateProfile(userId, {});
@@ -70,7 +70,7 @@ export class EducationsService {
       throw new NotFoundException('Education record not found');
     }
 
-    const updateData: any = {
+    const updateData: Prisma.UserEducationsUpdateInput = {
       degree: data.degree,
       major: data.major,
       institution: data.institution,

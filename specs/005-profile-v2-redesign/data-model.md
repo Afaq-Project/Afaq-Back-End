@@ -67,6 +67,7 @@ The central table of the profile domain. Primary key is `userId` (same UUID as
 | `phone` | TEXT | Yes | |
 | `bio` | TEXT | Yes | Max length enforced via SystemSettings |
 | `profilePhotoUrl` | TEXT | Yes | URL string only; upload is out of scope |
+| `experiences` | `TEXT[]` | No | Default `[]`; max entries from `SystemSettings.max_experiences` (default 10); each entry ≤ 500 chars |
 | `countryOfResidenceId` | UUID FK | Yes | → `Countries.id` (named relation "ProfileResidence") |
 | `nationalityId` | UUID FK | Yes | → `Countries.id` (named relation "ProfileNationality") |
 | `currentCityId` | UUID FK | Yes | → `Cities.id` |
@@ -82,6 +83,7 @@ The central table of the profile domain. Primary key is `userId` (same UUID as
 **Validation rules (application layer)**:
 - All fields optional on update (DTO `PartialType`)
 - `bio` max length from `SystemSettings.MAX_BIO_LENGTH (default 1000)
+- `experiences` → max entries from `SystemSettings.MAX_EXPERIENCES` (default 10); each entry ≤ 500 chars; entries sanitized.
 - `dateOfBirth` → ISO 8601 date string in DTO, stored as `DATE`
 - `gender` → strict enum: `MALE` | `FEMALE`
 - FKs (`maritalStatusId`, `countryOfResidenceId`, etc.) validated against master tables before write

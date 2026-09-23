@@ -2,12 +2,14 @@
 export function formatUserResponse(user: any) {
   let roles: string[] = ['user'];
   if (Array.isArray(user.userRoles) && user.userRoles.length > 0) {
-    roles = user.userRoles.map((ur: any) => ur.roles?.name ?? 'user');
+    roles = user.userRoles.map(
+      (ur: { roles?: { name: string } }) => ur.roles?.name ?? 'user',
+    );
   } else if (Array.isArray(user.roles)) {
     roles = user.roles;
   }
 
-  const response: any = {
+  const response: Record<string, unknown> = {
     id: user.id,
     email: user.email,
     firstName: user.firstName,

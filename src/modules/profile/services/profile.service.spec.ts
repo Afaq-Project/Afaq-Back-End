@@ -47,7 +47,7 @@ describe('ProfileService', () => {
 
     // Default mock for system settings
     mockSystemSettingsService.getNumber.mockImplementation(
-      async (key, defaultValue) => {
+      (key, defaultValue) => {
         if (key === SystemSettingKeys.WEIGHT_PERSONAL_IDENTITY) {
           return 18;
         }
@@ -109,32 +109,30 @@ describe('ProfileService', () => {
 
     it('[EC-005] bio is exactly configured maximum succeeds, one over throws', async () => {
       mockPrisma.userProfiles.findUnique.mockResolvedValue({ userId: '1' });
-      mockSystemSettingsService.getNumber.mockImplementation(
-        async (key, def) => {
-          if (key === SystemSettingKeys.MAX_BIO_LENGTH) {
-            return 10;
-          }
-          if (key === SystemSettingKeys.WEIGHT_PERSONAL_IDENTITY) {
-            return 18;
-          }
-          if (key === SystemSettingKeys.WEIGHT_LOCATION_ORIGIN) {
-            return 15;
-          }
-          if (key === SystemSettingKeys.WEIGHT_EDUCATION) {
-            return 35;
-          }
-          if (key === SystemSettingKeys.WEIGHT_LANGUAGES) {
-            return 10;
-          }
-          if (key === SystemSettingKeys.WEIGHT_TESTS) {
-            return 7;
-          }
-          if (key === SystemSettingKeys.WEIGHT_PREFERENCES_STATUSES) {
-            return 15;
-          }
-          return def;
-        },
-      );
+      mockSystemSettingsService.getNumber.mockImplementation((key, def) => {
+        if (key === SystemSettingKeys.MAX_BIO_LENGTH) {
+          return 10;
+        }
+        if (key === SystemSettingKeys.WEIGHT_PERSONAL_IDENTITY) {
+          return 18;
+        }
+        if (key === SystemSettingKeys.WEIGHT_LOCATION_ORIGIN) {
+          return 15;
+        }
+        if (key === SystemSettingKeys.WEIGHT_EDUCATION) {
+          return 35;
+        }
+        if (key === SystemSettingKeys.WEIGHT_LANGUAGES) {
+          return 10;
+        }
+        if (key === SystemSettingKeys.WEIGHT_TESTS) {
+          return 7;
+        }
+        if (key === SystemSettingKeys.WEIGHT_PREFERENCES_STATUSES) {
+          return 15;
+        }
+        return def;
+      });
 
       // Exactly max length
       mockPrisma.userProfiles.findUnique
@@ -311,32 +309,30 @@ describe('ProfileService', () => {
         educations: [{}], // 35
         testResults: [{}], // 7 -> 18+35+7 = 60
       });
-      mockSystemSettingsService.getNumber.mockImplementation(
-        async (key, def) => {
-          if (key === SystemSettingKeys.MATCHING_THRESHOLD) {
-            return 60;
-          }
-          if (key === SystemSettingKeys.WEIGHT_PERSONAL_IDENTITY) {
-            return 18;
-          }
-          if (key === SystemSettingKeys.WEIGHT_LOCATION_ORIGIN) {
-            return 15;
-          }
-          if (key === SystemSettingKeys.WEIGHT_EDUCATION) {
-            return 35;
-          }
-          if (key === SystemSettingKeys.WEIGHT_LANGUAGES) {
-            return 10;
-          }
-          if (key === SystemSettingKeys.WEIGHT_TESTS) {
-            return 7;
-          }
-          if (key === SystemSettingKeys.WEIGHT_PREFERENCES_STATUSES) {
-            return 15;
-          }
-          return def;
-        },
-      );
+      mockSystemSettingsService.getNumber.mockImplementation((key, def) => {
+        if (key === SystemSettingKeys.MATCHING_THRESHOLD) {
+          return 60;
+        }
+        if (key === SystemSettingKeys.WEIGHT_PERSONAL_IDENTITY) {
+          return 18;
+        }
+        if (key === SystemSettingKeys.WEIGHT_LOCATION_ORIGIN) {
+          return 15;
+        }
+        if (key === SystemSettingKeys.WEIGHT_EDUCATION) {
+          return 35;
+        }
+        if (key === SystemSettingKeys.WEIGHT_LANGUAGES) {
+          return 10;
+        }
+        if (key === SystemSettingKeys.WEIGHT_TESTS) {
+          return 7;
+        }
+        if (key === SystemSettingKeys.WEIGHT_PREFERENCES_STATUSES) {
+          return 15;
+        }
+        return def;
+      });
 
       await service.recalculate('1');
 
@@ -357,32 +353,30 @@ describe('ProfileService', () => {
         userId: '1',
         firstName: 'John', // only 0.25 of 18 -> 4.5
       });
-      mockSystemSettingsService.getNumber.mockImplementation(
-        async (key, def) => {
-          if (key === SystemSettingKeys.MATCHING_THRESHOLD) {
-            return 60;
-          }
-          if (key === SystemSettingKeys.WEIGHT_PERSONAL_IDENTITY) {
-            return 18;
-          }
-          if (key === SystemSettingKeys.WEIGHT_LOCATION_ORIGIN) {
-            return 15;
-          }
-          if (key === SystemSettingKeys.WEIGHT_EDUCATION) {
-            return 35;
-          }
-          if (key === SystemSettingKeys.WEIGHT_LANGUAGES) {
-            return 10;
-          }
-          if (key === SystemSettingKeys.WEIGHT_TESTS) {
-            return 7;
-          }
-          if (key === SystemSettingKeys.WEIGHT_PREFERENCES_STATUSES) {
-            return 15;
-          }
-          return def;
-        },
-      );
+      mockSystemSettingsService.getNumber.mockImplementation((key, def) => {
+        if (key === SystemSettingKeys.MATCHING_THRESHOLD) {
+          return 60;
+        }
+        if (key === SystemSettingKeys.WEIGHT_PERSONAL_IDENTITY) {
+          return 18;
+        }
+        if (key === SystemSettingKeys.WEIGHT_LOCATION_ORIGIN) {
+          return 15;
+        }
+        if (key === SystemSettingKeys.WEIGHT_EDUCATION) {
+          return 35;
+        }
+        if (key === SystemSettingKeys.WEIGHT_LANGUAGES) {
+          return 10;
+        }
+        if (key === SystemSettingKeys.WEIGHT_TESTS) {
+          return 7;
+        }
+        if (key === SystemSettingKeys.WEIGHT_PREFERENCES_STATUSES) {
+          return 15;
+        }
+        return def;
+      });
 
       await service.recalculate('1');
 
@@ -419,29 +413,27 @@ describe('ProfileService', () => {
     });
     it('[FR-010] should throw InternalServerErrorException if weights do not sum to 100', async () => {
       mockPrisma.userProfiles.findUnique.mockResolvedValue({ userId: '1' });
-      mockSystemSettingsService.getNumber.mockImplementation(
-        async (key, def) => {
-          if (key === SystemSettingKeys.WEIGHT_PERSONAL_IDENTITY) {
-            return 18;
-          }
-          if (key === SystemSettingKeys.WEIGHT_LOCATION_ORIGIN) {
-            return 15;
-          }
-          if (key === SystemSettingKeys.WEIGHT_EDUCATION) {
-            return 35;
-          }
-          if (key === SystemSettingKeys.WEIGHT_LANGUAGES) {
-            return 10;
-          }
-          if (key === SystemSettingKeys.WEIGHT_TESTS) {
-            return 7;
-          }
-          if (key === SystemSettingKeys.WEIGHT_PREFERENCES_STATUSES) {
-            return 10;
-          } // Sum is 95
-          return def;
-        },
-      );
+      mockSystemSettingsService.getNumber.mockImplementation((key, def) => {
+        if (key === SystemSettingKeys.WEIGHT_PERSONAL_IDENTITY) {
+          return 18;
+        }
+        if (key === SystemSettingKeys.WEIGHT_LOCATION_ORIGIN) {
+          return 15;
+        }
+        if (key === SystemSettingKeys.WEIGHT_EDUCATION) {
+          return 35;
+        }
+        if (key === SystemSettingKeys.WEIGHT_LANGUAGES) {
+          return 10;
+        }
+        if (key === SystemSettingKeys.WEIGHT_TESTS) {
+          return 7;
+        }
+        if (key === SystemSettingKeys.WEIGHT_PREFERENCES_STATUSES) {
+          return 10;
+        } // Sum is 95
+        return def;
+      });
 
       await expect(service.recalculate('1')).rejects.toThrow(
         InternalServerErrorException,

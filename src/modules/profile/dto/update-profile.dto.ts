@@ -7,6 +7,8 @@ import {
   MaxLength,
   IsIn,
   IsUrl,
+  IsArray,
+  ArrayMaxSize,
 } from 'class-validator';
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { SanitizeString } from '../../../common/utils/sanitizer.util';
@@ -67,6 +69,20 @@ export class UpdateProfileDto {
   @IsUrl()
   @SanitizeString()
   profilePhotoUrl?: string;
+
+  @ApiPropertyOptional({
+    type: [String],
+    description: 'Free-text list of prior work or volunteer experience entries',
+    example: ['Software Engineering Intern at Acme', 'Volunteer Tutor'],
+  })
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  @ArrayMaxSize(10)
+  @MaxLength(500, { each: true })
+  // SanitizeString handles arrays intrinsically (see sanitizer.util.ts)
+  @SanitizeString()
+  experiences?: string[];
 
   @ApiPropertyOptional()
   @IsOptional()

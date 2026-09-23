@@ -76,7 +76,7 @@ export class DocumentsService {
         storagePath: key,
         mimeType: file.mimetype,
         sizeBytes: file.size,
-      } as any,
+      } as import('@prisma/client').Prisma.DocumentsUncheckedCreateInput,
       select: {
         id: true,
 

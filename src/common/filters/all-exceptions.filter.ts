@@ -14,6 +14,7 @@ import {
   STATUS_TO_ERROR_CODE,
 } from '@common/dto/response.dto';
 import { toApiDatetime } from '@common/utils/datetime.util';
+import { Prisma } from '@prisma/client';
 
 @Catch()
 export class AllExceptionsFilter implements ExceptionFilter {
@@ -62,25 +63,21 @@ export class AllExceptionsFilter implements ExceptionFilter {
         message = 'This email is already registered';
       }
     } else if (
-      exception &&
-      typeof exception === 'object' &&
-      'code' in exception &&
+      exception instanceof Prisma.PrismaClientKnownRequestError &&
       exception.code === 'P2003'
     ) {
-      const meta = (exception as Record<string, unknown>).meta as Record<
-        string,
-        unknown
-      >;
-      if (meta && typeof meta.field_name === 'string') {
-        let fieldName = meta.field_name
-          .replace(/_fkey.*?$/, '')
-          .replace(/Id$/, '')
-          .replace(/_id$/, '');
-        fieldName = fieldName.replace(/([a-z])([A-Z])/g, '$1_$2').toUpperCase();
-        status = HttpStatus.BAD_REQUEST;
-        code = `INVALID_${fieldName}`;
-        message = 'Foreign key constraint failed';
-      }
+      const fieldName =
+        (exception.meta?.field_name as string | undefined) ?? '';
+      // "maritalStatusId_fkey" → "MARITAL_STATUS"
+      const cleanField = fieldName
+        .replace(/_fkey$/, '')
+        .replace(/([a-z])([A-Z])/g, '$1_$2')
+        .toUpperCase()
+        .replace(/_ID$/, '');
+
+      status = HttpStatus.BAD_REQUEST;
+      code = cleanField ? `INVALID_${cleanField}` : 'INVALID_REFERENCE';
+      message = 'Referenced resource not found';
     }
 
     if (typeof exceptionResponse === 'string') {

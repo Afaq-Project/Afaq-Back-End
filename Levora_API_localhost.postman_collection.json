@@ -91,7 +91,6 @@
                   "    var jsonData = pm.response.json();",
                   "    if (jsonData.data && jsonData.data.accessToken) { pm.collectionVariables.set('accessToken', jsonData.data.accessToken); }",
                   "    if (jsonData.data && jsonData.data.refreshToken) { pm.collectionVariables.set('refreshToken', jsonData.data.refreshToken); }",
-                  "    if (jsonData.data && jsonData.data.user && jsonData.data.user.id) { pm.collectionVariables.set('userId', jsonData.data.user.id); }",
                   "}"
                 ]
               }
@@ -487,151 +486,12 @@
     },
     {
       "name": "Profile",
-      "description": "User profile management, educations, skills, languages, and documents.",
+      "description": "User profile management, educations, languages, and documents.",
       "item": [
         {
           "name": "General",
           "description": "User profile CRUD operations.",
           "item": [
-            {
-              "name": "Get User Profile",
-              "request": {
-                "method": "GET",
-                "header": [],
-                "url": {
-                  "raw": "{{baseUrl}}/profile",
-                  "host": [
-                    "{{baseUrl}}"
-                  ],
-                  "path": [
-                    "profile"
-                  ]
-                },
-                "description": "Retrieves the current authenticated user profile"
-              },
-              "response": []
-            },
-            {
-              "name": "Update User Profile",
-              "request": {
-                "method": "PATCH",
-                "header": [
-                  {
-                    "key": "Content-Type",
-                    "value": "application/json"
-                  }
-                ],
-                "url": {
-                  "raw": "{{baseUrl}}/profile",
-                  "host": [
-                    "{{baseUrl}}"
-                  ],
-                  "path": [
-                    "profile"
-                  ]
-                },
-                "description": "Update user profile details",
-                "body": {
-                  "mode": "raw",
-                  "raw": "{\n  \"fullName\": \"Jane Doe\",\n  \"dateOfBirth\": \"1995-05-15\",\n  \"nationality\": \"Jordanian\",\n  \"educationLevel\": \"bachelor\",\n  \"fieldOfStudy\": [\n    \"Computer Science\"\n  ],\n  \"currentCountry\": \"Jordan\",\n  \"currentCity\": \"Amman\",\n  \"phone\": \"+962791234567\",\n  \"experienceLevel\": \"Mid\",\n  \"hasFinancialNeed\": false\n}"
-                }
-              },
-              "response": []
-            },
-            {
-              "name": "Publish Profile",
-              "event": [
-                {
-                  "listen": "test",
-                  "script": {
-                    "exec": [
-                      "pm.test(\"Status code is 200\", function () {",
-                      "    pm.response.to.have.status(200);",
-                      "});",
-                      "pm.test(\"isDraft is false\", function () {",
-                      "    var jsonData = pm.response.json();",
-                      "    pm.expect(jsonData.data.isDraft).to.eql(false);",
-                      "});"
-                    ],
-                    "type": "text/javascript",
-                    "packages": {}
-                  }
-                }
-              ],
-              "request": {
-                "auth": {
-                  "type": "bearer",
-                  "bearer": [
-                    {
-                      "key": "token",
-                      "value": "{{accessToken}}",
-                      "type": "string"
-                    }
-                  ]
-                },
-                "method": "POST",
-                "header": [],
-                "url": {
-                  "raw": "{{baseUrl}}/profile/publish",
-                  "host": [
-                    "{{baseUrl}}"
-                  ],
-                  "path": [
-                    "profile",
-                    "publish"
-                  ]
-                },
-                "description": "Publish user profile"
-              },
-              "response": []
-            },
-            {
-              "name": "Publish Profile (Already Published)",
-              "event": [
-                {
-                  "listen": "test",
-                  "script": {
-                    "exec": [
-                      "pm.test(\"Status code is 409\", function () {",
-                      "    pm.response.to.have.status(409);",
-                      "});",
-                      "pm.test(\"Error code is PROFILE_ALREADY_PUBLISHED\", function () {",
-                      "    var jsonData = pm.response.json();",
-                      "    pm.expect(jsonData.errors[0].code).to.eql(\"PROFILE_ALREADY_PUBLISHED\");",
-                      "});"
-                    ],
-                    "type": "text/javascript",
-                    "packages": {}
-                  }
-                }
-              ],
-              "request": {
-                "auth": {
-                  "type": "bearer",
-                  "bearer": [
-                    {
-                      "key": "token",
-                      "value": "{{accessToken}}",
-                      "type": "string"
-                    }
-                  ]
-                },
-                "method": "POST",
-                "header": [],
-                "url": {
-                  "raw": "{{baseUrl}}/profile/publish",
-                  "host": [
-                    "{{baseUrl}}"
-                  ],
-                  "path": [
-                    "profile",
-                    "publish"
-                  ]
-                },
-                "description": "Publish user profile already published"
-              },
-              "response": []
-            },
             {
               "name": "Get User Profile (me)",
               "request": {
@@ -643,13 +503,11 @@
                   }
                 ],
                 "url": {
-                  "raw": "{{baseUrl}}/api/v1/profile/me",
+                  "raw": "{{baseUrl}}/profile/me",
                   "host": [
                     "{{baseUrl}}"
                   ],
                   "path": [
-                    "api",
-                    "v1",
                     "profile",
                     "me"
                   ]
@@ -667,13 +525,11 @@
                   }
                 ],
                 "url": {
-                  "raw": "{{baseUrl}}/api/v1/profile/personal",
+                  "raw": "{{baseUrl}}/profile/personal",
                   "host": [
                     "{{baseUrl}}"
                   ],
                   "path": [
-                    "api",
-                    "v1",
                     "profile",
                     "personal"
                   ]
@@ -737,7 +593,7 @@
                 "description": "Add a new education record",
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"degree\": \"Bachelor of Science\",\n  \"major\": \"Computer Science\",\n  \"institution\": \"Technical University of Munich\",\n  \"graduationYear\": 2024\n}"
+                  "raw": "{\n  \"educationLevelId\": \"{{education_level_id}}\",\n  \"institutionId\": \"{{institution_id}}\",\n  \"majorId\": \"{{major_id}}\",\n  \"startDate\": \"2020-09-01\",\n  \"isCurrent\": true,\n  \"gpaRaw\": 3.7,\n  \"gpaScale\": \"OUT_OF_4\"\n}"
                 }
               },
               "response": [],
@@ -780,7 +636,7 @@
                 "description": "Update an education record",
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"gpaValue\": 3.8,\n  \"gpaScale\": \"4.0\"\n}"
+                  "raw": "{\n  \"gpaRaw\": 3.85\n}"
                 }
               },
               "response": []
@@ -802,142 +658,6 @@
                   ]
                 },
                 "description": "Delete an education record"
-              },
-              "response": []
-            }
-          ]
-        },
-        {
-          "name": "Skills",
-          "description": "Skills management.",
-          "item": [
-            {
-              "name": "Get All Skills",
-              "request": {
-                "method": "GET",
-                "header": [],
-                "url": {
-                  "raw": "{{baseUrl}}/profile/skills",
-                  "host": [
-                    "{{baseUrl}}"
-                  ],
-                  "path": [
-                    "profile",
-                    "skills"
-                  ]
-                },
-                "description": "Get all skills for the user"
-              },
-              "response": []
-            },
-            {
-              "name": "Get Skill By ID",
-              "request": {
-                "method": "GET",
-                "header": [],
-                "url": {
-                  "raw": "{{baseUrl}}/profile/skills/{{skillId}}",
-                  "host": [
-                    "{{baseUrl}}"
-                  ],
-                  "path": [
-                    "profile",
-                    "skills",
-                    "{{skillId}}"
-                  ]
-                },
-                "description": "Get a specific skill for the user"
-              },
-              "response": []
-            },
-            {
-              "name": "Add Skill",
-              "request": {
-                "method": "POST",
-                "header": [
-                  {
-                    "key": "Content-Type",
-                    "value": "application/json"
-                  }
-                ],
-                "url": {
-                  "raw": "{{baseUrl}}/profile/skills",
-                  "host": [
-                    "{{baseUrl}}"
-                  ],
-                  "path": [
-                    "profile",
-                    "skills"
-                  ]
-                },
-                "description": "Add a new skill to user profile",
-                "body": {
-                  "mode": "raw",
-                  "raw": "{\n  \"skillId\": \"a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d\",\n  \"proficiency\": 4\n}"
-                }
-              },
-              "response": [],
-              "event": [
-                {
-                  "listen": "test",
-                  "script": {
-                    "type": "text/javascript",
-                    "exec": [
-                      "if (pm.response.code === 201) {",
-                      "    var jsonData = pm.response.json();",
-                      "    if (jsonData.data && jsonData.data.skillId) { pm.collectionVariables.set('skillId', jsonData.data.skillId); }",
-                      "}"
-                    ]
-                  }
-                }
-              ]
-            },
-            {
-              "name": "Update Skill",
-              "request": {
-                "method": "PATCH",
-                "header": [
-                  {
-                    "key": "Content-Type",
-                    "value": "application/json"
-                  }
-                ],
-                "url": {
-                  "raw": "{{baseUrl}}/profile/skills/{{skillId}}",
-                  "host": [
-                    "{{baseUrl}}"
-                  ],
-                  "path": [
-                    "profile",
-                    "skills",
-                    "{{skillId}}"
-                  ]
-                },
-                "description": "Update an existing skill",
-                "body": {
-                  "mode": "raw",
-                  "raw": "{\n  \"proficiency\": 5\n}"
-                }
-              },
-              "response": []
-            },
-            {
-              "name": "Remove Skill",
-              "request": {
-                "method": "DELETE",
-                "header": [],
-                "url": {
-                  "raw": "{{baseUrl}}/profile/skills/{{skillId}}",
-                  "host": [
-                    "{{baseUrl}}"
-                  ],
-                  "path": [
-                    "profile",
-                    "skills",
-                    "{{skillId}}"
-                  ]
-                },
-                "description": "Remove a skill from user profile"
               },
               "response": []
             }
@@ -1009,7 +729,7 @@
                 "description": "Add a language to profile",
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"languageId\": \"b2c3d4e5-f6a7-8b9c-0d1e-2f3a4b5c6d7e\",\n  \"proficiency\": \"Fluent\"\n}"
+                  "raw": "{\n  \"languageId\": \"{{languageId}}\",\n  \"proficiencyLevelId\": \"{{proficiencyLevelId}}\",\n  \"isNative\": false\n}"
                 }
               },
               "response": [],
@@ -1052,7 +772,7 @@
                 "description": "Update a user language",
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"proficiency\": \"Native\"\n}"
+                  "raw": "{\n  \"proficiencyLevelId\": \"{{proficiencyLevelId}}\",\n  \"isNative\": true\n}"
                 }
               },
               "response": []
@@ -1109,10 +829,10 @@
                       "description": "File to upload"
                     },
                     {
-                      "key": "docType",
+                      "key": "documentTypeId",
                       "type": "text",
-                      "value": "resume",
-                      "description": "One of: resume, essay, transcript, recommendation_letter, other"
+                      "value": "{{document_type_id}}",
+                      "description": "UUID of document type"
                     }
                   ]
                 }
@@ -1233,44 +953,6 @@
       "description": "Public reference data endpoints.",
       "item": [
         {
-          "name": "Get Fields of Study",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/reference/fields-of-study",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "reference",
-                "fields-of-study"
-              ]
-            },
-            "description": "Get all fields of study"
-          },
-          "response": []
-        },
-        {
-          "name": "Get Skills Taxonomy",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/reference/skills-taxonomy",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "reference",
-                "skills-taxonomy"
-              ]
-            },
-            "description": "Get skills taxonomy grouped by category"
-          },
-          "response": []
-        },
-        {
           "name": "Get Languages",
           "request": {
             "method": "GET",
@@ -1323,13 +1005,11 @@
           "request": {
             "method": "GET",
             "url": {
-              "raw": "{{baseUrl}}/api/v1/reference/countries",
+              "raw": "{{baseUrl}}/reference/countries",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
-                "api",
-                "v1",
                 "reference",
                 "countries"
               ]
@@ -1341,13 +1021,11 @@
           "request": {
             "method": "GET",
             "url": {
-              "raw": "{{baseUrl}}/api/v1/reference/cities",
+              "raw": "{{baseUrl}}/reference/cities",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
-                "api",
-                "v1",
                 "reference",
                 "cities"
               ]
@@ -1359,13 +1037,11 @@
           "request": {
             "method": "GET",
             "url": {
-              "raw": "{{baseUrl}}/api/v1/reference/marital-statuses",
+              "raw": "{{baseUrl}}/reference/marital-statuses",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
-                "api",
-                "v1",
                 "reference",
                 "marital-statuses"
               ]
@@ -1473,29 +1149,6 @@
               "path": [
                 "auth",
                 "login"
-              ]
-            }
-          }
-        },
-        {
-          "name": "IDOR Negative Test",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{accessToken}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/profile/skills/00000000-0000-0000-0000-000000000000",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "profile",
-                "skills",
-                "00000000-0000-0000-0000-000000000000"
               ]
             }
           }

@@ -44,7 +44,7 @@
 | **Total** | **100** |
 
 **Excluded fields** (do not affect completion): `bio`, `phone`, `email`,
-`profilePhotoUrl`, `currentCityId`, all `Documents`, any record beyond the first in any group.
+`profilePhotoUrl`, `experiences`, `currentCityId`, all `Documents`, any record beyond the first in any group.
 
 **Rationale**: Group weight values must be configurable at runtime via
 `SystemSettings`, but the configured group weights must total exactly 100. When a
