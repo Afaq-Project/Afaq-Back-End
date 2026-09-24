@@ -1,12 +1,13 @@
-// Batch 3 (T050) will rewrite this service entirely.
-// create/update are disabled — their endpoints are commented out in profile.module.ts.
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ConflictException,
+  BadRequestException,
+} from '@nestjs/common';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { ProfileService } from './profile.service';
 import { CreateLanguageDto } from '../dto/create-language.dto';
 import { UpdateLanguageDto } from '../dto/update-language.dto';
-import { PaginationDto } from '../../../common/dto/pagination.dto';
-import { buildMeta } from '../../../common/utils/paginate.util';
 
 @Injectable()
 export class LanguagesService {
@@ -15,35 +16,81 @@ export class LanguagesService {
     private readonly profileService: ProfileService,
   ) {}
 
-  // eslint-disable-next-line @typescript-eslint/require-await
-  async create(userId: string, data: CreateLanguageDto): Promise<never> {
-    void userId;
-    void data; // bypass TS6133
-    // TODO(T050): full rewrite in Batch 3
-    throw new Error('LanguagesService is disabled until Batch 3 (T050)');
+  async create(userId: string, data: CreateLanguageDto) {
+    // 1. Verify language exists
+    const language = await this.prisma.languagesMaster.findUnique({
+      where: { id: data.languageId },
+    });
+    if (!language) {
+      throw new NotFoundException('Language not found');
+    }
+
+    // 2. Verify proficiency level exists
+    const proficiency = await this.prisma.proficiencyLevels.findUnique({
+      where: { id: data.proficiencyLevelId },
+    });
+    if (!proficiency) {
+      throw new NotFoundException('Proficiency level not found');
+    }
+
+    // 3. Enforce MAX_LANGUAGES
+    const settings = await this.prisma.systemSettings.findUnique({
+      where: { key: 'profile.max_languages' },
+    });
+    const maxLanguages = settings?.value ? Number(settings.value) : 10;
+
+    const count = await this.prisma.userLanguages.count({
+      where: { userId },
+    });
+
+    if (count >= maxLanguages) {
+      throw new BadRequestException(
+        `Maximum languages allowed is ${maxLanguages}`,
+      );
+    }
+
+    // 4. Check for duplicates
+    const existing = await this.prisma.userLanguages.findUnique({
+      where: {
+        userId_languageId: {
+          userId,
+          languageId: data.languageId,
+        },
+      },
+    });
+
+    if (existing) {
+      throw new ConflictException('Language already added to profile');
+    }
+
+    // 5. Save
+    const userLanguage = await this.prisma.userLanguages.create({
+      data: {
+        userId,
+        languageId: data.languageId,
+        proficiencyLevelId: data.proficiencyLevelId,
+        isNative: data.isNative ?? false,
+      },
+    });
+
+    // 6. Recalculate profile completeness
+    await this.profileService.recalculate(userId);
+
+    return userLanguage;
   }
 
-  async findAll(userId: string, dto: PaginationDto) {
-    const [languages, total] = await Promise.all([
-      this.prisma.userLanguages.findMany({
-        where: { userId },
-        skip: dto.skip,
-        take: dto.limit,
-        include: {
-          language: { select: { nameEn: true } },
+  async findAll(userId: string) {
+    return this.prisma.userLanguages.findMany({
+      where: { userId },
+      include: {
+        language: {
+          select: { nameEn: true, nameAr: true },
         },
-      }),
-      this.prisma.userLanguages.count({ where: { userId } }),
-    ]);
-
-    return {
-      data: languages.map((l) => ({
-        languageId: l.languageId,
-        name: l.language?.nameEn,
-        proficiency: l.proficiencyLevelId,
-      })),
-      meta: buildMeta(total, dto.page, dto.limit),
-    };
+        proficiencyLevel: {
+          select: { nameEn: true, nameAr: true },
+        },
+      },
+    });
   }
 
   async findOne(userId: string, languageId: string) {
@@ -55,30 +102,54 @@ export class LanguagesService {
         },
       },
       include: {
-        language: true,
+        language: {
+          select: { nameEn: true, nameAr: true },
+        },
+        proficiencyLevel: {
+          select: { nameEn: true, nameAr: true },
+        },
       },
     });
 
     if (!lang) {
-      throw new NotFoundException('Language not found');
+      throw new NotFoundException('User language not found');
     }
     return lang;
   }
 
-  // eslint-disable-next-line @typescript-eslint/require-await
-  async update(
-    userId: string,
-    languageId: string,
-    data: UpdateLanguageDto,
-  ): Promise<never> {
-    void userId;
-    void languageId;
-    void data; // bypass TS6133
-    // TODO(T050): full rewrite in Batch 3
-    throw new Error('LanguagesService is disabled until Batch 3 (T050)');
+  async update(userId: string, languageId: string, data: UpdateLanguageDto) {
+    await this.findOne(userId, languageId);
+
+    if (data.proficiencyLevelId) {
+      const proficiency = await this.prisma.proficiencyLevels.findUnique({
+        where: { id: data.proficiencyLevelId },
+      });
+      if (!proficiency) {
+        throw new NotFoundException('Proficiency level not found');
+      }
+    }
+
+    const updated = await this.prisma.userLanguages.update({
+      where: {
+        userId_languageId: {
+          userId,
+          languageId,
+        },
+      },
+      data: {
+        ...(data.proficiencyLevelId && {
+          proficiencyLevelId: data.proficiencyLevelId,
+        }),
+        ...(data.isNative !== undefined && { isNative: data.isNative }),
+      },
+    });
+
+    await this.profileService.recalculate(userId);
+
+    return updated;
   }
 
-  async remove(userId: string, languageId: string) {
+  async delete(userId: string, languageId: string) {
     await this.findOne(userId, languageId);
 
     await this.prisma.userLanguages.delete({

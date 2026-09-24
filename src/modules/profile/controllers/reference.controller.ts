@@ -35,6 +35,24 @@ export class ReferenceController {
 
   @Public()
   @Throttle({ default: { limit: 60, ttl: 60000 } })
+  @Get('proficiency-levels')
+  @ApiOperation({ summary: 'Get language proficiency levels' })
+  @ApiResponse({
+    status: 200,
+    description: 'Proficiency levels retrieved successfully',
+  })
+  async getProficiencyLevels() {
+    const data = await this.referenceService.getProficiencyLevels();
+    return {
+      statusCode: 200,
+      message: 'Proficiency levels retrieved successfully',
+      data,
+      timestamp: new Date().toISOString(),
+    };
+  }
+
+  @Public()
+  @Throttle({ default: { limit: 60, ttl: 60000 } })
   @Get('countries')
   @ApiOperation({ summary: 'Get all active countries' })
   @ApiResponse({

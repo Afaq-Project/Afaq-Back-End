@@ -25,7 +25,7 @@ export class ReferenceService {
         where,
         skip: dto.skip,
         take: dto.limit,
-        select: { id: true, nameEn: true, nameAr: true },
+        select: { id: true, nameEn: true, nameAr: true, isoCode: true },
         orderBy: { nameEn: 'asc' },
       }),
       this.prisma.languagesMaster.count({ where }),
@@ -35,6 +35,19 @@ export class ReferenceService {
       data,
       meta: buildMeta(total, dto.page, dto.limit),
     };
+  }
+
+  getProficiencyLevels() {
+    return this.prisma.languageProficiencyLevel.findMany({
+      where: { isActive: true },
+      select: {
+        id: true,
+        nameEn: true,
+        nameAr: true,
+        sortOrder: true,
+      },
+      orderBy: { sortOrder: 'asc' },
+    });
   }
 
   async getCountries(dto: GetCountriesDto) {
