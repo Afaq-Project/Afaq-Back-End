@@ -22,7 +22,10 @@ export class LanguagesService {
       where: { id: data.languageId },
     });
     if (!language) {
-      throw new NotFoundException('Language not found');
+      throw new BadRequestException({
+        code: 'INVALID_LANGUAGE',
+        message: 'Language not found',
+      });
     }
 
     // 2. Verify proficiency level exists
@@ -30,7 +33,10 @@ export class LanguagesService {
       where: { id: data.proficiencyLevelId },
     });
     if (!proficiency) {
-      throw new NotFoundException('Proficiency level not found');
+      throw new BadRequestException({
+        code: 'INVALID_PROFICIENCY_LEVEL',
+        message: 'Proficiency level not found',
+      });
     }
 
     // 3. Enforce MAX_LANGUAGES
@@ -60,7 +66,10 @@ export class LanguagesService {
     });
 
     if (existing) {
-      throw new ConflictException('Language already added to profile');
+      throw new ConflictException({
+        code: 'LANGUAGE_DUPLICATE',
+        message: 'Language already added to profile',
+      });
     }
 
     // 5. Save
@@ -70,6 +79,10 @@ export class LanguagesService {
         languageId: data.languageId,
         proficiencyLevelId: data.proficiencyLevelId,
         isNative: data.isNative ?? false,
+      },
+      include: {
+        language: { select: { nameEn: true, nameAr: true } },
+        proficiencyLevel: { select: { nameEn: true, nameAr: true } },
       },
     });
 
@@ -112,7 +125,10 @@ export class LanguagesService {
     });
 
     if (!lang) {
-      throw new NotFoundException('User language not found');
+      throw new NotFoundException({
+        code: 'LANGUAGE_NOT_FOUND',
+        message: 'User language not found',
+      });
     }
     return lang;
   }
@@ -125,7 +141,10 @@ export class LanguagesService {
         where: { id: data.proficiencyLevelId },
       });
       if (!proficiency) {
-        throw new NotFoundException('Proficiency level not found');
+        throw new BadRequestException({
+          code: 'INVALID_PROFICIENCY_LEVEL',
+          message: 'Proficiency level not found',
+        });
       }
     }
 

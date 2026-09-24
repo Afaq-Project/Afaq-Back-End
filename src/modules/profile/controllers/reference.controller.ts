@@ -247,4 +247,22 @@ export class ReferenceController {
       timestamp: new Date().toISOString(),
     };
   }
+
+  @Public()
+  @Throttle({ default: { limit: 60, ttl: 60000 } })
+  @Get('standardized-tests')
+  @ApiOperation({ summary: 'Get standardized tests' })
+  @ApiResponse({
+    status: 200,
+    description: 'Standardized tests retrieved successfully',
+  })
+  async getStandardizedTests() {
+    const data = await this.referenceService.getStandardizedTests();
+    return {
+      statusCode: 200,
+      message: 'Standardized tests retrieved successfully',
+      data,
+      timestamp: new Date().toISOString(),
+    };
+  }
 }

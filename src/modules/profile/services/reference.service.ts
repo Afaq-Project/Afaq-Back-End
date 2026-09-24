@@ -38,7 +38,7 @@ export class ReferenceService {
   }
 
   getProficiencyLevels() {
-    return this.prisma.languageProficiencyLevel.findMany({
+    return this.prisma.proficiencyLevels.findMany({
       where: { isActive: true },
       select: {
         id: true,
@@ -293,5 +293,20 @@ export class ReferenceService {
         ...buildMeta(total, dto.page, dto.limit),
       },
     };
+  }
+
+  async getStandardizedTests() {
+    return this.prisma.standardizedTests.findMany({
+      where: { isActive: true },
+      select: {
+        id: true,
+        nameEn: true,
+        nameAr: true,
+        minScore: true,
+        maxScore: true,
+        scoreStep: true,
+      },
+      orderBy: { sortOrder: 'asc' },
+    });
   }
 }

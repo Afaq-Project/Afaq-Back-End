@@ -2,11 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { LanguagesService } from './languages.service';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { ProfileService } from './profile.service';
-import {
-  NotFoundException,
-  ConflictException,
-  BadRequestException,
-} from '@nestjs/common';
+import { ConflictException, BadRequestException } from '@nestjs/common';
 
 describe('LanguagesService', () => {
   let service: LanguagesService;
@@ -50,7 +46,7 @@ describe('LanguagesService', () => {
   });
 
   describe('create', () => {
-    it('should throw NotFoundException if language not found', async () => {
+    it('should throw BadRequestException if language not found', async () => {
       jest
         .spyOn(prisma.languagesMaster, 'findUnique')
         .mockResolvedValueOnce(null);
@@ -59,10 +55,10 @@ describe('LanguagesService', () => {
           languageId: 'lang1',
           proficiencyLevelId: 'prof1',
         }),
-      ).rejects.toThrow(NotFoundException);
+      ).rejects.toThrow(BadRequestException);
     });
 
-    it('should throw NotFoundException if proficiency level not found', async () => {
+    it('should throw BadRequestException if proficiency level not found', async () => {
       jest
         .spyOn(prisma.languagesMaster, 'findUnique')
         .mockResolvedValueOnce({ id: 'lang1' } as any);
@@ -74,7 +70,7 @@ describe('LanguagesService', () => {
           languageId: 'lang1',
           proficiencyLevelId: 'prof1',
         }),
-      ).rejects.toThrow(NotFoundException);
+      ).rejects.toThrow(BadRequestException);
     });
 
     it('should throw BadRequestException if max languages reached', async () => {

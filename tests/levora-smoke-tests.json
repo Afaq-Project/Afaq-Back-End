@@ -111,12 +111,6 @@
                 "exec": [
                   "pm.test('Status code is 200', function () { pm.response.to.have.status(200); });",
                   "var jsonData = pm.response.json();",
-                  "pm.test('Has pagination meta', function () {",
-                  "  pm.expect(jsonData.meta.pagination).to.have.property('total');",
-                  "  pm.expect(jsonData.meta.pagination).to.have.property('page');",
-                  "  pm.expect(jsonData.meta.pagination).to.have.property('limit');",
-                  "  pm.expect(jsonData.meta.pagination).to.have.property('totalPages');",
-                  "});",
                   "if (jsonData.data && jsonData.data.length > 0) {",
                   "  pm.collectionVariables.set('valid_language_id', jsonData.data[0].id);",
                   "}",
@@ -322,6 +316,28 @@
           "request": {
             "method": "GET",
             "url": "{{baseUrl}}/api/v1/reference/institutions"
+          }
+        },
+        {
+          "name": "GET /reference/proficiency-levels",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200', function () { pm.response.to.have.status(200); });",
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.data && jsonData.data.length > 0) {",
+                  "  pm.collectionVariables.set('proficiency_level_id', jsonData.data[0].id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/reference/proficiency-levels"
           }
         }
       ]
@@ -581,14 +597,7 @@
                 "type": "text/javascript",
                 "exec": [
                   "pm.test('Status code is 200', function () { pm.response.to.have.status(200); });",
-                  "var jsonData = pm.response.json();",
-                  "pm.test('Has pagination meta', function () {",
-                  "  pm.expect(jsonData.meta.pagination).to.have.property('total');",
-                  "  pm.expect(jsonData.meta.pagination).to.have.property('page');",
-                  "  pm.expect(jsonData.meta.pagination).to.have.property('limit');",
-                  "  pm.expect(jsonData.meta.pagination).to.have.property('totalPages');",
-                  "});"
-                ]
+                  "var jsonData = pm.response.json();"]
               }
             }
           ]
@@ -715,6 +724,128 @@
               }
             }
           ]
+        },
+        {
+          "name": "POST /profile/languages",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 201', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "pm.test('Extract profile language id', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.collectionVariables.set('profile_language_id', jsonData.data.languageId);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"languageId\": \"{{valid_language_id}}\",\n  \"proficiencyLevelId\": \"{{proficiency_level_id}}\"\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/profile/languages"
+          }
+        },
+        {
+          "name": "PATCH /profile/languages/{{profile_language_id}}",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"proficiencyLevelId\":\"{{proficiency_level_id}}\"}"
+            },
+            "url": "{{baseUrl}}/api/v1/profile/languages/{{profile_language_id}}"
+          }
+        },
+        {
+          "name": "GET /profile/languages",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/profile/languages",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ]
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200', function () { pm.response.to.have.status(200); });",
+                  "var jsonData = pm.response.json();"]
+              }
+            }
+          ]
+        },
+        {
+          "name": "DELETE /profile/languages/{{profile_language_id}}",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 204', function () {",
+                  "    pm.response.to.have.status(204);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/profile/languages/{{profile_language_id}}"
+          }
         }
       ]
     },

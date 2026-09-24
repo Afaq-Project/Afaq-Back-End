@@ -9,7 +9,6 @@ import {
   IsIn,
   IsUrl,
   IsArray,
-  ArrayMaxSize,
 } from 'class-validator';
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { SanitizeString } from '../../../common/utils/sanitizer.util';
@@ -80,7 +79,6 @@ export class UpdateProfileDto {
   @IsOptional()
   @IsArray()
   @IsString({ each: true })
-  @ArrayMaxSize(10)
   @MaxLength(500, { each: true })
   // SanitizeString handles arrays intrinsically (see sanitizer.util.ts)
   @SanitizeString()
