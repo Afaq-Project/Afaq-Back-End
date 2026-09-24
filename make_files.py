@@ -1,4 +1,7 @@
-import {
+import os
+
+create_dto = """import {
+  IsString,
   IsNotEmpty,
   IsOptional,
   IsUUID,
@@ -6,33 +9,26 @@ import {
   IsBoolean,
   IsNumber,
   IsEnum,
-  Min,
   ValidateIf,
-  ValidationArguments,
-  ValidatorConstraint,
-  ValidatorConstraintInterface,
-  registerDecorator,
-  ValidationOptions,
 } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { GpaScale } from '@prisma/client';
+import { ValidationArguments, ValidatorConstraint, ValidatorConstraintInterface, registerDecorator, ValidationOptions } from 'class-validator';
 
 @ValidatorConstraint({ name: 'isAfterStartDate', async: false })
 export class IsAfterStartDateConstraint implements ValidatorConstraintInterface {
   validate(endDate: string, args: ValidationArguments) {
     const object = args.object as Record<string, unknown>;
-    if (!object.startDate || !endDate) {
-      return true;
-    }
-    return new Date(endDate) >= new Date(object.startDate as string);
+    if (!object.startDate || !endDate) return true;
+    return new Date(endDate) > new Date(object.startDate as string);
   }
   defaultMessage() {
-    return 'endDate must be after or equal to startDate';
+    return 'endDate must be after startDate';
   }
 }
 
 export function IsAfterStartDate(validationOptions?: ValidationOptions) {
-  return function (object: object, propertyName: string) {
+  return function (object: Object, propertyName: string) {
     registerDecorator({
       target: object.constructor,
       propertyName: propertyName,
@@ -72,7 +68,7 @@ export class CreateEducationDto {
   @ApiPropertyOptional()
   @IsOptional()
   @IsDateString()
-  @IsAfterStartDate({ context: { code: 'INVALID_DATE_RANGE' } })
+  @IsAfterStartDate()
   endDate?: string;
 
   @ApiPropertyOptional()
@@ -88,14 +84,25 @@ export class CreateEducationDto {
   @ApiPropertyOptional()
   @IsOptional()
   @IsNumber()
-  @Min(0)
   gpaRaw?: number;
 
   @ApiPropertyOptional({ enum: GpaScale })
-  @ValidateIf(
-    (o: CreateEducationDto) => o.gpaRaw !== undefined && o.gpaRaw !== null,
-  )
+  @ValidateIf((o) => o.gpaRaw !== undefined && o.gpaRaw !== null)
   @IsEnum(GpaScale)
-  @IsNotEmpty({ context: { code: 'GPA_SCALE_REQUIRED' } })
+  @IsNotEmpty()
   gpaScale?: GpaScale;
 }
+"""
+
+update_dto = """import { PartialType } from '@nestjs/swagger';
+import { CreateEducationDto } from './create-education.dto';
+
+export class UpdateEducationDto extends PartialType(CreateEducationDto) {}
+"""
+
+with open('src/modules/profile/dto/create-education.dto.ts', 'w') as f:
+    f.write(create_dto)
+
+with open('src/modules/profile/dto/update-education.dto.ts', 'w') as f:
+    f.write(update_dto)
+

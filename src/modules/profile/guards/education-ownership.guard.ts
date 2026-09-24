@@ -30,7 +30,10 @@ export class EducationOwnershipGuard implements CanActivate {
     });
 
     if (!exists) {
-      throw new NotFoundException('Education record not found');
+      throw new NotFoundException({
+        code: 'EDUCATION_NOT_FOUND',
+        message: 'EDUCATION_NOT_FOUND',
+      });
     }
     return true;
   }

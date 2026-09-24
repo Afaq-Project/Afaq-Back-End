@@ -144,7 +144,10 @@ export class AuthService {
       role,
     );
     await this.storeRefreshToken(updatedUser.id, tokens.refreshToken);
-    return tokens;
+    return {
+      accessToken: tokens.accessToken,
+      refreshToken: tokens.refreshToken,
+    };
   }
 
   // ── Login ────────────────────────────────────

@@ -1,5 +1,6 @@
 import {
   IsOptional,
+  ValidateIf,
   IsString,
   IsEmail,
   IsISO8601,
@@ -15,43 +16,43 @@ import { SanitizeString } from '../../../common/utils/sanitizer.util';
 
 export class UpdateProfileDto {
   @ApiPropertyOptional()
-  @IsOptional()
+  @ValidateIf((_object, value) => value !== undefined)
   @IsString()
   @MaxLength(255)
   @SanitizeString()
   firstName?: string;
 
   @ApiPropertyOptional()
-  @IsOptional()
+  @ValidateIf((_object, value) => value !== undefined)
   @IsString()
   @MaxLength(255)
   @SanitizeString()
   lastName?: string;
 
   @ApiPropertyOptional()
-  @IsOptional()
+  @ValidateIf((_object, value) => value !== undefined)
   @IsEmail()
   email?: string;
 
   @ApiPropertyOptional()
-  @IsOptional()
+  @ValidateIf((_object, value) => value !== undefined)
   @IsISO8601()
   dateOfBirth?: string;
 
   @ApiPropertyOptional({
     enum: ['MALE', 'FEMALE'],
   })
-  @IsOptional()
+  @ValidateIf((_object, value) => value !== undefined)
   @IsIn(['MALE', 'FEMALE'])
   gender?: 'MALE' | 'FEMALE';
 
   @ApiPropertyOptional()
-  @IsOptional()
+  @ValidateIf((_object, value) => value !== undefined)
   @IsUUID()
   maritalStatusId?: string;
 
   @ApiPropertyOptional()
-  @IsOptional()
+  @ValidateIf((_object, value) => value !== undefined)
   @IsString()
   @MaxLength(30)
   @SanitizeString()
@@ -60,6 +61,7 @@ export class UpdateProfileDto {
   @ApiPropertyOptional()
   @IsOptional()
   @IsString()
+  @MaxLength(1000, { context: { code: 'BIO_TOO_LONG' } })
   @SanitizeString()
   bio?: string;
 
@@ -85,22 +87,22 @@ export class UpdateProfileDto {
   experiences?: string[];
 
   @ApiPropertyOptional()
-  @IsOptional()
+  @ValidateIf((_object, value) => value !== undefined)
   @IsUUID()
   countryOfResidenceId?: string;
 
   @ApiPropertyOptional()
-  @IsOptional()
+  @ValidateIf((_object, value) => value !== undefined)
   @IsUUID()
   nationalityId?: string;
 
   @ApiPropertyOptional()
-  @IsOptional()
+  @ValidateIf((_object, value) => value !== undefined)
   @IsUUID()
   currentCityId?: string;
 
   @ApiPropertyOptional()
-  @IsOptional()
+  @ValidateIf((_object, value) => value !== undefined)
   @IsUUID()
   educationLevelId?: string;
 }

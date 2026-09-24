@@ -1,11 +1,15 @@
 import { Controller, Get, Query } from '@nestjs/common';
 import { Throttle } from '@nestjs/throttler';
-import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiQuery } from '@nestjs/swagger';
 import { ReferenceService } from '../services/reference.service';
 import { Public } from '../../../common/decorators/public.decorator';
 import { GetCountriesDto } from '../dto/get-countries.dto';
 import { GetCitiesDto } from '../dto/get-cities.dto';
 import { GetLanguagesDto } from '../dto/get-languages.dto';
+
+import { GetMajorCategoriesDto } from '../dto/get-major-categories.dto';
+import { GetMajorsDto } from '../dto/get-majors.dto';
+import { GetInstitutionsDto } from '../dto/get-institutions.dto';
 
 @ApiTags('profile')
 @Controller('reference')
@@ -116,6 +120,112 @@ export class ReferenceController {
       statusCode: 200,
       message: 'App languages retrieved successfully',
       data: this.referenceService.getAppLanguages(),
+      timestamp: new Date().toISOString(),
+    };
+  }
+
+  @Public()
+  @Throttle({ default: { limit: 60, ttl: 60000 } })
+  @Get('major-categories')
+  @ApiOperation({ summary: 'Get all active major categories' })
+  @ApiResponse({
+    status: 200,
+    description: 'Major categories retrieved successfully',
+  })
+  @ApiQuery({ name: 'page', required: false, type: Number })
+  @ApiQuery({ name: 'limit', required: false, type: Number })
+  @ApiQuery({ name: 'search', required: false, type: String })
+  @ApiQuery({
+    name: 'sort',
+    required: false,
+    type: String,
+    enum: ['nameEn', 'nameAr'],
+  })
+  @ApiQuery({
+    name: 'order',
+    required: false,
+    type: String,
+    enum: ['asc', 'desc'],
+  })
+  async getMajorCategories(@Query() dto: GetMajorCategoriesDto) {
+    const data = await this.referenceService.getMajorCategories(dto);
+    return {
+      statusCode: 200,
+      message: 'Major categories retrieved successfully',
+      data,
+      timestamp: new Date().toISOString(),
+    };
+  }
+
+  @Public()
+  @Throttle({ default: { limit: 60, ttl: 60000 } })
+  @Get('majors')
+  @ApiOperation({
+    summary: 'Get majors optionally filtered by category and search',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Majors retrieved successfully',
+  })
+  @ApiQuery({ name: 'page', required: false, type: Number })
+  @ApiQuery({ name: 'limit', required: false, type: Number })
+  @ApiQuery({ name: 'search', required: false, type: String })
+  @ApiQuery({ name: 'categoryId', required: false, type: String })
+  @ApiQuery({
+    name: 'sort',
+    required: false,
+    type: String,
+    enum: ['nameEn', 'nameAr'],
+  })
+  @ApiQuery({
+    name: 'order',
+    required: false,
+    type: String,
+    enum: ['asc', 'desc'],
+  })
+  async getMajors(@Query() dto: GetMajorsDto) {
+    const data = await this.referenceService.getMajors(dto);
+    return {
+      statusCode: 200,
+      message: 'Majors retrieved successfully',
+      data,
+      timestamp: new Date().toISOString(),
+    };
+  }
+
+  @Public()
+  @Throttle({ default: { limit: 60, ttl: 60000 } })
+  @Get('institutions')
+  @ApiOperation({
+    summary: 'Get institutions optionally filtered by country, city and search',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Institutions retrieved successfully',
+  })
+  @ApiQuery({ name: 'page', required: false, type: Number })
+  @ApiQuery({ name: 'limit', required: false, type: Number })
+  @ApiQuery({ name: 'search', required: false, type: String })
+  @ApiQuery({ name: 'countryId', required: false, type: String })
+  @ApiQuery({ name: 'cityId', required: false, type: String })
+  @ApiQuery({
+    name: 'sort',
+    required: false,
+    type: String,
+    enum: ['nameEn', 'nameAr'],
+  })
+  @ApiQuery({
+    name: 'order',
+    required: false,
+    type: String,
+    enum: ['asc', 'desc'],
+  })
+  async getInstitutions(@Query() dto: GetInstitutionsDto) {
+    const data = await this.referenceService.getInstitutions(dto);
+    return {
+      statusCode: 200,
+      message: 'Institutions retrieved successfully',
+      data,
       timestamp: new Date().toISOString(),
     };
   }

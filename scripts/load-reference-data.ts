@@ -1,12 +1,12 @@
 import { PrismaClient } from '@prisma/client';
-import AdmZip from 'adm-zip';
+import AdmZip = require('adm-zip');
 import * as XLSX from 'xlsx';
 
 const prisma = new PrismaClient();
 
 const COUNTRIES_URL =
   'https://raw.githubusercontent.com/mledoze/countries/master/countries.json';
-const CITIES_URL = 'https://download.geonames.org/export/dump/cities1000.zip';
+const CITIES_URL = 'http://download.geonames.org/export/dump/cities1000.zip';
 const INSTITUTIONS_URL =
   'https://raw.githubusercontent.com/Hipo/university-domains-list/master/world_universities_and_domains.json';
 const MAJORS_URL = 'https://nces.ed.gov/pubs2002/cip2000/xls/cip.zip';
@@ -198,9 +198,11 @@ async function loadMajors(catLimit?: number, majorLimit?: number) {
   let majorsProcessed = 0;
   let validCatCount = 0;
   let validMajorCount = 0;
+  const majorCountPerCat = new Map<string, number>();
 
   const categoriesMap = new Map<string, string>(); // Prefix -> ID
   const majorsToProcess = [];
+  const seenMajors = new Set<string>();
 
   for (const row of data) {
     const rawCode = row['CIPCode'] || row['CIPCODE'] || row['CIP Code'] || '';
@@ -235,6 +237,18 @@ async function loadMajors(catLimit?: number, majorLimit?: number) {
       
       if (majorLimit && !categoryId) {
         continue; // Fix 4: Skip majors with no category in sample mode
+      }
+
+      const majorKey = `${title}|${categoryId}`;
+      if (seenMajors.has(majorKey)) {
+        continue;
+      }
+      seenMajors.add(majorKey);
+
+      if (majorLimit) {
+        const count = majorCountPerCat.get(categoryId!) || 0;
+        if (count >= 10) continue;
+        majorCountPerCat.set(categoryId!, count + 1);
       }
 
       if (majorLimit && validMajorCount >= majorLimit) continue;
@@ -288,6 +302,14 @@ async function loadInstitutions(limit?: number) {
     }
   });
 
+  const cities = await prisma.cities.findMany({
+    select: { id: true, nameEn: true, countryId: true },
+  });
+  const cityMap = new Map<string, string>();
+  cities.forEach((c) => {
+    cityMap.set(`${c.countryId}|${c.nameEn.toLowerCase()}`, c.id);
+  });
+
   let skipped = 0;
   let validCount = 0;
   
@@ -300,19 +322,34 @@ async function loadInstitutions(limit?: number) {
       skipped++;
       continue;
     }
+
+    const province = inst['state-province'];
+    let cityId: string | null = null;
+    if (province) {
+      cityId = cityMap.get(`${countryId}|${province.toLowerCase()}`) || null;
+    }
+
+    if (limit && !cityId) {
+      const anyCity = cities.find(c => c.countryId === countryId) || cities[0];
+      if (anyCity) {
+        cityId = anyCity.id;
+      }
+    }
+
+    if (limit && !cityId) {
+      skipped++;
+      continue;
+    }
     
     validCount++;
-    instsToProcess.push({ inst, countryId });
+    instsToProcess.push({ inst, countryId, cityId });
 
     if (limit && validCount >= limit) break;
   }
 
   let processed = 0;
   
-  await processInBatches(instsToProcess, 20, async ({ inst, countryId }) => {
-    // cityId resolution from state-province omitted due to name mismatch
-    let cityId: string | null = null; 
-
+  await processInBatches(instsToProcess, 20, async ({ inst, countryId, cityId }) => {
     const nameEn = inst.name;
     const nameAr = nameEn;
     const websiteUrl = inst.web_pages?.[0] || null;

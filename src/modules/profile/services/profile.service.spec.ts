@@ -370,7 +370,7 @@ describe('ProfileService', () => {
       // Simulate profile dropping some fields, resulting in a completion under 60
       mockPrisma.userProfiles.findUnique.mockResolvedValue({
         userId: '1',
-        dateOfBirth: new Date(), // gives 5
+        firstName: 'John', // only 0.25 of 18 -> 4.5
       });
       mockSystemSettingsService.getNumber.mockImplementation((key, def) => {
         if (key === SystemSettingKeys.MATCHING_THRESHOLD) {
@@ -402,7 +402,7 @@ describe('ProfileService', () => {
       expect(mockPrisma.userProfiles.update).toHaveBeenCalledWith(
         expect.objectContaining({
           data: expect.objectContaining({
-            completionPct: 5, // 5
+            completionPct: 3, // 3 rounded
             isMatchable: false, // Drops to false
             matchingVersion: { increment: 1 },
           }),

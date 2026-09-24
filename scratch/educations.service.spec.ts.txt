@@ -2,12 +2,8 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { EducationsService } from './educations.service';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { ProfileService } from './profile.service';
-import { SystemSettingsService } from './system-settings.service';
-import {
-  BadRequestException,
-  ConflictException,
-  NotFoundException,
-} from '@nestjs/common';
+import { SystemSettingsService } from '../../system-settings/system-settings.service';
+import { BadRequestException, ConflictException, NotFoundException } from '@nestjs/common';
 import { GpaScale } from '@prisma/client';
 
 const mockPrismaService = {
@@ -67,59 +63,31 @@ describe('EducationsService', () => {
       majorId: 'maj1',
       isCurrent: false,
     };
-
+    
     it('[EC-013] Max educations reached', async () => {
-      prismaService.educationLevel.findUnique.mockResolvedValue({ id: 'lvl1' });
-      prismaService.institutions.findUnique.mockResolvedValue({ id: 'inst1' });
-      prismaService.majors.findUnique.mockResolvedValue({ id: 'maj1' });
       prismaService.userEducations.count.mockResolvedValue(5);
-      await expect(service.create('u1', createDto)).rejects.toThrow(
-        ConflictException,
-      );
+      await expect(service.create('u1', createDto)).rejects.toThrow(ConflictException);
     });
 
     it('[EC-014] Duplicate education', async () => {
-      prismaService.educationLevel.findUnique.mockResolvedValue({ id: 'lvl1' });
-      prismaService.institutions.findUnique.mockResolvedValue({ id: 'inst1' });
-      prismaService.majors.findUnique.mockResolvedValue({ id: 'maj1' });
       prismaService.userEducations.count.mockResolvedValue(0);
-      prismaService.userEducations.findFirst.mockResolvedValue({
-        id: 'existing',
-      });
-      await expect(service.create('u1', createDto)).rejects.toThrow(
-        ConflictException,
-      );
+      prismaService.userEducations.findFirst.mockResolvedValue({ id: 'existing' });
+      await expect(service.create('u1', createDto)).rejects.toThrow(ConflictException);
     });
 
     it('[EC-015] Invalid FKs', async () => {
       prismaService.userEducations.count.mockResolvedValue(0);
       prismaService.userEducations.findFirst.mockResolvedValue(null);
       prismaService.educationLevel.findUnique.mockResolvedValue(null); // fail level
-      await expect(service.create('u1', createDto)).rejects.toThrow(
-        BadRequestException,
-      );
+      await expect(service.create('u1', createDto)).rejects.toThrow(BadRequestException);
     });
 
     it('[EC-016] MINOR_MAJOR_EQUALS_MAJOR', async () => {
-      prismaService.educationLevel.findUnique.mockResolvedValue({ id: 'lvl1' });
-      prismaService.institutions.findUnique.mockResolvedValue({ id: 'inst1' });
-      prismaService.majors.findUnique.mockResolvedValue({ id: 'maj1' });
-      await expect(
-        service.create('u1', { ...createDto, minorMajorId: 'maj1' }),
-      ).rejects.toThrow(BadRequestException);
+      await expect(service.create('u1', { ...createDto, minorMajorId: 'maj1' })).rejects.toThrow(BadRequestException);
     });
 
     it('[EC-017] INVALID_DATE_RANGE', async () => {
-      prismaService.educationLevel.findUnique.mockResolvedValue({ id: 'lvl1' });
-      prismaService.institutions.findUnique.mockResolvedValue({ id: 'inst1' });
-      prismaService.majors.findUnique.mockResolvedValue({ id: 'maj1' });
-      await expect(
-        service.create('u1', {
-          ...createDto,
-          startDate: '2023-01-01',
-          endDate: '2022-01-01',
-        }),
-      ).rejects.toThrow(BadRequestException);
+      await expect(service.create('u1', { ...createDto, startDate: '2023-01-01', endDate: '2022-01-01' })).rejects.toThrow(BadRequestException);
     });
 
     it('[EC-019] GPA_SCALE_REQUIRED', async () => {
@@ -129,9 +97,7 @@ describe('EducationsService', () => {
       prismaService.institutions.findUnique.mockResolvedValue({ id: 'inst1' });
       prismaService.majors.findUnique.mockResolvedValue({ id: 'maj1' });
 
-      await expect(
-        service.create('u1', { ...createDto, gpaRaw: 3.5 }),
-      ).rejects.toThrow(BadRequestException);
+      await expect(service.create('u1', { ...createDto, gpaRaw: 3.5 })).rejects.toThrow(BadRequestException);
     });
 
     it('[EC-018] Date clearance and [EC-020] GPA Normalization (OUT_OF_5)', async () => {
@@ -154,14 +120,12 @@ describe('EducationsService', () => {
         gpaScale: GpaScale.OUT_OF_5,
       });
 
-      expect(prismaService.userEducations.create).toHaveBeenCalledWith(
-        expect.objectContaining({
-          data: expect.objectContaining({
-            endDate: null,
-            gpaNormalized: 3.2,
-          }),
-        }),
-      );
+      expect(prismaService.userEducations.create).toHaveBeenCalledWith({
+        data: expect.objectContaining({
+          endDate: null,
+          gpaNormalized: 3.2,
+        })
+      });
     });
 
     it('GPA Normalization (OUT_OF_4 and OUT_OF_100)', async () => {
@@ -173,67 +137,44 @@ describe('EducationsService', () => {
 
       prismaService.userEducations.create.mockResolvedValue({ id: 'edu1' });
 
-      await service.create('u1', {
-        ...createDto,
-        gpaRaw: 3.5,
-        gpaScale: GpaScale.OUT_OF_4,
-      });
-      expect(prismaService.userEducations.create).toHaveBeenCalledWith(
-        expect.objectContaining({
-          data: expect.objectContaining({ gpaNormalized: 3.5 }),
-        }),
-      );
+      await service.create('u1', { ...createDto, gpaRaw: 3.5, gpaScale: GpaScale.OUT_OF_4 });
+      expect(prismaService.userEducations.create).toHaveBeenCalledWith(expect.objectContaining({
+        data: expect.objectContaining({ gpaNormalized: 3.5 })
+      }));
 
-      await service.create('u1', {
-        ...createDto,
-        gpaRaw: 80,
-        gpaScale: GpaScale.OUT_OF_100,
-      });
-      expect(prismaService.userEducations.create).toHaveBeenCalledWith(
-        expect.objectContaining({
-          data: expect.objectContaining({ gpaNormalized: 3.2 }),
-        }),
-      );
+      await service.create('u1', { ...createDto, gpaRaw: 80, gpaScale: GpaScale.OUT_OF_100 });
+      expect(prismaService.userEducations.create).toHaveBeenCalledWith(expect.objectContaining({
+        data: expect.objectContaining({ gpaNormalized: 3.2 })
+      }));
     });
   });
 
   describe('update', () => {
     it('throws NotFoundException if education not found', async () => {
       prismaService.userEducations.findFirst.mockResolvedValue(null);
-      await expect(service.update('u1', 'edu1', {})).rejects.toThrow(
-        NotFoundException,
-      );
+      await expect(service.update('u1', 'edu1', {})).rejects.toThrow(NotFoundException);
     });
 
     it('clears expectedGraduationDate if isCurrent is false', async () => {
-      prismaService.userEducations.findFirst.mockResolvedValue({
-        id: 'edu1',
-        expectedGraduationDate: new Date(),
-      });
+      prismaService.userEducations.findFirst.mockResolvedValue({ id: 'edu1', expectedGraduationDate: new Date() });
       prismaService.userEducations.update.mockResolvedValue({ id: 'edu1' });
       await service.update('u1', 'edu1', { isCurrent: false });
-      expect(prismaService.userEducations.update).toHaveBeenCalledWith(
-        expect.objectContaining({
-          data: expect.objectContaining({ expectedGraduationDate: null }),
-        }),
-      );
+      expect(prismaService.userEducations.update).toHaveBeenCalledWith(expect.objectContaining({
+        data: expect.objectContaining({ expectedGraduationDate: null })
+      }));
     });
   });
 
   describe('remove', () => {
     it('throws NotFound if not found', async () => {
       prismaService.userEducations.findFirst.mockResolvedValue(null);
-      await expect(service.remove('u1', 'edu1')).rejects.toThrow(
-        NotFoundException,
-      );
+      await expect(service.remove('u1', 'edu1')).rejects.toThrow(NotFoundException);
     });
 
     it('deletes successfully', async () => {
       prismaService.userEducations.findFirst.mockResolvedValue({ id: 'edu1' });
       await service.remove('u1', 'edu1');
-      expect(prismaService.userEducations.delete).toHaveBeenCalledWith({
-        where: { id: 'edu1' },
-      });
+      expect(prismaService.userEducations.delete).toHaveBeenCalledWith({ where: { id: 'edu1' } });
     });
   });
 });

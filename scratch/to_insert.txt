@@ -1,0 +1,61 @@
+  describe('Educations E2E', () => {
+    let lvlId = '';
+    let instId = '';
+    let majId = '';
+
+    beforeAll(async () => {
+      // Create test reference data
+      const lvl = await prisma.educationLevel.create({ data: { nameEn: 'Lvl', nameAr: 'Lvl' } });
+      lvlId = lvl.id;
+      const inst = await prisma.institutions.create({ data: { nameEn: 'Inst', nameAr: 'Inst' } });
+      instId = inst.id;
+      const maj = await prisma.majors.create({ data: { nameEn: 'Maj', nameAr: 'Maj' } });
+      majId = maj.id;
+    });
+
+    afterAll(async () => {
+      await prisma.userEducations.deleteMany();
+      await prisma.educationLevel.delete({ where: { id: lvlId } });
+      await prisma.institutions.delete({ where: { id: instId } });
+      await prisma.majors.delete({ where: { id: majId } });
+    });
+
+    it('POST /profile/educations - creates an education record', async () => {
+      const payload = {
+        educationLevelId: lvlId,
+        institutionId: instId,
+        majorId: majId,
+        isCurrent: true,
+        gpaRaw: 3.5,
+        gpaScale: 'OUT_OF_4',
+      };
+      const res = await request(app.getHttpServer())
+        .post('/api/v1/profile/educations')
+        .set('Authorization', `Bearer ${userToken}`)
+        .send(payload)
+        .expect(201);
+      
+      expect(res.body.data.id).toBeDefined();
+      expect(res.body.data.gpaNormalized).toBe(3.5);
+    });
+
+    it('PATCH /profile/educations/:id - updates an education record', async () => {
+      // Get the existing one
+      const listRes = await request(app.getHttpServer())
+        .get('/api/v1/profile/educations')
+        .set('Authorization', `Bearer ${userToken}`)
+        .expect(200);
+      
+      const eduId = listRes.body.data[0].id;
+      
+      const updateRes = await request(app.getHttpServer())
+        .patch(`/api/v1/profile/educations/${eduId}`)
+        .set('Authorization', `Bearer ${userToken}`)
+        .send({ gpaRaw: 90, gpaScale: 'OUT_OF_100' })
+        .expect(200);
+      
+      expect(updateRes.body.data.gpaNormalized).toBe(3.6);
+    });
+  });
+
+  describe('Reference Endpoints', () => {

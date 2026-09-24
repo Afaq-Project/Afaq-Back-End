@@ -13,8 +13,8 @@ import { LocalStorageController } from './controllers/local-storage.controller';
 import { LocalStorageService } from './storage/local-storage.service';
 
 // Disabled until Batch 2 (T039) / Batch 3 (T050) — see tasks.md
-// import { EducationsController } from './controllers/educations.controller';
-// import { EducationsService } from './services/educations.service';
+import { EducationsController } from './controllers/educations.controller';
+import { EducationsService } from './services/educations.service';
 
 // import { LanguagesController } from './controllers/languages.controller';
 // import { LanguagesService } from './services/languages.service';
@@ -25,7 +25,7 @@ import { LocalStorageService } from './storage/local-storage.service';
     ReferenceController,
     DocumentsController,
     LocalStorageController,
-    // EducationsController,
+    EducationsController,
     // LanguagesController,
   ],
   providers: [
@@ -35,7 +35,7 @@ import { LocalStorageService } from './storage/local-storage.service';
     DocumentsService,
     StorageServiceProvider,
     LocalStorageService,
-    // EducationsService,
+    EducationsService,
     // LanguagesService,
   ],
   exports: [ProfileService, SystemSettingsService],

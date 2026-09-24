@@ -1,51 +1,219 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+  ConflictException,
+} from '@nestjs/common';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { CreateEducationDto } from '../dto/create-education.dto';
 import { UpdateEducationDto } from '../dto/update-education.dto';
 import { ProfileService } from './profile.service';
-import { Prisma } from '@prisma/client';
-import { normalizeGPA } from '../../../common/utils/gpa-normalizer';
 import { PaginationDto } from '../../../common/dto/pagination.dto';
 import { buildMeta } from '../../../common/utils/paginate.util';
+import { SystemSettingsService } from './system-settings.service';
+import { SystemSettingKeys } from '../constants/system-settings.keys';
+import { GpaScale, UserEducations } from '@prisma/client';
 
 @Injectable()
 export class EducationsService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly profileService: ProfileService,
+    private readonly systemSettingsService: SystemSettingsService,
   ) {}
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private formatEducation(edu: any) {
+  private formatEducation(
+    edu: UserEducations & {
+      educationLevel?: Record<string, unknown>;
+      institution?: Record<string, unknown>;
+      major?: Record<string, unknown>;
+      minorMajor?: Record<string, unknown> | null;
+    },
+  ) {
     if (!edu) {
       return edu;
     }
     return {
       ...edu,
-      gpaRawScale:
-        edu.gpaRawScale !== null && edu.gpaRawScale !== undefined
-          ? Number.isInteger(Number(edu.gpaRawScale))
-            ? Number(edu.gpaRawScale).toFixed(1)
-            : String(edu.gpaRawScale)
-          : null,
+      startDate: edu.startDate
+        ? edu.startDate.toISOString().split('T')[0]
+        : null,
+      endDate: edu.endDate ? edu.endDate.toISOString().split('T')[0] : null,
+      expectedGraduationDate: edu.expectedGraduationDate
+        ? edu.expectedGraduationDate.toISOString().split('T')[0]
+        : null,
     };
   }
 
-  async create(userId: string, data: CreateEducationDto) {
-    // TODO(T039): full rewrite in Batch 2
-    throw new Error('EducationsService is disabled until Batch 2 (T039)');
+  /**
+   * Normalizes GPA to a 4.0 scale based on the provided scale.
+   * OUT_OF_4: raw
+   * OUT_OF_5: raw * 4 / 5
+   * OUT_OF_100: raw * 4 / 100
+   */
+  private calculateNormalizedGpa(
+    gpaRaw?: number | null,
+    gpaScale?: GpaScale | null,
+  ): number | null {
+    if (gpaRaw === undefined || gpaRaw === null || !gpaScale) {
+      return null;
+    }
+    const raw = Number(gpaRaw);
+    if (gpaScale === GpaScale.OUT_OF_4) {
+      return raw;
+    }
+    if (gpaScale === GpaScale.OUT_OF_5) {
+      return (raw * 4) / 5;
+    }
+    if (gpaScale === GpaScale.OUT_OF_100) {
+      return (raw * 4) / 100;
+    }
+    return null;
+  }
 
-    const education = await this.prisma.userEducations.create({
-      // @ts-expect-error Mismatched types
+  private async checkFks(data: {
+    educationLevelId?: string;
+    institutionId?: string;
+    majorId?: string;
+    minorMajorId?: string;
+  }) {
+    if (data.educationLevelId) {
+      const level = await this.prisma.educationLevel.findUnique({
+        where: { id: data.educationLevelId },
+      });
+      if (!level) {
+        throw new BadRequestException({
+          code: 'INVALID_EDUCATION_LEVEL',
+          message: 'INVALID_EDUCATION_LEVEL',
+        });
+      }
+    }
+    if (data.institutionId) {
+      const inst = await this.prisma.institutions.findUnique({
+        where: { id: data.institutionId },
+      });
+      if (!inst) {
+        throw new BadRequestException({
+          code: 'INVALID_INSTITUTION',
+          message: 'INVALID_INSTITUTION',
+        });
+      }
+    }
+    if (data.majorId) {
+      const maj = await this.prisma.majors.findUnique({
+        where: { id: data.majorId },
+      });
+      if (!maj) {
+        throw new BadRequestException({
+          code: 'INVALID_MAJOR',
+          message: 'INVALID_MAJOR',
+        });
+      }
+    }
+    if (data.minorMajorId) {
+      const min = await this.prisma.majors.findUnique({
+        where: { id: data.minorMajorId },
+      });
+      if (!min) {
+        throw new BadRequestException({
+          code: 'INVALID_MINOR_MAJOR',
+          message: 'INVALID_MINOR_MAJOR',
+        });
+      }
+    }
+  }
+
+  async create(userId: string, data: CreateEducationDto) {
+    if (data.minorMajorId && data.minorMajorId === data.majorId) {
+      throw new BadRequestException({
+        code: 'MINOR_MAJOR_EQUALS_MAJOR',
+        message: 'MINOR_MAJOR_EQUALS_MAJOR',
+      });
+    }
+
+    const { startDate } = data;
+    let { endDate, expectedGraduationDate } = data;
+    if (data.isCurrent) {
+      endDate = undefined;
+    } else if (data.isCurrent === false) {
+      expectedGraduationDate = undefined;
+    }
+
+    if (startDate && endDate && new Date(endDate) < new Date(startDate)) {
+      throw new BadRequestException({
+        code: 'INVALID_DATE_RANGE',
+        message: 'INVALID_DATE_RANGE',
+      });
+    }
+
+    await this.checkFks(data);
+
+    const existing = await this.prisma.userEducations.findFirst({
+      where: {
+        userId,
+        educationLevelId: data.educationLevelId,
+        institutionId: data.institutionId,
+        majorId: data.majorId,
+      },
+    });
+    if (existing) {
+      throw new ConflictException({
+        code: 'EDUCATION_DUPLICATE',
+        message: 'EDUCATION_DUPLICATE',
+      });
+    }
+
+    const maxEducations = await this.systemSettingsService.getNumber(
+      SystemSettingKeys.MAX_EDUCATIONS,
+      5,
+    );
+    const count = await this.prisma.userEducations.count({ where: { userId } });
+    if (count >= maxEducations) {
+      throw new ConflictException({
+        code: 'MAX_EDUCATIONS_REACHED',
+        message: 'MAX_EDUCATIONS_REACHED',
+      });
+    }
+
+    if (data.gpaRaw !== undefined && data.gpaRaw !== null && !data.gpaScale) {
+      throw new BadRequestException({
+        code: 'GPA_SCALE_REQUIRED',
+        message: 'GPA_SCALE_REQUIRED',
+      });
+    }
+
+    const gpaNormalized = this.calculateNormalizedGpa(
+      data.gpaRaw,
+      data.gpaScale,
+    );
+
+    const edu = await this.prisma.userEducations.create({
       data: {
         userId,
-        ...data,
+        educationLevelId: data.educationLevelId,
+        institutionId: data.institutionId,
+        majorId: data.majorId,
+        minorMajorId: data.minorMajorId,
+        startDate: startDate ? new Date(startDate) : null,
+        endDate: endDate ? new Date(endDate) : null,
+        expectedGraduationDate: expectedGraduationDate
+          ? new Date(expectedGraduationDate)
+          : null,
+        isCurrent: data.isCurrent ?? false,
+        gpaRaw: data.gpaRaw,
+        gpaScale: data.gpaScale,
+        gpaNormalized: gpaNormalized,
+      },
+      include: {
+        educationLevel: true,
+        institution: true,
+        major: true,
+        minorMajor: true,
       },
     });
 
-    await this.profileService.updateProfile(userId, {});
-
-    return this.formatEducation(education);
+    await this.profileService.recalculate(userId);
+    return this.formatEducation(edu);
   }
 
   async findAll(userId: string, dto: PaginationDto) {
@@ -54,7 +222,13 @@ export class EducationsService {
         where: { userId },
         skip: dto.skip,
         take: dto.limit,
-        orderBy: { createdAt: 'desc' },
+        orderBy: [{ updatedAt: 'desc' }, { createdAt: 'desc' }],
+        include: {
+          educationLevel: true,
+          institution: true,
+          major: true,
+          minorMajor: true,
+        },
       }),
       this.prisma.userEducations.count({ where: { userId } }),
     ]);
@@ -65,66 +239,144 @@ export class EducationsService {
     };
   }
 
+  async findOne(userId: string, id: string) {
+    const edu = await this.prisma.userEducations.findFirst({
+      where: { userId, id },
+      include: {
+        educationLevel: true,
+        institution: true,
+        major: true,
+        minorMajor: true,
+      },
+    });
+    if (!edu) {
+      throw new NotFoundException({
+        code: 'EDUCATION_NOT_FOUND',
+        message: 'EDUCATION_NOT_FOUND',
+      });
+    }
+    return this.formatEducation(edu);
+  }
+
   async update(userId: string, id: string, data: UpdateEducationDto) {
-    // TODO(T039): full rewrite in Batch 2
-    throw new Error('EducationsService is disabled until Batch 2 (T039)');
-
-    const existing = await this.prisma.userEducations.findFirst({
-      where: { id, userId },
+    const edu = await this.prisma.userEducations.findFirst({
+      where: { userId, id },
     });
-
-    if (!existing) {
-      throw new NotFoundException('Education record not found');
+    if (!edu) {
+      throw new NotFoundException({
+        code: 'EDUCATION_NOT_FOUND',
+        message: 'EDUCATION_NOT_FOUND',
+      });
     }
 
-    const updateData: Prisma.UserEducationsUpdateInput = {
-      degree: data.degree,
-      // @ts-expect-error Mismatched types
-      major: data.major,
-      // @ts-expect-error Mismatched types
-      institution: data.institution,
-      graduationYear: data.graduationYear,
-    };
+    const major = data.majorId !== undefined ? data.majorId : edu.majorId;
+    const minor =
+      data.minorMajorId !== undefined ? data.minorMajorId : edu.minorMajorId;
+    if (minor && major === minor) {
+      throw new BadRequestException({
+        code: 'MINOR_MAJOR_EQUALS_MAJOR',
+        message: 'MINOR_MAJOR_EQUALS_MAJOR',
+      });
+    }
 
-    // Remove undefined fields
-    Object.keys(updateData).forEach((key) => {
-      const k = key as keyof Prisma.UserEducationsUpdateInput;
-      if (updateData[k] === undefined) {
-        delete updateData[k];
+    await this.checkFks(data);
+
+    if (data.educationLevelId || data.institutionId || data.majorId) {
+      const levelId = data.educationLevelId ?? edu.educationLevelId;
+      const instId = data.institutionId ?? edu.institutionId;
+      const majId = data.majorId ?? edu.majorId;
+
+      const existing = await this.prisma.userEducations.findFirst({
+        where: {
+          userId,
+          educationLevelId: levelId,
+          institutionId: instId,
+          majorId: majId,
+          id: { not: id },
+        },
+      });
+      if (existing) {
+        throw new ConflictException({
+          code: 'EDUCATION_DUPLICATE',
+          message: 'EDUCATION_DUPLICATE',
+        });
       }
-    });
+    }
 
-    if (data.gpaScale !== undefined) {
-      if (data.gpaScale === 'letter') {
-        updateData.gpaRaw = null;
-        updateData.gpaScale = null;
-        updateData.gpaNormalized = data.gpaValue
-          ? normalizeGPA(data.gpaValue as number, 'letter')
+    const isCurrent =
+      data.isCurrent !== undefined ? data.isCurrent : edu.isCurrent;
+    let endDateRaw =
+      data.endDate !== undefined ? data.endDate : edu.endDate?.toISOString();
+    let expectedGraduationDateRaw =
+      data.expectedGraduationDate !== undefined
+        ? data.expectedGraduationDate
+        : edu.expectedGraduationDate?.toISOString();
+
+    if (isCurrent) {
+      endDateRaw = undefined;
+    } else if (isCurrent === false) {
+      expectedGraduationDateRaw = undefined;
+    }
+
+    const sd =
+      data.startDate !== undefined
+        ? data.startDate
+        : edu.startDate?.toISOString();
+    if (sd && endDateRaw && new Date(endDateRaw) < new Date(sd)) {
+      throw new BadRequestException({
+        code: 'INVALID_DATE_RANGE',
+        message: 'INVALID_DATE_RANGE',
+      });
+    }
+
+    const gpaRaw =
+      data.gpaRaw !== undefined
+        ? data.gpaRaw
+        : edu.gpaRaw
+          ? Number(edu.gpaRaw)
           : null;
-      } else {
-        if (data.gpaValue !== undefined && data.gpaValue !== null) {
-          updateData.gpaRaw = data.gpaValue;
+    const gpaScale = data.gpaScale !== undefined ? data.gpaScale : edu.gpaScale;
 
-          if (data.gpaScale === '4.0') {
-            updateData.gpaScale = 'OUT_OF_4';
-          } else if (data.gpaScale === 'percentage') {
-            updateData.gpaScale = 'OUT_OF_100';
-          }
-          updateData.gpaNormalized = normalizeGPA(
-            data.gpaValue as number,
-            data.gpaScale as '4.0' | 'percentage' | 'letter',
-          );
-        }
-      }
-    } else if (data.gpaValue !== undefined && data.gpaValue !== null) {
-      updateData.gpaRaw = data.gpaValue;
+    if (gpaRaw !== undefined && gpaRaw !== null && !gpaScale) {
+      throw new BadRequestException({
+        code: 'GPA_SCALE_REQUIRED',
+        message: 'GPA_SCALE_REQUIRED',
+      });
     }
+
+    const gpaNormalized = this.calculateNormalizedGpa(gpaRaw, gpaScale);
 
     const updated = await this.prisma.userEducations.update({
-      where: { id, userId },
-      data: updateData,
+      where: { id },
+      data: {
+        educationLevelId: data.educationLevelId,
+        institutionId: data.institutionId,
+        majorId: data.majorId,
+        minorMajorId: data.minorMajorId === null ? null : data.minorMajorId,
+        startDate:
+          data.startDate !== undefined
+            ? data.startDate
+              ? new Date(data.startDate)
+              : null
+            : undefined,
+        endDate: endDateRaw ? new Date(endDateRaw) : null,
+        expectedGraduationDate: expectedGraduationDateRaw
+          ? new Date(expectedGraduationDateRaw)
+          : null,
+        isCurrent: isCurrent,
+        gpaRaw: data.gpaRaw,
+        gpaScale: data.gpaScale === null ? null : data.gpaScale,
+        gpaNormalized: gpaNormalized,
+      },
+      include: {
+        educationLevel: true,
+        institution: true,
+        major: true,
+        minorMajor: true,
+      },
     });
 
+    await this.profileService.recalculate(userId);
     return this.formatEducation(updated);
   }
 
@@ -134,13 +386,16 @@ export class EducationsService {
     });
 
     if (!existing) {
-      throw new NotFoundException('Education record not found');
+      throw new NotFoundException({
+        code: 'EDUCATION_NOT_FOUND',
+        message: 'EDUCATION_NOT_FOUND',
+      });
     }
 
     await this.prisma.userEducations.delete({
-      where: { id, userId },
+      where: { id },
     });
 
-    await this.profileService.updateProfile(userId, {});
+    await this.profileService.recalculate(userId);
   }
 }

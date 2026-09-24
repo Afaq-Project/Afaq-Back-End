@@ -1,18 +1,12 @@
-import {
-  Injectable,
-  BadRequestException,
-  NotFoundException,
-} from '@nestjs/common';
+// Batch 3 (T050) will rewrite this service entirely.
+// create/update are disabled — their endpoints are commented out in profile.module.ts.
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { ProfileService } from './profile.service';
 import { CreateLanguageDto } from '../dto/create-language.dto';
 import { UpdateLanguageDto } from '../dto/update-language.dto';
 import { PaginationDto } from '../../../common/dto/pagination.dto';
 import { buildMeta } from '../../../common/utils/paginate.util';
-
-interface ProfileServiceWithRecalculate {
-  recalculate?(userId: string): Promise<void>;
-}
 
 @Injectable()
 export class LanguagesService {
@@ -21,54 +15,12 @@ export class LanguagesService {
     private readonly profileService: ProfileService,
   ) {}
 
-  async create(userId: string, data: CreateLanguageDto) {
+  // eslint-disable-next-line @typescript-eslint/require-await
+  async create(userId: string, data: CreateLanguageDto): Promise<never> {
+    void userId;
+    void data; // bypass TS6133
     // TODO(T050): full rewrite in Batch 3
     throw new Error('LanguagesService is disabled until Batch 3 (T050)');
-
-    const existingCount = await this.prisma.userLanguages.count({
-      where: { userId },
-    });
-
-    if (existingCount >= 5) {
-      throw new BadRequestException('Cannot add more than 5 languages');
-    }
-
-    const languageMaster = await this.prisma.languagesMaster.findUnique({
-      where: { id: data.languageId },
-    });
-
-    if (!languageMaster) {
-      throw new BadRequestException('Language does not exist');
-    }
-
-    const existingLang = await this.prisma.userLanguages.findUnique({
-      where: {
-        userId_languageId: {
-          userId,
-          languageId: data.languageId,
-        },
-      },
-    });
-
-    if (existingLang) {
-      throw new BadRequestException('Language already added');
-    }
-
-    const result = await this.prisma.userLanguages.create({
-      data: {
-        userId,
-        languageId: data.languageId,
-        proficiencyLevelId: data.proficiency,
-      },
-    });
-
-    const profileSvc = this
-      .profileService as unknown as ProfileServiceWithRecalculate;
-    if (typeof profileSvc.recalculate === 'function') {
-      await profileSvc.recalculate?.(userId);
-    }
-
-    return result;
   }
 
   async findAll(userId: string, dto: PaginationDto) {
@@ -113,56 +65,17 @@ export class LanguagesService {
     return lang;
   }
 
-  async update(userId: string, languageId: string, data: UpdateLanguageDto) {
+  // eslint-disable-next-line @typescript-eslint/require-await
+  async update(
+    userId: string,
+    languageId: string,
+    data: UpdateLanguageDto,
+  ): Promise<never> {
+    void userId;
+    void languageId;
+    void data; // bypass TS6133
     // TODO(T050): full rewrite in Batch 3
     throw new Error('LanguagesService is disabled until Batch 3 (T050)');
-
-    await this.findOne(userId, languageId);
-
-    if (data.languageId && data.languageId !== languageId) {
-      const languageMaster = await this.prisma.languagesMaster.findUnique({
-        where: { id: data.languageId },
-      });
-
-      if (!languageMaster) {
-        throw new BadRequestException('Language does not exist');
-      }
-
-      const existingLang = await this.prisma.userLanguages.findUnique({
-        where: {
-          userId_languageId: {
-            userId,
-            languageId: data.languageId as string,
-          },
-        },
-      });
-
-      if (existingLang) {
-        throw new BadRequestException('Language already added');
-      }
-    }
-
-    const result = await this.prisma.userLanguages.update({
-      where: {
-        userId_languageId: {
-          userId,
-          languageId,
-        },
-      },
-      data: {
-        languageId: data.languageId as string,
-        // TODO(T050): full rewrite in Batch 3
-        proficiencyLevelId: data.proficiency,
-      },
-    });
-
-    const profileSvc = this
-      .profileService as unknown as ProfileServiceWithRecalculate;
-    if (typeof profileSvc.recalculate === 'function') {
-      await profileSvc.recalculate?.(userId);
-    }
-
-    return result;
   }
 
   async remove(userId: string, languageId: string) {
@@ -177,10 +90,6 @@ export class LanguagesService {
       },
     });
 
-    const profileSvc = this
-      .profileService as unknown as ProfileServiceWithRecalculate;
-    if (typeof profileSvc.recalculate === 'function') {
-      await profileSvc.recalculate?.(userId);
-    }
+    await this.profileService.recalculate(userId);
   }
 }
