@@ -91,7 +91,7 @@ async function bootstrap() {
           Object.keys(err.constraints ?? {}).map((constraintKey) => ({
             field: err.property,
             code:
-              err.contexts?.[constraintKey]?.code ||
+              (err.contexts?.[constraintKey] as { code?: string })?.code ||
               constraintToErrorCode(constraintKey),
             message: (err.constraints ?? {})[constraintKey],
           })),

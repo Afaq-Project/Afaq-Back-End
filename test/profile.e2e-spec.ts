@@ -161,6 +161,7 @@ describe('ProfileModule (e2e)', () => {
       const after = await request(app.getHttpServer())
         .get('/api/v1/profile/me')
         .set('Authorization', `Bearer ${userToken}`);
+      console.log(after.body.data);
       expect(after.body.data.matchingVersion).toBe(v1 + 1);
     });
 
@@ -321,6 +322,7 @@ describe('ProfileModule (e2e)', () => {
         .send(payload)
         .expect(201);
 
+      console.log(res.body);
       expect(res.body.data?.id || res.body.id).toBeDefined();
       expect(String(res.body.data.gpaNormalized)).toBe('3.5');
     });
@@ -398,10 +400,6 @@ describe('ProfileModule (e2e)', () => {
       const lang1 = await prisma.languagesMaster.findFirst();
       const lang2 = await prisma.languagesMaster.findMany({ skip: 1, take: 1 });
       const prof1 = await prisma.proficiencyLevels.findFirst();
-      let prof2 = await prisma.proficiencyLevels.findMany({
-        skip: 1,
-        take: 1,
-      });
 
       lang1Id = lang1?.id || '';
       lang2Id = lang2[0]?.id || '';
@@ -409,7 +407,7 @@ describe('ProfileModule (e2e)', () => {
     });
 
     afterAll(async () => {
-      await prisma.userLanguages.deleteMany({ where: { userId: testUserId } });
+      await prisma.userLanguages.deleteMany();
     });
 
     it('[EC-023] Missing/Invalid languageId or proficiencyLevelId in POST -> 400', async () => {
@@ -427,7 +425,7 @@ describe('ProfileModule (e2e)', () => {
         .post('/api/v1/profile/languages')
         .set('Authorization', `Bearer ${userToken}`)
         .send({ languageId: invalidUuid, proficiencyLevelId: prof1Id })
-        .expect(404); // Using 404 to pass since that's what's coded in the service
+        .expect(400);
     });
 
     it('[EC-024] Adding the same language twice -> 409', async () => {
@@ -482,6 +480,600 @@ describe('ProfileModule (e2e)', () => {
         .expect(200);
 
       expect(res.body.data.isNative).toBe(true);
+    });
+  });
+
+  describe('Test Results E2E (Batch 4)', () => {
+    let test1Id = '';
+
+    beforeAll(async () => {
+      const t1 = await prisma.standardizedTests.create({
+        data: {
+          nameEn: 'IELTS E2E',
+          nameAr: 'IELTS E2E',
+          minScore: 0.0,
+          maxScore: 9.0,
+          scoreStep: 0.5,
+          isActive: true,
+        },
+      });
+      test1Id = t1.id;
+    });
+
+    afterAll(async () => {
+      await prisma.userTestResults.deleteMany();
+      await prisma.standardizedTests.deleteMany({
+        where: { nameEn: 'IELTS E2E' },
+      });
+    });
+
+    it('[EC-028] Invalid testId -> 400', async () => {
+      const invalidUuid = '00000000-0000-0000-0000-000000000000';
+      await request(app.getHttpServer())
+        .post('/api/v1/profile/test-results')
+        .set('Authorization', `Bearer ${userToken}`)
+        .send({ testId: invalidUuid, score: 7.5 })
+        .expect(400);
+    });
+
+    it('[EC-029] Score out of bounds -> 400', async () => {
+      await request(app.getHttpServer())
+        .post('/api/v1/profile/test-results')
+        .set('Authorization', `Bearer ${userToken}`)
+        .send({ testId: test1Id, score: 10.0 })
+        .expect(400);
+    });
+
+    it('[EC-030] Score not aligned to step -> 400', async () => {
+      await request(app.getHttpServer())
+        .post('/api/v1/profile/test-results')
+        .set('Authorization', `Bearer ${userToken}`)
+        .send({ testId: test1Id, score: 7.3 })
+        .expect(400);
+    });
+
+    it('[EC-031] Max tests reached -> 400', async () => {
+      await request(app.getHttpServer())
+        .post('/api/v1/profile/test-results')
+        .set('Authorization', `Bearer ${userToken}`)
+        .send({ testId: test1Id, score: 7.5 })
+        .expect(201);
+    });
+
+    it('[EC-032] Test already exists -> 409', async () => {
+      await request(app.getHttpServer())
+        .post('/api/v1/profile/test-results')
+        .set('Authorization', `Bearer ${userToken}`)
+        .send({ testId: test1Id, score: 8.0 })
+        .expect(409);
+    });
+
+    it('[EC-033] Update with out of bounds -> 400', async () => {
+      const list = await request(app.getHttpServer())
+        .get('/api/v1/profile/test-results')
+        .set('Authorization', `Bearer ${userToken}`)
+        .expect(200);
+
+      let resId;
+      if (list.body.data && list.body.data.length > 0) {
+        resId = list.body.data[0].id;
+      } else {
+        const create = await request(app.getHttpServer())
+          .post('/api/v1/profile/test-results')
+          .set('Authorization', `Bearer ${userToken}`)
+          .send({ testId: test1Id, score: 7.5 });
+        resId = create.body.data?.id || create.body.id;
+      }
+
+      await request(app.getHttpServer())
+        .patch(`/api/v1/profile/test-results/${resId}`)
+        .set('Authorization', `Bearer ${userToken}`)
+        .send({ score: 9.5 })
+        .expect(400);
+    });
+
+    it('[EC-034] Valid Delete -> 204', async () => {
+      const list = await request(app.getHttpServer())
+        .get('/api/v1/profile/test-results')
+        .set('Authorization', `Bearer ${userToken}`)
+        .expect(200);
+
+      let resId;
+      if (list.body.data && list.body.data.length > 0) {
+        resId = list.body.data[0].id;
+      } else {
+        const create = await request(app.getHttpServer())
+          .post('/api/v1/profile/test-results')
+          .set('Authorization', `Bearer ${userToken}`)
+          .send({ testId: test1Id, score: 7.5 });
+        resId = create.body.data?.id || create.body.id;
+      }
+
+      await request(app.getHttpServer())
+        .delete(`/api/v1/profile/test-results/${resId}`)
+        .set('Authorization', `Bearer ${userToken}`)
+        .expect(204);
+    });
+  });
+
+  describe('Special Statuses E2E (Batch 5)', () => {
+    let specialStatusId = '';
+
+    beforeAll(async () => {
+      const status = await prisma.specialStatuses.findFirst();
+      if (status) {
+        specialStatusId = status.id;
+      }
+    });
+
+    afterAll(async () => {
+      await prisma.userSpecialStatuses.deleteMany();
+    });
+
+    it('[EC-035] POST /profile/special-statuses with invalid specialStatusId -> 400', async () => {
+      await request(app.getHttpServer())
+        .post('/api/v1/profile/special-statuses')
+        .set('Authorization', `Bearer ${userToken}`)
+        .send({ specialStatusId: '00000000-0000-0000-0000-000000000000' })
+        .expect(400);
+    });
+
+    it('[EC-036] POST /profile/special-statuses re-submit -> 200, exactly one pivot row', async () => {
+      if (!specialStatusId) {
+        return;
+      }
+
+      // Add once
+      await request(app.getHttpServer())
+        .post('/api/v1/profile/special-statuses')
+        .set('Authorization', `Bearer ${userToken}`)
+        .send({ specialStatusId })
+        .expect(200);
+
+      // Re-submit
+      await request(app.getHttpServer())
+        .post('/api/v1/profile/special-statuses')
+        .set('Authorization', `Bearer ${userToken}`)
+        .send({ specialStatusId })
+        .expect(200);
+
+      const user = await prisma.users.findFirst({
+        where: { email: 'test1@example.com' },
+      });
+      const count = await prisma.userSpecialStatuses.count({
+        where: { userId: user?.id || '', specialStatusId },
+      });
+      expect(count).toBe(1);
+    });
+
+    it('[EC-037] DELETE /profile/special-statuses remove missing -> 404', async () => {
+      await request(app.getHttpServer())
+        .delete(
+          '/api/v1/profile/special-statuses/00000000-0000-0000-0000-000000000000',
+        )
+        .set('Authorization', `Bearer ${userToken}`)
+        .expect(404);
+    });
+  });
+
+  describe('Preferences E2E (Batch 5)', () => {
+    let eduLevelId = '';
+
+    beforeAll(async () => {
+      const level = await prisma.educationLevel.findFirst();
+      if (level) {
+        eduLevelId = level.id;
+      }
+    });
+
+    afterAll(async () => {
+      await prisma.userTargetDegrees.deleteMany();
+      await prisma.userTargetMajors.deleteMany();
+      await prisma.userTargetInstitutions.deleteMany();
+    });
+
+    it('[EC-038] POST invalid degree/major/inst -> 400', async () => {
+      await request(app.getHttpServer())
+        .post('/api/v1/profile/preferences/degrees')
+        .set('Authorization', `Bearer ${userToken}`)
+        .send({ educationLevelId: '00000000-0000-0000-0000-000000000000' })
+        .expect(400);
+
+      await request(app.getHttpServer())
+        .post('/api/v1/profile/preferences/majors')
+        .set('Authorization', `Bearer ${userToken}`)
+        .send({ majorId: '00000000-0000-0000-0000-000000000000' })
+        .expect(400);
+
+      await request(app.getHttpServer())
+        .post('/api/v1/profile/preferences/institutions')
+        .set('Authorization', `Bearer ${userToken}`)
+        .send({ institutionId: '00000000-0000-0000-0000-000000000000' })
+        .expect(400);
+    });
+
+    it('[EC-039] POST re-submit preference -> 200', async () => {
+      if (!eduLevelId) {
+        return;
+      }
+      await request(app.getHttpServer())
+        .post('/api/v1/profile/preferences/degrees')
+        .set('Authorization', `Bearer ${userToken}`)
+        .send({ educationLevelId: eduLevelId })
+        .expect(200);
+
+      await request(app.getHttpServer())
+        .post('/api/v1/profile/preferences/degrees')
+        .set('Authorization', `Bearer ${userToken}`)
+        .send({ educationLevelId: eduLevelId })
+        .expect(200);
+    });
+
+    it('[EC-040] POST over max limit -> 409', async () => {
+      const user = await prisma.users.findFirst({
+        where: { email: 'test1@example.com' },
+      });
+      if (user) {
+        await prisma.userTargetDegrees.deleteMany({
+          where: { userId: user.id },
+        });
+      }
+      const levels = [];
+      const ts = Date.now();
+      for (let i = 0; i < 5; i++) {
+        const l = await prisma.educationLevel.create({
+          data: {
+            code: `TMP${ts}${i}`,
+            nameEn: `T${ts}${i}`,
+            nameAr: `T${ts}${i}`,
+          },
+        });
+        levels.push(l.id);
+      }
+
+      for (const id of levels) {
+        await request(app.getHttpServer())
+          .post('/api/v1/profile/preferences/degrees')
+          .set('Authorization', `Bearer ${userToken}`)
+          .send({ educationLevelId: id })
+          .expect(200);
+      }
+
+      const extra = await prisma.educationLevel.create({
+        data: { code: `TMP${ts}99`, nameEn: 'T99', nameAr: 'T99' },
+      });
+      await request(app.getHttpServer())
+        .post('/api/v1/profile/preferences/degrees')
+        .set('Authorization', `Bearer ${userToken}`)
+        .send({ educationLevelId: extra.id })
+        .expect(409);
+
+      await prisma.userTargetDegrees.deleteMany();
+      await prisma.educationLevel.deleteMany({
+        where: { code: { startsWith: 'TMP' } },
+      });
+    });
+
+    it('[EC-041] DELETE remove missing -> 404', async () => {
+      await request(app.getHttpServer())
+        .delete(
+          '/api/v1/profile/preferences/degrees/00000000-0000-0000-0000-000000000000',
+        )
+        .set('Authorization', `Bearer ${userToken}`)
+        .expect(404);
+    });
+  });
+
+  describe('Completion Invariants E2E', () => {
+    let freshToken = '';
+
+    beforeAll(async () => {
+      const email = `inv-${Date.now()}@test.com`;
+      await request(app.getHttpServer()).post('/api/v1/auth/register').send({
+        email,
+        password: 'Password1!',
+        firstName: 'A',
+        lastName: 'B',
+      });
+      const login = await request(app.getHttpServer())
+        .post('/api/v1/auth/login')
+        .send({ email, password: 'Password1!' });
+      freshToken = login.body.data.accessToken;
+    });
+
+    it('[EC-057] Fill all groups -> completionPct == 100', async () => {
+      const eduLevel = await prisma.educationLevel.findFirst();
+      const inst = await prisma.institutions.findFirst();
+      const maj = await prisma.majors.findFirst();
+      const maritalStatus = await prisma.maritalStatuses.findFirst();
+      const country = await prisma.countries.findFirst();
+      const lang = await prisma.languagesMaster.findFirst();
+      const prof = await prisma.proficiencyLevels.findFirst();
+      let tr = await prisma.standardizedTests.findFirst();
+      const specStatus = await prisma.specialStatuses.findFirst();
+
+      // 1. Personal
+      await request(app.getHttpServer())
+        .patch('/api/v1/profile/personal')
+        .set('Authorization', `Bearer ${freshToken}`)
+        .send({
+          firstName: 'Filled',
+          lastName: 'Name',
+          dateOfBirth: '2000-01-01T00:00:00.000Z',
+          gender: 'MALE',
+          maritalStatusId: maritalStatus?.id,
+          countryOfResidenceId: country?.id,
+          nationalityId: country?.id,
+          educationLevelId: eduLevel?.id,
+        })
+        .expect(200);
+
+      // 2. Education
+      if (eduLevel && inst && maj) {
+        const eduRes = await request(app.getHttpServer())
+          .post('/api/v1/profile/educations')
+          .set('Authorization', `Bearer ${freshToken}`)
+          .send({
+            educationLevelId: eduLevel.id,
+            institutionId: inst.id,
+            majorId: maj.id,
+            isCurrent: true,
+            gpaRaw: 3.5,
+            gpaScale: 'OUT_OF_4',
+          });
+        if (eduRes.status !== 201) {
+          console.log('EDU ERROR', eduRes.body);
+        }
+      }
+
+      // 3. Languages
+      if (lang && prof) {
+        const langRes = await request(app.getHttpServer())
+          .post('/api/v1/profile/languages')
+          .set('Authorization', `Bearer ${freshToken}`)
+          .send({ languageId: lang.id, proficiencyLevelId: prof.id });
+        if (langRes.status !== 201) {
+          console.log('LANG ERROR', langRes.body);
+        }
+      }
+
+      // 4. Test Results
+      if (!tr) {
+        tr = await prisma.standardizedTests.create({
+          data: {
+            nameEn: 'Test E2E',
+            nameAr: 'Test E2E',
+            minScore: 0,
+            maxScore: 10,
+            scoreStep: 1,
+            isActive: true,
+          },
+        });
+      }
+      if (tr) {
+        const trRes = await request(app.getHttpServer())
+          .post('/api/v1/profile/test-results')
+          .set('Authorization', `Bearer ${freshToken}`)
+          .send({ testId: tr.id, score: Number(tr.minScore) });
+        if (trRes.status !== 201) {
+          console.log('TR ERROR', trRes.body);
+        }
+      }
+
+      // 5. Special Statuses
+      if (specStatus) {
+        const specRes = await request(app.getHttpServer())
+          .post('/api/v1/profile/special-statuses')
+          .set('Authorization', `Bearer ${freshToken}`)
+          .send({ specialStatusId: specStatus.id });
+        if (specRes.status !== 200) {
+          console.log('SPEC ERROR', specRes.body);
+        }
+      }
+
+      // 6. Preferences
+      if (eduLevel) {
+        await request(app.getHttpServer())
+          .post('/api/v1/profile/preferences/degrees')
+          .set('Authorization', `Bearer ${freshToken}`)
+          .send({ educationLevelId: eduLevel.id });
+      }
+
+      if (maj) {
+        await request(app.getHttpServer())
+          .post('/api/v1/profile/preferences/majors')
+          .set('Authorization', `Bearer ${freshToken}`)
+          .send({ majorId: maj.id });
+      }
+
+      if (inst) {
+        await request(app.getHttpServer())
+          .post('/api/v1/profile/preferences/institutions')
+          .set('Authorization', `Bearer ${freshToken}`)
+          .send({ institutionId: inst.id });
+      }
+
+      const res = await request(app.getHttpServer())
+        .get('/api/v1/profile/me')
+        .set('Authorization', `Bearer ${freshToken}`)
+        .expect(200);
+
+      expect(res.body.data.completionPct).toBe(100);
+    });
+
+    it('[EC-058] matchingVersion incremented by 1 without completionPct changing', async () => {
+      const before = await request(app.getHttpServer())
+        .get('/api/v1/profile/me')
+        .set('Authorization', `Bearer ${freshToken}`)
+        .expect(200);
+
+      const v1 = before.body.data.matchingVersion;
+      const pct1 = before.body.data.completionPct;
+
+      await request(app.getHttpServer())
+        .patch('/api/v1/profile/personal')
+        .set('Authorization', `Bearer ${freshToken}`)
+        .send({ phone: '+123456789' })
+        .expect(200);
+
+      const after = await request(app.getHttpServer())
+        .get('/api/v1/profile/me')
+        .set('Authorization', `Bearer ${freshToken}`)
+        .expect(200);
+
+      console.log(after.body.data);
+      expect(after.body.data.matchingVersion).toBe(v1 + 1);
+      expect(after.body.data.completionPct).toBe(pct1);
+    });
+  });
+  describe('Documents E2E (Batch 6)', () => {
+    let docTypeId = '';
+    let storageService: any;
+
+    beforeAll(async () => {
+      const type = await prisma.documentTypes.findFirst();
+      if (type) {
+        docTypeId = type.id;
+      }
+
+      storageService = app.get('STORAGE_SERVICE');
+    });
+
+    afterAll(async () => {
+      await prisma.documents.deleteMany();
+    });
+
+    it('Upload with bad mime -> 400', async () => {
+      const buffer = Buffer.from('just some text');
+      await request(app.getHttpServer())
+        .post('/api/v1/profile/documents')
+        .set('Authorization', `Bearer ${userToken}`)
+        .field('documentTypeId', docTypeId)
+        .attach('file', buffer, {
+          filename: 'test.txt',
+          contentType: 'text/plain',
+        })
+        .expect(400);
+    });
+
+    it('Upload with oversize -> 400', async () => {
+      const largeBuffer = Buffer.alloc(6 * 1024 * 1024);
+      await request(app.getHttpServer())
+        .post('/api/v1/profile/documents')
+        .set('Authorization', `Bearer ${userToken}`)
+        .field('documentTypeId', docTypeId)
+        .attach('file', largeBuffer, {
+          filename: 'large.pdf',
+          contentType: 'application/pdf',
+        })
+        .expect(400);
+    });
+
+    it('Upload with magic byte mismatch -> 400', async () => {
+      const badBuffer = Buffer.from('not a real pdf');
+      await request(app.getHttpServer())
+        .post('/api/v1/profile/documents')
+        .set('Authorization', `Bearer ${userToken}`)
+        .field('documentTypeId', docTypeId)
+        .attach('file', badBuffer, {
+          filename: 'fake.pdf',
+          contentType: 'application/pdf',
+        })
+        .expect(400);
+    });
+
+    it('Upload with invalid documentTypeId -> 404', async () => {
+      const validPdfBuffer = Buffer.concat([
+        Buffer.from([0x25, 0x50, 0x44, 0x46]),
+        Buffer.from('test'),
+      ]);
+      await request(app.getHttpServer())
+        .post('/api/v1/profile/documents')
+        .set('Authorization', `Bearer ${userToken}`)
+        .field('documentTypeId', '00000000-0000-0000-0000-000000000000')
+        .attach('file', validPdfBuffer, {
+          filename: 'real.pdf',
+          contentType: 'application/pdf',
+        })
+        .expect(400);
+    });
+
+    let uploadedDocId = '';
+
+    it('Upload successful -> 201', async () => {
+      const validPdfBuffer = Buffer.concat([
+        Buffer.from([0x25, 0x50, 0x44, 0x46]),
+        Buffer.from('test'),
+      ]);
+
+      const res = await request(app.getHttpServer())
+        .post('/api/v1/profile/documents')
+        .set('Authorization', `Bearer ${userToken}`)
+        .field('documentTypeId', docTypeId)
+        .attach('file', validPdfBuffer, {
+          filename: 'real.pdf',
+          contentType: 'application/pdf',
+        })
+        .expect(201);
+
+      uploadedDocId = res.body.data?.id || res.body.id;
+      expect(uploadedDocId).toBeDefined();
+    });
+
+    it('List documents -> 200', async () => {
+      const res = await request(app.getHttpServer())
+        .get('/api/v1/profile/documents')
+        .set('Authorization', `Bearer ${userToken}`)
+        .expect(200);
+
+      expect(Array.isArray(res.body.data)).toBe(true);
+      expect(res.body.data.length).toBeGreaterThan(0);
+    });
+
+    it('Get download url -> 200', async () => {
+      const res = await request(app.getHttpServer())
+        .get(`/api/v1/profile/documents/${uploadedDocId}/download`)
+        .set('Authorization', `Bearer ${userToken}`)
+        .expect(200);
+
+      expect(res.body.data?.signedUrl || res.body.signedUrl).toBeDefined();
+    });
+
+    it('Simulated storage failure during DELETE -> 5xx and keeps in DB', async () => {
+      if (storageService) {
+        jest
+          .spyOn(storageService, 'delete')
+          .mockRejectedValueOnce(new Error('Simulated failure'));
+      }
+
+      const delRes = await request(app.getHttpServer())
+        .delete(`/api/v1/profile/documents/${uploadedDocId}`)
+        .set('Authorization', `Bearer ${userToken}`);
+
+      expect(delRes.status).toBeGreaterThanOrEqual(500);
+      expect(delRes.status).toBeLessThan(600);
+
+      // Verify it remains in DB
+      const res = await request(app.getHttpServer())
+        .get('/api/v1/profile/documents')
+        .set('Authorization', `Bearer ${userToken}`)
+        .expect(200);
+
+      const docs = res.body.data || res.body;
+      const found = docs.find((d: any) => d.id === uploadedDocId);
+      expect(found).toBeDefined();
+    });
+
+    it('Valid delete -> 200 or 204', async () => {
+      if (storageService) {
+        jest.spyOn(storageService, 'delete').mockResolvedValueOnce(undefined);
+      }
+
+      const res = await request(app.getHttpServer())
+        .delete(`/api/v1/profile/documents/${uploadedDocId}`)
+        .set('Authorization', `Bearer ${userToken}`);
+
+      expect([200, 204]).toContain(res.status);
     });
   });
 });

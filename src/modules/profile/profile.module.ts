@@ -22,6 +22,12 @@ import { LanguagesService } from './services/languages.service';
 import { TestResultsController } from './controllers/test-results.controller';
 import { TestResultsService } from './services/test-results.service';
 
+import { SpecialStatusesController } from './controllers/special-statuses.controller';
+import { SpecialStatusesService } from './services/special-statuses.service';
+
+import { PreferencesController } from './controllers/preferences.controller';
+import { PreferencesService } from './services/preferences.service';
+
 @Module({
   controllers: [
     ProfileController,
@@ -31,6 +37,8 @@ import { TestResultsService } from './services/test-results.service';
     EducationsController,
     LanguagesController,
     TestResultsController,
+    SpecialStatusesController,
+    PreferencesController,
   ],
   providers: [
     ProfileService,
@@ -42,6 +50,8 @@ import { TestResultsService } from './services/test-results.service';
     EducationsService,
     LanguagesService,
     TestResultsService,
+    SpecialStatusesService,
+    PreferencesService,
   ],
   exports: [ProfileService, SystemSettingsService],
 })

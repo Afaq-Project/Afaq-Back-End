@@ -328,20 +328,20 @@ export class ProfileService {
 
     // Preferences & Statuses
     const ps = scale('preferencesStatuses');
-    if (hasArray('targetMajors')) {
-      score += DEFAULT_COMPONENTS.preferencesStatuses.hasTargetMajor * ps;
+    if (hasArray('specialStatuses')) {
+      score += DEFAULT_COMPONENTS.preferencesStatuses.hasSpecialStatus * ps;
     }
     if (hasArray('targetDegrees')) {
       score += DEFAULT_COMPONENTS.preferencesStatuses.hasTargetDegree * ps;
     }
+    if (hasArray('targetMajors')) {
+      score += DEFAULT_COMPONENTS.preferencesStatuses.hasTargetMajor * ps;
+    }
     if (hasArray('targetInstitutions')) {
       score += DEFAULT_COMPONENTS.preferencesStatuses.hasTargetInstitution * ps;
     }
-    if (hasArray('specialStatuses')) {
-      score += DEFAULT_COMPONENTS.preferencesStatuses.hasSpecialStatus * ps;
-    }
 
-    return Math.round(score);
+    return Math.min(Math.round(score), 100);
   }
 
   /**

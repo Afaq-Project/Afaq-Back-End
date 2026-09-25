@@ -2,36 +2,34 @@ import {
   Injectable,
   Inject,
   BadRequestException,
-  ForbiddenException,
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { ConfigService } from '@nestjs/config';
 import { StorageService } from '../interfaces/storage.interface';
 import { STORAGE_SERVICE } from '../storage/storage.service';
-import { encryptFile } from '../utils/encryption.util';
 import { v4 as uuidv4 } from 'uuid';
 import { PaginationDto } from '../../../common/dto/pagination.dto';
 import { buildMeta } from '../../../common/utils/paginate.util';
+import { SystemSettingsService } from './system-settings.service';
+import {
+  SystemSettingKeys,
+  SystemSettingDefaults,
+} from '../constants/system-settings.keys';
+import { UploadDocumentDto } from '../dto/upload-document.dto';
 
 @Injectable()
 export class DocumentsService {
-  private encryptionKey: string;
   private maxDocuments: number;
-  private signedUrlExpires: number;
 
   constructor(
     private prisma: PrismaService,
     private configService: ConfigService,
     @Inject(STORAGE_SERVICE) private storageService: StorageService,
+    private systemSettings: SystemSettingsService,
   ) {
-    this.encryptionKey = this.configService.get<string>(
-      'storage.encryption.key',
-    ) as string;
     this.maxDocuments =
       this.configService.get<number>('storage.limits.maxDocuments') || 20;
-    this.signedUrlExpires =
-      this.configService.get<number>('storage.limits.signedUrlExpires') || 300;
   }
 
   private async verifyOwnership(userId: string, documentId: string) {
@@ -39,15 +37,71 @@ export class DocumentsService {
       where: { id: documentId },
     });
     if (!doc) {
-      throw new NotFoundException('Document not found');
+      throw new NotFoundException({
+        code: 'DOCUMENT_NOT_FOUND',
+        message: 'Document not found',
+      });
     }
     if (doc.userId !== userId) {
-      throw new ForbiddenException('You do not own this document');
+      throw new NotFoundException({
+        code: 'DOCUMENT_NOT_FOUND',
+        message: 'Document not found',
+      });
     }
     return doc;
   }
 
-  async uploadDocument(userId: string, file: Express.Multer.File) {
+  async upload(
+    userId: string,
+    file: Express.Multer.File,
+    dto: UploadDocumentDto,
+  ) {
+    const maxSizeBytes = await this.systemSettings.getNumber(
+      SystemSettingKeys.MAX_DOCUMENT_SIZE_BYTES,
+      SystemSettingDefaults[
+        SystemSettingKeys.MAX_DOCUMENT_SIZE_BYTES
+      ] as number,
+    );
+    const allowedMimes = await this.systemSettings.getJson<string[]>(
+      SystemSettingKeys.ALLOWED_DOCUMENT_MIME_TYPES,
+      SystemSettingDefaults[
+        SystemSettingKeys.ALLOWED_DOCUMENT_MIME_TYPES
+      ] as string[],
+    );
+
+    if (file.size > maxSizeBytes) {
+      throw new BadRequestException(
+        `File size exceeds limit of ${maxSizeBytes} bytes`,
+      );
+    }
+    if (!allowedMimes.includes(file.mimetype)) {
+      throw new BadRequestException({
+        code: 'INVALID_MIME_TYPE',
+        message: 'Invalid MIME type',
+      });
+    }
+
+    const docType = await this.prisma.documentTypes.findUnique({
+      where: { id: dto.documentTypeId },
+    });
+    if (!docType) {
+      throw new BadRequestException({
+        code: 'INVALID_DOCUMENT_TYPE',
+        message: 'Document type not found',
+      });
+    }
+
+    const hex = file.buffer.toString('hex', 0, 4).toUpperCase();
+    if (file.mimetype === 'application/pdf' && !hex.startsWith('25504446')) {
+      throw new BadRequestException('DOCUMENT_TYPE_MISMATCH');
+    }
+    if (file.mimetype === 'image/jpeg' && !hex.startsWith('FFD8FF')) {
+      throw new BadRequestException('DOCUMENT_TYPE_MISMATCH');
+    }
+    if (file.mimetype === 'image/png' && !hex.startsWith('89504E47')) {
+      throw new BadRequestException('DOCUMENT_TYPE_MISMATCH');
+    }
+
     const count = await this.prisma.documents.count({
       where: { userId },
     });
@@ -57,92 +111,80 @@ export class DocumentsService {
       );
     }
 
-    const { encrypted, iv } = encryptFile(file.buffer, this.encryptionKey);
-    const finalBuffer = Buffer.concat([Buffer.from(iv, 'hex'), encrypted]);
-
     const ext = file.originalname.split('.').pop() || '';
     const filename = `${uuidv4()}.${ext}`;
 
     const { key } = await this.storageService.upload(
-      finalBuffer,
+      file.buffer,
       filename,
       file.mimetype,
     );
 
-    const document = await this.prisma.documents.create({
-      data: {
-        userId,
-        displayName: file.originalname,
-        storagePath: key,
-        mimeType: file.mimetype,
-        sizeBytes: file.size,
-      } as import('@prisma/client').Prisma.DocumentsUncheckedCreateInput,
-      select: {
-        id: true,
+    try {
+      const document = await this.prisma.documents.create({
+        data: {
+          userId,
+          documentTypeId: dto.documentTypeId,
+          displayName: file.originalname,
+          storagePath: key,
+          mimeType: file.mimetype,
+          sizeBytes: file.size,
+        },
+        select: {
+          id: true,
+          documentTypeId: true,
+          displayName: true,
+          storagePath: true,
+          mimeType: true,
+          sizeBytes: true,
+          createdAt: true,
+        },
+      });
 
-        displayName: true,
-        storagePath: true,
-        mimeType: true,
-        sizeBytes: true,
-        createdAt: true,
-      },
-    });
-
-    return document;
+      return document;
+    } catch (error) {
+      await this.storageService.delete(key).catch((e) => {
+        console.error(`Cleanup failed for ${key}`, e);
+      });
+      throw error;
+    }
   }
 
   async getDownloadUrl(userId: string, documentId: string) {
     const doc = await this.verifyOwnership(userId, documentId);
 
-    const url = await this.storageService.getSignedUrl(
-      doc.storagePath,
-      this.signedUrlExpires,
-    );
-    return {
-      url,
-      expiresAt: new Date(
-        Date.now() + this.signedUrlExpires * 1000,
-      ).toISOString(),
-    };
+    const url = await this.storageService.getSignedUrl(doc.storagePath, 900);
+    return { signedUrl: url, expiresIn: 900 };
   }
 
-  async deleteDocument(userId: string, documentId: string) {
-    const doc = await this.verifyOwnership(userId, documentId);
+  async delete(userId: string, id: string) {
+    const doc = await this.verifyOwnership(userId, id);
 
-    // Hard delete in DB first. If this fails, storage is untouched.
+    await this.storageService.delete(doc.storagePath);
+
     await this.prisma.documents.delete({
-      where: { id: documentId },
+      where: { id: id },
     });
-
-    // Then delete from storage. If this fails, the file is orphaned but inaccessible via API.
-    try {
-      await this.storageService.delete(doc.storagePath);
-    } catch (error) {
-      // In a real production app, you might want to use a Logger service here
-      console.error(
-        `Failed to delete document from storage: ${doc.storagePath}`,
-        error,
-      );
-    }
   }
 
-  async getDocuments(userId: string, dto: PaginationDto) {
+  async findAll(userId: string, dto?: PaginationDto) {
+    const skip = dto?.skip ?? 0;
+    const limit = dto?.limit ?? 10;
+    const page = dto?.page ?? 1;
+
     const [documents, total] = await Promise.all([
       this.prisma.documents.findMany({
         where: { userId },
-        skip: dto.skip,
-        take: dto.limit,
+        skip: skip,
+        take: limit,
         orderBy: { createdAt: 'desc' },
-        select: {
-          id: true,
-          userId: true,
-
-          displayName: true,
-          mimeType: true,
-          sizeBytes: true,
-
-          createdAt: true,
-          updatedAt: true,
+        include: {
+          documentType: {
+            select: {
+              nameEn: true,
+              nameAr: true,
+            },
+          },
         },
       }),
       this.prisma.documents.count({ where: { userId } }),
@@ -150,7 +192,7 @@ export class DocumentsService {
 
     return {
       data: documents,
-      meta: buildMeta(total, dto.page, dto.limit),
+      meta: buildMeta(total, page, limit),
     };
   }
 }

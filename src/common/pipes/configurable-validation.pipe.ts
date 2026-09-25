@@ -42,8 +42,10 @@ export class ConfigurableValidationPipe extends ValidationPipe {
     );
 
     if (allowExtra) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-return
       return this.tolerantPipe.transform(value, metadata);
     }
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return super.transform(value, metadata);
   }
 }

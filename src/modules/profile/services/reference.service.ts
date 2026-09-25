@@ -309,4 +309,26 @@ export class ReferenceService {
       orderBy: { sortOrder: 'asc' },
     });
   }
+
+  async getSpecialStatuses() {
+    return this.prisma.specialStatuses.findMany({
+      where: { isActive: true },
+      select: {
+        id: true,
+        nameEn: true,
+        nameAr: true,
+      },
+    });
+  }
+
+  async getDocumentTypes() {
+    return this.prisma.documentTypes.findMany({
+      where: { isActive: true },
+      select: {
+        id: true,
+        nameEn: true,
+        nameAr: true,
+      },
+    });
+  }
 }

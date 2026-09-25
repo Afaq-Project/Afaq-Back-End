@@ -1,757 +1,1615 @@
 {
-    "info": {
-        "_postman_id": "c1f72a4d-8e81-4f11-9a74-29007f35a8e3",
-        "name": "Levora API (Localhost)",
-        "description": "Postman collection for Levora Intelligent Opportunity Discovery Platform API.",
-        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  "info": {
+    "_postman_id": "c1f72a4d-8e81-4f11-9a74-29007f35a8e3",
+    "name": "Levora API (Localhost)",
+    "description": "Postman collection for Levora Intelligent Opportunity Discovery Platform API.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/register",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "register"
+              ]
+            },
+            "description": "Registers a new user and creates an initial profile.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"user@example.com\",\n  \"password\": \"P@ssw0rd123!\",\n  \"firstName\": \"John\",\n  \"lastName\": \"Doe\"\n}"
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    var jsonData = pm.response.json();",
+                  "    if (jsonData.data && jsonData.data.id) {",
+                  "        pm.collectionVariables.set('userId', jsonData.data.id);",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "description": "Login with email and password",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"user@example.com\",\n  \"password\": \"P@ssw0rd123!\"\n}"
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    var jsonData = pm.response.json();",
+                  "    if (jsonData.data && jsonData.data.accessToken) { pm.collectionVariables.set('accessToken', jsonData.data.accessToken); }",
+                  "    if (jsonData.data && jsonData.data.refreshToken) { pm.collectionVariables.set('refreshToken', jsonData.data.refreshToken); }",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Refresh Token",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/refresh",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "refresh"
+              ]
+            },
+            "description": "Refresh access token",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}"
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    var jsonData = pm.response.json();",
+                  "    if (jsonData.data && jsonData.data.accessToken) { pm.collectionVariables.set('accessToken', jsonData.data.accessToken); }",
+                  "    if (jsonData.data && jsonData.data.refreshToken) { pm.collectionVariables.set('refreshToken', jsonData.data.refreshToken); }",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/logout",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "logout"
+              ]
+            },
+            "description": "Logout (clear cookies)",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "OAuth Google → Initiate",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/google",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "google"
+              ]
+            },
+            "description": "Initiate OAuth login with Google"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.cookies.clear(); pm.request.headers.remove('Cookie');"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "OAuth Google → Callback (Doc Only)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/google/callback?code=AUTHORIZATION_CODE_FROM_GOOGLE",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "google",
+                "callback"
+              ],
+              "query": [
+                {
+                  "key": "code",
+                  "value": "AUTHORIZATION_CODE_FROM_GOOGLE"
+                }
+              ]
+            },
+            "description": "OAuth callback endpoint for Google"
+          },
+          "response": []
+        },
+        {
+          "name": "OAuth LinkedIn → Initiate",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/linkedin",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "linkedin"
+              ]
+            },
+            "description": "Initiate OAuth login with LinkedIn"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.cookies.clear(); pm.request.headers.remove('Cookie');"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "OAuth LinkedIn → Callback (Doc Only)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/linkedin/callback?code=AUTHORIZATION_CODE_FROM_LINKEDIN",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "linkedin",
+                "callback"
+              ],
+              "query": [
+                {
+                  "key": "code",
+                  "value": "AUTHORIZATION_CODE_FROM_LINKEDIN"
+                }
+              ]
+            },
+            "description": "OAuth callback endpoint for LinkedIn"
+          },
+          "response": []
+        }
+      ]
     },
-    "item": [
+    {
+      "name": "Profile",
+      "item": [
         {
-            "name": "Auth",
-            "item": [
-                {
-                    "name": "Register",
-                    "request": {
-                        "method": "POST",
-                        "header": [
-                            {
-                                "key": "Content-Type",
-                                "value": "application/json"
-                            }
-                        ],
-                        "url": {
-                            "raw": "{{baseUrl}}/auth/register",
-                            "host": [
-                                "{{baseUrl}}"
-                            ],
-                            "path": [
-                                "auth",
-                                "register"
-                            ]
-                        },
-                        "description": "Registers a new user and creates an initial profile.",
-                        "body": {
-                            "mode": "raw",
-                            "raw": "{\n  \"email\": \"user@example.com\",\n  \"password\": \"P@ssw0rd123!\",\n  \"firstName\": \"John\",\n  \"lastName\": \"Doe\"\n}"
-                        }
-                    },
-                    "response": [],
-                    "event": [
-                        {
-                            "listen": "test",
-                            "script": {
-                                "type": "text/javascript",
-                                "exec": [
-                                    "if (pm.response.code === 201) {",
-                                    "    var jsonData = pm.response.json();",
-                                    "    if (jsonData.data && jsonData.data.id) {",
-                                    "        pm.collectionVariables.set('userId', jsonData.data.id);",
-                                    "    }",
-                                    "}"
-                                ]
-                            }
-                        }
-                    ]
-                },
-                {
-                    "name": "Login",
-                    "request": {
-                        "method": "POST",
-                        "header": [
-                            {
-                                "key": "Content-Type",
-                                "value": "application/json"
-                            }
-                        ],
-                        "url": {
-                            "raw": "{{baseUrl}}/auth/login",
-                            "host": [
-                                "{{baseUrl}}"
-                            ],
-                            "path": [
-                                "auth",
-                                "login"
-                            ]
-                        },
-                        "description": "Login with email and password",
-                        "body": {
-                            "mode": "raw",
-                            "raw": "{\n  \"email\": \"user@example.com\",\n  \"password\": \"P@ssw0rd123!\"\n}"
-                        }
-                    },
-                    "response": [],
-                    "event": [
-                        {
-                            "listen": "test",
-                            "script": {
-                                "type": "text/javascript",
-                                "exec": [
-                                    "if (pm.response.code === 200) {",
-                                    "    var jsonData = pm.response.json();",
-                                    "    if (jsonData.data && jsonData.data.accessToken) { pm.collectionVariables.set('accessToken', jsonData.data.accessToken); }",
-                                    "    if (jsonData.data && jsonData.data.refreshToken) { pm.collectionVariables.set('refreshToken', jsonData.data.refreshToken); }",
-                                    "}"
-                                ]
-                            }
-                        }
-                    ]
-                },
-                {
-                    "name": "Refresh Token",
-                    "request": {
-                        "method": "POST",
-                        "header": [
-                            {
-                                "key": "Content-Type",
-                                "value": "application/json"
-                            }
-                        ],
-                        "url": {
-                            "raw": "{{baseUrl}}/auth/refresh",
-                            "host": [
-                                "{{baseUrl}}"
-                            ],
-                            "path": [
-                                "auth",
-                                "refresh"
-                            ]
-                        },
-                        "description": "Refresh access token",
-                        "body": {
-                            "mode": "raw",
-                            "raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}"
-                        }
-                    },
-                    "response": [],
-                    "event": [
-                        {
-                            "listen": "test",
-                            "script": {
-                                "type": "text/javascript",
-                                "exec": [
-                                    "if (pm.response.code === 200) {",
-                                    "    var jsonData = pm.response.json();",
-                                    "    if (jsonData.data && jsonData.data.accessToken) { pm.collectionVariables.set('accessToken', jsonData.data.accessToken); }",
-                                    "    if (jsonData.data && jsonData.data.refreshToken) { pm.collectionVariables.set('refreshToken', jsonData.data.refreshToken); }",
-                                    "}"
-                                ]
-                            }
-                        }
-                    ]
-                },
-                {
-                    "name": "Logout",
-                    "request": {
-                        "method": "POST",
-                        "header": [],
-                        "url": {
-                            "raw": "{{baseUrl}}/auth/logout",
-                            "host": [
-                                "{{baseUrl}}"
-                            ],
-                            "path": [
-                                "auth",
-                                "logout"
-                            ]
-                        },
-                        "description": "Logout (clear cookies)",
-                        "auth": {
-                            "type": "bearer",
-                            "bearer": [
-                                {
-                                    "key": "token",
-                                    "value": "{{accessToken}}",
-                                    "type": "string"
-                                }
-                            ]
-                        }
-                    },
-                    "response": []
-                },
-                {
-                    "name": "OAuth Google \u2192 Initiate",
-                    "request": {
-                        "method": "GET",
-                        "header": [],
-                        "url": {
-                            "raw": "{{baseUrl}}/auth/google",
-                            "host": [
-                                "{{baseUrl}}"
-                            ],
-                            "path": [
-                                "auth",
-                                "google"
-                            ]
-                        },
-                        "description": "Initiate OAuth login with Google"
-                    },
-                    "response": [],
-                    "event": [
-                        {
-                            "listen": "prerequest",
-                            "script": {
-                                "type": "text/javascript",
-                                "exec": [
-                                    "pm.cookies.clear(); pm.request.headers.remove('Cookie');"
-                                ]
-                            }
-                        }
-                    ]
-                },
-                {
-                    "name": "OAuth Google \u2192 Callback (Doc Only)",
-                    "request": {
-                        "method": "GET",
-                        "header": [],
-                        "url": {
-                            "raw": "{{baseUrl}}/auth/google/callback?code=AUTHORIZATION_CODE_FROM_GOOGLE",
-                            "host": [
-                                "{{baseUrl}}"
-                            ],
-                            "path": [
-                                "auth",
-                                "google",
-                                "callback"
-                            ],
-                            "query": [
-                                {
-                                    "key": "code",
-                                    "value": "AUTHORIZATION_CODE_FROM_GOOGLE"
-                                }
-                            ]
-                        },
-                        "description": "OAuth callback endpoint for Google"
-                    },
-                    "response": []
-                },
-                {
-                    "name": "OAuth LinkedIn \u2192 Initiate",
-                    "request": {
-                        "method": "GET",
-                        "header": [],
-                        "url": {
-                            "raw": "{{baseUrl}}/auth/linkedin",
-                            "host": [
-                                "{{baseUrl}}"
-                            ],
-                            "path": [
-                                "auth",
-                                "linkedin"
-                            ]
-                        },
-                        "description": "Initiate OAuth login with LinkedIn"
-                    },
-                    "response": [],
-                    "event": [
-                        {
-                            "listen": "prerequest",
-                            "script": {
-                                "type": "text/javascript",
-                                "exec": [
-                                    "pm.cookies.clear(); pm.request.headers.remove('Cookie');"
-                                ]
-                            }
-                        }
-                    ]
-                },
-                {
-                    "name": "OAuth LinkedIn \u2192 Callback (Doc Only)",
-                    "request": {
-                        "method": "GET",
-                        "header": [],
-                        "url": {
-                            "raw": "{{baseUrl}}/auth/linkedin/callback?code=AUTHORIZATION_CODE_FROM_LINKEDIN",
-                            "host": [
-                                "{{baseUrl}}"
-                            ],
-                            "path": [
-                                "auth",
-                                "linkedin",
-                                "callback"
-                            ],
-                            "query": [
-                                {
-                                    "key": "code",
-                                    "value": "AUTHORIZATION_CODE_FROM_LINKEDIN"
-                                }
-                            ]
-                        },
-                        "description": "OAuth callback endpoint for LinkedIn"
-                    },
-                    "response": []
-                }
-            ]
+          "name": "Get My Profile",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/profile/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "profile",
+                "me"
+              ]
+            }
+          }
         },
         {
-            "name": "Profile",
-            "item": [
-                {
-                    "name": "Get My Profile",
-                    "request": {
-                        "method": "GET",
-                        "header": [
-                            {
-                                "key": "Authorization",
-                                "value": "Bearer {{accessToken}}",
-                                "type": "text"
-                            }
-                        ],
-                        "url": {
-                            "raw": "{{baseUrl}}/profile/me",
-                            "host": [
-                                "{{baseUrl}}"
-                            ],
-                            "path": [
-                                "api",
-                                "v1",
-                                "profile",
-                                "me"
-                            ]
-                        }
-                    }
-                },
-                {
-                    "name": "Update Personal Info",
-                    "request": {
-                        "method": "PATCH",
-                        "header": [
-                            {
-                                "key": "Authorization",
-                                "value": "Bearer {{accessToken}}",
-                                "type": "text"
-                            }
-                        ],
-                        "body": {
-                            "mode": "raw",
-                            "raw": "{\n    \"firstName\": \"John\",\n    \"lastName\": \"Doe\",\n    \"email\": \"john.doe@example.com\",\n    \"dateOfBirth\": \"1995-08-15\",\n    \"gender\": \"MALE\",\n    \"maritalStatusId\": \"UUID-HERE\",\n    \"phone\": \"+970599000000\",\n    \"bio\": \"Software Engineer with 5 years of experience.\",\n    \"profilePhotoUrl\": \"https://example.com/photo.jpg\",\n    \"experiences\": [\n        \"Senior Developer at Tech Corp (2020-Present)\",\n        \"Junior Developer at Startup Inc (2018-2020)\"\n    ],\n    \"countryOfResidenceId\": \"UUID-HERE\",\n    \"nationalityId\": \"UUID-HERE\",\n    \"currentCityId\": \"UUID-HERE\",\n    \"educationLevelId\": \"UUID-HERE\"\n}",
-                            "options": {
-                                "raw": {
-                                    "language": "json"
-                                }
-                            }
-                        },
-                        "url": {
-                            "raw": "{{baseUrl}}/profile/personal",
-                            "host": [
-                                "{{baseUrl}}"
-                            ],
-                            "path": [
-                                "api",
-                                "v1",
-                                "profile",
-                                "personal"
-                            ]
-                        }
-                    }
-                },
-                {
-                    "name": "Create Education",
-                    "request": {
-                        "method": "POST",
-                        "header": [
-                            {
-                                "key": "Authorization",
-                                "value": "Bearer {{accessToken}}",
-                                "type": "text"
-                            }
-                        ],
-                        "body": {
-                            "mode": "raw",
-                            "raw": "{\n    \"institutionId\": \"UUID-HERE\",\n    \"majorId\": \"UUID-HERE\",\n    \"educationLevelId\": \"UUID-HERE\",\n    \"minorMajorId\": \"UUID-HERE\",\n    \"startDate\": \"2018-09-01\",\n    \"endDate\": \"2022-06-15\",\n    \"expectedGraduationDate\": null,\n    \"isCurrent\": false,\n    \"gpaRaw\": 3.8,\n    \"gpaScale\": \"OUT_OF_4\"\n}",
-                            "options": {
-                                "raw": {
-                                    "language": "json"
-                                }
-                            }
-                        },
-                        "url": {
-                            "raw": "{{baseUrl}}/profile/educations",
-                            "host": [
-                                "{{baseUrl}}"
-                            ],
-                            "path": [
-                                "api",
-                                "v1",
-                                "profile",
-                                "educations"
-                            ]
-                        }
-                    }
-                },
-                {
-                    "name": "List Educations",
-                    "request": {
-                        "method": "GET",
-                        "header": [
-                            {
-                                "key": "Authorization",
-                                "value": "Bearer {{accessToken}}",
-                                "type": "text"
-                            }
-                        ],
-                        "url": {
-                            "raw": "{{baseUrl}}/profile/educations",
-                            "host": [
-                                "{{baseUrl}}"
-                            ],
-                            "path": [
-                                "api",
-                                "v1",
-                                "profile",
-                                "educations"
-                            ]
-                        }
-                    }
-                },
-                {
-                    "name": "Get Single Education",
-                    "request": {
-                        "method": "GET",
-                        "header": [
-                            {
-                                "key": "Authorization",
-                                "value": "Bearer {{accessToken}}",
-                                "type": "text"
-                            }
-                        ],
-                        "url": {
-                            "raw": "{{baseUrl}}/profile/educations/:id",
-                            "host": [
-                                "{{baseUrl}}"
-                            ],
-                            "path": [
-                                "api",
-                                "v1",
-                                "profile",
-                                "educations",
-                                ":id"
-                            ],
-                            "variable": [
-                                {
-                                    "key": "id",
-                                    "value": "UUID"
-                                }
-                            ]
-                        }
-                    }
-                },
-                {
-                    "name": "Update Education",
-                    "request": {
-                        "method": "PATCH",
-                        "header": [
-                            {
-                                "key": "Authorization",
-                                "value": "Bearer {{accessToken}}",
-                                "type": "text"
-                            }
-                        ],
-                        "body": {
-                            "mode": "raw",
-                            "raw": "{\n    \"gpaRaw\": 3.9,\n    \"isCurrent\": true,\n    \"endDate\": null,\n    \"expectedGraduationDate\": \"2025-06-30\"\n}",
-                            "options": {
-                                "raw": {
-                                    "language": "json"
-                                }
-                            }
-                        },
-                        "url": {
-                            "raw": "{{baseUrl}}/profile/educations/:id",
-                            "host": [
-                                "{{baseUrl}}"
-                            ],
-                            "path": [
-                                "api",
-                                "v1",
-                                "profile",
-                                "educations",
-                                ":id"
-                            ],
-                            "variable": [
-                                {
-                                    "key": "id",
-                                    "value": "UUID"
-                                }
-                            ]
-                        }
-                    }
-                },
-                {
-                    "name": "Delete Education",
-                    "request": {
-                        "method": "DELETE",
-                        "header": [
-                            {
-                                "key": "Authorization",
-                                "value": "Bearer {{accessToken}}",
-                                "type": "text"
-                            }
-                        ],
-                        "url": {
-                            "raw": "{{baseUrl}}/profile/educations/:id",
-                            "host": [
-                                "{{baseUrl}}"
-                            ],
-                            "path": [
-                                "api",
-                                "v1",
-                                "profile",
-                                "educations",
-                                ":id"
-                            ],
-                            "variable": [
-                                {
-                                    "key": "id",
-                                    "value": "UUID"
-                                }
-                            ]
-                        }
-                    }
+          "name": "Update Personal Info",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"firstName\": \"John\",\n    \"lastName\": \"Doe\",\n    \"email\": \"john.doe@example.com\",\n    \"dateOfBirth\": \"1995-08-15\",\n    \"gender\": \"MALE\",\n    \"maritalStatusId\": \"UUID-HERE\",\n    \"phone\": \"+970599000000\",\n    \"bio\": \"Software Engineer with 5 years of experience.\",\n    \"profilePhotoUrl\": \"https://example.com/photo.jpg\",\n    \"experiences\": [\n        \"Senior Developer at Tech Corp (2020-Present)\",\n        \"Junior Developer at Startup Inc (2018-2020)\"\n    ],\n    \"countryOfResidenceId\": \"UUID-HERE\",\n    \"nationalityId\": \"UUID-HERE\",\n    \"currentCityId\": \"UUID-HERE\",\n    \"educationLevelId\": \"UUID-HERE\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
                 }
-            ]
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/profile/personal",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "profile",
+                "personal"
+              ]
+            }
+          }
         },
         {
-            "name": "Reference Data",
-            "item": [
-                {
-                    "name": "List Countries",
-                    "request": {
-                        "method": "GET",
-                        "url": {
-                            "raw": "{{baseUrl}}/reference/countries",
-                            "host": [
-                                "{{baseUrl}}"
-                            ],
-                            "path": [
-                                "api",
-                                "v1",
-                                "reference",
-                                "countries"
-                            ]
-                        }
-                    }
-                },
-                {
-                    "name": "List Cities",
-                    "request": {
-                        "method": "GET",
-                        "url": {
-                            "raw": "{{baseUrl}}/reference/cities",
-                            "host": [
-                                "{{baseUrl}}"
-                            ],
-                            "path": [
-                                "api",
-                                "v1",
-                                "reference",
-                                "cities"
-                            ]
-                        }
-                    }
-                },
-                {
-                    "name": "List Marital Statuses",
-                    "request": {
-                        "method": "GET",
-                        "url": {
-                            "raw": "{{baseUrl}}/reference/marital-statuses",
-                            "host": [
-                                "{{baseUrl}}"
-                            ],
-                            "path": [
-                                "api",
-                                "v1",
-                                "reference",
-                                "marital-statuses"
-                            ]
-                        }
-                    }
-                },
-                {
-                    "name": "List Education Levels",
-                    "request": {
-                        "method": "GET",
-                        "url": {
-                            "raw": "{{baseUrl}}/reference/education-levels",
-                            "host": [
-                                "{{baseUrl}}"
-                            ],
-                            "path": [
-                                "api",
-                                "v1",
-                                "reference",
-                                "education-levels"
-                            ]
-                        }
-                    }
-                },
-                {
-                    "name": "List App Languages",
-                    "request": {
-                        "method": "GET",
-                        "url": {
-                            "raw": "{{baseUrl}}/reference/app-languages",
-                            "host": [
-                                "{{baseUrl}}"
-                            ],
-                            "path": [
-                                "api",
-                                "v1",
-                                "reference",
-                                "app-languages"
-                            ]
-                        }
-                    }
-                },
-                {
-                    "name": "List Major Categories",
-                    "request": {
-                        "method": "GET",
-                        "url": {
-                            "raw": "{{baseUrl}}/reference/major-categories",
-                            "host": [
-                                "{{baseUrl}}"
-                            ],
-                            "path": [
-                                "api",
-                                "v1",
-                                "reference",
-                                "major-categories"
-                            ]
-                        }
-                    }
-                },
-                {
-                    "name": "List Majors",
-                    "request": {
-                        "method": "GET",
-                        "url": {
-                            "raw": "{{baseUrl}}/reference/majors",
-                            "host": [
-                                "{{baseUrl}}"
-                            ],
-                            "path": [
-                                "api",
-                                "v1",
-                                "reference",
-                                "majors"
-                            ]
-                        }
-                    }
-                },
-                {
-                    "name": "List Institutions",
-                    "request": {
-                        "method": "GET",
-                        "url": {
-                            "raw": "{{baseUrl}}/reference/institutions",
-                            "host": [
-                                "{{baseUrl}}"
-                            ],
-                            "path": [
-                                "api",
-                                "v1",
-                                "reference",
-                                "institutions"
-                            ]
-                        }
-                    }
+          "name": "Create Education",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"institutionId\": \"UUID-HERE\",\n    \"majorId\": \"UUID-HERE\",\n    \"educationLevelId\": \"UUID-HERE\",\n    \"minorMajorId\": \"UUID-HERE\",\n    \"startDate\": \"2018-09-01\",\n    \"endDate\": \"2022-06-15\",\n    \"expectedGraduationDate\": null,\n    \"isCurrent\": false,\n    \"gpaRaw\": 3.8,\n    \"gpaScale\": \"OUT_OF_4\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
                 }
-            ]
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/profile/educations",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "profile",
+                "educations"
+              ]
+            }
+          }
         },
         {
-            "name": "Health",
-            "item": [
+          "name": "List Educations",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/profile/educations",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "profile",
+                "educations"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Single Education",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/profile/educations/:id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "profile",
+                "educations",
+                ":id"
+              ],
+              "variable": [
                 {
-                    "name": "Liveness Probe",
-                    "request": {
-                        "method": "GET",
-                        "header": [],
-                        "url": {
-                            "raw": "{{baseUrl}}/health",
-                            "host": [
-                                "{{baseUrl}}"
-                            ],
-                            "path": [
-                                "health"
-                            ]
-                        },
-                        "description": "Checks liveness of database and redis services."
-                    },
-                    "response": []
+                  "key": "id",
+                  "value": "UUID"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update Education",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"gpaRaw\": 3.9,\n    \"isCurrent\": true,\n    \"endDate\": null,\n    \"expectedGraduationDate\": \"2025-06-30\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/profile/educations/:id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "profile",
+                "educations",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "UUID"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Delete Education",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/profile/educations/:id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "profile",
+                "educations",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "UUID"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Upload Document",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "documentTypeId",
+                  "value": "type-uuid-here",
+                  "type": "text"
                 },
                 {
-                    "name": "Readiness Probe",
-                    "request": {
-                        "method": "GET",
-                        "header": [],
-                        "url": {
-                            "raw": "{{baseUrl}}/health/ready",
-                            "host": [
-                                "{{baseUrl}}"
-                            ],
-                            "path": [
-                                "health",
-                                "ready"
-                            ]
-                        },
-                        "description": "Checks readiness of application services."
-                    },
-                    "response": []
+                  "key": "file",
+                  "type": "file",
+                  "src": ""
                 }
-            ]
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/profile/documents",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "profile",
+                "documents"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Document Download URL",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/profile/documents/:id/download",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "profile",
+                "documents",
+                ":id",
+                "download"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "document-uuid-here"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Delete Document",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/profile/documents/:id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "profile",
+                "documents",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "document-uuid-here"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Add Language",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"languageId\": \"UUID-HERE\",\n    \"proficiencyLevelId\": \"UUID-HERE\",\n    \"isNative\": false\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/profile/languages",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "profile",
+                "languages"
+              ]
+            }
+          }
+        },
+        {
+          "name": "List Languages",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/profile/languages",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "profile",
+                "languages"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Single Language",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/profile/languages/:id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "profile",
+                "languages",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "UUID"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update Language",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"proficiencyLevelId\": \"UUID-HERE\",\n    \"isNative\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/profile/languages/:id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "profile",
+                "languages",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "UUID"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Delete Language",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/profile/languages/:id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "profile",
+                "languages",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "UUID"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Add Test Result",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"testId\": \"UUID-HERE\",\n    \"score\": 90,\n    \"testDate\": \"2024-01-15\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/profile/test-results",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "profile",
+                "test-results"
+              ]
+            }
+          }
+        },
+        {
+          "name": "List Test Results",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/profile/test-results",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "profile",
+                "test-results"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Single Test Result",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/profile/test-results/:id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "profile",
+                "test-results",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "UUID"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update Test Result",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"score\": 95\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/profile/test-results/:id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "profile",
+                "test-results",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "UUID"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Delete Test Result",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/profile/test-results/:id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "profile",
+                "test-results",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "UUID"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Add Special Status",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"specialStatusId\": \"UUID-HERE\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/profile/special-statuses",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "profile",
+                "special-statuses"
+              ]
+            }
+          }
+        },
+        {
+          "name": "List Special Statuses",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/profile/special-statuses",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "profile",
+                "special-statuses"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Delete Special Status",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/profile/special-statuses/:specialStatusId",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "profile",
+                "special-statuses",
+                ":specialStatusId"
+              ],
+              "variable": [
+                {
+                  "key": "specialStatusId",
+                  "value": "UUID"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Preferences",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/profile/preferences",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "profile",
+                "preferences"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Add Target Degree",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"educationLevelId\": \"UUID-HERE\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/profile/preferences/degrees",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "profile",
+                "preferences",
+                "degrees"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Delete Target Degree",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/profile/preferences/degrees/:educationLevelId",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "profile",
+                "preferences",
+                "degrees",
+                ":educationLevelId"
+              ],
+              "variable": [
+                {
+                  "key": "educationLevelId",
+                  "value": "UUID"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Add Target Major",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"majorId\": \"UUID-HERE\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/profile/preferences/majors",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "profile",
+                "preferences",
+                "majors"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Delete Target Major",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/profile/preferences/majors/:majorId",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "profile",
+                "preferences",
+                "majors",
+                ":majorId"
+              ],
+              "variable": [
+                {
+                  "key": "majorId",
+                  "value": "UUID"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Add Target Institution",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"institutionId\": \"UUID-HERE\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/profile/preferences/institutions",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "profile",
+                "preferences",
+                "institutions"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Delete Target Institution",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/profile/preferences/institutions/:institutionId",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "profile",
+                "preferences",
+                "institutions",
+                ":institutionId"
+              ],
+              "variable": [
+                {
+                  "key": "institutionId",
+                  "value": "UUID"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "List Documents",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/profile/documents",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "profile",
+                "documents"
+              ]
+            }
+          }
         }
-    ],
-    "variable": [
+      ]
+    },
+    {
+      "name": "Reference Data",
+      "item": [
         {
-            "key": "baseUrl",
-            "value": "http://localhost:3000/api/v1",
-            "type": "string"
+          "name": "List Countries",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/reference/countries",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "reference",
+                "countries"
+              ]
+            }
+          }
         },
         {
-            "key": "accessToken",
-            "value": "",
-            "type": "string"
+          "name": "List Cities",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/reference/cities",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "reference",
+                "cities"
+              ]
+            }
+          }
         },
         {
-            "key": "refreshToken",
-            "value": "",
-            "type": "string"
+          "name": "List Marital Statuses",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/reference/marital-statuses",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "reference",
+                "marital-statuses"
+              ]
+            }
+          }
         },
         {
-            "key": "userId",
-            "value": "",
-            "type": "string"
+          "name": "List Education Levels",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/reference/education-levels",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "reference",
+                "education-levels"
+              ]
+            }
+          }
         },
         {
-            "key": "documentId",
-            "value": "",
-            "type": "string"
+          "name": "List App Languages",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/reference/app-languages",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "reference",
+                "app-languages"
+              ]
+            }
+          }
         },
         {
-            "key": "educationId",
-            "value": "",
-            "type": "string"
+          "name": "List Major Categories",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/reference/major-categories",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "reference",
+                "major-categories"
+              ]
+            }
+          }
         },
         {
-            "key": "skillId",
-            "value": "",
-            "type": "string"
+          "name": "List Majors",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/reference/majors",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "reference",
+                "majors"
+              ]
+            }
+          }
         },
         {
-            "key": "languageId",
-            "value": "",
-            "type": "string"
+          "name": "List Institutions",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/reference/institutions",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "reference",
+                "institutions"
+              ]
+            }
+          }
         },
         {
-            "key": "fileKey",
-            "value": "",
-            "type": "string"
+          "name": "List Document Types",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/reference/document-types",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "reference",
+                "document-types"
+              ]
+            }
+          }
         },
         {
-            "key": "storageToken",
-            "value": "",
-            "type": "string"
+          "name": "List Languages",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/reference/languages",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "reference",
+                "languages"
+              ]
+            }
+          }
+        },
+        {
+          "name": "List Proficiency Levels",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/reference/proficiency-levels",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "reference",
+                "proficiency-levels"
+              ]
+            }
+          }
+        },
+        {
+          "name": "List Standardized Tests",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/reference/standardized-tests",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "reference",
+                "standardized-tests"
+              ]
+            }
+          }
+        },
+        {
+          "name": "List Special Statuses",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/reference/special-statuses",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "reference",
+                "special-statuses"
+              ]
+            }
+          }
         }
-    ]
+      ]
+    },
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "Liveness Probe",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/health",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "health"
+              ]
+            },
+            "description": "Checks liveness of database and redis services."
+          },
+          "response": []
+        },
+        {
+          "name": "Readiness Probe",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/health/ready",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "health",
+                "ready"
+              ]
+            },
+            "description": "Checks readiness of application services."
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000/api/v1",
+      "type": "string"
+    },
+    {
+      "key": "accessToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "refreshToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "userId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "documentId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "educationId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "skillId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "languageId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "fileKey",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "storageToken",
+      "value": "",
+      "type": "string"
+    }
+  ]
 }

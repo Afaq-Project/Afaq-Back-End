@@ -1,7 +1,20 @@
 import { MeResponseDto } from '../../modules/auth/dto/me-response.dto';
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function formatUserResponse(user: any): MeResponseDto {
+export interface UserToMap {
+  id: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  picture?: string;
+  isActive: boolean;
+  isEmailVerified: boolean;
+  phone?: string;
+  roles?: string[];
+  userRoles?: { roles?: { name: string } }[];
+  lastLoginAt?: Date | string;
+}
+
+export function formatUserResponse(user: UserToMap): MeResponseDto {
   let roles: string[] = ['user'];
   if (Array.isArray(user.userRoles) && user.userRoles.length > 0) {
     roles = user.userRoles.map(

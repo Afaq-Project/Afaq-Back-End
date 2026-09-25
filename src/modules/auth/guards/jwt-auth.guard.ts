@@ -1,3 +1,4 @@
+import { Request } from 'express';
 import {
   Injectable,
   ExecutionContext,
@@ -27,7 +28,7 @@ export class JwtAuthGuard extends NestAuthGuard('jwt') {
       return true;
     }
 
-    const request = context.switchToHttp().getRequest();
+    const request = context.switchToHttp().getRequest<Request>();
     const token = ExtractJwt.fromAuthHeaderAsBearerToken()(request);
     if (token) {
       const isBlacklisted = await this.redis.client.get(`bl_${token}`);
@@ -43,25 +44,28 @@ export class JwtAuthGuard extends NestAuthGuard('jwt') {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  handleRequest(err: any, user: any, info: any) {
+  handleRequest(err: unknown, user: unknown, info: unknown): any {
     if (err || !user) {
-      if (info && info.name === 'TokenExpiredError') {
+      const infoErr = info as { name?: string; message?: string } | undefined;
+      const parsedErr = err as { response?: { code?: string } } | undefined;
+
+      if (infoErr && infoErr.name === 'TokenExpiredError') {
         throw new UnauthorizedException({
           message: 'Token expired',
           code: 'AUTH_TOKEN_EXPIRED',
         });
       }
       if (
-        info &&
-        (info.name === 'JsonWebTokenError' ||
-          (info.message && info.message !== 'No auth token'))
+        infoErr &&
+        (infoErr.name === 'JsonWebTokenError' ||
+          (infoErr.message && infoErr.message !== 'No auth token'))
       ) {
         throw new UnauthorizedException({
           message: 'Invalid token',
           code: 'AUTH_TOKEN_INVALID',
         });
       }
-      if (err && err.response && err.response.code) {
+      if (parsedErr && parsedErr.response && parsedErr.response.code) {
         throw err;
       }
       throw new UnauthorizedException({

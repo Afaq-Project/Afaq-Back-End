@@ -265,4 +265,40 @@ export class ReferenceController {
       timestamp: new Date().toISOString(),
     };
   }
+
+  @Public()
+  @Throttle({ default: { limit: 60, ttl: 60000 } })
+  @Get('special-statuses')
+  @ApiOperation({ summary: 'Get all active special statuses' })
+  @ApiResponse({
+    status: 200,
+    description: 'Special statuses retrieved successfully',
+  })
+  async getSpecialStatuses() {
+    const data = await this.referenceService.getSpecialStatuses();
+    return {
+      statusCode: 200,
+      message: 'Special statuses retrieved successfully',
+      data,
+      timestamp: new Date().toISOString(),
+    };
+  }
+
+  @Public()
+  @Throttle({ default: { limit: 60, ttl: 60000 } })
+  @Get('document-types')
+  @ApiOperation({ summary: 'Get all active document types' })
+  @ApiResponse({
+    status: 200,
+    description: 'Document types retrieved successfully',
+  })
+  async getDocumentTypes() {
+    const data = await this.referenceService.getDocumentTypes();
+    return {
+      statusCode: 200,
+      message: 'Document types retrieved successfully',
+      data,
+      timestamp: new Date().toISOString(),
+    };
+  }
 }
