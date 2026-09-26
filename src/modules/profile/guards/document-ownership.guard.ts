@@ -15,8 +15,8 @@ export class DocumentOwnershipGuard implements CanActivate {
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest<RequestWithUser>();
-    const userId = request.user?.id;
-    const documentId = request.params.id;
+    const userId = request.user?.id as string;
+    const documentId = request.params['id'] as string;
 
     if (!userId || !documentId) {
       return true;

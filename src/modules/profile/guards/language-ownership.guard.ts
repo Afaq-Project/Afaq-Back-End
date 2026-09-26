@@ -15,8 +15,8 @@ export class LanguageOwnershipGuard implements CanActivate {
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest<RequestWithUser>();
-    const userId = request.user?.id;
-    const languageId = request.params.languageId;
+    const userId = request.user?.id as string;
+    const languageId = request.params['languageId'] as string;
 
     if (!userId || !languageId) {
       return true;

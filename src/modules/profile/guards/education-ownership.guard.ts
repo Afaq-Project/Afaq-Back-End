@@ -15,8 +15,8 @@ export class EducationOwnershipGuard implements CanActivate {
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest<RequestWithUser>();
-    const userId = request.user?.id;
-    const educationId = request.params.id;
+    const userId = request.user?.id as string;
+    const educationId = request.params['id'] as string;
 
     if (!userId || !educationId) {
       return true;

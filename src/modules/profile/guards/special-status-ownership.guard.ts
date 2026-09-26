@@ -13,8 +13,8 @@ export class SpecialStatusOwnershipGuard implements CanActivate {
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest<RequestWithUser>();
-    const userId = request.user?.id;
-    const specialStatusId = request.params.specialStatusId;
+    const userId = request.user?.id as string;
+    const specialStatusId = request.params['specialStatusId'] as string;
 
     if (!userId) {
       return false;
