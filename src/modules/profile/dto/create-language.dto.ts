@@ -1,5 +1,5 @@
-import { IsString, IsNotEmpty, IsUUID } from 'class-validator';
-import { ApiProperty } from '@nestjs/swagger';
+import { IsNotEmpty, IsUUID, IsBoolean, IsOptional } from 'class-validator';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class CreateLanguageDto {
   @ApiProperty({
@@ -10,8 +10,20 @@ export class CreateLanguageDto {
   @IsNotEmpty()
   languageId: string;
 
-  @ApiProperty({ example: 'Native', description: 'Proficiency level' })
-  @IsString()
+  @ApiProperty({
+    example: '123e4567-e89b-12d3-a456-426614174001',
+    description: 'Proficiency level ID from ProficiencyLevels',
+  })
+  @IsUUID()
   @IsNotEmpty()
-  proficiency: string;
+  proficiencyLevelId: string;
+
+  @ApiPropertyOptional({
+    example: true,
+    description: 'Is this the native language?',
+    default: false,
+  })
+  @IsBoolean()
+  @IsOptional()
+  isNative?: boolean;
 }

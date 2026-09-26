@@ -7,15 +7,16 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { isUUID } from 'class-validator';
+import { RequestWithUser } from '@common/decorators';
 
 @Injectable()
 export class EducationOwnershipGuard implements CanActivate {
   constructor(private readonly prisma: PrismaService) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const request = context.switchToHttp().getRequest();
-    const userId = request.user?.id;
-    const educationId = request.params.id;
+    const request = context.switchToHttp().getRequest<RequestWithUser>();
+    const userId = request.user?.id as string;
+    const educationId = request.params['id'] as string;
 
     if (!userId || !educationId) {
       return true;
@@ -30,7 +31,10 @@ export class EducationOwnershipGuard implements CanActivate {
     });
 
     if (!exists) {
-      throw new NotFoundException('Education record not found');
+      throw new NotFoundException({
+        code: 'EDUCATION_NOT_FOUND',
+        message: 'EDUCATION_NOT_FOUND',
+      });
     }
     return true;
   }

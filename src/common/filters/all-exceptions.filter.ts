@@ -14,12 +14,14 @@ import {
   STATUS_TO_ERROR_CODE,
 } from '@common/dto/response.dto';
 import { toApiDatetime } from '@common/utils/datetime.util';
+import { Prisma } from '@prisma/client';
 
 @Catch()
 export class AllExceptionsFilter implements ExceptionFilter {
   private readonly logger = new Logger(AllExceptionsFilter.name);
 
   catch(exception: unknown, host: ArgumentsHost): void {
+    console.error('AllExceptionsFilter exception:', exception);
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
     const request = ctx.getRequest<Request>();
@@ -61,6 +63,22 @@ export class AllExceptionsFilter implements ExceptionFilter {
         code = ErrorCode.USER_EMAIL_DUPLICATE;
         message = 'This email is already registered';
       }
+    } else if (
+      exception instanceof Prisma.PrismaClientKnownRequestError &&
+      exception.code === 'P2003'
+    ) {
+      const fieldName =
+        (exception.meta?.field_name as string | undefined) ?? '';
+      // "maritalStatusId_fkey" → "MARITAL_STATUS"
+      const cleanField = fieldName
+        .replace(/_fkey$/, '')
+        .replace(/([a-z])([A-Z])/g, '$1_$2')
+        .toUpperCase()
+        .replace(/_ID$/, '');
+
+      status = HttpStatus.BAD_REQUEST;
+      code = cleanField ? `INVALID_${cleanField}` : 'INVALID_REFERENCE';
+      message = 'Referenced resource not found';
     }
 
     if (typeof exceptionResponse === 'string') {

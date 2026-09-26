@@ -1,18 +1,13 @@
 import {
   Injectable,
-  BadRequestException,
   NotFoundException,
+  ConflictException,
+  BadRequestException,
 } from '@nestjs/common';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { ProfileService } from './profile.service';
 import { CreateLanguageDto } from '../dto/create-language.dto';
 import { UpdateLanguageDto } from '../dto/update-language.dto';
-import { PaginationDto } from '../../../common/dto/pagination.dto';
-import { buildMeta } from '../../../common/utils/paginate.util';
-
-interface ProfileServiceWithRecalculate {
-  recalculateProfileProgress?(userId: string): Promise<void>;
-}
 
 @Injectable()
 export class LanguagesService {
@@ -22,23 +17,46 @@ export class LanguagesService {
   ) {}
 
   async create(userId: string, data: CreateLanguageDto) {
-    const existingCount = await this.prisma.userLanguages.count({
+    // 1. Verify language exists
+    const language = await this.prisma.languagesMaster.findUnique({
+      where: { id: data.languageId },
+    });
+    if (!language) {
+      throw new BadRequestException({
+        code: 'INVALID_LANGUAGE',
+        message: 'Language not found',
+      });
+    }
+
+    // 2. Verify proficiency level exists
+    const proficiency = await this.prisma.proficiencyLevels.findUnique({
+      where: { id: data.proficiencyLevelId },
+    });
+    if (!proficiency) {
+      throw new BadRequestException({
+        code: 'INVALID_PROFICIENCY_LEVEL',
+        message: 'Proficiency level not found',
+      });
+    }
+
+    // 3. Enforce MAX_LANGUAGES
+    const settings = await this.prisma.systemSettings.findUnique({
+      where: { key: 'profile.max_languages' },
+    });
+    const maxLanguages = settings?.value ? Number(settings.value) : 10;
+
+    const count = await this.prisma.userLanguages.count({
       where: { userId },
     });
 
-    if (existingCount >= 5) {
-      throw new BadRequestException('Cannot add more than 5 languages');
+    if (count >= maxLanguages) {
+      throw new BadRequestException(
+        `Maximum languages allowed is ${maxLanguages}`,
+      );
     }
 
-    const languageMaster = await this.prisma.languagesMaster.findUnique({
-      where: { id: data.languageId },
-    });
-
-    if (!languageMaster) {
-      throw new BadRequestException('Language does not exist');
-    }
-
-    const existingLang = await this.prisma.userLanguages.findUnique({
+    // 4. Check for duplicates
+    const existing = await this.prisma.userLanguages.findUnique({
       where: {
         userId_languageId: {
           userId,
@@ -47,48 +65,45 @@ export class LanguagesService {
       },
     });
 
-    if (existingLang) {
-      throw new BadRequestException('Language already added');
+    if (existing) {
+      throw new ConflictException({
+        code: 'LANGUAGE_DUPLICATE',
+        message: 'Language already added to profile',
+      });
     }
 
-    const result = await this.prisma.userLanguages.create({
+    // 5. Save
+    const userLanguage = await this.prisma.userLanguages.create({
       data: {
         userId,
         languageId: data.languageId,
-        proficiency: data.proficiency,
+        proficiencyLevelId: data.proficiencyLevelId,
+        isNative: data.isNative ?? false,
+      },
+      include: {
+        language: { select: { nameEn: true, nameAr: true } },
+        proficiencyLevel: { select: { nameEn: true, nameAr: true } },
       },
     });
 
-    const profileSvc = this
-      .profileService as unknown as ProfileServiceWithRecalculate;
-    if (typeof profileSvc.recalculateProfileProgress === 'function') {
-      await profileSvc.recalculateProfileProgress(userId);
-    }
+    // 6. Recalculate profile completeness
+    await this.profileService.recalculate(userId);
 
-    return result;
+    return userLanguage;
   }
 
-  async findAll(userId: string, dto: PaginationDto) {
-    const [languages, total] = await Promise.all([
-      this.prisma.userLanguages.findMany({
-        where: { userId },
-        skip: dto.skip,
-        take: dto.limit,
-        include: {
-          language: { select: { name: true } },
+  async findAll(userId: string) {
+    return this.prisma.userLanguages.findMany({
+      where: { userId },
+      include: {
+        language: {
+          select: { nameEn: true, nameAr: true },
         },
-      }),
-      this.prisma.userLanguages.count({ where: { userId } }),
-    ]);
-
-    return {
-      data: languages.map((l) => ({
-        languageId: l.languageId,
-        name: l.language.name,
-        proficiency: l.proficiency,
-      })),
-      meta: buildMeta(total, dto.page, dto.limit),
-    };
+        proficiencyLevel: {
+          select: { nameEn: true, nameAr: true },
+        },
+      },
+    });
   }
 
   async findOne(userId: string, languageId: string) {
@@ -100,12 +115,20 @@ export class LanguagesService {
         },
       },
       include: {
-        language: true,
+        language: {
+          select: { nameEn: true, nameAr: true },
+        },
+        proficiencyLevel: {
+          select: { nameEn: true, nameAr: true },
+        },
       },
     });
 
     if (!lang) {
-      throw new NotFoundException('Language not found');
+      throw new NotFoundException({
+        code: 'LANGUAGE_NOT_FOUND',
+        message: 'User language not found',
+      });
     }
     return lang;
   }
@@ -113,30 +136,19 @@ export class LanguagesService {
   async update(userId: string, languageId: string, data: UpdateLanguageDto) {
     await this.findOne(userId, languageId);
 
-    if (data.languageId && data.languageId !== languageId) {
-      const languageMaster = await this.prisma.languagesMaster.findUnique({
-        where: { id: data.languageId },
+    if (data.proficiencyLevelId) {
+      const proficiency = await this.prisma.proficiencyLevels.findUnique({
+        where: { id: data.proficiencyLevelId },
       });
-
-      if (!languageMaster) {
-        throw new BadRequestException('Language does not exist');
-      }
-
-      const existingLang = await this.prisma.userLanguages.findUnique({
-        where: {
-          userId_languageId: {
-            userId,
-            languageId: data.languageId,
-          },
-        },
-      });
-
-      if (existingLang) {
-        throw new BadRequestException('Language already added');
+      if (!proficiency) {
+        throw new BadRequestException({
+          code: 'INVALID_PROFICIENCY_LEVEL',
+          message: 'Proficiency level not found',
+        });
       }
     }
 
-    const result = await this.prisma.userLanguages.update({
+    const updated = await this.prisma.userLanguages.update({
       where: {
         userId_languageId: {
           userId,
@@ -144,21 +156,19 @@ export class LanguagesService {
         },
       },
       data: {
-        languageId: data.languageId,
-        proficiency: data.proficiency,
+        ...(data.proficiencyLevelId && {
+          proficiencyLevelId: data.proficiencyLevelId,
+        }),
+        ...(data.isNative !== undefined && { isNative: data.isNative }),
       },
     });
 
-    const profileSvc = this
-      .profileService as unknown as ProfileServiceWithRecalculate;
-    if (typeof profileSvc.recalculateProfileProgress === 'function') {
-      await profileSvc.recalculateProfileProgress(userId);
-    }
+    await this.profileService.recalculate(userId);
 
-    return result;
+    return updated;
   }
 
-  async remove(userId: string, languageId: string) {
+  async delete(userId: string, languageId: string) {
     await this.findOne(userId, languageId);
 
     await this.prisma.userLanguages.delete({
@@ -170,10 +180,6 @@ export class LanguagesService {
       },
     });
 
-    const profileSvc = this
-      .profileService as unknown as ProfileServiceWithRecalculate;
-    if (typeof profileSvc.recalculateProfileProgress === 'function') {
-      await profileSvc.recalculateProfileProgress(userId);
-    }
+    await this.profileService.recalculate(userId);
   }
 }

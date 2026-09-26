@@ -2,16 +2,12 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { LanguagesService } from './languages.service';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { ProfileService } from './profile.service';
-import { BadRequestException, NotFoundException } from '@nestjs/common';
-
-interface ProfileServiceWithRecalculate {
-  recalculateProfileProgress(userId: string): Promise<void>;
-}
+import { ConflictException, BadRequestException } from '@nestjs/common';
 
 describe('LanguagesService', () => {
   let service: LanguagesService;
-  let prismaService: PrismaService;
-  let profileService: ProfileServiceWithRecalculate;
+  let prisma: PrismaService;
+  let profileService: ProfileService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -20,30 +16,28 @@ describe('LanguagesService', () => {
         {
           provide: PrismaService,
           useValue: {
+            languagesMaster: { findUnique: jest.fn() },
+            proficiencyLevels: { findUnique: jest.fn() },
+            systemSettings: { findUnique: jest.fn() },
             userLanguages: {
               count: jest.fn(),
+              findUnique: jest.fn(),
               create: jest.fn(),
               findMany: jest.fn(),
-              findUnique: jest.fn(),
               update: jest.fn(),
               delete: jest.fn(),
-            },
-            languagesMaster: {
-              findUnique: jest.fn(),
             },
           },
         },
         {
           provide: ProfileService,
-          useValue: {
-            recalculateProfileProgress: jest.fn(),
-          },
+          useValue: { recalculate: jest.fn() },
         },
       ],
     }).compile();
 
     service = module.get<LanguagesService>(LanguagesService);
-    prismaService = module.get<PrismaService>(PrismaService);
+    prisma = module.get<PrismaService>(PrismaService);
     profileService = module.get<ProfileService>(ProfileService);
   });
 
@@ -52,88 +46,120 @@ describe('LanguagesService', () => {
   });
 
   describe('create', () => {
-    it('should throw BadRequestException if user already has 5 languages', async () => {
-      jest.spyOn(prismaService.userLanguages, 'count').mockResolvedValue(5);
+    it('should throw BadRequestException if language not found', async () => {
+      jest
+        .spyOn(prisma.languagesMaster, 'findUnique')
+        .mockResolvedValueOnce(null);
       await expect(
-        service.create('userId', {
-          languageId: 'langId',
-          proficiency: 'Native',
+        service.create('user1', {
+          languageId: 'lang1',
+          proficiencyLevelId: 'prof1',
         }),
       ).rejects.toThrow(BadRequestException);
     });
 
-    it('should throw BadRequestException if language does not exist in master', async () => {
-      jest.spyOn(prismaService.userLanguages, 'count').mockResolvedValue(2);
+    it('should throw BadRequestException if proficiency level not found', async () => {
       jest
-        .spyOn(prismaService.languagesMaster, 'findUnique')
-        .mockResolvedValue(null);
+        .spyOn(prisma.languagesMaster, 'findUnique')
+        .mockResolvedValueOnce({ id: 'lang1' } as any);
+      jest
+        .spyOn(prisma.proficiencyLevels, 'findUnique')
+        .mockResolvedValueOnce(null);
       await expect(
-        service.create('userId', {
-          languageId: 'langId',
-          proficiency: 'Native',
+        service.create('user1', {
+          languageId: 'lang1',
+          proficiencyLevelId: 'prof1',
         }),
       ).rejects.toThrow(BadRequestException);
     });
 
-    it('should successfully create a language', async () => {
-      jest.spyOn(prismaService.userLanguages, 'count').mockResolvedValue(2);
+    it('should throw BadRequestException if max languages reached', async () => {
       jest
-        .spyOn(prismaService.languagesMaster, 'findUnique')
-        .mockResolvedValue({ id: 'langId', name: 'English' });
+        .spyOn(prisma.languagesMaster, 'findUnique')
+        .mockResolvedValueOnce({ id: 'lang1' } as any);
       jest
-        .spyOn(prismaService.userLanguages, 'findUnique')
-        .mockResolvedValue(null);
-      jest.spyOn(prismaService.userLanguages, 'create').mockResolvedValue({
-        userId: 'userId',
-        languageId: 'langId',
-        proficiency: 'Native',
-      });
+        .spyOn(prisma.proficiencyLevels, 'findUnique')
+        .mockResolvedValueOnce({ id: 'prof1' } as any);
+      jest
+        .spyOn(prisma.systemSettings, 'findUnique')
+        .mockResolvedValueOnce({ value: '1' } as any);
+      jest.spyOn(prisma.userLanguages, 'count').mockResolvedValueOnce(1);
 
-      const result = await service.create('userId', {
-        languageId: 'langId',
-        proficiency: 'Native',
+      await expect(
+        service.create('user1', {
+          languageId: 'lang1',
+          proficiencyLevelId: 'prof1',
+        }),
+      ).rejects.toThrow(BadRequestException);
+    });
+
+    it('should throw ConflictException if duplicate language', async () => {
+      jest
+        .spyOn(prisma.languagesMaster, 'findUnique')
+        .mockResolvedValueOnce({ id: 'lang1' } as any);
+      jest
+        .spyOn(prisma.proficiencyLevels, 'findUnique')
+        .mockResolvedValueOnce({ id: 'prof1' } as any);
+      jest
+        .spyOn(prisma.systemSettings, 'findUnique')
+        .mockResolvedValueOnce({ value: '10' } as any);
+      jest.spyOn(prisma.userLanguages, 'count').mockResolvedValueOnce(1);
+      jest
+        .spyOn(prisma.userLanguages, 'findUnique')
+        .mockResolvedValueOnce({ id: 'existing' } as any);
+
+      await expect(
+        service.create('user1', {
+          languageId: 'lang1',
+          proficiencyLevelId: 'prof1',
+        }),
+      ).rejects.toThrow(ConflictException);
+    });
+
+    it('should create user language', async () => {
+      jest
+        .spyOn(prisma.languagesMaster, 'findUnique')
+        .mockResolvedValueOnce({ id: 'lang1' } as any);
+      jest
+        .spyOn(prisma.proficiencyLevels, 'findUnique')
+        .mockResolvedValueOnce({ id: 'prof1' } as any);
+      jest
+        .spyOn(prisma.systemSettings, 'findUnique')
+        .mockResolvedValueOnce(null); // default 10
+      jest.spyOn(prisma.userLanguages, 'count').mockResolvedValueOnce(0);
+      jest
+        .spyOn(prisma.userLanguages, 'findUnique')
+        .mockResolvedValueOnce(null);
+      jest
+        .spyOn(prisma.userLanguages, 'create')
+        .mockResolvedValueOnce({ id: 'new', isNative: true } as any);
+
+      const result = await service.create('user1', {
+        languageId: 'lang1',
+        proficiencyLevelId: 'prof1',
+        isNative: true,
       });
       expect(result).toBeDefined();
-      expect(
-        jest.spyOn(prismaService.userLanguages, 'create'),
-      ).toHaveBeenCalled();
-      // Wait for async call to finish
-      await new Promise((resolve) => process.nextTick(resolve));
-      expect(
-        jest.spyOn(profileService, 'recalculateProfileProgress'),
-      ).toHaveBeenCalledWith('userId');
+      // eslint-disable-next-line @typescript-eslint/unbound-method
+      expect(profileService.recalculate).toHaveBeenCalledWith('user1');
     });
   });
 
-  describe('remove', () => {
-    it('should throw NotFoundException if language not found', async () => {
+  describe('update', () => {
+    it('should update user language', async () => {
       jest
-        .spyOn(prismaService.userLanguages, 'findUnique')
-        .mockResolvedValue(null);
-      await expect(service.remove('userId', 'langId')).rejects.toThrow(
-        NotFoundException,
-      );
-    });
+        .spyOn(prisma.userLanguages, 'findUnique')
+        .mockResolvedValueOnce({ id: 'existing' } as any);
+      jest
+        .spyOn(prisma.userLanguages, 'update')
+        .mockResolvedValueOnce({ id: 'existing', isNative: false } as any);
 
-    it('should successfully delete a language', async () => {
-      jest.spyOn(prismaService.userLanguages, 'findUnique').mockResolvedValue({
-        userId: 'userId',
-        languageId: 'langId',
-        proficiency: 'Native',
+      const result = await service.update('user1', 'lang1', {
+        isNative: false,
       });
-      jest.spyOn(prismaService.userLanguages, 'delete').mockResolvedValue({
-        userId: 'userId',
-        languageId: 'langId',
-        proficiency: 'Native',
-      });
-
-      await service.remove('userId', 'langId');
-      expect(
-        jest.spyOn(prismaService.userLanguages, 'delete'),
-      ).toHaveBeenCalled();
-      expect(
-        jest.spyOn(profileService, 'recalculateProfileProgress'),
-      ).toHaveBeenCalledWith('userId');
+      expect(result).toBeDefined();
+      // eslint-disable-next-line @typescript-eslint/unbound-method
+      expect(profileService.recalculate).toHaveBeenCalledWith('user1');
     });
   });
 });

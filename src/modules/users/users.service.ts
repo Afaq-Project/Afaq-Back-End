@@ -32,18 +32,14 @@ export class UsersService {
   }) {
     this.logger.info(`Creating user: ${data.email}`);
 
-    const fullName =
-      [data.firstName, data.lastName].filter(Boolean).join(' ') || undefined;
-
     const user = await this.repo.create({
       email: data.email,
       password: data.password,
-      firstName: data.firstName,
-      lastName: data.lastName,
+      firstName: data.firstName || '',
+      lastName: data.lastName || '',
       userProfile: {
         create: {
-          fullName,
-          isDraft: true,
+          isMatchable: false,
           completionPct: 0,
         },
       },
@@ -57,8 +53,8 @@ export class UsersService {
     return user;
   }
 
-  async createProfile(userId: string, fullName?: string) {
-    return this.repo.createProfile(userId, fullName);
+  async createProfile(userId: string) {
+    return this.repo.createProfile(userId);
   }
 
   async getUserWithProfile(id: string) {
@@ -90,7 +86,7 @@ export class UsersService {
     if (query.role) {
       where.userRoles = {
         some: {
-          roles: { name: { equals: query.role, mode: 'insensitive' } },
+          role: { name: { equals: query.role, mode: 'insensitive' } },
           isActive: true,
         },
       };

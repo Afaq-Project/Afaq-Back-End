@@ -10,12 +10,10 @@ import { PrismaService } from '@/prisma';
 import { EncryptionService } from './encryption.service';
 import { OauthIdentityService } from './oauth-identity.service';
 import { OAuthLoginData } from '../interfaces/oauth-profile.interface';
-import { UserResponseDto } from '../dto/user-response.dto';
 
 export interface OAuthAuthResult {
   accessToken: string;
   refreshToken: string;
-  user: UserResponseDto;
 }
 
 interface OAuthUserWithRelations {
@@ -28,16 +26,14 @@ interface OAuthUserWithRelations {
   lastLoginAt?: Date | null;
   createdAt?: Date;
   userProfile?: {
-    fullName?: string | null;
     completionPct?: number | null;
-    isDraft?: boolean | null;
   } | null;
   userRoles?: Array<{
-    roles?: {
+    role?: {
       name?: string;
     } | null;
   }>;
-  roles?: string[];
+  role?: string[];
 }
 
 @Injectable()
@@ -63,7 +59,6 @@ export class OAuthProcessorService {
       email,
       firstName,
       lastName,
-      picture,
       accessToken,
       refreshToken,
     } = data;
@@ -119,7 +114,7 @@ export class OAuthProcessorService {
               userProfile: true,
               userRoles: {
                 include: {
-                  roles: true,
+                  role: true,
                 },
               },
             },
@@ -142,7 +137,7 @@ export class OAuthProcessorService {
         userProfile: true,
         userRoles: {
           include: {
-            roles: true,
+            role: true,
           },
         },
       },
@@ -181,22 +176,6 @@ export class OAuthProcessorService {
             updateData.lastName = lastName;
           }
 
-          const profileUpdateData: Record<string, unknown> = {};
-          if (firstName || lastName) {
-            profileUpdateData.fullName =
-              [firstName, lastName].filter(Boolean).join(' ') ||
-              normalizedEmail.split('@')[0];
-          }
-          if (picture) {
-            profileUpdateData.profilePhotoUrl = picture;
-          }
-
-          if (Object.keys(profileUpdateData).length > 0) {
-            updateData.userProfile = {
-              update: profileUpdateData,
-            };
-          }
-
           // Mark email verified if not already, update last login, and sync fields
           return tx.users.update({
             where: { id: existingUser.id },
@@ -205,7 +184,7 @@ export class OAuthProcessorService {
               userProfile: true,
               userRoles: {
                 include: {
-                  roles: true,
+                  role: true,
                 },
               },
             },
@@ -222,10 +201,6 @@ export class OAuthProcessorService {
     }
 
     // 5. Create new user (FR-002-07, FR-002-09, FR-002-10, FR-002-12)
-    const fullName =
-      [firstName, lastName].filter(Boolean).join(' ') ||
-      normalizedEmail.split('@')[0];
-
     const newUser = await this.prisma.$transaction(
       async (tx) => {
         // Find default role 'user'
@@ -237,16 +212,14 @@ export class OAuthProcessorService {
         return tx.users.create({
           data: {
             email: normalizedEmail,
-            firstName: firstName || null,
-            lastName: lastName || null,
+            firstName: firstName || '',
+            lastName: lastName || '',
             isEmailVerified: true,
             isActive: true,
             lastLoginAt: new Date(),
             userProfile: {
               create: {
-                fullName,
-                profilePhotoUrl: picture || null,
-                isDraft: true,
+                isMatchable: false,
                 completionPct: 0,
               },
             },
@@ -268,7 +241,7 @@ export class OAuthProcessorService {
             userProfile: true,
             userRoles: {
               include: {
-                roles: true,
+                role: true,
               },
             },
           },
@@ -291,8 +264,8 @@ export class OAuthProcessorService {
     user: OAuthUserWithRelations,
   ): Promise<OAuthAuthResult> {
     const roles: string[] = Array.isArray(user.userRoles)
-      ? user.userRoles.map((ur) => ur.roles?.name || 'user')
-      : user.roles || ['user'];
+      ? user.userRoles.map((ur) => ur.role?.name || 'user')
+      : user.role || ['user'];
 
     const primaryRole = roles[0] || 'user';
 
@@ -317,29 +290,9 @@ export class OAuthProcessorService {
       }),
     ]);
 
-    const userResponse: UserResponseDto = {
-      id: user.id,
-      email: user.email,
-      firstName: user.firstName ?? null,
-      lastName: user.lastName ?? null,
-      isEmailVerified: user.isEmailVerified ?? true,
-      isActive: user.isActive ?? true,
-      lastLoginAt: user.lastLoginAt ?? new Date(),
-      createdAt: user.createdAt ?? new Date(),
-      userProfile: user.userProfile
-        ? {
-            fullName: user.userProfile.fullName || '',
-            completionPct: user.userProfile.completionPct || 0,
-            isDraft: user.userProfile.isDraft ?? true,
-          }
-        : null,
-      roles,
-    };
-
     return {
       accessToken,
       refreshToken,
-      user: userResponse,
     };
   }
 }

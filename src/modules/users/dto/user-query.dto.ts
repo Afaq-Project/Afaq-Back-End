@@ -1,5 +1,5 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { IsOptional, IsEnum, IsIn } from 'class-validator';
+import { IsOptional, IsIn } from 'class-validator';
 import { PaginationDto } from '@common/dto';
 
 const SORTABLE_FIELDS = [
@@ -18,7 +18,7 @@ export class UserQueryDto extends PaginationDto {
     enum: ['USER', 'ADMIN'],
     example: 'USER',
   })
-  @IsEnum(['USER', 'ADMIN'])
+  @IsIn(['USER', 'ADMIN'])
   @IsOptional()
   role?: string;
 

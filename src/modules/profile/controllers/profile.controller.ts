@@ -1,16 +1,4 @@
-import {
-  HttpCode,
-  HttpStatus,
-  Controller,
-  Get,
-  Post,
-  Patch,
-  Body,
-  UseGuards,
-  Req,
-  UsePipes,
-  ValidationPipe,
-} from '@nestjs/common';
+import { Controller, Get, Patch, Body, UseGuards, Req } from '@nestjs/common';
 import {
   ApiTags,
   ApiOperation,
@@ -32,20 +20,18 @@ interface RequestWithUser {
 export class ProfileController {
   constructor(private readonly profileService: ProfileService) {}
 
-  @Get()
-  @ApiOperation({ summary: 'Get user profile' })
+  @Get('me')
+  @ApiOperation({ summary: 'Get current user profile' })
   @ApiResponse({ status: 200, description: 'Profile retrieved successfully' })
   async getProfile(@Req() req: RequestWithUser) {
     const userId = req.user.id;
-    const data = await this.profileService.getProfileWithDetails(userId);
-    return data;
+    const profile = await this.profileService.getProfile(userId);
+    return profile;
   }
 
-  @Patch()
-  @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }))
-  @ApiOperation({ summary: 'Update user profile' })
+  @Patch('personal')
+  @ApiOperation({ summary: 'Update personal profile information' })
   @ApiResponse({ status: 200, description: 'Profile updated successfully' })
-  @ApiResponse({ status: 400, description: 'Validation failed' })
   async updateProfile(
     @Req() req: RequestWithUser,
     @Body() data: UpdateProfileDto,
@@ -55,24 +41,6 @@ export class ProfileController {
       userId,
       data,
     );
-    return {
-      userId: updatedProfile.userId,
-      completionPct: updatedProfile.completionPct,
-      coreFieldsComplete: updatedProfile.coreFieldsComplete,
-      updatedAt: updatedProfile.updatedAt,
-    };
-  }
-
-  @Post('publish')
-  @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Publish user profile' })
-  @ApiResponse({ status: 200, description: 'Profile published successfully' })
-  @ApiResponse({
-    status: 409,
-    description: 'Profile already published or core fields incomplete',
-  })
-  async publishProfile(@Req() req: RequestWithUser) {
-    const userId = req.user.id;
-    return this.profileService.publishProfile(userId);
+    return updatedProfile;
   }
 }

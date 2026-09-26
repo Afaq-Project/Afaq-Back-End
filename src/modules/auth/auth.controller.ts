@@ -32,6 +32,7 @@ import {
   LoginResponseDto,
   RefreshTokenResponseDto,
   UserResponseDto,
+  MeResponseDto,
 } from './dto';
 import { Public, CurrentUser } from '@common/decorators';
 import { AuthGuard } from '@common/guards';
@@ -199,13 +200,18 @@ export class AuthController {
     const token = ExtractJwt.fromAuthHeaderAsBearerToken()(req);
     if (token) {
       try {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         const decoded = this.jwtService.decode(token);
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
         if (decoded && decoded.sub) {
           await this.authService.revokeAllUserRefreshTokens(
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
             String(decoded.sub),
           );
         }
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
         if (decoded && decoded.exp) {
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
           const ttl = decoded.exp - Math.floor(Date.now() / 1000);
           if (ttl > 0) {
             await this.redisService.client.set(
@@ -230,14 +236,14 @@ export class AuthController {
   @ApiResponse({
     status: 200,
     description: 'Current user profile retrieved successfully',
-    type: UserResponseDto,
+    type: MeResponseDto,
   })
   @ApiResponse({
     status: 401,
     description: 'Unauthorized access',
     type: ErrorResponse,
   })
-  getProfile(@CurrentUser('id') userId: string): Promise<UserResponseDto> {
+  getProfile(@CurrentUser('id') userId: string): Promise<MeResponseDto> {
     return this.authService.getMe(userId);
   }
 

@@ -16,7 +16,7 @@ export class PaginationDto {
   @ApiPropertyOptional({ minimum: 1, default: 1, description: 'Page number' })
   @Type(() => Number)
   @IsInt()
-  @Min(1)
+  @Min(1, { context: { code: 'VALIDATION_ERROR' } })
   @IsOptional()
   page: number = 1;
 
@@ -28,7 +28,7 @@ export class PaginationDto {
   })
   @Type(() => Number)
   @IsInt()
-  @Min(1)
+  @Min(1, { context: { code: 'VALIDATION_ERROR' } })
   @Max(100)
   @IsOptional()
   limit: number = 20;

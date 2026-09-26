@@ -7,15 +7,16 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { isUUID } from 'class-validator';
+import { RequestWithUser } from '@common/decorators';
 
 @Injectable()
 export class LanguageOwnershipGuard implements CanActivate {
   constructor(private readonly prisma: PrismaService) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const request = context.switchToHttp().getRequest();
-    const userId = request.user?.id;
-    const languageId = request.params.languageId;
+    const request = context.switchToHttp().getRequest<RequestWithUser>();
+    const userId = request.user?.id as string;
+    const languageId = request.params['languageId'] as string;
 
     if (!userId || !languageId) {
       return true;

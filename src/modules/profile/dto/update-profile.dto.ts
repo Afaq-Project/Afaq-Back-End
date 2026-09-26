@@ -1,96 +1,106 @@
 import {
   IsOptional,
+  ValidateIf,
   IsString,
-  IsArray,
-  IsBoolean,
-  IsDate,
-  Length,
-  ArrayMaxSize,
+  IsEmail,
+  IsISO8601,
+  IsUUID,
   MaxLength,
+  IsIn,
+  IsUrl,
+  IsArray,
 } from 'class-validator';
-import { Type } from 'class-transformer';
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { SanitizeString } from '../../../common/utils/sanitizer.util';
 
 export class UpdateProfileDto {
   @ApiPropertyOptional()
-  @IsOptional()
+  @ValidateIf((_object, value) => value !== undefined)
   @IsString()
   @MaxLength(255)
   @SanitizeString()
-  fullName?: string;
+  firstName?: string;
 
   @ApiPropertyOptional()
-  @IsOptional()
-  @Type(() => Date)
-  @IsDate()
-  dateOfBirth?: Date;
-
-  @ApiPropertyOptional()
-  @IsOptional()
+  @ValidateIf((_object, value) => value !== undefined)
   @IsString()
   @MaxLength(255)
   @SanitizeString()
-  nationality?: string;
+  lastName?: string;
 
   @ApiPropertyOptional()
-  @IsOptional()
-  @IsString()
-  @SanitizeString()
-  educationLevel?: string;
-
-  @ApiPropertyOptional({ type: [String] })
-  @IsOptional()
-  @IsArray()
-  @IsString({ each: true })
-  @ArrayMaxSize(5)
-  @SanitizeString()
-  fieldOfStudy?: string[];
+  @ValidateIf((_object, value) => value !== undefined)
+  @IsEmail()
+  email?: string;
 
   @ApiPropertyOptional()
-  @IsOptional()
-  @IsString()
-  @MaxLength(255)
-  @SanitizeString()
-  currentCountry?: string;
+  @ValidateIf((_object, value) => value !== undefined)
+  @IsISO8601()
+  dateOfBirth?: string;
+
+  @ApiPropertyOptional({
+    enum: ['MALE', 'FEMALE'],
+  })
+  @ValidateIf((_object, value) => value !== undefined)
+  @IsIn(['MALE', 'FEMALE'])
+  gender?: 'MALE' | 'FEMALE';
 
   @ApiPropertyOptional()
-  @IsOptional()
-  @IsString()
-  @MaxLength(255)
-  @SanitizeString()
-  currentCity?: string;
+  @ValidateIf((_object, value) => value !== undefined)
+  @IsUUID()
+  maritalStatusId?: string;
 
   @ApiPropertyOptional()
-  @IsOptional()
+  @ValidateIf((_object, value) => value !== undefined)
   @IsString()
-  @MaxLength(255)
+  @MaxLength(30)
   @SanitizeString()
   phone?: string;
 
   @ApiPropertyOptional()
   @IsOptional()
   @IsString()
-  @MaxLength(255)
+  @MaxLength(1000, { context: { code: 'BIO_TOO_LONG' } })
   @SanitizeString()
-  experienceLevel?: string;
-
-  @ApiPropertyOptional()
-  @IsOptional()
-  @IsBoolean()
-  hasFinancialNeed?: boolean;
+  bio?: string;
 
   @ApiPropertyOptional()
   @IsOptional()
   @IsString()
-  @SanitizeString()
-  @Length(0, 500)
-  careerGoals?: string;
-
-  @ApiPropertyOptional()
-  @IsOptional()
-  @IsString()
-  @MaxLength(255)
+  @IsUrl()
   @SanitizeString()
   profilePhotoUrl?: string;
+
+  @ApiPropertyOptional({
+    type: [String],
+    description: 'Free-text list of prior work or volunteer experience entries',
+    example: ['Software Engineering Intern at Acme', 'Volunteer Tutor'],
+  })
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  @MaxLength(500, { each: true })
+  // SanitizeString handles arrays intrinsically (see sanitizer.util.ts)
+  @SanitizeString()
+  experiences?: string[];
+
+  @ApiPropertyOptional()
+  @ValidateIf((_object, value) => value !== undefined)
+  @IsUUID()
+  countryOfResidenceId?: string;
+
+  @ApiPropertyOptional()
+  @ValidateIf((_object, value) => value !== undefined)
+  @IsUUID()
+  nationalityId?: string;
+
+  @ApiPropertyOptional()
+  @ValidateIf((_object, value) => value !== undefined)
+  @IsUUID()
+  currentCityId?: string;
+
+  @ApiPropertyOptional()
+  @ValidateIf((_object, value) => value !== undefined)
+  @IsUUID()
+  educationLevelId?: string;
 }

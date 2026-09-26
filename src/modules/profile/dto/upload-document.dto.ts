@@ -1,9 +1,9 @@
-import { IsIn, IsOptional } from 'class-validator';
+import { IsUUID, IsOptional, IsNotEmpty } from 'class-validator';
 
 export class UploadDocumentDto {
-  @IsOptional()
-  @IsIn(['resume', 'essay', 'transcript', 'recommendation_letter', 'other'])
-  docType?: string;
+  @IsNotEmpty()
+  @IsUUID()
+  documentTypeId: string;
 
   @IsOptional()
   file?: unknown;

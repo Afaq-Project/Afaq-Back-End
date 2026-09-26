@@ -1,0 +1,728 @@
+# Complete Database Schema — v2.0
+
+**Project:** Levora  
+**Schema Version:** 2.0  
+**Date:** 2026-09-21  
+**Status:** Final — Approved for Implementation
+
+> This document supersedes all previous schema drafts. It reflects every architectural decision recorded in `decisions-log.md`.
+
+---
+
+```prisma
+// ============================================================
+// Prisma Configuration
+// ============================================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// ============================================================
+// Enums
+// ============================================================
+
+enum Gender {
+  MALE
+  FEMALE
+}
+
+enum GpaScale {
+  OUT_OF_100
+  OUT_OF_5
+  OUT_OF_4
+}
+
+// ============================================================
+// Section 1 — Users & Authentication
+// Holds account-level data only. Fully independent from UserProfiles.
+// ============================================================
+
+model Users {
+  id              String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  email           String    @unique @db.Citext
+  password        String?   @db.Text
+
+  firstName       String    @map("first_name") @db.VarChar(255)
+  lastName        String    @map("last_name") @db.VarChar(255)
+
+  isEmailVerified Boolean   @default(false) @map("is_email_verified")
+  isActive        Boolean   @default(true)  @map("is_active")
+  lastLoginAt     DateTime? @map("last_login_at") @db.Timestamptz(6)
+  deletedAt       DateTime? @map("deleted_at")    @db.Timestamptz(6)
+  createdAt       DateTime  @default(now())  @map("created_at") @db.Timestamptz(6)
+  updatedAt       DateTime? @updatedAt       @map("updated_at") @db.Timestamptz(6)
+
+  // Relations — account level
+  userProfile     UserProfiles?
+  userRoles       UserRoles[]
+  oauthIdentities OauthIdentities[]
+  subscription    Subscriptions?
+  payments        Payments[]
+
+  // Relations — deferred modules
+  savedOpportunities SavedOpportunities[]
+  notifications      Notifications[]
+
+  @@index([deletedAt])
+  @@map("users")
+}
+
+model Roles {
+  id          Int       @id @default(autoincrement())
+  name        String    @unique @db.VarChar(100)
+  description String?   @db.VarChar(255)
+  isActive    Boolean   @default(true) @map("is_active")
+  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt   DateTime? @updatedAt      @map("updated_at") @db.Timestamptz(6)
+
+  userRoles   UserRoles[]
+
+  @@map("roles")
+}
+
+model UserRoles {
+  id        String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId    String    @map("user_id") @db.Uuid
+  roleId    Int       @map("role_id")
+  isActive  Boolean   @default(true) @map("is_active")
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime? @updatedAt      @map("updated_at") @db.Timestamptz(6)
+
+  user      Users @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role      Roles @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  @@index([userId, roleId])
+  @@index([roleId])
+  @@map("user_roles")
+}
+
+model OauthIdentities {
+  id              String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId          String    @map("user_id")          @db.Uuid
+  provider        String    @db.Text
+  providerUserId  String    @map("provider_user_id") @db.Text
+  accessTokenRef  String?   @map("access_token_ref") @db.Text
+  refreshTokenRef String?   @map("refresh_token_ref") @db.Text
+  linkedAt        DateTime  @default(now()) @map("linked_at")  @db.Timestamptz(6)
+  createdAt       DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt       DateTime? @updatedAt      @map("updated_at") @db.Timestamptz(6)
+
+  user            Users @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerUserId])
+  @@index([userId])
+  @@map("oauth_identities")
+}
+
+// ============================================================
+// Section 2 — User Profile (Hub)
+// All profile fields are nullable at the DB level (DEC-AUTH-02).
+// Mandatory field enforcement is done at the DTO/application layer only.
+// No field is ever seeded from the Users table (DEC-AUTH-01, DEC-AUTH-03).
+// ============================================================
+
+model UserProfiles {
+  // Primary key is the userId itself — enforces strict 1-to-1 with Users.
+  userId           String  @id @map("user_id") @db.Uuid
+
+  // --- Personal Info ---
+  firstName        String?   @map("first_name")       @db.VarChar(255)
+  lastName         String?   @map("last_name")        @db.VarChar(255)
+  email            String?   @db.Text
+  dateOfBirth      DateTime? @map("date_of_birth")    @db.Date
+  gender           Gender?
+  maritalStatusId  String?   @map("marital_status_id") @db.Uuid
+  phone            String?   @db.Text
+  bio              String?   @db.Text
+  profilePhotoUrl  String?   @map("profile_photo_url") @db.Text
+  experiences      String[] @default([]) @map("experiences")
+
+  // --- Location & Origin ---
+  countryOfResidenceId String? @map("country_of_residence_id") @db.Uuid
+  nationalityId        String? @map("nationality_id")           @db.Uuid
+  currentCityId        String? @map("current_city_id")          @db.Uuid
+
+  // --- Education Level (current level, not history) ---
+  educationLevelId     String? @map("education_level_id") @db.Uuid
+
+  // --- Matching & Completion ---
+  completionPct    Int     @default(0)     @map("completion_pct")
+  isMatchable      Boolean @default(false) @map("is_matchable")
+  matchingVersion  Int     @default(1)     @map("matching_version")
+
+  createdAt        DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt        DateTime? @updatedAt      @map("updated_at") @db.Timestamptz(6)
+
+  // --- Relations ---
+  user                 Users             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  educationLevel       EducationLevel?   @relation(fields: [educationLevelId], references: [id], onDelete: SetNull)
+  countryOfResidence   Countries?        @relation("ProfileResidence",    fields: [countryOfResidenceId], references: [id], onDelete: SetNull)
+  nationality          Countries?        @relation("ProfileNationality",   fields: [nationalityId],        references: [id], onDelete: SetNull)
+  currentCity          Cities?           @relation(fields: [currentCityId],   references: [id], onDelete: SetNull)
+  maritalStatus        MaritalStatuses?  @relation(fields: [maritalStatusId], references: [id], onDelete: SetNull)
+
+  // Profile sub-tables
+  specialStatuses      UserSpecialStatuses[]
+  targetDegrees        UserTargetDegrees[]
+  targetMajors         UserTargetMajors[]
+  targetInstitutions   UserTargetInstitutions[]
+  educations           UserEducations[]
+  languages            UserLanguages[]
+  testResults          UserTestResults[]
+  documents            Documents[]
+
+  @@index([isMatchable])
+  @@index([matchingVersion])
+  @@map("user_profiles")
+}
+
+// ============================================================
+// Section 3 — Master Data
+// Static reference tables. Bilingual (nameEn / nameAr).
+// Hybrid-cached tables (Countries, Institutions, Majors) include
+// externalSourceId for mapping to external API identifiers.
+// ============================================================
+
+model Countries {
+  id                String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  nameEn            String  @map("name_en")             @db.VarChar(100)
+  nameAr            String  @map("name_ar")             @db.VarChar(100)
+  nationalityNameEn String? @map("nationality_name_en") @db.VarChar(100)
+  nationalityNameAr String? @map("nationality_name_ar") @db.VarChar(100)
+  isoCode           String? @unique @map("iso_code")    @db.VarChar(3)
+  isoCode2          String? @unique @map("iso_code2")   @db.VarChar(2)
+  regionEn          String? @map("region_en")           @db.VarChar(100)
+  regionAr          String? @map("region_ar")           @db.VarChar(100)
+  phoneCode         String? @map("phone_code")          @db.VarChar(10)
+  flagEmoji         String? @map("flag_emoji")          @db.VarChar(10)
+  externalSourceId  String? @unique @map("external_source_id") @db.VarChar(100)
+  isActive          Boolean @default(true) @map("is_active")
+  sortOrder         Int     @default(0)    @map("sort_order")
+
+  residentProfiles  UserProfiles[] @relation("ProfileResidence")
+  nationalProfiles  UserProfiles[] @relation("ProfileNationality")
+  cities            Cities[]
+  institutions      Institutions[]
+
+  @@index([nameEn])
+  @@map("countries")
+}
+
+model Cities {
+  id        String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  nameEn    String  @map("name_en") @db.VarChar(150)
+  nameAr    String  @map("name_ar") @db.VarChar(150)
+  countryId String  @map("country_id") @db.Uuid
+  isActive  Boolean @default(true) @map("is_active")
+  sortOrder Int     @default(0)    @map("sort_order")
+
+  country      Countries      @relation(fields: [countryId], references: [id], onDelete: Cascade)
+  userProfiles UserProfiles[]
+  institutions Institutions[]
+
+  @@index([countryId])
+  @@map("cities")
+}
+
+model Institutions {
+  id               String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  nameEn           String  @map("name_en")       @db.VarChar(255)
+  nameAr           String  @map("name_ar")       @db.VarChar(255)
+  shortNameEn      String? @map("short_name_en") @db.VarChar(100)
+  shortNameAr      String? @map("short_name_ar") @db.VarChar(100)
+  countryId        String? @map("country_id")    @db.Uuid
+  cityId           String? @map("city_id")       @db.Uuid
+  type             String? @db.VarChar(50)
+  websiteUrl       String? @map("website_url")   @db.Text
+  logoUrl          String? @map("logo_url")      @db.Text
+  externalSourceId String? @unique @map("external_source_id") @db.VarChar(100)
+  isActive         Boolean @default(true) @map("is_active")
+  sortOrder        Int     @default(0)    @map("sort_order")
+
+  country        Countries?  @relation(fields: [countryId], references: [id], onDelete: SetNull)
+  city           Cities?     @relation(fields: [cityId],    references: [id], onDelete: SetNull)
+  userEducations UserEducations[]
+  targetedBy     UserTargetInstitutions[]
+
+  @@index([countryId])
+  @@index([cityId])
+  @@index([type])
+  @@map("institutions")
+}
+
+model MajorCategories {
+  id        String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  nameEn    String  @unique @map("name_en") @db.VarChar(150)
+  nameAr    String  @map("name_ar")         @db.VarChar(150)
+  isActive  Boolean @default(true) @map("is_active")
+  sortOrder Int     @default(0)    @map("sort_order")
+
+  majors    Majors[]
+
+  @@map("major_categories")
+}
+
+model Majors {
+  id               String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  nameEn           String  @map("name_en")   @db.VarChar(255)
+  nameAr           String  @map("name_ar")   @db.VarChar(255)
+  categoryId       String? @map("category_id") @db.Uuid
+  externalSourceId String? @unique @map("external_source_id") @db.VarChar(100)
+  isActive         Boolean @default(true) @map("is_active")
+  sortOrder        Int     @default(0)    @map("sort_order")
+
+  category              MajorCategories?  @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  userEducationsAsMajor UserEducations[]  @relation("PrimaryMajor")
+  userEducationsAsMinor UserEducations[]  @relation("MinorMajor")
+  targetedBy            UserTargetMajors[]
+
+  @@index([categoryId])
+  @@map("majors")
+}
+
+model EducationLevel {
+  id        String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  code      String  @unique @db.VarChar(50)
+  nameEn    String  @map("name_en") @db.VarChar(100)
+  nameAr    String  @map("name_ar") @db.VarChar(100)
+  isActive  Boolean @default(true) @map("is_active")
+  sortOrder Int     @default(0)    @map("sort_order")
+
+  userProfiles   UserProfiles[]
+  userEducations UserEducations[]
+  targetedBy     UserTargetDegrees[]
+
+  @@map("education_levels")
+}
+
+model MaritalStatuses {
+  id        String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  nameEn    String  @unique @map("name_en") @db.VarChar(50)
+  nameAr    String  @map("name_ar")         @db.VarChar(50)
+  isActive  Boolean @default(true) @map("is_active")
+  sortOrder Int     @default(0)    @map("sort_order")
+
+  profiles  UserProfiles[]
+
+  @@map("marital_statuses")
+}
+
+model SpecialStatuses {
+  id        String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  nameEn    String  @unique @map("name_en") @db.VarChar(100)
+  nameAr    String  @map("name_ar")         @db.VarChar(100)
+  isActive  Boolean @default(true) @map("is_active")
+  sortOrder Int     @default(0)    @map("sort_order")
+
+  users     UserSpecialStatuses[]
+
+  @@map("special_statuses")
+}
+
+model StandardizedTests {
+  id        String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  nameEn    String  @unique @map("name_en") @db.VarChar(100)
+  nameAr    String  @map("name_ar")         @db.VarChar(100)
+  // Score range and step used for API-level validation of user-entered scores.
+  minScore  Decimal @map("min_score")  @db.Decimal(6, 2)
+  maxScore  Decimal @map("max_score")  @db.Decimal(6, 2)
+  scoreStep Decimal @map("score_step") @db.Decimal(4, 2)
+  isActive  Boolean @default(true) @map("is_active")
+  sortOrder Int     @default(0)    @map("sort_order")
+
+  results   UserTestResults[]
+
+  @@map("standardized_tests")
+}
+
+model LanguagesMaster {
+  id        String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  nameEn    String  @unique @map("name_en") @db.VarChar(100)
+  nameAr    String  @map("name_ar")         @db.VarChar(100)
+  isoCode   String? @unique @map("iso_code") @db.VarChar(5)
+  isActive  Boolean @default(true) @map("is_active")
+  sortOrder Int     @default(0)    @map("sort_order")
+
+  userLanguages UserLanguages[]
+
+  @@map("languages_master")
+}
+
+model ProficiencyLevels {
+  id        String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  nameEn    String  @unique @map("name_en") @db.VarChar(50)
+  nameAr    String  @map("name_ar")         @db.VarChar(50)
+  isActive  Boolean @default(true) @map("is_active")
+  sortOrder Int     @default(0)    @map("sort_order")
+
+  userLanguages UserLanguages[]
+
+  @@map("proficiency_levels")
+}
+
+model DocumentTypes {
+  id        String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  nameEn    String  @unique @map("name_en") @db.VarChar(50)
+  nameAr    String  @map("name_ar")         @db.VarChar(50)
+  isActive  Boolean @default(true) @map("is_active")
+  sortOrder Int     @default(0)    @map("sort_order")
+
+  documents Documents[]
+
+  @@map("document_types")
+}
+
+model NotificationTypes {
+  id        String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  // Machine-readable code used by application logic to identify the type.
+  code      String  @unique @db.VarChar(50)
+  nameEn    String  @map("name_en") @db.VarChar(100)
+  nameAr    String  @map("name_ar") @db.VarChar(100)
+  isActive  Boolean @default(true) @map("is_active")
+  sortOrder Int     @default(0)    @map("sort_order")
+
+  notifications Notifications[]
+
+  @@map("notification_types")
+}
+
+// ============================================================
+// Section 4 — System Configuration
+// Runtime configuration store for tunable parameters.
+// Always has code-level fallbacks; never a point of startup failure.
+// ============================================================
+
+model SystemSettings {
+  // Examples: "profile.completion_weights", "profile.max_educations"
+  key         String   @id @db.VarChar(100)
+  value       Json
+  description String?  @db.Text
+  updatedAt   DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  @@map("system_settings")
+}
+
+// ============================================================
+// Section 5 — Profile Pivot Tables (Many-to-Many)
+// All pivot tables cascade-delete when the profile is deleted.
+// ============================================================
+
+model UserSpecialStatuses {
+  userId          String @map("user_id")         @db.Uuid
+  specialStatusId String @map("special_status_id") @db.Uuid
+
+  user            UserProfiles    @relation(fields: [userId],          references: [userId], onDelete: Cascade)
+  status          SpecialStatuses @relation(fields: [specialStatusId], references: [id],     onDelete: Cascade)
+
+  @@id([userId, specialStatusId])
+  @@map("user_special_statuses")
+}
+
+model UserTargetDegrees {
+  userId           String @map("user_id")          @db.Uuid
+  educationLevelId String @map("education_level_id") @db.Uuid
+
+  user             UserProfiles   @relation(fields: [userId],           references: [userId], onDelete: Cascade)
+  level            EducationLevel @relation(fields: [educationLevelId], references: [id],     onDelete: Cascade)
+
+  @@id([userId, educationLevelId])
+  @@map("user_target_degrees")
+}
+
+model UserTargetMajors {
+  userId  String @map("user_id")  @db.Uuid
+  majorId String @map("major_id") @db.Uuid
+
+  user    UserProfiles @relation(fields: [userId],  references: [userId], onDelete: Cascade)
+  major   Majors       @relation(fields: [majorId], references: [id],     onDelete: Cascade)
+
+  @@id([userId, majorId])
+  @@map("user_target_majors")
+}
+
+model UserTargetInstitutions {
+  userId        String @map("user_id")       @db.Uuid
+  institutionId String @map("institution_id") @db.Uuid
+
+  user          UserProfiles @relation(fields: [userId],        references: [userId], onDelete: Cascade)
+  institution   Institutions @relation(fields: [institutionId], references: [id],     onDelete: Cascade)
+
+  @@id([userId, institutionId])
+  @@map("user_target_institutions")
+}
+
+// ============================================================
+// Section 6 — Education History
+// Supports multiple records per user (e.g., Bachelor's + Master's).
+// Unique constraint prevents duplicate records for the same combination.
+// ============================================================
+
+model UserEducations {
+  id                     String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId                 String    @map("user_id")          @db.Uuid
+  educationLevelId       String    @map("education_level_id") @db.Uuid
+  institutionId          String    @map("institution_id")   @db.Uuid
+  majorId                String    @map("major_id")         @db.Uuid
+  minorMajorId           String?   @map("minor_major_id")   @db.Uuid
+
+  // Duration: use startDate + endDate for graduates, expectedGraduationDate + isCurrent for students.
+  startDate              DateTime? @map("start_date")               @db.Date
+  endDate                DateTime? @map("end_date")                 @db.Date
+  expectedGraduationDate DateTime? @map("expected_graduation_date") @db.Date
+  isCurrent              Boolean   @default(false) @map("is_current")
+
+  // GPA: raw value is stored as entered, scale identifies the system, normalized is always on a 0–4 scale.
+  gpaRaw                 Decimal?  @map("gpa_raw")        @db.Decimal(5, 2)
+  gpaScale               GpaScale? @map("gpa_scale")
+  gpaNormalized          Decimal?  @map("gpa_normalized") @db.Decimal(5, 2)
+
+  createdAt              DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt              DateTime? @updatedAt      @map("updated_at") @db.Timestamptz(6)
+
+  user           UserProfiles   @relation(fields: [userId],           references: [userId], onDelete: Cascade)
+  educationLevel EducationLevel @relation(fields: [educationLevelId], references: [id],     onDelete: Restrict)
+  institution    Institutions   @relation(fields: [institutionId],    references: [id],     onDelete: Restrict)
+  major          Majors         @relation("PrimaryMajor", fields: [majorId],      references: [id], onDelete: Restrict)
+  minorMajor     Majors?        @relation("MinorMajor",   fields: [minorMajorId], references: [id], onDelete: SetNull)
+
+  // Prevents duplicate records for the same institution + major + level combination per user.
+  @@unique([userId, institutionId, majorId, educationLevelId])
+  @@index([userId, updatedAt])
+  @@map("user_educations")
+}
+
+// ============================================================
+// Section 7 — Languages
+// Composite PK on (userId, languageId) — one row per language per user.
+// ============================================================
+
+model UserLanguages {
+  userId             String  @map("user_id")          @db.Uuid
+  languageId         String  @map("language_id")        @db.Uuid
+  proficiencyLevelId String  @map("proficiency_level_id") @db.Uuid
+  isNative           Boolean @default(false) @map("is_native")
+
+  user             UserProfiles       @relation(fields: [userId],             references: [userId], onDelete: Cascade)
+  language         LanguagesMaster    @relation(fields: [languageId],         references: [id],     onDelete: Cascade)
+  proficiencyLevel ProficiencyLevels  @relation(fields: [proficiencyLevelId], references: [id],     onDelete: Restrict)
+
+  @@id([userId, languageId])
+  @@index([proficiencyLevelId])
+  @@map("user_languages")
+}
+
+// ============================================================
+// Section 8 — Standardized Test Results
+// Score is validated at the application layer against
+// StandardizedTests.minScore, maxScore, and scoreStep.
+// @@unique prevents duplicate entries for the same test per user.
+// ============================================================
+
+model UserTestResults {
+  id       String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId   String    @map("user_id") @db.Uuid
+  testId   String    @map("test_id") @db.Uuid
+  score    Decimal   @db.Decimal(6, 2)
+  testDate DateTime? @map("test_date") @db.Date
+
+  user     UserProfiles      @relation(fields: [userId], references: [userId], onDelete: Cascade)
+  test     StandardizedTests @relation(fields: [testId], references: [id],     onDelete: Restrict)
+
+  @@unique([userId, testId])
+  @@index([userId])
+  @@map("user_test_results")
+}
+
+// ============================================================
+// Section 9 — Documents
+// No soft-delete (deletedAt removed). Deletion is hard-delete, storage-first.
+// Encryption is handled at the storage-provider level; not tracked in DB.
+// ============================================================
+
+model Documents {
+  id             String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId         String    @map("user_id")         @db.Uuid
+  documentTypeId String    @map("document_type_id") @db.Uuid
+
+  displayName    String    @map("display_name") @db.Text
+  storagePath    String    @map("storage_path") @db.Text
+  mimeType       String    @map("mime_type")    @db.Text
+  sizeBytes      Int       @map("size_bytes")
+
+  createdAt      DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt      DateTime? @updatedAt      @map("updated_at") @db.Timestamptz(6)
+
+  user           UserProfiles  @relation(fields: [userId],         references: [userId], onDelete: Cascade)
+  documentType   DocumentTypes @relation(fields: [documentTypeId], references: [id],     onDelete: Restrict)
+
+  @@index([userId])
+  @@index([documentTypeId])
+  @@map("documents")
+}
+
+
+// ============================================================
+// Section 11 — Billing & Subscriptions
+// Linked to Users (account level), not to UserProfiles.
+// ============================================================
+
+model Subscriptions {
+  userId               String    @id @map("user_id") @db.Uuid
+  plan                 String    @default("free") @db.Text
+  billingCycle         String?   @map("billing_cycle") @db.Text
+  status               String    @default("active") @db.Text
+  stripeCustomerId     String?   @map("stripe_customer_id")     @db.Text
+  stripeSubscriptionId String?   @map("stripe_subscription_id") @db.Text
+  currentPeriodEnd     DateTime? @map("current_period_end")     @db.Timestamptz(6)
+  createdAt            DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt            DateTime? @updatedAt      @map("updated_at") @db.Timestamptz(6)
+
+  user                 Users @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([stripeSubscriptionId])
+  @@map("subscriptions")
+}
+
+model Payments {
+  id              String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId          String    @map("user_id")         @db.Uuid
+  amountCents     Int       @map("amount_cents")
+  currency        String    @default("USD")          @db.Char(3)
+  status          String    @db.Text
+  stripePaymentId String    @unique @map("stripe_payment_id") @db.Text
+  paidAt          DateTime? @map("paid_at")    @db.Timestamptz(6)
+  createdAt       DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  user            Users @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("payments")
+}
+
+// ============================================================
+// Section 12 — Audit Log
+// Generic append-only log. changedBy is intentionally unlinked
+// (no FK) to survive user deletions.
+// ============================================================
+
+model ChangeLog {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tableName String   @map("table_name") @db.Text
+  recordId  String   @map("record_id")  @db.Uuid
+  action    String   @db.Text
+  oldData   Json?    @map("old_data")
+  newData   Json?    @map("new_data")
+  // Intentionally not an FK — log must persist even if the acting user is deleted.
+  changedBy String?  @map("changed_by") @db.Uuid
+  changedAt DateTime @default(now()) @map("changed_at") @db.Timestamptz(6)
+
+  @@index([tableName, recordId])
+  @@index([changedAt])
+  @@map("change_log")
+}
+
+// ============================================================
+// Section 13 — User Module (Deferred)
+// Tables in this section belong to a future User Module.
+// They are defined here to maintain referential integrity
+// but have no associated services or controllers yet.
+// ============================================================
+
+model SavedOpportunities {
+  userId         String   @map("user_id")       @db.Uuid
+  // External ID from the recommendations API — no local FK.
+  opportunityId  String   @map("opportunity_id") @db.Uuid
+  externalSource String   @default("default") @map("external_source") @db.Text
+  savedAt        DateTime @default(now())     @map("saved_at")        @db.Timestamptz(6)
+
+  // Linked to Users (account level), not UserProfiles (DEC-PROF-14).
+  user           Users @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([userId, opportunityId])
+  @@index([userId, savedAt(sort: Desc)])
+  @@map("saved_opportunities")
+}
+
+model Notifications {
+  id                 String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId             String    @map("user_id")              @db.Uuid
+  notificationTypeId String    @map("notification_type_id") @db.Uuid
+  payload            Json      @default("{}")
+  readAt             DateTime? @map("read_at")    @db.Timestamptz(6)
+  createdAt          DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  // Linked to Users (account level), not UserProfiles (DEC-PROF-15).
+  // Notifications must work before a profile exists (e.g., "Welcome" on signup).
+  user             Users             @relation(fields: [userId],             references: [id], onDelete: Cascade)
+  notificationType NotificationTypes @relation(fields: [notificationTypeId], references: [id], onDelete: Restrict)
+
+  @@index([userId, createdAt(sort: Desc)])
+  @@index([userId, readAt])
+  @@map("notifications")
+}
+```
+
+---
+
+## Table Index
+
+| # | Table | Section | Type |
+|:---:|:---|:---|:---|
+| 1 | `users` | Auth | Core |
+| 2 | `roles` | Auth | Core |
+| 3 | `user_roles` | Auth | Pivot |
+| 4 | `oauth_identities` | Auth | Core |
+| 5 | `user_profiles` | Profile | Core (Hub) |
+| 6 | `countries` | Master Data | Hybrid-cached |
+| 7 | `cities` | Master Data | Seeded |
+| 8 | `institutions` | Master Data | Hybrid-cached |
+| 9 | `major_categories` | Master Data | Seeded |
+| 10 | `majors` | Master Data | Hybrid-cached |
+| 11 | `education_levels` | Master Data | Seeded |
+| 12 | `marital_statuses` | Master Data | Seeded |
+| 13 | `special_statuses` | Master Data | Seeded |
+| 14 | `standardized_tests` | Master Data | Seeded |
+| 15 | `languages_master` | Master Data | Seeded |
+| 16 | `proficiency_levels` | Master Data | Seeded |
+| 17 | `document_types` | Master Data | Seeded |
+| 18 | `notification_types` | Master Data | Seeded |
+| 19 | `system_settings` | Config | Key-value store |
+| 20 | `user_special_statuses` | Profile | Pivot |
+| 21 | `user_target_degrees` | Profile | Pivot |
+| 22 | `user_target_majors` | Profile | Pivot |
+| 23 | `user_target_institutions` | Profile | Pivot |
+| 24 | `user_educations` | Profile | Sub-table |
+| 25 | `user_languages` | Profile | Sub-table |
+| 26 | `user_test_results` | Profile | Sub-table |
+| 27 | `documents` | Profile | Sub-table |
+| 28 | `subscriptions` | Billing | Core |
+| 29 | `payments` | Billing | Core |
+| 30 | `change_log` | Audit | Append-only |
+| 31 | `saved_opportunities` | User Module (deferred) | Core |
+| 32 | `notifications` | User Module (deferred) | Core |
+
+---
+
+## Key Design Decisions Summary
+
+| Decision | Rule |
+|:---|:---|
+| `Users` ↔ `UserProfiles` | Fully independent. Only link is `userId` FK. No shared data fields. |
+| Profile fields at DB level | All nullable. Enforcement is at the DTO/application layer only. |
+| Profile creation at signup | Empty record: `{ isMatchable: false, completionPct: 0 }` only. |
+| `isDraft` / `publishedAt` | Removed. Replaced by `isMatchable Boolean @default(false)`. |
+| `completionPct` trigger | Recalculated synchronously by every sub-service after any mutation. |
+| `matchingVersion` | Increments unconditionally inside every `recalculate()` call. |
+| Skills | Removed entirely. No `skills_master` or `user_skills` tables. |
+| Document deletion | Storage-first. Hard-delete only. No `deletedAt`, no `isEncrypted`. |
+| `SavedOpportunities` FK | Links to `Users.id`, not `UserProfiles.userId`. |
+| `Notifications` FK | Links to `Users.id`, not `UserProfiles.userId`. Notifications are account-level events. |
+| Record limits | Read from `SystemSettings`. Code falls back to hardcoded defaults. |
+| Reference endpoints | All `[PUBLIC]` — no JWT required. |
+| `ChangeLog.changedBy` | Intentionally not a FK — persists across user deletions. |

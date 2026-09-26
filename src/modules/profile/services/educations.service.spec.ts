@@ -2,7 +2,13 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { EducationsService } from './educations.service';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { ProfileService } from './profile.service';
-import { NotFoundException } from '@nestjs/common';
+import { SystemSettingsService } from './system-settings.service';
+import {
+  BadRequestException,
+  ConflictException,
+  NotFoundException,
+} from '@nestjs/common';
+import { GpaScale } from '@prisma/client';
 
 const mockPrismaService = {
   userEducations: {
@@ -11,17 +17,30 @@ const mockPrismaService = {
     findFirst: jest.fn(),
     update: jest.fn(),
     delete: jest.fn(),
+    count: jest.fn(),
+  },
+  educationLevel: {
+    findUnique: jest.fn(),
+  },
+  institutions: {
+    findUnique: jest.fn(),
+  },
+  majors: {
+    findUnique: jest.fn(),
   },
 };
 
 const mockProfileService = {
-  updateProfile: jest.fn(),
+  recalculate: jest.fn(),
+};
+
+const mockSystemSettingsService = {
+  getNumber: jest.fn().mockResolvedValue(5),
 };
 
 describe('EducationsService', () => {
   let service: EducationsService;
   let prismaService: any;
-  let profileService: any;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -29,103 +48,191 @@ describe('EducationsService', () => {
         EducationsService,
         { provide: PrismaService, useValue: mockPrismaService },
         { provide: ProfileService, useValue: mockProfileService },
+        { provide: SystemSettingsService, useValue: mockSystemSettingsService },
       ],
     }).compile();
 
     service = module.get<EducationsService>(EducationsService);
     prismaService = module.get(PrismaService);
-    profileService = module.get(ProfileService);
   });
 
   afterEach(() => {
     jest.clearAllMocks();
   });
 
-  describe('CRUD operations and Security', () => {
-    const userId = 'user-1';
-    const educationId = 'edu-1';
+  describe('create', () => {
+    const createDto = {
+      educationLevelId: 'lvl1',
+      institutionId: 'inst1',
+      majorId: 'maj1',
+      isCurrent: false,
+    };
 
-    it('should create an education record and recalculate profile status', async () => {
-      mockPrismaService.userEducations.create.mockResolvedValue({
-        id: educationId,
-      });
-
-      const dto = { degree: 'BSc', major: 'CS', institution: 'MIT' };
-      const result = await service.create(userId, dto);
-
-      expect(prismaService.userEducations.create).toHaveBeenCalledWith({
-        data: { userId, ...dto },
-      });
-      expect(profileService.updateProfile).toHaveBeenCalledWith(userId, {});
-      expect(result.id).toEqual(educationId);
+    it('[EC-013] Max educations reached', async () => {
+      prismaService.educationLevel.findUnique.mockResolvedValue({ id: 'lvl1' });
+      prismaService.institutions.findUnique.mockResolvedValue({ id: 'inst1' });
+      prismaService.majors.findUnique.mockResolvedValue({ id: 'maj1' });
+      prismaService.userEducations.count.mockResolvedValue(5);
+      await expect(service.create('u1', createDto)).rejects.toThrow(
+        ConflictException,
+      );
     });
 
-    it('should delete education record and ALL associated GPA data concurrently (Data Cleanliness)', async () => {
-      mockPrismaService.userEducations.findFirst.mockResolvedValue({
-        id: educationId,
-        userId,
+    it('[EC-014] Duplicate education', async () => {
+      prismaService.educationLevel.findUnique.mockResolvedValue({ id: 'lvl1' });
+      prismaService.institutions.findUnique.mockResolvedValue({ id: 'inst1' });
+      prismaService.majors.findUnique.mockResolvedValue({ id: 'maj1' });
+      prismaService.userEducations.count.mockResolvedValue(0);
+      prismaService.userEducations.findFirst.mockResolvedValue({
+        id: 'existing',
       });
-      mockPrismaService.userEducations.delete.mockResolvedValue({
-        id: educationId,
-      });
-
-      await service.remove(userId, educationId);
-
-      // Ensures the correct where clause is used
-      expect(prismaService.userEducations.delete).toHaveBeenCalledWith({
-        where: { id: educationId, userId },
-      });
-      expect(profileService.updateProfile).toHaveBeenCalledWith(userId, {});
+      await expect(service.create('u1', createDto)).rejects.toThrow(
+        ConflictException,
+      );
     });
 
-    it('should prevent IDOR by checking userId before deletion', async () => {
-      mockPrismaService.userEducations.findFirst.mockResolvedValue(null);
+    it('[EC-015] Invalid FKs', async () => {
+      prismaService.userEducations.count.mockResolvedValue(0);
+      prismaService.userEducations.findFirst.mockResolvedValue(null);
+      prismaService.educationLevel.findUnique.mockResolvedValue(null); // fail level
+      await expect(service.create('u1', createDto)).rejects.toThrow(
+        BadRequestException,
+      );
+    });
 
-      await expect(service.remove(userId, educationId)).rejects.toThrow(
+    it('[EC-016] MINOR_MAJOR_EQUALS_MAJOR', async () => {
+      prismaService.educationLevel.findUnique.mockResolvedValue({ id: 'lvl1' });
+      prismaService.institutions.findUnique.mockResolvedValue({ id: 'inst1' });
+      prismaService.majors.findUnique.mockResolvedValue({ id: 'maj1' });
+      await expect(
+        service.create('u1', { ...createDto, minorMajorId: 'maj1' }),
+      ).rejects.toThrow(BadRequestException);
+    });
+
+    it('[EC-017] INVALID_DATE_RANGE', async () => {
+      prismaService.educationLevel.findUnique.mockResolvedValue({ id: 'lvl1' });
+      prismaService.institutions.findUnique.mockResolvedValue({ id: 'inst1' });
+      prismaService.majors.findUnique.mockResolvedValue({ id: 'maj1' });
+      await expect(
+        service.create('u1', {
+          ...createDto,
+          startDate: '2023-01-01',
+          endDate: '2022-01-01',
+        }),
+      ).rejects.toThrow(BadRequestException);
+    });
+
+    it('[EC-019] GPA_SCALE_REQUIRED', async () => {
+      prismaService.userEducations.count.mockResolvedValue(0);
+      prismaService.userEducations.findFirst.mockResolvedValue(null);
+      prismaService.educationLevel.findUnique.mockResolvedValue({ id: 'lvl1' });
+      prismaService.institutions.findUnique.mockResolvedValue({ id: 'inst1' });
+      prismaService.majors.findUnique.mockResolvedValue({ id: 'maj1' });
+
+      await expect(
+        service.create('u1', { ...createDto, gpaRaw: 3.5 }),
+      ).rejects.toThrow(BadRequestException);
+    });
+
+    it('[EC-018] Date clearance and [EC-020] GPA Normalization (OUT_OF_5)', async () => {
+      prismaService.userEducations.count.mockResolvedValue(0);
+      prismaService.userEducations.findFirst.mockResolvedValue(null);
+      prismaService.educationLevel.findUnique.mockResolvedValue({ id: 'lvl1' });
+      prismaService.institutions.findUnique.mockResolvedValue({ id: 'inst1' });
+      prismaService.majors.findUnique.mockResolvedValue({ id: 'maj1' });
+
+      prismaService.userEducations.create.mockResolvedValue({
+        id: 'edu1',
+        gpaNormalized: 3.2,
+      });
+
+      await service.create('u1', {
+        ...createDto,
+        isCurrent: true,
+        endDate: '2025-01-01', // should be cleared
+        gpaRaw: 4,
+        gpaScale: GpaScale.OUT_OF_5,
+      });
+
+      expect(prismaService.userEducations.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({
+            endDate: null,
+            gpaNormalized: 3.2,
+          }),
+        }),
+      );
+    });
+
+    it('GPA Normalization (OUT_OF_4 and OUT_OF_100)', async () => {
+      prismaService.userEducations.count.mockResolvedValue(0);
+      prismaService.userEducations.findFirst.mockResolvedValue(null);
+      prismaService.educationLevel.findUnique.mockResolvedValue({ id: 'lvl1' });
+      prismaService.institutions.findUnique.mockResolvedValue({ id: 'inst1' });
+      prismaService.majors.findUnique.mockResolvedValue({ id: 'maj1' });
+
+      prismaService.userEducations.create.mockResolvedValue({ id: 'edu1' });
+
+      await service.create('u1', {
+        ...createDto,
+        gpaRaw: 3.5,
+        gpaScale: GpaScale.OUT_OF_4,
+      });
+      expect(prismaService.userEducations.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({ gpaNormalized: 3.5 }),
+        }),
+      );
+
+      await service.create('u1', {
+        ...createDto,
+        gpaRaw: 80,
+        gpaScale: GpaScale.OUT_OF_100,
+      });
+      expect(prismaService.userEducations.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({ gpaNormalized: 3.2 }),
+        }),
+      );
+    });
+  });
+
+  describe('update', () => {
+    it('throws NotFoundException if education not found', async () => {
+      prismaService.userEducations.findFirst.mockResolvedValue(null);
+      await expect(service.update('u1', 'edu1', {})).rejects.toThrow(
         NotFoundException,
       );
-      expect(prismaService.userEducations.findFirst).toHaveBeenCalledWith({
-        where: { id: educationId, userId },
-      });
     });
 
-    it('should correctly nullify gpaRaw for letter scale grades (Issue B fix)', async () => {
-      mockPrismaService.userEducations.findFirst.mockResolvedValue({
-        id: educationId,
-        userId,
+    it('clears expectedGraduationDate if isCurrent is false', async () => {
+      prismaService.userEducations.findFirst.mockResolvedValue({
+        id: 'edu1',
+        expectedGraduationDate: new Date(),
       });
-      mockPrismaService.userEducations.update.mockResolvedValue({});
-
-      const dto = { gpaValue: 'A', gpaScale: 'letter' };
-      await service.update(userId, educationId, dto as any);
-
-      expect(prismaService.userEducations.update).toHaveBeenCalledWith({
-        where: { id: educationId, userId },
-        data: expect.objectContaining({
-          gpaRaw: null,
-          gpaRawScale: null,
-          gpaNormalized4: 4.0,
+      prismaService.userEducations.update.mockResolvedValue({ id: 'edu1' });
+      await service.update('u1', 'edu1', { isCurrent: false });
+      expect(prismaService.userEducations.update).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({ expectedGraduationDate: null }),
         }),
-      });
+      );
+    });
+  });
+
+  describe('remove', () => {
+    it('throws NotFound if not found', async () => {
+      prismaService.userEducations.findFirst.mockResolvedValue(null);
+      await expect(service.remove('u1', 'edu1')).rejects.toThrow(
+        NotFoundException,
+      );
     });
 
-    it('should store gpaValue correctly including zero as a falsy value', async () => {
-      mockPrismaService.userEducations.findFirst.mockResolvedValue({
-        id: educationId,
-        userId,
-      });
-      mockPrismaService.userEducations.update.mockResolvedValue({});
-
-      const dto = { gpaValue: 0, gpaScale: '4.0' };
-      await service.update(userId, educationId, dto as any);
-
-      expect(prismaService.userEducations.update).toHaveBeenCalledWith({
-        where: { id: educationId, userId },
-        data: expect.objectContaining({
-          gpaRaw: 0,
-          gpaRawScale: 4.0,
-          gpaNormalized4: 0.0,
-        }),
+    it('deletes successfully', async () => {
+      prismaService.userEducations.findFirst.mockResolvedValue({ id: 'edu1' });
+      await service.remove('u1', 'edu1');
+      expect(prismaService.userEducations.delete).toHaveBeenCalledWith({
+        where: { id: 'edu1' },
       });
     });
   });

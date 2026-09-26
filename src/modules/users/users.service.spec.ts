@@ -78,7 +78,7 @@ describe('UsersService', () => {
   describe('createProfile', () => {
     it('should create a profile', async () => {
       repo.createProfile.mockResolvedValue({ id: '1' } as any);
-      const res = await service.createProfile('userId', 'fullName');
+      const res = await service.createProfile('userId');
       expect(res).toEqual({ id: '1' });
     });
   });

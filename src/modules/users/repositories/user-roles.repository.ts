@@ -11,13 +11,13 @@ export class UserRolesRepository {
     const userRole = await this.prisma.userRoles.findFirst({
       where: { userId, isActive: true },
       include: {
-        roles: {
+        role: {
           select: { name: true },
         },
       },
       orderBy: { createdAt: 'desc' },
     });
 
-    return userRole?.roles?.name ?? DEFAULT_USER_ROLE;
+    return userRole?.role?.name ?? DEFAULT_USER_ROLE;
   }
 }

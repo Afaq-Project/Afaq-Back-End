@@ -1,3 +1,4 @@
+cat > .gitignore << 'EOF'
 # ============
 # Node.js / NestJS
 # ============
@@ -46,7 +47,6 @@ Thumbs.db
 # ============
 # Testing / Coverage
 # ============
-coverage/
 .nyc_output/
 test/reports/
 junit.xml
@@ -65,34 +65,58 @@ temp/
 *.tmp
 .cache/
 .pnpm-store/
-node_modules/
-node_modules/
-.env
-.env.*
 
+# ============
+# Agent-generated artifacts
+# ============
 .agents/
-.oma/
 .omg/
-patch_*.js
-patch_*.py
-test_jwt.js
-test_redis.js
-manual-test.js
-fix-collections.js
-levora_test_log_*.txt
+.oma/
 
-# Temp agent scripts
-patch_*.js
-patch_*.py
-fix_*.js
-test_jwt.js
-test_redis.js
-manual-test.js
-fix-collections.js
-levora_test_log_*.txt
-debug.txt
-__pycache__/
-*.pyc
-swagger.json
-fix-tests.js
-test-prisma.ts
+# ============
+# Session artifacts
+# ============
+*-out*.txt
+batch1-*.txt
+batch-1-review.md
+beh-*.txt
+smoke-*.md
+smoke-*.txt
+seed_output.txt
+backend_pid.txt
+cookies.txt
+
+# ============
+# Patch files
+# ============
+*.patch
+*.orig
+
+# ============
+# Ad-hoc scripts (root only)
+# ============
+/test-script.js
+/test-script.ts
+/test-auth-body.js
+/test-db.js
+/test-interceptor-patch.js
+/test-login.js
+
+/run_migrate.exp
+/run_migrate.py
+/levora_smoke.sh
+
+/patch-*.js
+/patch-*.py
+/update_*.js
+/add-*.js
+/fix-*.js
+/fix_*.js
+/fix-collections.js
+
+# ============
+# Runtime
+# ============
+uploads/
+logs/
+EOF
