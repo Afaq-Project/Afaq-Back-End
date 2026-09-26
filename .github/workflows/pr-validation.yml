@@ -129,6 +129,11 @@ jobs:
         env:
           DATABASE_URL: ${{ env.DATABASE_URL }}
 
+      - name: Load Reference Data
+        run: npx ts-node scripts/load-reference-data.ts
+        env:
+          DATABASE_URL: ${{ env.DATABASE_URL }}
+
       - name: Run Unit & Integration Tests
         run: pnpm test -- --passWithNoTests
 
