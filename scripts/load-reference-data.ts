@@ -28,7 +28,11 @@ async function fetchJson(url: string): Promise<any> {
   return response.json();
 }
 
-async function processInBatches<T>(items: T[], batchSize: number, processItem: (item: T) => Promise<void>) {
+async function processInBatches<T>(
+  items: T[],
+  batchSize: number,
+  processItem: (item: T) => Promise<void>,
+) {
   for (let i = 0; i < items.length; i += batchSize) {
     await Promise.all(items.slice(i, i + batchSize).map(processItem));
   }
@@ -42,10 +46,14 @@ async function loadCountries(limit?: number) {
   const countriesToProcess = [];
   for (const country of unMembers) {
     const isoCode = country.cca3;
-    if (!isoCode) continue;
-    
+    if (!isoCode) {
+      continue;
+    }
+
     countriesToProcess.push(country);
-    if (limit && countriesToProcess.length >= limit) break;
+    if (limit && countriesToProcess.length >= limit) {
+      break;
+    }
   }
 
   let processed = 0;
@@ -90,7 +98,7 @@ async function loadCountries(limit?: number) {
     });
     processed++;
   });
-  
+
   console.log(`✅ Countries processed: ${processed}`);
 }
 
@@ -156,7 +164,9 @@ async function loadCities(limit?: number) {
       citySet.add(key);
     }
 
-    if (limit && validCount >= limit) break;
+    if (limit && validCount >= limit) {
+      break;
+    }
   }
 
   // Deduplication handled by in-memory citySet
@@ -167,7 +177,9 @@ async function loadCities(limit?: number) {
     processed += batch.length;
   }
 
-  console.log(`✅ Cities processed: ${processed} (Skipped unresolved: ${skipped})`);
+  console.log(
+    `✅ Cities processed: ${processed} (Skipped unresolved: ${skipped})`,
+  );
 }
 
 async function loadMajors(catLimit?: number, majorLimit?: number) {
@@ -218,15 +230,17 @@ async function loadMajors(catLimit?: number, majorLimit?: number) {
 
     if (code.length === 2 || code.endsWith('.0000')) {
       const prefix = code.substring(0, 2);
-      
+
       if (!categoriesMap.has(prefix)) {
-        if (catLimit && validCatCount >= catLimit) continue;
+        if (catLimit && validCatCount >= catLimit) {
+          continue;
+        }
         validCatCount++;
-        
+
         const cat = await prisma.majorCategories.upsert({
           where: { nameEn: title },
           update: { nameAr: title },
-          create: { nameEn: title, nameAr: title }
+          create: { nameEn: title, nameAr: title },
         });
         categoriesProcessed++;
         categoriesMap.set(prefix, cat.id);
@@ -234,7 +248,7 @@ async function loadMajors(catLimit?: number, majorLimit?: number) {
     } else if (code.includes('.')) {
       const prefix = code.split('.')[0];
       const categoryId = categoriesMap.get(prefix) || null;
-      
+
       if (majorLimit && !categoryId) {
         continue; // Fix 4: Skip majors with no category in sample mode
       }
@@ -247,33 +261,45 @@ async function loadMajors(catLimit?: number, majorLimit?: number) {
 
       if (majorLimit) {
         const count = majorCountPerCat.get(categoryId!) || 0;
-        if (count >= 10) continue;
+        if (count >= 10) {
+          continue;
+        }
         majorCountPerCat.set(categoryId!, count + 1);
       }
 
-      if (majorLimit && validMajorCount >= majorLimit) continue;
+      if (majorLimit && validMajorCount >= majorLimit) {
+        continue;
+      }
       validMajorCount++;
-      
+
       majorsToProcess.push({
         code,
         title,
-        categoryId
+        categoryId,
       });
     }
 
     const catDone = catLimit !== undefined && validCatCount >= catLimit;
     const majorDone = majorLimit !== undefined && validMajorCount >= majorLimit;
     const anyLimitSet = catLimit !== undefined || majorLimit !== undefined;
-    
-    if (anyLimitSet && (catLimit === undefined || catDone) && (majorLimit === undefined || majorDone)) {
+
+    if (
+      anyLimitSet &&
+      (catLimit === undefined || catDone) &&
+      (majorLimit === undefined || majorDone)
+    ) {
       break;
     }
   }
-  
+
   await processInBatches(majorsToProcess, 20, async (majorData) => {
     await prisma.majors.upsert({
       where: { externalSourceId: majorData.code },
-      update: { nameEn: majorData.title, nameAr: majorData.title, categoryId: majorData.categoryId },
+      update: {
+        nameEn: majorData.title,
+        nameAr: majorData.title,
+        categoryId: majorData.categoryId,
+      },
       create: {
         nameEn: majorData.title,
         nameAr: majorData.title,
@@ -302,17 +328,35 @@ async function loadInstitutions(limit?: number) {
     }
   });
 
-  const cities = await prisma.cities.findMany({
-    select: { id: true, nameEn: true, countryId: true },
-  });
   const cityMap = new Map<string, string>();
-  cities.forEach((c) => {
-    cityMap.set(`${c.countryId}|${c.nameEn.toLowerCase()}`, c.id);
-  });
+  const countryDefaultCityMap = new Map<string, string>();
+  let skip = 0;
+  const take = 10000;
+
+  while (true) {
+    const chunk = await prisma.cities.findMany({
+      select: { id: true, nameEn: true, countryId: true },
+      skip,
+      take,
+    });
+
+    if (chunk.length === 0) {
+      break;
+    }
+
+    chunk.forEach((c) => {
+      cityMap.set(`${c.countryId}|${c.nameEn.toLowerCase()}`, c.id);
+      if (!countryDefaultCityMap.has(c.countryId)) {
+        countryDefaultCityMap.set(c.countryId, c.id);
+      }
+    });
+
+    skip += take;
+  }
 
   let skipped = 0;
   let validCount = 0;
-  
+
   const instsToProcess = [];
 
   for (const inst of data) {
@@ -330,51 +374,54 @@ async function loadInstitutions(limit?: number) {
     }
 
     if (limit && !cityId) {
-      const anyCity = cities.find(c => c.countryId === countryId) || cities[0];
-      if (anyCity) {
-        cityId = anyCity.id;
-      }
+      cityId = countryDefaultCityMap.get(countryId) || null;
     }
 
     if (limit && !cityId) {
       skipped++;
       continue;
     }
-    
+
     validCount++;
     instsToProcess.push({ inst, countryId, cityId });
 
-    if (limit && validCount >= limit) break;
+    if (limit && validCount >= limit) {
+      break;
+    }
   }
 
   let processed = 0;
-  
-  await processInBatches(instsToProcess, 20, async ({ inst, countryId, cityId }) => {
-    const nameEn = inst.name;
-    const nameAr = nameEn;
-    const websiteUrl = inst.web_pages?.[0] || null;
-    const externalSourceId = inst.domains?.[0] || nameEn;
 
-    await prisma.institutions.upsert({
-      where: { externalSourceId },
-      update: {
-        nameEn,
-        nameAr,
-        countryId,
-        cityId,
-        websiteUrl,
-      },
-      create: {
-        nameEn,
-        nameAr,
-        countryId,
-        cityId,
-        websiteUrl,
-        externalSourceId,
-      },
-    });
-    processed++;
-  });
+  await processInBatches(
+    instsToProcess,
+    20,
+    async ({ inst, countryId, cityId }) => {
+      const nameEn = inst.name;
+      const nameAr = nameEn;
+      const websiteUrl = inst.web_pages?.[0] || null;
+      const externalSourceId = inst.domains?.[0] || nameEn;
+
+      await prisma.institutions.upsert({
+        where: { externalSourceId },
+        update: {
+          nameEn,
+          nameAr,
+          countryId,
+          cityId,
+          websiteUrl,
+        },
+        create: {
+          nameEn,
+          nameAr,
+          countryId,
+          cityId,
+          websiteUrl,
+          externalSourceId,
+        },
+      });
+      processed++;
+    },
+  );
 
   console.log(
     `✅ Institutions processed: ${processed} (Skipped unresolved: ${skipped})`,
@@ -397,62 +444,98 @@ async function verify() {
   const errors: string[] = [];
   const warnings: string[] = [];
 
-  const dupCountries = await prisma.$queryRaw<any[]>`SELECT "name_en", count(*) FROM "countries" GROUP BY "name_en" HAVING count(*) > 1`;
+  const dupCountries = await prisma.$queryRaw<
+    any[]
+  >`SELECT "name_en", count(*) FROM "countries" GROUP BY "name_en" HAVING count(*) > 1`;
   if (dupCountries.length > 0) {
     hasErrors = true;
     errors.push(`Duplicate Countries (nameEn) found: ${dupCountries.length}`);
   }
 
-  const dupCities = await prisma.$queryRaw<any[]>`SELECT "name_en", "country_id", count(*) FROM "cities" GROUP BY "name_en", "country_id" HAVING count(*) > 1`;
+  const dupCities = await prisma.$queryRaw<
+    any[]
+  >`SELECT "name_en", "country_id", count(*) FROM "cities" GROUP BY "name_en", "country_id" HAVING count(*) > 1`;
   if (dupCities.length > 0) {
     hasErrors = true;
-    errors.push(`Duplicate Cities (nameEn, countryId) found: ${dupCities.length}`);
+    errors.push(
+      `Duplicate Cities (nameEn, countryId) found: ${dupCities.length}`,
+    );
   }
 
-  const dupInstExt = await prisma.$queryRaw<any[]>`SELECT "external_source_id", count(*) FROM "institutions" WHERE "external_source_id" IS NOT NULL GROUP BY "external_source_id" HAVING count(*) > 1`;
+  const dupInstExt = await prisma.$queryRaw<
+    any[]
+  >`SELECT "external_source_id", count(*) FROM "institutions" WHERE "external_source_id" IS NOT NULL GROUP BY "external_source_id" HAVING count(*) > 1`;
   if (dupInstExt.length > 0) {
     hasErrors = true;
-    errors.push(`Duplicate Institutions (externalSourceId) found: ${dupInstExt.length}`);
+    errors.push(
+      `Duplicate Institutions (externalSourceId) found: ${dupInstExt.length}`,
+    );
   }
 
-  const dupInstNameCountry = await prisma.$queryRaw<any[]>`SELECT "name_en", "country_id", count(*) FROM "institutions" GROUP BY "name_en", "country_id" HAVING count(*) > 1`;
+  const dupInstNameCountry = await prisma.$queryRaw<
+    any[]
+  >`SELECT "name_en", "country_id", count(*) FROM "institutions" GROUP BY "name_en", "country_id" HAVING count(*) > 1`;
   if (dupInstNameCountry.length > 0) {
-    warnings.push(`Duplicate Institutions (nameEn, countryId) found: ${dupInstNameCountry.length}`);
+    warnings.push(
+      `Duplicate Institutions (nameEn, countryId) found: ${dupInstNameCountry.length}`,
+    );
   }
 
-  const dupMajorCat = await prisma.$queryRaw<any[]>`SELECT "name_en", count(*) FROM "major_categories" GROUP BY "name_en" HAVING count(*) > 1`;
+  const dupMajorCat = await prisma.$queryRaw<
+    any[]
+  >`SELECT "name_en", count(*) FROM "major_categories" GROUP BY "name_en" HAVING count(*) > 1`;
   if (dupMajorCat.length > 0) {
     hasErrors = true;
-    errors.push(`Duplicate MajorCategories (nameEn) found: ${dupMajorCat.length}`);
+    errors.push(
+      `Duplicate MajorCategories (nameEn) found: ${dupMajorCat.length}`,
+    );
   }
 
-  const dupMajors = await prisma.$queryRaw<any[]>`SELECT "name_en", "category_id", count(*) FROM "majors" GROUP BY "name_en", "category_id" HAVING count(*) > 1`;
+  const dupMajors = await prisma.$queryRaw<
+    any[]
+  >`SELECT "name_en", "category_id", count(*) FROM "majors" GROUP BY "name_en", "category_id" HAVING count(*) > 1`;
   if (dupMajors.length > 0) {
     hasErrors = true;
-    errors.push(`Duplicate Majors (nameEn, categoryId) found: ${dupMajors.length}`);
+    errors.push(
+      `Duplicate Majors (nameEn, categoryId) found: ${dupMajors.length}`,
+    );
   }
 
-  const orphanCities = await prisma.$queryRaw<any[]>`SELECT count(*) as count FROM "cities" WHERE "country_id" IS NULL OR "country_id" NOT IN (SELECT "id" FROM "countries")`;
+  const orphanCities = await prisma.$queryRaw<
+    any[]
+  >`SELECT count(*) as count FROM "cities" WHERE "country_id" IS NULL OR "country_id" NOT IN (SELECT "id" FROM "countries")`;
   if (Number(orphanCities[0]?.count || 0) > 0) {
     hasErrors = true;
-    errors.push(`Orphan Cities (missing/invalid countryId) found: ${orphanCities[0].count}`);
+    errors.push(
+      `Orphan Cities (missing/invalid countryId) found: ${orphanCities[0].count}`,
+    );
   }
 
-  const nullInstCountries = await prisma.institutions.count({ where: { countryId: null } });
+  const nullInstCountries = await prisma.institutions.count({
+    where: { countryId: null },
+  });
   if (nullInstCountries > 0) {
     warnings.push(`Institutions with null countryId: ${nullInstCountries}`);
   }
 
-  const orphanInstCities = await prisma.$queryRaw<any[]>`SELECT count(*) as count FROM "institutions" WHERE "city_id" IS NOT NULL AND "city_id" NOT IN (SELECT "id" FROM "cities")`;
+  const orphanInstCities = await prisma.$queryRaw<
+    any[]
+  >`SELECT count(*) as count FROM "institutions" WHERE "city_id" IS NOT NULL AND "city_id" NOT IN (SELECT "id" FROM "cities")`;
   if (Number(orphanInstCities[0]?.count || 0) > 0) {
     hasErrors = true;
-    errors.push(`Orphan Institutions (invalid cityId) found: ${orphanInstCities[0].count}`);
+    errors.push(
+      `Orphan Institutions (invalid cityId) found: ${orphanInstCities[0].count}`,
+    );
   }
 
-  const orphanMajors = await prisma.$queryRaw<any[]>`SELECT count(*) as count FROM "majors" WHERE "category_id" IS NOT NULL AND "category_id" NOT IN (SELECT "id" FROM "major_categories")`;
+  const orphanMajors = await prisma.$queryRaw<
+    any[]
+  >`SELECT count(*) as count FROM "majors" WHERE "category_id" IS NOT NULL AND "category_id" NOT IN (SELECT "id" FROM "major_categories")`;
   if (Number(orphanMajors[0]?.count || 0) > 0) {
     hasErrors = true;
-    errors.push(`Orphan Majors (invalid categoryId) found: ${orphanMajors[0].count}`);
+    errors.push(
+      `Orphan Majors (invalid categoryId) found: ${orphanMajors[0].count}`,
+    );
   }
 
   if (warnings.length > 0) {
@@ -495,7 +578,7 @@ async function main() {
   } finally {
     await prisma.$disconnect();
   }
-  
+
   if (exitCode !== 0) {
     process.exit(exitCode);
   }

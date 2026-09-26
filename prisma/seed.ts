@@ -114,10 +114,25 @@ const MARITAL_STATUSES = [
 ];
 
 const EDUCATION_LEVELS = [
-  { code: 'high_school', nameEn: 'High School', nameAr: 'ثانوية عامة', sortOrder: 1 },
+  {
+    code: 'high_school',
+    nameEn: 'High School',
+    nameAr: 'ثانوية عامة',
+    sortOrder: 1,
+  },
   { code: 'diploma', nameEn: 'Diploma', nameAr: 'دبلوم', sortOrder: 2 },
-  { code: 'bachelor', nameEn: 'Bachelor\'s Degree', nameAr: 'بكالوريوس', sortOrder: 3 },
-  { code: 'master', nameEn: 'Master\'s Degree', nameAr: 'ماجستير', sortOrder: 4 },
+  {
+    code: 'bachelor',
+    nameEn: "Bachelor's Degree",
+    nameAr: 'بكالوريوس',
+    sortOrder: 3,
+  },
+  {
+    code: 'master',
+    nameEn: "Master's Degree",
+    nameAr: 'ماجستير',
+    sortOrder: 4,
+  },
   { code: 'phd', nameEn: 'Doctorate (PhD)', nameAr: 'دكتوراه', sortOrder: 5 },
   { code: 'other', nameEn: 'Other', nameAr: 'أخرى', sortOrder: 6 },
 ];
@@ -125,17 +140,67 @@ const EDUCATION_LEVELS = [
 const SPECIAL_STATUSES = [
   { nameEn: 'Refugee', nameAr: 'لاجئ', sortOrder: 1 },
   { nameEn: 'Orphan', nameAr: 'يتيم', sortOrder: 2 },
-  { nameEn: 'Person with Disability', nameAr: 'ذوي الاحتياجات الخاصة', sortOrder: 3 },
-  { nameEn: 'First-Generation Student', nameAr: 'طالب الجيل الأول', sortOrder: 4 },
+  {
+    nameEn: 'Person with Disability',
+    nameAr: 'ذوي الاحتياجات الخاصة',
+    sortOrder: 3,
+  },
+  {
+    nameEn: 'First-Generation Student',
+    nameAr: 'طالب الجيل الأول',
+    sortOrder: 4,
+  },
 ];
 
 const STANDARDIZED_TESTS = [
-  { nameEn: 'IELTS', nameAr: 'آيلتس', minScore: 0, maxScore: 9, scoreStep: 0.5, sortOrder: 1 },
-  { nameEn: 'TOEFL iBT', nameAr: 'توفل', minScore: 0, maxScore: 120, scoreStep: 1, sortOrder: 2 },
-  { nameEn: 'GRE', nameAr: 'جي آر إي', minScore: 260, maxScore: 340, scoreStep: 1, sortOrder: 3 },
-  { nameEn: 'SAT', nameAr: 'سات', minScore: 400, maxScore: 1600, scoreStep: 10, sortOrder: 4 },
-  { nameEn: 'Duolingo', nameAr: 'ديولينغو', minScore: 10, maxScore: 160, scoreStep: 5, sortOrder: 5 },
-  { nameEn: 'PTE Academic', nameAr: 'بيرسون للغة الإنجليزية', minScore: 10, maxScore: 90, scoreStep: 1, sortOrder: 6 },
+  {
+    nameEn: 'IELTS',
+    nameAr: 'آيلتس',
+    minScore: 0,
+    maxScore: 9,
+    scoreStep: 0.5,
+    sortOrder: 1,
+  },
+  {
+    nameEn: 'TOEFL iBT',
+    nameAr: 'توفل',
+    minScore: 0,
+    maxScore: 120,
+    scoreStep: 1,
+    sortOrder: 2,
+  },
+  {
+    nameEn: 'GRE',
+    nameAr: 'جي آر إي',
+    minScore: 260,
+    maxScore: 340,
+    scoreStep: 1,
+    sortOrder: 3,
+  },
+  {
+    nameEn: 'SAT',
+    nameAr: 'سات',
+    minScore: 400,
+    maxScore: 1600,
+    scoreStep: 10,
+    sortOrder: 4,
+  },
+  {
+    nameEn: 'Duolingo',
+    nameAr: 'ديولينغو',
+    minScore: 10,
+    maxScore: 160,
+    scoreStep: 5,
+    sortOrder: 5,
+  },
+  {
+    nameEn: 'PTE Academic',
+    nameAr: 'بيرسون للغة الإنجليزية',
+    minScore: 10,
+    maxScore: 90,
+    scoreStep: 1,
+    sortOrder: 6,
+  },
 ];
 
 const LANGUAGES_MASTER = [
@@ -239,12 +304,12 @@ async function main() {
   for (const st of STANDARDIZED_TESTS) {
     await prisma.standardizedTests.upsert({
       where: { nameEn: st.nameEn },
-      update: { 
-        nameAr: st.nameAr, 
-        minScore: st.minScore, 
-        maxScore: st.maxScore, 
-        scoreStep: st.scoreStep, 
-        sortOrder: st.sortOrder 
+      update: {
+        nameAr: st.nameAr,
+        minScore: st.minScore,
+        maxScore: st.maxScore,
+        scoreStep: st.scoreStep,
+        sortOrder: st.sortOrder,
       },
       create: st,
     });
@@ -256,7 +321,11 @@ async function main() {
   for (const lm of LANGUAGES_MASTER) {
     await prisma.languagesMaster.upsert({
       where: { nameEn: lm.nameEn },
-      update: { nameAr: lm.nameAr, isoCode: lm.isoCode, sortOrder: lm.sortOrder },
+      update: {
+        nameAr: lm.nameAr,
+        isoCode: lm.isoCode,
+        sortOrder: lm.sortOrder,
+      },
       create: lm,
     });
     console.log(`  ✔ Language: ${lm.nameEn}`);

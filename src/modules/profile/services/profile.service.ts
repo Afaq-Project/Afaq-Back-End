@@ -353,31 +353,44 @@ export class ProfileService {
   async recalculate(userId: string) {
     const profile = await this.getProfile(userId);
 
-    const weights = {
-      personalIdentity: await this.systemSettingsService.getNumber(
+    const [
+      personalIdentity,
+      locationOrigin,
+      education,
+      languages,
+      tests,
+      preferencesStatuses,
+    ] = await Promise.all([
+      this.systemSettingsService.getNumber(
         SystemSettingKeys.WEIGHT_PERSONAL_IDENTITY,
         18,
       ),
-      locationOrigin: await this.systemSettingsService.getNumber(
+      this.systemSettingsService.getNumber(
         SystemSettingKeys.WEIGHT_LOCATION_ORIGIN,
         15,
       ),
-      education: await this.systemSettingsService.getNumber(
+      this.systemSettingsService.getNumber(
         SystemSettingKeys.WEIGHT_EDUCATION,
         35,
       ),
-      languages: await this.systemSettingsService.getNumber(
+      this.systemSettingsService.getNumber(
         SystemSettingKeys.WEIGHT_LANGUAGES,
         10,
       ),
-      tests: await this.systemSettingsService.getNumber(
-        SystemSettingKeys.WEIGHT_TESTS,
-        7,
-      ),
-      preferencesStatuses: await this.systemSettingsService.getNumber(
+      this.systemSettingsService.getNumber(SystemSettingKeys.WEIGHT_TESTS, 7),
+      this.systemSettingsService.getNumber(
         SystemSettingKeys.WEIGHT_PREFERENCES_STATUSES,
         15,
       ),
+    ]);
+
+    const weights = {
+      personalIdentity,
+      locationOrigin,
+      education,
+      languages,
+      tests,
+      preferencesStatuses,
     };
 
     const totalConfiguredWeight = Object.values(weights).reduce(
