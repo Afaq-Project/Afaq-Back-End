@@ -323,7 +323,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"firstName\": \"John\",\n    \"lastName\": \"Doe\",\n    \"email\": \"john.doe@example.com\",\n    \"dateOfBirth\": \"1995-08-15\",\n    \"gender\": \"MALE\",\n    \"maritalStatusId\": \"UUID-HERE\",\n    \"phone\": \"+970599000000\",\n    \"bio\": \"Software Engineer with 5 years of experience.\",\n    \"profilePhotoUrl\": \"https://example.com/photo.jpg\",\n    \"experiences\": [\n        \"Senior Developer at Tech Corp (2020-Present)\",\n        \"Junior Developer at Startup Inc (2018-2020)\"\n    ],\n    \"countryOfResidenceId\": \"UUID-HERE\",\n    \"nationalityId\": \"UUID-HERE\",\n    \"currentCityId\": \"UUID-HERE\",\n    \"educationLevelId\": \"UUID-HERE\"\n}",
+              "raw": "{\n    \"firstName\": \"John\",\n    \"lastName\": \"Doe\",\n    \"email\": \"john.doe@example.com\",\n    \"dateOfBirth\": \"1995-08-15\",\n    \"gender\": \"MALE\",\n    \"maritalStatusId\": \"{{maritalStatusId}}\",\n    \"phone\": \"+970599000000\",\n    \"bio\": \"Software Engineer with 5 years of experience.\",\n    \"profilePhotoUrl\": \"https://example.com/photo.jpg\",\n    \"experiences\": [\n        \"Senior Developer at Tech Corp (2020-Present)\",\n        \"Junior Developer at Startup Inc (2018-2020)\"\n    ],\n    \"countryOfResidenceId\": \"{{countryId}}\",\n    \"nationalityId\": \"{{nationalityId}}\",\n    \"currentCityId\": \"{{cityId}}\",\n    \"educationLevelId\": \"{{educationLevelId}}\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -342,7 +342,39 @@
                 "personal"
               ]
             }
-          }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const baseUrl = pm.collectionVariables.get('baseUrl');",
+                  "pm.sendRequest({url: baseUrl + '/reference/countries', method: 'GET'}, function (err, res) {",
+                  "    const countries = res.json().data;",
+                  "    if (countries && countries.length > 0) {",
+                  "        const countryId = countries[0].id;",
+                  "        pm.collectionVariables.set('countryId', countryId);",
+                  "        pm.collectionVariables.set('nationalityId', countryId);",
+                  "        pm.sendRequest({url: baseUrl + '/reference/cities', method: 'GET'}, function (err, res) {",
+                  "            const cities = res.json().data;",
+                  "            const city = cities.find(c => c.countryId === countryId);",
+                  "            if (city) { pm.collectionVariables.set('cityId', city.id); }",
+                  "        });",
+                  "    }",
+                  "});",
+                  "pm.sendRequest({url: baseUrl + '/reference/marital-statuses', method: 'GET'}, function (err, res) {",
+                  "    const statuses = res.json().data;",
+                  "    if (statuses && statuses.length > 0) { pm.collectionVariables.set('maritalStatusId', statuses[0].id); }",
+                  "});",
+                  "pm.sendRequest({url: baseUrl + '/reference/education-levels', method: 'GET'}, function (err, res) {",
+                  "    const levels = res.json().data;",
+                  "    if (levels && levels.length > 0) { pm.collectionVariables.set('educationLevelId', levels[0].id); }",
+                  "});"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "Create Education",
@@ -357,7 +389,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"institutionId\": \"UUID-HERE\",\n    \"majorId\": \"UUID-HERE\",\n    \"educationLevelId\": \"UUID-HERE\",\n    \"minorMajorId\": \"UUID-HERE\",\n    \"startDate\": \"2018-09-01\",\n    \"endDate\": \"2022-06-15\",\n    \"expectedGraduationDate\": null,\n    \"isCurrent\": false,\n    \"gpaRaw\": 3.8,\n    \"gpaScale\": \"OUT_OF_4\"\n}",
+              "raw": "{\n    \"institutionId\": \"{{institutionId}}\",\n    \"majorId\": \"{{majorId}}\",\n    \"educationLevelId\": \"{{educationLevelId}}\",\n    \"minorMajorId\": \"{{minorMajorId}}\",\n    \"startDate\": \"2018-09-01\",\n    \"endDate\": \"2022-06-15\",\n    \"expectedGraduationDate\": null,\n    \"isCurrent\": false,\n    \"gpaRaw\": 3.8,\n    \"gpaScale\": \"OUT_OF_4\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -376,7 +408,33 @@
                 "educations"
               ]
             }
-          }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const baseUrl = pm.collectionVariables.get('baseUrl');",
+                  "pm.sendRequest({url: baseUrl + '/reference/institutions', method: 'GET'}, function (err, res) {",
+                  "    const items = res.json().data;",
+                  "    if (items && items.length > 0) { pm.collectionVariables.set('institutionId', items[0].id); }",
+                  "});",
+                  "pm.sendRequest({url: baseUrl + '/reference/majors', method: 'GET'}, function (err, res) {",
+                  "    const items = res.json().data;",
+                  "    if (items && items.length > 1) {",
+                  "        pm.collectionVariables.set('majorId', items[0].id);",
+                  "        pm.collectionVariables.set('minorMajorId', items[1].id);",
+                  "    }",
+                  "});",
+                  "pm.sendRequest({url: baseUrl + '/reference/education-levels', method: 'GET'}, function (err, res) {",
+                  "    const items = res.json().data;",
+                  "    if (items && items.length > 0) { pm.collectionVariables.set('educationLevelId', items[0].id); }",
+                  "});"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "List Educations",
@@ -523,7 +581,7 @@
               "formdata": [
                 {
                   "key": "documentTypeId",
-                  "value": "type-uuid-here",
+                  "value": "{{documentTypeId}}",
                   "type": "text"
                 },
                 {
@@ -542,8 +600,24 @@
                 "profile",
                 "documents"
               ]
+            },
+            "description": "The uploaded file must be a PDF, JPEG, or PNG. Other MIME types will be rejected.\n\n"
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const baseUrl = pm.collectionVariables.get('baseUrl');",
+                  "pm.sendRequest({url: baseUrl + '/reference/document-types', method: 'GET'}, function (err, res) {",
+                  "    const items = res.json().data;",
+                  "    if (items && items.length > 0) { pm.collectionVariables.set('documentTypeId', items[0].id); }",
+                  "});"
+                ]
+              }
             }
-          }
+          ]
         },
         {
           "name": "Get Document Download URL",
@@ -617,7 +691,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"languageId\": \"UUID-HERE\",\n    \"proficiencyLevelId\": \"UUID-HERE\",\n    \"isNative\": false\n}",
+              "raw": "{\n    \"languageId\": \"{{languageId}}\",\n    \"proficiencyLevelId\": \"{{proficiencyLevelId}}\",\n    \"isNative\": false\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -636,7 +710,26 @@
                 "languages"
               ]
             }
-          }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const baseUrl = pm.collectionVariables.get('baseUrl');",
+                  "pm.sendRequest({url: baseUrl + '/reference/languages', method: 'GET'}, function (err, res) {",
+                  "    const items = res.json().data;",
+                  "    if (items && items.length > 0) { pm.collectionVariables.set('languageId', items[0].id); }",
+                  "});",
+                  "pm.sendRequest({url: baseUrl + '/reference/proficiency-levels', method: 'GET'}, function (err, res) {",
+                  "    const items = res.json().data;",
+                  "    if (items && items.length > 0) { pm.collectionVariables.set('proficiencyLevelId', items[0].id); }",
+                  "});"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "List Languages",
@@ -708,7 +801,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"proficiencyLevelId\": \"UUID-HERE\",\n    \"isNative\": true\n}",
+              "raw": "{\n    \"proficiencyLevelId\": \"{{newProficiencyLevelId}}\",\n    \"isNative\": true\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -734,7 +827,22 @@
                 }
               ]
             }
-          }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const baseUrl = pm.collectionVariables.get('baseUrl');",
+                  "pm.sendRequest({url: baseUrl + '/reference/proficiency-levels', method: 'GET'}, function (err, res) {",
+                  "    const items = res.json().data;",
+                  "    if (items && items.length > 1) { pm.collectionVariables.set('newProficiencyLevelId', items[1].id); }",
+                  "});"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "Delete Language",
@@ -781,7 +889,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"testId\": \"UUID-HERE\",\n    \"score\": 90,\n    \"testDate\": \"2024-01-15\"\n}",
+              "raw": "{\n    \"testId\": \"{{testId}}\",\n    \"score\": 7.5,\n    \"testDate\": \"2024-01-15\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -800,7 +908,22 @@
                 "test-results"
               ]
             }
-          }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const baseUrl = pm.collectionVariables.get('baseUrl');",
+                  "pm.sendRequest({url: baseUrl + '/reference/standardized-tests', method: 'GET'}, function (err, res) {",
+                  "    const items = res.json().data;",
+                  "    if (items && items.length > 0) { pm.collectionVariables.set('testId', items[0].id); }",
+                  "});"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "List Test Results",
@@ -872,7 +995,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"score\": 95\n}",
+              "raw": "{\n    \"score\": 8.0\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -945,7 +1068,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"specialStatusId\": \"UUID-HERE\"\n}",
+              "raw": "{\n    \"specialStatusId\": \"{{specialStatusId}}\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -964,7 +1087,22 @@
                 "special-statuses"
               ]
             }
-          }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const baseUrl = pm.collectionVariables.get('baseUrl');",
+                  "pm.sendRequest({url: baseUrl + '/reference/special-statuses', method: 'GET'}, function (err, res) {",
+                  "    const items = res.json().data;",
+                  "    if (items && items.length > 0) { pm.collectionVariables.set('specialStatusId', items[0].id); }",
+                  "});"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "List Special Statuses",
@@ -1061,7 +1199,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"educationLevelId\": \"UUID-HERE\"\n}",
+              "raw": "{\n    \"educationLevelId\": \"{{prefEducationLevelId}}\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1081,7 +1219,22 @@
                 "degrees"
               ]
             }
-          }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const baseUrl = pm.collectionVariables.get('baseUrl');",
+                  "pm.sendRequest({url: baseUrl + '/reference/education-levels', method: 'GET'}, function (err, res) {",
+                  "    const items = res.json().data;",
+                  "    if (items && items.length > 0) { pm.collectionVariables.set('prefEducationLevelId', items[0].id); }",
+                  "});"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "Delete Target Degree",
@@ -1129,7 +1282,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"majorId\": \"UUID-HERE\"\n}",
+              "raw": "{\n    \"majorId\": \"{{prefMajorId}}\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1149,7 +1302,22 @@
                 "majors"
               ]
             }
-          }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const baseUrl = pm.collectionVariables.get('baseUrl');",
+                  "pm.sendRequest({url: baseUrl + '/reference/majors', method: 'GET'}, function (err, res) {",
+                  "    const items = res.json().data;",
+                  "    if (items && items.length > 0) { pm.collectionVariables.set('prefMajorId', items[0].id); }",
+                  "});"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "Delete Target Major",
@@ -1197,7 +1365,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"institutionId\": \"UUID-HERE\"\n}",
+              "raw": "{\n    \"institutionId\": \"{{prefInstitutionId}}\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1217,7 +1385,22 @@
                 "institutions"
               ]
             }
-          }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const baseUrl = pm.collectionVariables.get('baseUrl');",
+                  "pm.sendRequest({url: baseUrl + '/reference/institutions', method: 'GET'}, function (err, res) {",
+                  "    const items = res.json().data;",
+                  "    if (items && items.length > 0) { pm.collectionVariables.set('prefInstitutionId', items[0].id); }",
+                  "});"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "Delete Target Institution",
@@ -1608,6 +1791,86 @@
     },
     {
       "key": "storageToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "countryId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "cityId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "nationalityId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "maritalStatusId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "educationLevelId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "institutionId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "majorId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "minorMajorId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "testId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "documentTypeId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "proficiencyLevelId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "newProficiencyLevelId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "specialStatusId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "prefEducationLevelId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "prefMajorId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "prefInstitutionId",
       "value": "",
       "type": "string"
     }
