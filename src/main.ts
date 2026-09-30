@@ -88,13 +88,24 @@ async function bootstrap() {
       transformOptions: { enableImplicitConversion: false },
       exceptionFactory: (errors: ValidationError[]) => {
         const errList = errors.flatMap((err) =>
-          Object.keys(err.constraints ?? {}).map((constraintKey) => ({
-            field: err.property,
-            code:
-              (err.contexts?.[constraintKey] as { code?: string })?.code ||
-              constraintToErrorCode(constraintKey),
-            message: (err.constraints ?? {})[constraintKey],
-          })),
+          Object.keys(err.constraints ?? {}).map((constraintKey) => {
+            const contextCode = (
+              err.contexts?.[constraintKey] as { code?: string }
+            )?.code;
+            const message = (err.constraints ?? {})[constraintKey];
+
+            // If the message itself is our code (e.g. from defaultMessage), use it as fallback
+            const finalCode =
+              contextCode ||
+              (message === 'AUTH_PASSWORDS_DO_NOT_MATCH' ? message : null) ||
+              constraintToErrorCode(constraintKey);
+
+            return {
+              field: err.property,
+              code: finalCode,
+              message: message,
+            };
+          }),
         );
         return new BadRequestException({
           message: 'Validation failed',

@@ -10,7 +10,8 @@
     "^@/(.*)$": "<rootDir>/../src/$1",
     "^@common/(.*)$": "<rootDir>/../src/common/$1",
     "^@modules/(.*)$": "<rootDir>/../src/modules/$1",
-    "^@config/(.*)$": "<rootDir>/../src/config/$1"
+    "^@config/(.*)$": "<rootDir>/../src/config/$1",
+    "^@nestjs-modules/mailer/dist/adapters/(.*)$": "@nestjs-modules/mailer/adapters/$1"
   },
   "setupFiles": ["<rootDir>/setup.ts"],
   "testTimeout": 30000,

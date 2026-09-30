@@ -24,6 +24,13 @@ const DEFAULT_ADMIN = {
   lastName: 'Admin',
 };
 
+
+const TEST_USERS = [
+  { email: "user1@levora.app", password: "User1Password!", firstName: "Alice", lastName: "Smith" },
+  { email: "user2@levora.app", password: "User2Password!", firstName: "Bob", lastName: "Jones" },
+  { email: "user3@levora.app", password: "User3Password!", firstName: "Charlie", lastName: "Brown" }
+];
+
 const SYSTEM_SETTINGS = [
   { key: 'matching.threshold', value: 60, description: 'Matching threshold' },
   {
@@ -395,7 +402,51 @@ async function main() {
     console.log(`\n  ✔ Admin created: ${user.email} (${user.id})`);
   }
 
+  
+  // ── Test Users ─────────────────────────────
+  console.log('\n── Test Users ────────────────────────');
+  const userRole = await prisma.roles.findUnique({ where: { name: 'user' } });
+  
+  for (const testUser of TEST_USERS) {
+    const existingUser = await prisma.users.findUnique({
+      where: { email: testUser.email },
+    });
+
+    if (existingUser) {
+      console.log(`  ⏭ Test User "${testUser.email}" already exists — skipping`);
+      // Update them to be email verified just in case
+      await prisma.users.update({
+        where: { email: testUser.email },
+        data: { isEmailVerified: true }
+      });
+    } else {
+      const hashedPassword = await bcrypt.hash(testUser.password, 12);
+      const user = await prisma.users.create({
+        data: {
+          email: testUser.email,
+          password: hashedPassword,
+          firstName: testUser.firstName,
+          lastName: testUser.lastName,
+          isEmailVerified: true,
+          userProfile: {
+            create: {
+              isMatchable: true,
+              completionPct: 100,
+            },
+          },
+        },
+      });
+      if (userRole) {
+        await prisma.userRoles.create({
+          data: { userId: user.id, roleId: userRole.id },
+        });
+      }
+      console.log(`  ✔ Test User created: ${user.email}`);
+    }
+  }
+
   console.log('\n✅ Seed complete!');
+
 }
 
 main()

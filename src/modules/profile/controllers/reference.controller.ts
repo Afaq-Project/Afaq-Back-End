@@ -79,6 +79,27 @@ export class ReferenceController {
     status: 200,
     description: 'Cities retrieved successfully',
   })
+  @ApiQuery({ name: 'page', required: false, type: Number })
+  @ApiQuery({ name: 'limit', required: false, type: Number })
+  @ApiQuery({ name: 'search', required: false, type: String })
+  @ApiQuery({
+    name: 'countryId',
+    required: false,
+    type: String,
+    description: 'Filter by country ID (UUID)',
+  })
+  @ApiQuery({
+    name: 'sort',
+    required: false,
+    type: String,
+    enum: ['nameEn', 'nameAr'],
+  })
+  @ApiQuery({
+    name: 'order',
+    required: false,
+    type: String,
+    enum: ['asc', 'desc'],
+  })
   async getCities(@Query() dto: GetCitiesDto) {
     const data = await this.referenceService.getCities(dto);
     return {

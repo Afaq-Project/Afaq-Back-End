@@ -2,6 +2,7 @@
 
 **Purpose**: Validate specification completeness and quality before proceeding to planning
 **Created**: 2026-09-29
+**Amended**: 2026-09-29 — Added User Story 5, FR-024–FR-029, SC-008–SC-010, Forced Reset State entity, and clarifications from session 2026-09-29 (5 questions answered).
 **Feature**: [spec.md](../spec.md)
 
 ## Content Quality
@@ -31,6 +32,10 @@
 
 ## Notes
 
-- All items pass. Spec is ready for `/speckit-plan`.
-- Token storage strategy (Redis vs DB) documented as an assumption — can be revisited during planning if the team prefers a database-backed approach.
-- Frontend integration (redirect URLs, form UIs) is explicitly out of scope and noted in assumptions.
+- All 16 items pass. Spec is ready for `/speckit-plan`.
+- **Clarification session complete** (5/5 questions answered, 2026-09-29).
+- **Breaking change from current auth behaviour**: Registration will no longer return tokens (FR-006). The existing `auth.service.ts` `register()` method currently returns `accessToken` + `refreshToken` — this must be changed. Flag for implementation phase.
+- Token storage strategy (Redis vs DB): Ephemeral tokens (verification, reset) → Redis with TTL. Forced-reset state → DB column (schema migration required).
+- Post-change confirmation emails: Explicitly out of scope — deferred to future notifications module.
+- Resend-verification endpoint: Public (unauthenticated) — this is a deliberate design decision recorded in clarifications.
+- Forced-reset access token blacklisting: Uses same mechanism as logout (Redis `bl_` prefix with TTL) — consistent with existing infrastructure.

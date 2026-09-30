@@ -9,24 +9,26 @@ datasource db {
 }
 
 model Users {
-  id                 String               @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  email              String               @unique @db.Citext
-  password           String?
-  firstName          String               @map("first_name") @db.VarChar(255)
-  lastName           String               @map("last_name") @db.VarChar(255)
-  isEmailVerified    Boolean              @default(false) @map("is_email_verified")
-  isActive           Boolean              @default(true) @map("is_active")
-  lastLoginAt        DateTime?            @map("last_login_at") @db.Timestamptz(6)
-  deletedAt          DateTime?            @map("deleted_at") @db.Timestamptz(6)
-  createdAt          DateTime             @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt          DateTime?            @updatedAt @map("updated_at") @db.Timestamptz(6)
-  notifications      Notifications[]
-  oauthIdentities    OauthIdentities[]
-  payments           Payments[]
-  savedOpportunities SavedOpportunities[]
-  subscription       Subscriptions?
-  userProfile        UserProfiles?
-  userRoles          UserRoles[]
+  id                      String               @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  email                   String               @unique @db.Citext
+  password                String?
+  firstName               String               @map("first_name") @db.VarChar(255)
+  lastName                String               @map("last_name") @db.VarChar(255)
+  isEmailVerified         Boolean              @default(false) @map("is_email_verified")
+  isActive                Boolean              @default(true) @map("is_active")
+  lastLoginAt             DateTime?            @map("last_login_at") @db.Timestamptz(6)
+  deletedAt               DateTime?            @map("deleted_at") @db.Timestamptz(6)
+  createdAt               DateTime             @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt               DateTime?            @updatedAt @map("updated_at") @db.Timestamptz(6)
+  passwordResetRequired   Boolean              @default(false) @map("password_reset_required")
+  passwordResetRequiredAt DateTime?            @map("password_reset_required_at") @db.Timestamptz(6)
+  notifications           Notifications[]
+  oauthIdentities         OauthIdentities[]
+  payments                Payments[]
+  savedOpportunities      SavedOpportunities[]
+  subscription            Subscriptions?
+  userProfile             UserProfiles?
+  userRoles               UserRoles[]
 
   @@index([deletedAt])
   @@map("users")

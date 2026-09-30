@@ -9,6 +9,7 @@ import { OAuthProcessorService } from './services/oauth-processor.service';
 
 import { AuthGuard } from '@common/guards';
 import { OAuthGuard } from './guards/oauth.guard';
+import { EmailRateLimitGuard } from './guards/email-rate-limit.guard';
 
 describe('AuthController', () => {
   let controller: AuthController;
@@ -61,6 +62,8 @@ describe('AuthController', () => {
       .overrideGuard(AuthGuard)
       .useValue({ canActivate: () => true })
       .overrideGuard(OAuthGuard)
+      .useValue({ canActivate: () => true })
+      .overrideGuard(EmailRateLimitGuard)
       .useValue({ canActivate: () => true })
       .compile();
 
