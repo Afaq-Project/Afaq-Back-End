@@ -182,3 +182,9 @@ It serves as the source of truth for implementation. Decisions are listed by mod
 - **Maximum length per entry:** 500 characters.
 - **Excluded from `completionPct`**: like `bio`, `phone`, `email`, and `profilePhotoUrl`, this field does not affect completion or matchability. The weight table in DEC-PROF-04 remains unchanged.
 - **Ownership:** inherent — the field lives on `UserProfiles`, no separate guard is required.
+
+### DEC-OPS-01 — PermissionsGuard and Static Role-Permission Map
+**Decision:** The Core Operations module uses a dedicated `PermissionsGuard` (and `@Permissions()` decorator) that reads the user's roles from `req.user.role` (or `req.user.roles`) and maps them to fine-grained permissions using a static configuration map.
+- Replaces the generic `RolesGuard` for all `/operations/*` routes.
+- The static map defines what roles (e.g., `system_admin`, `content_admin`) possess which permissions (e.g., `dashboard:read`, `users:write`).
+- A missing or unmatched permission results in a `403 FORBIDDEN`.

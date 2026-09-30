@@ -54,11 +54,17 @@ describe('ProfileModule (e2e)', () => {
       lastName: 'B',
     });
 
+    await prisma.users.update({
+      where: { email: 'test1@example.com' },
+      data: { isEmailVerified: true },
+    });
+
     const loginRes = await request(app.getHttpServer())
       .post('/api/v1/auth/login')
       .send({ email: 'test1@example.com', password: 'Password1!' });
 
-    userToken = loginRes.body.data.accessToken;
+    console.log(loginRes.body);
+    userToken = loginRes.body?.data?.accessToken;
   });
 
   afterAll(async () => {
@@ -120,6 +126,12 @@ describe('ProfileModule (e2e)', () => {
         firstName: 'Fresh',
         lastName: 'User',
       });
+
+      await prisma.users.update({
+        where: { email: freshEmail },
+        data: { isEmailVerified: true },
+      });
+
       const loginRes = await request(app.getHttpServer())
         .post('/api/v1/auth/login')
         .send({ email: freshEmail, password: 'Password1!' });
@@ -775,6 +787,12 @@ describe('ProfileModule (e2e)', () => {
         firstName: 'A',
         lastName: 'B',
       });
+
+      await prisma.users.update({
+        where: { email },
+        data: { isEmailVerified: true },
+      });
+
       const login = await request(app.getHttpServer())
         .post('/api/v1/auth/login')
         .send({ email, password: 'Password1!' });

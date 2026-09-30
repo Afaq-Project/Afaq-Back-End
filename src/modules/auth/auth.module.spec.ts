@@ -20,6 +20,17 @@ jest.mock('./config/providers.config', () => ({
   getAllSupportedProviders: jest.fn().mockReturnValue(['google', 'linkedin']),
 }));
 
+import { Global, Module } from '@nestjs/common';
+import { MailService } from '../mail/mail.service';
+import { ThrottlerModule } from '@nestjs/throttler';
+
+@Global()
+@Module({
+  providers: [{ provide: MailService, useValue: { sendMail: jest.fn() } }],
+  exports: [MailService],
+})
+class MockMailModule {}
+
 describe('AuthModule Boot Testing', () => {
   let module: TestingModule;
 
@@ -29,6 +40,8 @@ describe('AuthModule Boot Testing', () => {
         PassportModule,
         ConfigModule.forRoot({ isGlobal: true }),
         LoggerModule.forRoot({ pinoHttp: { level: 'silent' } }),
+        ThrottlerModule.forRoot([{ ttl: 60, limit: 10 }]),
+        MockMailModule,
         AuthModule,
       ],
     })

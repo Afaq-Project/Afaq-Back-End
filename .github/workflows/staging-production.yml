@@ -258,7 +258,7 @@ jobs:
           echo "=== 4. Test POST /api/v1/auth/login ==="
           LOGIN_RES=$(curl -s -w "\n%{http_code}" -X POST http://localhost:3000/api/v1/auth/login \
             -H "Content-Type: application/json" \
-            -d '{"email":"container-test@example.com","password":"Password123!"}')
+            -d '{"email":"user1@levora.app","password":"User1Password!"}')
           LOGIN_CODE=$(echo "$LOGIN_RES" | tail -n1)
           LOGIN_BODY=$(echo "$LOGIN_RES" | sed '$d')
           echo "Response Code: $LOGIN_CODE"
@@ -332,14 +332,14 @@ jobs:
 
           echo "Polling Render API for Staging service ($SERVICE_ID) deployment status..."
           START_TIME=$(date +%s)
-          TIMEOUT=300
+          TIMEOUT=420
 
           while true; do
             CURRENT_TIME=$(date +%s)
             ELAPSED=$((CURRENT_TIME - START_TIME))
 
             if [ $ELAPSED -ge $TIMEOUT ]; then
-              echo "::error::Staging deployment timed out after 5 minutes ($ELAPSED seconds)."
+              echo "::error::Staging deployment timed out after 7 minutes ($ELAPSED seconds)."
               exit 1
             fi
 
@@ -361,8 +361,8 @@ jobs:
                 exit 1
                 ;;
               "created"|"build_in_progress"|"update_in_progress"|"in_progress"|"pending"|*)
-                echo "Deployment in progress (status: ${STATUS:-unknown}). Waiting 60 seconds before retrying..."
-                sleep 60
+                echo "Deployment in progress (status: ${STATUS:-unknown}). Waiting 30 seconds before retrying..."
+                sleep 30
                 ;;
             esac
           done
