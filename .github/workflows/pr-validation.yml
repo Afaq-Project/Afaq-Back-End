@@ -379,14 +379,14 @@ jobs:
 
           echo "Polling Render API for Preview service ($SERVICE_ID) deployment status..."
           START_TIME=$(date +%s)
-          TIMEOUT=300
+          TIMEOUT=420
 
           while true; do
             CURRENT_TIME=$(date +%s)
             ELAPSED=$((CURRENT_TIME - START_TIME))
 
             if [ $ELAPSED -ge $TIMEOUT ]; then
-              echo "::error::Preview deployment timed out after 5 minutes ($ELAPSED seconds)."
+              echo "::error::Preview deployment timed out after 7 minutes ($ELAPSED seconds)."
               exit 1
             fi
 
@@ -408,8 +408,8 @@ jobs:
                 exit 1
                 ;;
               "created"|"build_in_progress"|"update_in_progress"|"in_progress"|"pending"|*)
-                echo "Deployment in progress (status: ${STATUS:-unknown}). Waiting 60 seconds before retrying..."
-                sleep 60
+                echo "Deployment in progress (status: ${STATUS:-unknown}). Waiting 30 seconds before retrying..."
+                sleep 30
                 ;;
             esac
           done
