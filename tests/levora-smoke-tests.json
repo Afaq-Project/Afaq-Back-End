@@ -7,7 +7,7 @@
   "variable": [
     {
       "key": "baseUrl",
-      "value": "http://localhost:3000",
+      "value": "http://localhost:3000/api/v1",
       "type": "string"
     },
     {
@@ -67,7 +67,7 @@
               "mode": "raw",
               "raw": "{\n  \"email\": \"{{test_user_email}}\",\n  \"password\": \"{{test_user_password}}\",\n  \"firstName\": \"Smoke\",\n  \"lastName\": \"Test\"\n}"
             },
-            "url": "{{baseUrl}}/api/v1/auth/register"
+            "url": "{{baseUrl}}/auth/register"
           }
         },
         {
@@ -103,7 +103,7 @@
               "mode": "raw",
               "raw": "{\n  \"email\": \"{{test_user_email}}\",\n  \"password\": \"{{test_user_password}}\"\n}"
             },
-            "url": "{{baseUrl}}/api/v1/auth/login"
+            "url": "{{baseUrl}}/auth/login"
           }
         },
         {
@@ -128,7 +128,7 @@
           ],
           "request": {
             "method": "GET",
-            "url": "{{baseUrl}}/api/v1/reference/languages"
+            "url": "{{baseUrl}}/reference/languages"
           }
         },
         {
@@ -156,7 +156,7 @@
           ],
           "request": {
             "method": "GET",
-            "url": "{{baseUrl}}/api/v1/reference/education-levels"
+            "url": "{{baseUrl}}/reference/education-levels"
           }
         },
         {
@@ -181,7 +181,7 @@
           ],
           "request": {
             "method": "GET",
-            "url": "{{baseUrl}}/api/v1/reference/app-languages"
+            "url": "{{baseUrl}}/reference/app-languages"
           }
         },
         {
@@ -208,7 +208,7 @@
           ],
           "request": {
             "method": "GET",
-            "url": "{{baseUrl}}/api/v1/reference/countries"
+            "url": "{{baseUrl}}/reference/countries"
           }
         },
         {
@@ -232,7 +232,7 @@
           ],
           "request": {
             "method": "GET",
-            "url": "{{baseUrl}}/api/v1/reference/cities"
+            "url": "{{baseUrl}}/reference/cities"
           }
         },
         {
@@ -256,7 +256,7 @@
           ],
           "request": {
             "method": "GET",
-            "url": "{{baseUrl}}/api/v1/reference/marital-statuses"
+            "url": "{{baseUrl}}/reference/marital-statuses"
           }
         },
         {
@@ -264,7 +264,7 @@
           "request": {
             "method": "GET",
             "header": [],
-            "url": "{{baseUrl}}/api/v1/reference/countries?sort=nameAr&order=desc"
+            "url": "{{baseUrl}}/reference/countries?sort=nameAr&order=desc"
           },
           "event": [
             {
@@ -298,7 +298,7 @@
           ],
           "request": {
             "method": "GET",
-            "url": "{{baseUrl}}/api/v1/reference/majors"
+            "url": "{{baseUrl}}/reference/majors"
           }
         },
         {
@@ -320,7 +320,7 @@
           ],
           "request": {
             "method": "GET",
-            "url": "{{baseUrl}}/api/v1/reference/institutions"
+            "url": "{{baseUrl}}/reference/institutions"
           }
         },
         {
@@ -342,7 +342,7 @@
           ],
           "request": {
             "method": "GET",
-            "url": "{{baseUrl}}/api/v1/reference/proficiency-levels"
+            "url": "{{baseUrl}}/reference/proficiency-levels"
           }
         },
         {
@@ -362,7 +362,7 @@
           ],
           "request": {
             "method": "GET",
-            "url": "{{baseUrl}}/api/v1/reference/standardized-tests"
+            "url": "{{baseUrl}}/reference/standardized-tests"
           }
         },
         {
@@ -382,7 +382,7 @@
           ],
           "request": {
             "method": "GET",
-            "url": "{{baseUrl}}/api/v1/reference/special-statuses"
+            "url": "{{baseUrl}}/reference/special-statuses"
           }
         },
         {
@@ -402,7 +402,7 @@
           ],
           "request": {
             "method": "GET",
-            "url": "{{baseUrl}}/api/v1/reference/document-types"
+            "url": "{{baseUrl}}/reference/document-types"
           }
         },
         {
@@ -420,7 +420,113 @@
           ],
           "request": {
             "method": "GET",
-            "url": "{{baseUrl}}/api/v1/reference/major-categories"
+            "url": "{{baseUrl}}/reference/major-categories"
+          }
+        },
+        {
+          "name": "GET /auth/verify-email",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 400 or 401', function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([400, 401]);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/auth/verify-email?token=invalid_token"
+          }
+        },
+        {
+          "name": "POST /auth/resend-verification",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 400 or 200 or 404 or 429', function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 400, 404, 429]);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"email\": \"{{test_user_email}}\"}"
+            },
+            "url": "{{baseUrl}}/auth/resend-verification"
+          }
+        },
+        {
+          "name": "POST /auth/forgot-password",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200 or 400 or 404 or 429', function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 400, 404, 429]);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"email\": \"{{test_user_email}}\"}"
+            },
+            "url": "{{baseUrl}}/auth/forgot-password"
+          }
+        },
+        {
+          "name": "POST /auth/reset-password",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 400 or 401', function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([400, 401]);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"token\": \"invalid_token\", \"password\": \"NewP@ssw0rd123!\", \"confirmPassword\": \"NewP@ssw0rd123!\"}"
+            },
+            "url": "{{baseUrl}}/auth/reset-password"
           }
         }
       ]
@@ -455,7 +561,7 @@
                 "value": "Bearer {{access_token}}"
               }
             ],
-            "url": "{{baseUrl}}/api/v1/profile/me"
+            "url": "{{baseUrl}}/profile/me"
           }
         },
         {
@@ -492,7 +598,7 @@
               "mode": "raw",
               "raw": "{\"nationalityId\":\"{{country_id}}\"}"
             },
-            "url": "{{baseUrl}}/api/v1/profile/personal"
+            "url": "{{baseUrl}}/profile/personal"
           }
         },
         {
@@ -526,7 +632,7 @@
               "mode": "raw",
               "raw": "{\"educationLevelId\":\"{{education_level_id}}\"}"
             },
-            "url": "{{baseUrl}}/api/v1/profile/personal"
+            "url": "{{baseUrl}}/profile/personal"
           }
         },
         {
@@ -560,7 +666,7 @@
               "mode": "raw",
               "raw": "{\"nationalityId\":null}"
             },
-            "url": "{{baseUrl}}/api/v1/profile/personal"
+            "url": "{{baseUrl}}/profile/personal"
           }
         },
         {
@@ -598,7 +704,7 @@
               "mode": "raw",
               "raw": "{\n  \"educationLevelId\": \"{{education_level_id}}\",\n  \"institutionId\": \"{{institution_id}}\",\n  \"majorId\": \"{{major_id}}\",\n  \"startDate\": \"2020-09-01\",\n  \"isCurrent\": true,\n  \"gpaRaw\": 3.7,\n  \"gpaScale\": \"OUT_OF_4\"\n}"
             },
-            "url": "{{baseUrl}}/api/v1/profile/educations"
+            "url": "{{baseUrl}}/profile/educations"
           }
         },
         {
@@ -632,7 +738,7 @@
               "mode": "raw",
               "raw": "{\"gpaRaw\":3.85}"
             },
-            "url": "{{baseUrl}}/api/v1/profile/educations/{{education_id}}"
+            "url": "{{baseUrl}}/profile/educations/{{education_id}}"
           }
         },
         {
@@ -656,7 +762,7 @@
                 "value": "Bearer {{access_token}}"
               }
             ],
-            "url": "{{baseUrl}}/api/v1/profile/educations/{{education_id}}"
+            "url": "{{baseUrl}}/profile/educations/{{education_id}}"
           }
         },
         {
@@ -682,14 +788,14 @@
                 "value": "Bearer {{access_token}}"
               }
             ],
-            "url": "{{baseUrl}}/api/v1/profile/educations/{{education_id}}"
+            "url": "{{baseUrl}}/profile/educations/{{education_id}}"
           }
         },
         {
           "name": "GET /profile/educations",
           "request": {
             "method": "GET",
-            "url": "{{baseUrl}}/api/v1/profile/educations",
+            "url": "{{baseUrl}}/profile/educations",
             "header": [
               {
                 "key": "Authorization",
@@ -733,7 +839,7 @@
                 "value": "Bearer {{access_token}}"
               }
             ],
-            "url": "{{baseUrl}}/api/v1/profile/me"
+            "url": "{{baseUrl}}/profile/me"
           }
         },
         {
@@ -759,7 +865,7 @@
                 "value": "Bearer {{access_token}}"
               }
             ],
-            "url": "{{baseUrl}}/api/v1/profile/personal",
+            "url": "{{baseUrl}}/profile/personal",
             "body": {
               "mode": "raw",
               "raw": "{\n  \"firstName\": \"Updated Name\"\n}",
@@ -789,7 +895,7 @@
               "mode": "raw",
               "raw": "{\"experiences\":[\"E1\",\"E2\",\"E3\",\"E4\",\"E5\",\"E6\",\"E7\",\"E8\",\"E9\",\"E10\"]}"
             },
-            "url": "{{baseUrl}}/api/v1/profile/personal"
+            "url": "{{baseUrl}}/profile/personal"
           },
           "event": [
             {
@@ -820,7 +926,7 @@
               "mode": "raw",
               "raw": "{\"experiences\":[\"E1\",\"E2\",\"E3\",\"E4\",\"E5\",\"E6\",\"E7\",\"E8\",\"E9\",\"E10\",\"E11\"]}"
             },
-            "url": "{{baseUrl}}/api/v1/profile/personal"
+            "url": "{{baseUrl}}/profile/personal"
           },
           "event": [
             {
@@ -868,7 +974,7 @@
               "mode": "raw",
               "raw": "{\n  \"languageId\": \"{{valid_language_id}}\",\n  \"proficiencyLevelId\": \"{{proficiency_level_id}}\"\n}"
             },
-            "url": "{{baseUrl}}/api/v1/profile/languages"
+            "url": "{{baseUrl}}/profile/languages"
           }
         },
         {
@@ -902,14 +1008,14 @@
               "mode": "raw",
               "raw": "{\"proficiencyLevelId\":\"{{proficiency_level_id}}\"}"
             },
-            "url": "{{baseUrl}}/api/v1/profile/languages/{{profile_language_id}}"
+            "url": "{{baseUrl}}/profile/languages/{{profile_language_id}}"
           }
         },
         {
           "name": "GET /profile/languages",
           "request": {
             "method": "GET",
-            "url": "{{baseUrl}}/api/v1/profile/languages",
+            "url": "{{baseUrl}}/profile/languages",
             "header": [
               {
                 "key": "Authorization",
@@ -951,7 +1057,7 @@
                 "value": "Bearer {{access_token}}"
               }
             ],
-            "url": "{{baseUrl}}/api/v1/profile/languages/{{profile_language_id}}"
+            "url": "{{baseUrl}}/profile/languages/{{profile_language_id}}"
           }
         },
         {
@@ -977,7 +1083,7 @@
                 "value": "Bearer {{access_token}}"
               }
             ],
-            "url": "{{baseUrl}}/api/v1/profile/languages/{{profile_language_id}}"
+            "url": "{{baseUrl}}/profile/languages/{{profile_language_id}}"
           }
         },
         {
@@ -1022,7 +1128,7 @@
                 }
               ]
             },
-            "url": "{{baseUrl}}/api/v1/profile/documents"
+            "url": "{{baseUrl}}/profile/documents"
           }
         },
         {
@@ -1052,7 +1158,7 @@
                 "value": "Bearer {{access_token}}"
               }
             ],
-            "url": "{{baseUrl}}/api/v1/profile/documents/{{document_id}}/download"
+            "url": "{{baseUrl}}/profile/documents/{{document_id}}/download"
           }
         },
         {
@@ -1078,7 +1184,7 @@
                 "value": "Bearer {{access_token}}"
               }
             ],
-            "url": "{{baseUrl}}/api/v1/profile/documents/{{document_id}}"
+            "url": "{{baseUrl}}/profile/documents/{{document_id}}"
           }
         },
         {
@@ -1111,7 +1217,7 @@
               "mode": "raw",
               "raw": "{\n  \"testId\": \"{{test_id}}\",\n  \"score\": 7.5\n}"
             },
-            "url": "{{baseUrl}}/api/v1/profile/test-results"
+            "url": "{{baseUrl}}/profile/test-results"
           }
         },
         {
@@ -1135,7 +1241,7 @@
                 "value": "Bearer {{access_token}}"
               }
             ],
-            "url": "{{baseUrl}}/api/v1/profile/test-results"
+            "url": "{{baseUrl}}/profile/test-results"
           }
         },
         {
@@ -1167,7 +1273,7 @@
               "mode": "raw",
               "raw": "{\n  \"score\": 8.0\n}"
             },
-            "url": "{{baseUrl}}/api/v1/profile/test-results/{{test_result_id}}"
+            "url": "{{baseUrl}}/profile/test-results/{{test_result_id}}"
           }
         },
         {
@@ -1191,7 +1297,7 @@
                 "value": "Bearer {{access_token}}"
               }
             ],
-            "url": "{{baseUrl}}/api/v1/profile/test-results/{{test_result_id}}"
+            "url": "{{baseUrl}}/profile/test-results/{{test_result_id}}"
           }
         },
         {
@@ -1215,7 +1321,7 @@
                 "value": "Bearer {{access_token}}"
               }
             ],
-            "url": "{{baseUrl}}/api/v1/profile/test-results/{{test_result_id}}"
+            "url": "{{baseUrl}}/profile/test-results/{{test_result_id}}"
           }
         },
         {
@@ -1247,7 +1353,7 @@
               "mode": "raw",
               "raw": "{\n  \"specialStatusId\": \"{{special_status_id}}\"\n}"
             },
-            "url": "{{baseUrl}}/api/v1/profile/special-statuses"
+            "url": "{{baseUrl}}/profile/special-statuses"
           }
         },
         {
@@ -1271,7 +1377,7 @@
                 "value": "Bearer {{access_token}}"
               }
             ],
-            "url": "{{baseUrl}}/api/v1/profile/special-statuses"
+            "url": "{{baseUrl}}/profile/special-statuses"
           }
         },
         {
@@ -1295,7 +1401,7 @@
                 "value": "Bearer {{access_token}}"
               }
             ],
-            "url": "{{baseUrl}}/api/v1/profile/special-statuses/{{special_status_id}}"
+            "url": "{{baseUrl}}/profile/special-statuses/{{special_status_id}}"
           }
         },
         {
@@ -1319,7 +1425,7 @@
                 "value": "Bearer {{access_token}}"
               }
             ],
-            "url": "{{baseUrl}}/api/v1/profile/preferences"
+            "url": "{{baseUrl}}/profile/preferences"
           }
         },
         {
@@ -1351,7 +1457,7 @@
               "mode": "raw",
               "raw": "{\n  \"educationLevelId\": \"{{education_level_id}}\"\n}"
             },
-            "url": "{{baseUrl}}/api/v1/profile/preferences/degrees"
+            "url": "{{baseUrl}}/profile/preferences/degrees"
           }
         },
         {
@@ -1375,7 +1481,7 @@
                 "value": "Bearer {{access_token}}"
               }
             ],
-            "url": "{{baseUrl}}/api/v1/profile/preferences/degrees/{{education_level_id}}"
+            "url": "{{baseUrl}}/profile/preferences/degrees/{{education_level_id}}"
           }
         },
         {
@@ -1407,7 +1513,7 @@
               "mode": "raw",
               "raw": "{\n  \"majorId\": \"{{major_id}}\"\n}"
             },
-            "url": "{{baseUrl}}/api/v1/profile/preferences/majors"
+            "url": "{{baseUrl}}/profile/preferences/majors"
           }
         },
         {
@@ -1431,7 +1537,7 @@
                 "value": "Bearer {{access_token}}"
               }
             ],
-            "url": "{{baseUrl}}/api/v1/profile/preferences/majors/{{major_id}}"
+            "url": "{{baseUrl}}/profile/preferences/majors/{{major_id}}"
           }
         },
         {
@@ -1463,7 +1569,7 @@
               "mode": "raw",
               "raw": "{\n  \"institutionId\": \"{{institution_id}}\"\n}"
             },
-            "url": "{{baseUrl}}/api/v1/profile/preferences/institutions"
+            "url": "{{baseUrl}}/profile/preferences/institutions"
           }
         },
         {
@@ -1487,7 +1593,7 @@
                 "value": "Bearer {{access_token}}"
               }
             ],
-            "url": "{{baseUrl}}/api/v1/profile/preferences/institutions/{{institution_id}}"
+            "url": "{{baseUrl}}/profile/preferences/institutions/{{institution_id}}"
           }
         },
         {
@@ -1511,7 +1617,7 @@
                 "value": "Bearer {{access_token}}"
               }
             ],
-            "url": "{{baseUrl}}/api/v1/profile/documents"
+            "url": "{{baseUrl}}/profile/documents"
           }
         }
       ]
@@ -1554,7 +1660,7 @@
               "mode": "raw",
               "raw": "{\n  \"unknownField\": \"value\"\n}"
             },
-            "url": "{{baseUrl}}/api/v1/profile/personal"
+            "url": "{{baseUrl}}/profile/personal"
           }
         }
       ]
@@ -1593,7 +1699,7 @@
                 "value": "application/json"
               }
             ],
-            "url": "{{baseUrl}}/api/v1/profile/me"
+            "url": "{{baseUrl}}/profile/me"
           }
         },
         {
@@ -1619,7 +1725,7 @@
                 "value": "application/json"
               }
             ],
-            "url": "{{baseUrl}}/api/v1/auth/login",
+            "url": "{{baseUrl}}/auth/login",
             "body": {
               "mode": "raw",
               "raw": "{\"email\":\"admin@levora.com' OR '1'='1\",\"password\":\"password\"}"
@@ -1658,7 +1764,7 @@
                 "value": "application/json"
               }
             ],
-            "url": "{{baseUrl}}/api/v1/profile/me"
+            "url": "{{baseUrl}}/profile/me"
           }
         },
         {
@@ -1691,7 +1797,7 @@
                 "value": "application/json"
               }
             ],
-            "url": "{{baseUrl}}/api/v1/profile/me"
+            "url": "{{baseUrl}}/profile/me"
           }
         },
         {
@@ -1719,7 +1825,7 @@
               "mode": "raw",
               "raw": "{\"email\": \"invalid@levora.com\", \"password\": \"invalid\"}"
             },
-            "url": "{{baseUrl}}/api/v1/auth/login"
+            "url": "{{baseUrl}}/auth/login"
           }
         }
       ]
@@ -1731,7 +1837,7 @@
           "name": "GET /health/ready",
           "request": {
             "method": "GET",
-            "url": "{{baseUrl}}/api/v1/health/ready"
+            "url": "{{baseUrl}}/health/ready"
           },
           "event": [
             {
@@ -1754,7 +1860,7 @@
           "name": "GET /auth/me",
           "request": {
             "method": "GET",
-            "url": "{{baseUrl}}/api/v1/auth/me",
+            "url": "{{baseUrl}}/auth/me",
             "header": [
               {
                 "key": "Authorization",
@@ -1778,7 +1884,7 @@
           "name": "POST /auth/refresh",
           "request": {
             "method": "POST",
-            "url": "{{baseUrl}}/api/v1/auth/refresh",
+            "url": "{{baseUrl}}/auth/refresh",
             "header": [
               {
                 "key": "Content-Type",
@@ -1805,28 +1911,70 @@
           ]
         },
         {
-          "name": "POST /auth/logout",
-          "request": {
-            "method": "POST",
-            "url": "{{baseUrl}}/api/v1/auth/logout",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{access_token}}"
-              }
-            ]
-          },
+          "name": "POST /auth/change-password",
           "event": [
             {
               "listen": "test",
               "script": {
-                "type": "text/javascript",
                 "exec": [
-                  "pm.test('Status code is 204', function () { pm.response.to.have.status(204); });"
+                  "pm.test('Status code is 400 or 401 or 403', function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([400, 401, 403]);",
+                  "});"
                 ]
               }
             }
-          ]
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"currentPassword\": \"OldP@ssw0rd123!\", \"newPassword\": \"NewP@ssw0rd123!\", \"confirmPassword\": \"NewP@ssw0rd123!\"}"
+            },
+            "url": "{{baseUrl}}/auth/change-password"
+          }
+        },
+        {
+          "name": "POST /auth/force-password-reset",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 400 or 401 or 403 or 404', function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([400, 401, 403, 404]);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"userId\": \"00000000-0000-0000-0000-000000000000\", \"newPassword\": \"ForcedP@ss123!\", \"confirmPassword\": \"ForcedP@ss123!\"}"
+            },
+            "url": "{{baseUrl}}/auth/force-password-reset"
+          }
         }
       ]
     },
@@ -1837,7 +1985,7 @@
           "name": "GET /users/profile/me",
           "request": {
             "method": "GET",
-            "url": "{{baseUrl}}/api/v1/users/profile",
+            "url": "{{baseUrl}}/users/profile",
             "header": [
               {
                 "key": "Authorization",
@@ -1866,7 +2014,7 @@
           "name": "GET /local-storage/{{file_key}}",
           "request": {
             "method": "GET",
-            "url": "{{baseUrl}}/api/v1/local-storage/{{file_key}}?token={{storage_token}}"
+            "url": "{{baseUrl}}/local-storage/{{file_key}}?token={{storage_token}}"
           },
           "event": [
             {
@@ -1889,7 +2037,7 @@
           "name": "GET /reference/education-levels",
           "request": {
             "method": "GET",
-            "url": "{{baseUrl}}/api/v1/reference/education-levels"
+            "url": "{{baseUrl}}/reference/education-levels"
           },
           "event": [
             {
@@ -1907,7 +2055,7 @@
           "name": "GET /reference/countries",
           "request": {
             "method": "GET",
-            "url": "{{baseUrl}}/api/v1/reference/countries"
+            "url": "{{baseUrl}}/reference/countries"
           },
           "event": [
             {
@@ -1920,6 +2068,30 @@
               }
             }
           ]
+        }
+      ]
+    },
+    {
+      "name": "POST /auth/logout",
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/auth/logout",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{access_token}}"
+          }
+        ]
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 204', function () { pm.response.to.have.status(204); });"
+            ]
+          }
         }
       ]
     }

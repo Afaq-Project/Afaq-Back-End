@@ -169,7 +169,7 @@
           "response": []
         },
         {
-          "name": "OAuth Google → Initiate",
+          "name": "OAuth Google \u2192 Initiate",
           "request": {
             "method": "GET",
             "header": [],
@@ -199,7 +199,7 @@
           ]
         },
         {
-          "name": "OAuth Google → Callback (Doc Only)",
+          "name": "OAuth Google \u2192 Callback (Doc Only)",
           "request": {
             "method": "GET",
             "header": [],
@@ -225,7 +225,7 @@
           "response": []
         },
         {
-          "name": "OAuth LinkedIn → Initiate",
+          "name": "OAuth LinkedIn \u2192 Initiate",
           "request": {
             "method": "GET",
             "header": [],
@@ -255,7 +255,7 @@
           ]
         },
         {
-          "name": "OAuth LinkedIn → Callback (Doc Only)",
+          "name": "OAuth LinkedIn \u2192 Callback (Doc Only)",
           "request": {
             "method": "GET",
             "header": [],
@@ -279,6 +279,166 @@
             "description": "OAuth callback endpoint for LinkedIn"
           },
           "response": []
+        },
+        {
+          "name": "Verify Email",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/auth/verify-email?token=YOUR_TOKEN",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "verify-email"
+              ],
+              "query": [
+                {
+                  "key": "token",
+                  "value": "YOUR_TOKEN"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Resend Verification",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/resend-verification",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "resend-verification"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"user@example.com\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Forgot Password",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/forgot-password",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "forgot-password"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"user@example.com\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Reset Password",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/reset-password",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "reset-password"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"YOUR_RESET_TOKEN\",\n  \"password\": \"NewP@ssw0rd123!\",\n  \"confirmPassword\": \"NewP@ssw0rd123!\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Change Password",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/change-password",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "change-password"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"currentPassword\": \"OldP@ssw0rd123!\",\n  \"newPassword\": \"NewP@ssw0rd123!\",\n  \"confirmPassword\": \"NewP@ssw0rd123!\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Force Password Reset (Admin)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/force-password-reset",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "force-password-reset"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": \"USER_ID_HERE\",\n  \"newPassword\": \"ForcedP@ss123!\",\n  \"confirmPassword\": \"ForcedP@ss123!\"\n}"
+            }
+          }
         }
       ]
     },
@@ -302,8 +462,6 @@
                 "{{baseUrl}}"
               ],
               "path": [
-                "api",
-                "v1",
                 "profile",
                 "me"
               ]
@@ -336,8 +494,6 @@
                 "{{baseUrl}}"
               ],
               "path": [
-                "api",
-                "v1",
                 "profile",
                 "personal"
               ]
@@ -402,8 +558,6 @@
                 "{{baseUrl}}"
               ],
               "path": [
-                "api",
-                "v1",
                 "profile",
                 "educations"
               ]
@@ -453,8 +607,6 @@
                 "{{baseUrl}}"
               ],
               "path": [
-                "api",
-                "v1",
                 "profile",
                 "educations"
               ]
@@ -478,8 +630,6 @@
                 "{{baseUrl}}"
               ],
               "path": [
-                "api",
-                "v1",
                 "profile",
                 "educations",
                 ":id"
@@ -519,8 +669,6 @@
                 "{{baseUrl}}"
               ],
               "path": [
-                "api",
-                "v1",
                 "profile",
                 "educations",
                 ":id"
@@ -551,8 +699,6 @@
                 "{{baseUrl}}"
               ],
               "path": [
-                "api",
-                "v1",
                 "profile",
                 "educations",
                 ":id"
@@ -704,8 +850,6 @@
                 "{{baseUrl}}"
               ],
               "path": [
-                "api",
-                "v1",
                 "profile",
                 "languages"
               ]
@@ -748,8 +892,6 @@
                 "{{baseUrl}}"
               ],
               "path": [
-                "api",
-                "v1",
                 "profile",
                 "languages"
               ]
@@ -773,8 +915,6 @@
                 "{{baseUrl}}"
               ],
               "path": [
-                "api",
-                "v1",
                 "profile",
                 "languages",
                 ":id"
@@ -814,8 +954,6 @@
                 "{{baseUrl}}"
               ],
               "path": [
-                "api",
-                "v1",
                 "profile",
                 "languages",
                 ":id"
@@ -861,8 +999,6 @@
                 "{{baseUrl}}"
               ],
               "path": [
-                "api",
-                "v1",
                 "profile",
                 "languages",
                 ":id"
@@ -902,8 +1038,6 @@
                 "{{baseUrl}}"
               ],
               "path": [
-                "api",
-                "v1",
                 "profile",
                 "test-results"
               ]
@@ -942,8 +1076,6 @@
                 "{{baseUrl}}"
               ],
               "path": [
-                "api",
-                "v1",
                 "profile",
                 "test-results"
               ]
@@ -967,8 +1099,6 @@
                 "{{baseUrl}}"
               ],
               "path": [
-                "api",
-                "v1",
                 "profile",
                 "test-results",
                 ":id"
@@ -1008,8 +1138,6 @@
                 "{{baseUrl}}"
               ],
               "path": [
-                "api",
-                "v1",
                 "profile",
                 "test-results",
                 ":id"
@@ -1040,8 +1168,6 @@
                 "{{baseUrl}}"
               ],
               "path": [
-                "api",
-                "v1",
                 "profile",
                 "test-results",
                 ":id"
@@ -1081,8 +1207,6 @@
                 "{{baseUrl}}"
               ],
               "path": [
-                "api",
-                "v1",
                 "profile",
                 "special-statuses"
               ]
@@ -1121,8 +1245,6 @@
                 "{{baseUrl}}"
               ],
               "path": [
-                "api",
-                "v1",
                 "profile",
                 "special-statuses"
               ]
@@ -1146,8 +1268,6 @@
                 "{{baseUrl}}"
               ],
               "path": [
-                "api",
-                "v1",
                 "profile",
                 "special-statuses",
                 ":specialStatusId"
@@ -1178,8 +1298,6 @@
                 "{{baseUrl}}"
               ],
               "path": [
-                "api",
-                "v1",
                 "profile",
                 "preferences"
               ]
@@ -1212,8 +1330,6 @@
                 "{{baseUrl}}"
               ],
               "path": [
-                "api",
-                "v1",
                 "profile",
                 "preferences",
                 "degrees"
@@ -1253,8 +1369,6 @@
                 "{{baseUrl}}"
               ],
               "path": [
-                "api",
-                "v1",
                 "profile",
                 "preferences",
                 "degrees",
@@ -1295,8 +1409,6 @@
                 "{{baseUrl}}"
               ],
               "path": [
-                "api",
-                "v1",
                 "profile",
                 "preferences",
                 "majors"
@@ -1336,8 +1448,6 @@
                 "{{baseUrl}}"
               ],
               "path": [
-                "api",
-                "v1",
                 "profile",
                 "preferences",
                 "majors",
@@ -1378,8 +1488,6 @@
                 "{{baseUrl}}"
               ],
               "path": [
-                "api",
-                "v1",
                 "profile",
                 "preferences",
                 "institutions"
@@ -1419,8 +1527,6 @@
                 "{{baseUrl}}"
               ],
               "path": [
-                "api",
-                "v1",
                 "profile",
                 "preferences",
                 "institutions",
@@ -1452,8 +1558,6 @@
                 "{{baseUrl}}"
               ],
               "path": [
-                "api",
-                "v1",
                 "profile",
                 "documents"
               ]
@@ -1475,8 +1579,6 @@
                 "{{baseUrl}}"
               ],
               "path": [
-                "api",
-                "v1",
                 "reference",
                 "countries"
               ]
@@ -1493,8 +1595,6 @@
                 "{{baseUrl}}"
               ],
               "path": [
-                "api",
-                "v1",
                 "reference",
                 "cities"
               ]
@@ -1511,8 +1611,6 @@
                 "{{baseUrl}}"
               ],
               "path": [
-                "api",
-                "v1",
                 "reference",
                 "marital-statuses"
               ]
@@ -1529,8 +1627,6 @@
                 "{{baseUrl}}"
               ],
               "path": [
-                "api",
-                "v1",
                 "reference",
                 "education-levels"
               ]
@@ -1547,8 +1643,6 @@
                 "{{baseUrl}}"
               ],
               "path": [
-                "api",
-                "v1",
                 "reference",
                 "app-languages"
               ]
@@ -1565,8 +1659,6 @@
                 "{{baseUrl}}"
               ],
               "path": [
-                "api",
-                "v1",
                 "reference",
                 "major-categories"
               ]
@@ -1583,8 +1675,6 @@
                 "{{baseUrl}}"
               ],
               "path": [
-                "api",
-                "v1",
                 "reference",
                 "majors"
               ]
@@ -1601,8 +1691,6 @@
                 "{{baseUrl}}"
               ],
               "path": [
-                "api",
-                "v1",
                 "reference",
                 "institutions"
               ]
@@ -1636,8 +1724,6 @@
                 "{{baseUrl}}"
               ],
               "path": [
-                "api",
-                "v1",
                 "reference",
                 "languages"
               ]
@@ -1654,8 +1740,6 @@
                 "{{baseUrl}}"
               ],
               "path": [
-                "api",
-                "v1",
                 "reference",
                 "proficiency-levels"
               ]
@@ -1672,8 +1756,6 @@
                 "{{baseUrl}}"
               ],
               "path": [
-                "api",
-                "v1",
                 "reference",
                 "standardized-tests"
               ]
@@ -1690,8 +1772,6 @@
                 "{{baseUrl}}"
               ],
               "path": [
-                "api",
-                "v1",
                 "reference",
                 "special-statuses"
               ]

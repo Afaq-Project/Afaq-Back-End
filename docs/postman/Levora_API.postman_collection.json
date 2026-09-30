@@ -375,7 +375,7 @@
           ]
         },
         {
-          "name": "OAuth Google → Initiate",
+          "name": "OAuth Google \u2192 Initiate",
           "event": [
             {
               "listen": "prerequest",
@@ -416,7 +416,7 @@
                 "google"
               ]
             },
-            "description": "Initiates the Google OAuth 2.0 authentication flow. The server will respond with a 302 redirect to Google's consent screen. The user must follow the redirect in a browser to complete authentication.\n\n**Flow:**\n1. Client calls `GET /auth/google`\n2. Server redirects → `https://accounts.google.com/o/oauth2/v2/auth?...`\n3. User grants permissions\n4. Google redirects → `/auth/google/callback?code=...`\n5. Server processes callback and returns JWT tokens\n\n**Note:** This endpoint cannot be tested end-to-end in Postman because it requires a browser session to follow the OAuth redirect and complete the consent flow."
+            "description": "Initiates the Google OAuth 2.0 authentication flow. The server will respond with a 302 redirect to Google's consent screen. The user must follow the redirect in a browser to complete authentication.\n\n**Flow:**\n1. Client calls `GET /auth/google`\n2. Server redirects \u2192 `https://accounts.google.com/o/oauth2/v2/auth?...`\n3. User grants permissions\n4. Google redirects \u2192 `/auth/google/callback?code=...`\n5. Server processes callback and returns JWT tokens\n\n**Note:** This endpoint cannot be tested end-to-end in Postman because it requires a browser session to follow the OAuth redirect and complete the consent flow."
           },
           "response": [
             {
@@ -478,7 +478,7 @@
           ]
         },
         {
-          "name": "OAuth Google → Callback (Doc Only)",
+          "name": "OAuth Google \u2192 Callback (Doc Only)",
           "request": {
             "method": "GET",
             "header": [],
@@ -500,11 +500,11 @@
                 }
               ]
             },
-            "description": "⚠️ **DOCUMENTATION ONLY — Cannot be tested directly in Postman.**\n\nThis endpoint is the OAuth callback for Google. It is called automatically by Google after the user grants or denies consent on the Google consent screen. The `code` query parameter is a one-time authorization code issued by Google that cannot be generated manually.\n\n**On success (200 OK):** Returns JWT access token, refresh token, and user profile. Sets `accessToken` and `refreshToken` cookies.\n\n**On missing email (400 Bad Request):** Returns `\"Unable to retrieve email from the provider. Please ensure your email is public or use another login method.\"`\n\n**Testing:** Use the browser-based OAuth flow with real credentials, or refer to `test/oauth.e2e-spec.ts` for automated E2E testing with mocked guards."
+            "description": "\u26a0\ufe0f **DOCUMENTATION ONLY \u2014 Cannot be tested directly in Postman.**\n\nThis endpoint is the OAuth callback for Google. It is called automatically by Google after the user grants or denies consent on the Google consent screen. The `code` query parameter is a one-time authorization code issued by Google that cannot be generated manually.\n\n**On success (200 OK):** Returns JWT access token, refresh token, and user profile. Sets `accessToken` and `refreshToken` cookies.\n\n**On missing email (400 Bad Request):** Returns `\"Unable to retrieve email from the provider. Please ensure your email is public or use another login method.\"`\n\n**Testing:** Use the browser-based OAuth flow with real credentials, or refer to `test/oauth.e2e-spec.ts` for automated E2E testing with mocked guards."
           },
           "response": [
             {
-              "name": "200 OK — New User Created (isDraft: true)",
+              "name": "200 OK \u2014 New User Created (isDraft: true)",
               "originalRequest": {
                 "method": "GET",
                 "header": [],
@@ -537,7 +537,7 @@
               "body": "{\n  \"accessToken\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...\",\n  \"refreshToken\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...\",\n  \"user\": {\n    \"id\": \"9dd10e8f-0f3c-4295-befb-6109efd2587f\",\n    \"email\": \"john.doe@gmail.com\",\n    \"firstName\": \"John\",\n    \"lastName\": \"Doe\",\n    \"isEmailVerified\": true,\n    \"isActive\": true,\n    \"lastLoginAt\": \"2026-08-28T20:00:00.000Z\",\n    \"createdAt\": \"2026-08-28T20:00:00.000Z\",\n    \"userProfile\": {\n      \"fullName\": \"John Doe\",\n      \"completionPct\": 0,\n      \"isDraft\": true\n    },\n    \"roles\": [\"user\"]\n  }\n}"
             },
             {
-              "name": "400 Bad Request — Missing Email",
+              "name": "400 Bad Request \u2014 Missing Email",
               "originalRequest": {
                 "method": "GET",
                 "header": [],
@@ -568,7 +568,7 @@
           ]
         },
         {
-          "name": "OAuth LinkedIn → Initiate",
+          "name": "OAuth LinkedIn \u2192 Initiate",
           "event": [
             {
               "listen": "prerequest",
@@ -609,7 +609,7 @@
                 "linkedin"
               ]
             },
-            "description": "Initiates the LinkedIn OAuth 2.0 authentication flow. The server will respond with a 302 redirect to LinkedIn's authorization page. The user must follow the redirect in a browser to complete authentication.\n\n**Flow:**\n1. Client calls `GET /auth/linkedin`\n2. Server redirects → `https://www.linkedin.com/oauth/v2/authorization?...`\n3. User grants permissions\n4. LinkedIn redirects → `/auth/linkedin/callback?code=...`\n5. Server processes callback and returns JWT tokens\n\n**Note:** This endpoint cannot be tested end-to-end in Postman because it requires a browser session to follow the OAuth redirect and complete the consent flow."
+            "description": "Initiates the LinkedIn OAuth 2.0 authentication flow. The server will respond with a 302 redirect to LinkedIn's authorization page. The user must follow the redirect in a browser to complete authentication.\n\n**Flow:**\n1. Client calls `GET /auth/linkedin`\n2. Server redirects \u2192 `https://www.linkedin.com/oauth/v2/authorization?...`\n3. User grants permissions\n4. LinkedIn redirects \u2192 `/auth/linkedin/callback?code=...`\n5. Server processes callback and returns JWT tokens\n\n**Note:** This endpoint cannot be tested end-to-end in Postman because it requires a browser session to follow the OAuth redirect and complete the consent flow."
           },
           "response": [
             {
@@ -643,7 +643,7 @@
           ]
         },
         {
-          "name": "OAuth LinkedIn → Callback (Doc Only)",
+          "name": "OAuth LinkedIn \u2192 Callback (Doc Only)",
           "request": {
             "method": "GET",
             "header": [],
@@ -665,11 +665,11 @@
                 }
               ]
             },
-            "description": "⚠️ **DOCUMENTATION ONLY — Cannot be tested directly in Postman.**\n\nThis endpoint is the OAuth callback for LinkedIn. It is called automatically by LinkedIn after the user grants or denies consent on the LinkedIn authorization page. The `code` query parameter is a one-time authorization code issued by LinkedIn that cannot be generated manually.\n\n**On success (200 OK):** Returns JWT access token, refresh token, and user profile. Sets `accessToken` and `refreshToken` cookies. If the email matches an existing user, the OAuth identity is linked to that account instead of creating a new one.\n\n**On missing email (400 Bad Request):** Returns `\"Unable to retrieve email from the provider. Please ensure your email is public or use another login method.\"`\n\n**Testing:** Use the browser-based OAuth flow with real credentials, or refer to `test/oauth.e2e-spec.ts` for automated E2E testing with mocked guards."
+            "description": "\u26a0\ufe0f **DOCUMENTATION ONLY \u2014 Cannot be tested directly in Postman.**\n\nThis endpoint is the OAuth callback for LinkedIn. It is called automatically by LinkedIn after the user grants or denies consent on the LinkedIn authorization page. The `code` query parameter is a one-time authorization code issued by LinkedIn that cannot be generated manually.\n\n**On success (200 OK):** Returns JWT access token, refresh token, and user profile. Sets `accessToken` and `refreshToken` cookies. If the email matches an existing user, the OAuth identity is linked to that account instead of creating a new one.\n\n**On missing email (400 Bad Request):** Returns `\"Unable to retrieve email from the provider. Please ensure your email is public or use another login method.\"`\n\n**Testing:** Use the browser-based OAuth flow with real credentials, or refer to `test/oauth.e2e-spec.ts` for automated E2E testing with mocked guards."
           },
           "response": [
             {
-              "name": "200 OK — Existing User Linked",
+              "name": "200 OK \u2014 Existing User Linked",
               "originalRequest": {
                 "method": "GET",
                 "header": [],
@@ -698,6 +698,166 @@
               "body": "{\n  \"accessToken\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...\",\n  \"refreshToken\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...\",\n  \"user\": {\n    \"id\": \"9dd10e8f-0f3c-4295-befb-6109efd2587f\",\n    \"email\": \"john.doe@linkedin.com\",\n    \"firstName\": \"John\",\n    \"lastName\": \"Doe\",\n    \"isEmailVerified\": true,\n    \"isActive\": true,\n    \"lastLoginAt\": \"2026-08-28T20:00:00.000Z\",\n    \"createdAt\": \"2026-08-28T19:00:00.000Z\",\n    \"userProfile\": {\n      \"fullName\": \"John Doe\",\n      \"completionPct\": 80,\n      \"isDraft\": false\n    },\n    \"roles\": [\"user\"]\n  }\n}"
             }
           ]
+        },
+        {
+          "name": "Verify Email",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/auth/verify-email?token=YOUR_TOKEN",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "verify-email"
+              ],
+              "query": [
+                {
+                  "key": "token",
+                  "value": "YOUR_TOKEN"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Resend Verification",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/resend-verification",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "resend-verification"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"user@example.com\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Forgot Password",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/forgot-password",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "forgot-password"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"user@example.com\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Reset Password",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/reset-password",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "reset-password"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"YOUR_RESET_TOKEN\",\n  \"password\": \"NewP@ssw0rd123!\",\n  \"confirmPassword\": \"NewP@ssw0rd123!\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Change Password",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/change-password",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "change-password"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"currentPassword\": \"OldP@ssw0rd123!\",\n  \"newPassword\": \"NewP@ssw0rd123!\",\n  \"confirmPassword\": \"NewP@ssw0rd123!\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Force Password Reset (Admin)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/force-password-reset",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "force-password-reset"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": \"USER_ID_HERE\",\n  \"newPassword\": \"ForcedP@ss123!\",\n  \"confirmPassword\": \"ForcedP@ss123!\"\n}"
+            }
+          }
         }
       ]
     },
@@ -1110,13 +1270,11 @@
                 "method": "GET",
                 "header": [],
                 "url": {
-                  "raw": "{{baseUrl}}/api/v1/profile/educations",
+                  "raw": "{{baseUrl}}/profile/educations",
                   "host": [
                     "{{baseUrl}}"
                   ],
                   "path": [
-                    "api",
-                    "v1",
                     "profile",
                     "educations"
                   ]
@@ -1150,13 +1308,11 @@
                   "raw": "{\n  \"degree\": \"BSc Computer Science\",\n  \"major\": \"Software Engineering\",\n  \"institution\": \"University of Technology\",\n  \"graduationYear\": 2024\n}"
                 },
                 "url": {
-                  "raw": "{{baseUrl}}/api/v1/profile/educations",
+                  "raw": "{{baseUrl}}/profile/educations",
                   "host": [
                     "{{baseUrl}}"
                   ],
                   "path": [
-                    "api",
-                    "v1",
                     "profile",
                     "educations"
                   ]
@@ -1190,13 +1346,11 @@
                   "raw": "{\n  \"degree\": \"MSc Computer Science\",\n  \"major\": \"AI\",\n  \"institution\": \"University of Technology\",\n  \"graduationYear\": 2026,\n  \"gpaValue\": 3.8,\n  \"gpaScale\": 4\n}"
                 },
                 "url": {
-                  "raw": "{{baseUrl}}/api/v1/profile/educations/:id",
+                  "raw": "{{baseUrl}}/profile/educations/:id",
                   "host": [
                     "{{baseUrl}}"
                   ],
                   "path": [
-                    "api",
-                    "v1",
                     "profile",
                     "educations",
                     ":id"
@@ -1228,13 +1382,11 @@
                 "method": "DELETE",
                 "header": [],
                 "url": {
-                  "raw": "{{baseUrl}}/api/v1/profile/educations/:id",
+                  "raw": "{{baseUrl}}/profile/educations/:id",
                   "host": [
                     "{{baseUrl}}"
                   ],
                   "path": [
-                    "api",
-                    "v1",
                     "profile",
                     "educations",
                     ":id"
@@ -1748,13 +1900,11 @@
                   }
                 ],
                 "url": {
-                  "raw": "{{baseUrl}}/api/v1/profile/me",
+                  "raw": "{{baseUrl}}/profile/me",
                   "host": [
                     "{{baseUrl}}"
                   ],
                   "path": [
-                    "api",
-                    "v1",
                     "profile",
                     "me"
                   ]
@@ -1772,13 +1922,11 @@
                   }
                 ],
                 "url": {
-                  "raw": "{{baseUrl}}/api/v1/profile/personal",
+                  "raw": "{{baseUrl}}/profile/personal",
                   "host": [
                     "{{baseUrl}}"
                   ],
                   "path": [
-                    "api",
-                    "v1",
                     "profile",
                     "personal"
                   ]
@@ -1945,13 +2093,11 @@
           "request": {
             "method": "GET",
             "url": {
-              "raw": "{{baseUrl}}/api/v1/reference/countries",
+              "raw": "{{baseUrl}}/reference/countries",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
-                "api",
-                "v1",
                 "reference",
                 "countries"
               ]
@@ -1963,13 +2109,11 @@
           "request": {
             "method": "GET",
             "url": {
-              "raw": "{{baseUrl}}/api/v1/reference/cities",
+              "raw": "{{baseUrl}}/reference/cities",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
-                "api",
-                "v1",
                 "reference",
                 "cities"
               ]
@@ -1981,13 +2125,11 @@
           "request": {
             "method": "GET",
             "url": {
-              "raw": "{{baseUrl}}/api/v1/reference/marital-statuses",
+              "raw": "{{baseUrl}}/reference/marital-statuses",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
-                "api",
-                "v1",
                 "reference",
                 "marital-statuses"
               ]
