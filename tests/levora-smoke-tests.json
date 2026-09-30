@@ -12,12 +12,12 @@
     },
     {
       "key": "test_user_email",
-      "value": "smoke-test@levora.com",
+      "value": "user1@levora.app",
       "type": "string"
     },
     {
       "key": "test_user_password",
-      "value": "TestPass123!",
+      "value": "User1Password!",
       "type": "string"
     },
     {
@@ -40,36 +40,6 @@
     {
       "name": "Public Endpoints",
       "item": [
-        {
-          "name": "POST /auth/register",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Status code is 201 or 409 (if seeded)', function () {",
-                  "    pm.expect(pm.response.code).to.be.oneOf([201, 409]);",
-                  "});"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"email\": \"{{test_user_email}}\",\n  \"password\": \"{{test_user_password}}\",\n  \"firstName\": \"Smoke\",\n  \"lastName\": \"Test\"\n}"
-            },
-            "url": "{{baseUrl}}/auth/register"
-          }
-        },
         {
           "name": "POST /auth/login",
           "event": [
@@ -421,112 +391,6 @@
           "request": {
             "method": "GET",
             "url": "{{baseUrl}}/reference/major-categories"
-          }
-        },
-        {
-          "name": "GET /auth/verify-email",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Status code is 400 or 401', function () {",
-                  "    pm.expect(pm.response.code).to.be.oneOf([400, 401]);",
-                  "});"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "url": "{{baseUrl}}/auth/verify-email?token=invalid_token"
-          }
-        },
-        {
-          "name": "POST /auth/resend-verification",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Status code is 400 or 200 or 404 or 429', function () {",
-                  "    pm.expect(pm.response.code).to.be.oneOf([200, 400, 404, 429]);",
-                  "});"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\"email\": \"{{test_user_email}}\"}"
-            },
-            "url": "{{baseUrl}}/auth/resend-verification"
-          }
-        },
-        {
-          "name": "POST /auth/forgot-password",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Status code is 200 or 400 or 404 or 429', function () {",
-                  "    pm.expect(pm.response.code).to.be.oneOf([200, 400, 404, 429]);",
-                  "});"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\"email\": \"{{test_user_email}}\"}"
-            },
-            "url": "{{baseUrl}}/auth/forgot-password"
-          }
-        },
-        {
-          "name": "POST /auth/reset-password",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Status code is 400 or 401', function () {",
-                  "    pm.expect(pm.response.code).to.be.oneOf([400, 401]);",
-                  "});"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\"token\": \"invalid_token\", \"password\": \"NewP@ssw0rd123!\", \"confirmPassword\": \"NewP@ssw0rd123!\"}"
-            },
-            "url": "{{baseUrl}}/auth/reset-password"
           }
         }
       ]

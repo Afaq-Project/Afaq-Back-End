@@ -11,6 +11,7 @@ import { UnauthorizedException, ConflictException } from '@nestjs/common';
 import { ProfileService } from '../profile/services/profile.service';
 import { RedisService } from '../../redis/redis.service';
 import * as bcrypt from 'bcryptjs';
+import { MailService } from '../mail/mail.service';
 
 jest.mock('bcryptjs');
 
@@ -84,8 +85,18 @@ describe('AuthService', () => {
           provide: RedisService,
           useValue: {
             client: {
-              get: jest.fn(),
-              exists: jest.fn().mockResolvedValue(1),
+              get: jest.fn().mockImplementation((key: string) => {
+                if (key.startsWith('tv:')) {
+                  return '1';
+                }
+                return null;
+              }),
+              exists: jest.fn().mockImplementation((key: string) => {
+                if (key.startsWith('rt:')) {
+                  return 1;
+                }
+                return 0;
+              }),
               pipeline: jest.fn().mockReturnValue({
                 set: jest.fn(),
                 sadd: jest.fn(),
@@ -101,6 +112,10 @@ describe('AuthService', () => {
         {
           provide: getLoggerToken(AuthService.name),
           useValue: { info: jest.fn(), error: jest.fn(), warn: jest.fn() },
+        },
+        {
+          provide: MailService,
+          useValue: { sendMail: jest.fn(), sendVerificationEmail: jest.fn() },
         },
       ],
     }).compile();
@@ -151,6 +166,7 @@ describe('AuthService', () => {
         id: '1',
         password: 'hash',
         isActive: true,
+        isEmailVerified: true,
         userRoles: [{ roles: { name: 'user' } }],
       } as any);
       (bcrypt.compare as jest.Mock).mockResolvedValue(true);
@@ -246,6 +262,7 @@ describe('AuthService', () => {
         sub: '1',
         email: 'a@a.com',
         role: 'admin',
+        tokenVersion: 1,
       });
       expect(result.role).toBe('admin');
     });
@@ -259,6 +276,7 @@ describe('AuthService', () => {
         sub: '1',
         email: 'a@a.com',
         role: 'user',
+        tokenVersion: 1,
       });
       expect(result.isActive).toBe(true);
     });
