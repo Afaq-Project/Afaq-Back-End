@@ -258,7 +258,7 @@ jobs:
           echo "=== 4. Test POST /api/v1/auth/login ==="
           LOGIN_RES=$(curl -s -w "\n%{http_code}" -X POST http://localhost:3000/api/v1/auth/login \
             -H "Content-Type: application/json" \
-            -d '{"email":"container-test@example.com","password":"Password123!"}')
+            -d '{"email":"user1@levora.app","password":"User1Password!"}')
           LOGIN_CODE=$(echo "$LOGIN_RES" | tail -n1)
           LOGIN_BODY=$(echo "$LOGIN_RES" | sed '$d')
           echo "Response Code: $LOGIN_CODE"
