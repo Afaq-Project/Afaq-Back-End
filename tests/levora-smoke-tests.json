@@ -7,7 +7,7 @@
   "variable": [
     {
       "key": "baseUrl",
-      "value": "http://localhost:3000/api/v1",
+      "value": "http://localhost:3000",
       "type": "string"
     },
     {
@@ -73,7 +73,7 @@
               "mode": "raw",
               "raw": "{\n  \"email\": \"{{test_user_email}}\",\n  \"password\": \"{{test_user_password}}\"\n}"
             },
-            "url": "{{baseUrl}}/auth/login"
+            "url": "{{baseUrl}}/api/v1/auth/login"
           }
         },
         {
@@ -98,7 +98,7 @@
           ],
           "request": {
             "method": "GET",
-            "url": "{{baseUrl}}/reference/languages"
+            "url": "{{baseUrl}}/api/v1/reference/languages"
           }
         },
         {
@@ -126,7 +126,7 @@
           ],
           "request": {
             "method": "GET",
-            "url": "{{baseUrl}}/reference/education-levels"
+            "url": "{{baseUrl}}/api/v1/reference/education-levels"
           }
         },
         {
@@ -151,7 +151,7 @@
           ],
           "request": {
             "method": "GET",
-            "url": "{{baseUrl}}/reference/app-languages"
+            "url": "{{baseUrl}}/api/v1/reference/app-languages"
           }
         },
         {
@@ -178,7 +178,7 @@
           ],
           "request": {
             "method": "GET",
-            "url": "{{baseUrl}}/reference/countries"
+            "url": "{{baseUrl}}/api/v1/reference/countries"
           }
         },
         {
@@ -202,7 +202,7 @@
           ],
           "request": {
             "method": "GET",
-            "url": "{{baseUrl}}/reference/cities"
+            "url": "{{baseUrl}}/api/v1/reference/cities"
           }
         },
         {
@@ -226,7 +226,7 @@
           ],
           "request": {
             "method": "GET",
-            "url": "{{baseUrl}}/reference/marital-statuses"
+            "url": "{{baseUrl}}/api/v1/reference/marital-statuses"
           }
         },
         {
@@ -234,7 +234,7 @@
           "request": {
             "method": "GET",
             "header": [],
-            "url": "{{baseUrl}}/reference/countries?sort=nameAr&order=desc"
+            "url": "{{baseUrl}}/api/v1/reference/countries?sort=nameAr&order=desc"
           },
           "event": [
             {
@@ -268,7 +268,7 @@
           ],
           "request": {
             "method": "GET",
-            "url": "{{baseUrl}}/reference/majors"
+            "url": "{{baseUrl}}/api/v1/reference/majors"
           }
         },
         {
@@ -290,7 +290,7 @@
           ],
           "request": {
             "method": "GET",
-            "url": "{{baseUrl}}/reference/institutions"
+            "url": "{{baseUrl}}/api/v1/reference/institutions"
           }
         },
         {
@@ -312,7 +312,7 @@
           ],
           "request": {
             "method": "GET",
-            "url": "{{baseUrl}}/reference/proficiency-levels"
+            "url": "{{baseUrl}}/api/v1/reference/proficiency-levels"
           }
         },
         {
@@ -332,7 +332,7 @@
           ],
           "request": {
             "method": "GET",
-            "url": "{{baseUrl}}/reference/standardized-tests"
+            "url": "{{baseUrl}}/api/v1/reference/standardized-tests"
           }
         },
         {
@@ -352,7 +352,7 @@
           ],
           "request": {
             "method": "GET",
-            "url": "{{baseUrl}}/reference/special-statuses"
+            "url": "{{baseUrl}}/api/v1/reference/special-statuses"
           }
         },
         {
@@ -372,7 +372,7 @@
           ],
           "request": {
             "method": "GET",
-            "url": "{{baseUrl}}/reference/document-types"
+            "url": "{{baseUrl}}/api/v1/reference/document-types"
           }
         },
         {
@@ -390,7 +390,7 @@
           ],
           "request": {
             "method": "GET",
-            "url": "{{baseUrl}}/reference/major-categories"
+            "url": "{{baseUrl}}/api/v1/reference/major-categories"
           }
         }
       ]
@@ -425,7 +425,7 @@
                 "value": "Bearer {{access_token}}"
               }
             ],
-            "url": "{{baseUrl}}/profile/me"
+            "url": "{{baseUrl}}/api/v1/profile/me"
           }
         },
         {
@@ -462,7 +462,7 @@
               "mode": "raw",
               "raw": "{\"nationalityId\":\"{{country_id}}\"}"
             },
-            "url": "{{baseUrl}}/profile/personal"
+            "url": "{{baseUrl}}/api/v1/profile/personal"
           }
         },
         {
@@ -496,7 +496,7 @@
               "mode": "raw",
               "raw": "{\"educationLevelId\":\"{{education_level_id}}\"}"
             },
-            "url": "{{baseUrl}}/profile/personal"
+            "url": "{{baseUrl}}/api/v1/profile/personal"
           }
         },
         {
@@ -530,7 +530,7 @@
               "mode": "raw",
               "raw": "{\"nationalityId\":null}"
             },
-            "url": "{{baseUrl}}/profile/personal"
+            "url": "{{baseUrl}}/api/v1/profile/personal"
           }
         },
         {
@@ -568,7 +568,7 @@
               "mode": "raw",
               "raw": "{\n  \"educationLevelId\": \"{{education_level_id}}\",\n  \"institutionId\": \"{{institution_id}}\",\n  \"majorId\": \"{{major_id}}\",\n  \"startDate\": \"2020-09-01\",\n  \"isCurrent\": true,\n  \"gpaRaw\": 3.7,\n  \"gpaScale\": \"OUT_OF_4\"\n}"
             },
-            "url": "{{baseUrl}}/profile/educations"
+            "url": "{{baseUrl}}/api/v1/profile/educations"
           }
         },
         {
@@ -602,7 +602,7 @@
               "mode": "raw",
               "raw": "{\"gpaRaw\":3.85}"
             },
-            "url": "{{baseUrl}}/profile/educations/{{education_id}}"
+            "url": "{{baseUrl}}/api/v1/profile/educations/{{education_id}}"
           }
         },
         {
@@ -626,7 +626,7 @@
                 "value": "Bearer {{access_token}}"
               }
             ],
-            "url": "{{baseUrl}}/profile/educations/{{education_id}}"
+            "url": "{{baseUrl}}/api/v1/profile/educations/{{education_id}}"
           }
         },
         {
@@ -652,14 +652,14 @@
                 "value": "Bearer {{access_token}}"
               }
             ],
-            "url": "{{baseUrl}}/profile/educations/{{education_id}}"
+            "url": "{{baseUrl}}/api/v1/profile/educations/{{education_id}}"
           }
         },
         {
           "name": "GET /profile/educations",
           "request": {
             "method": "GET",
-            "url": "{{baseUrl}}/profile/educations",
+            "url": "{{baseUrl}}/api/v1/profile/educations",
             "header": [
               {
                 "key": "Authorization",
@@ -703,7 +703,7 @@
                 "value": "Bearer {{access_token}}"
               }
             ],
-            "url": "{{baseUrl}}/profile/me"
+            "url": "{{baseUrl}}/api/v1/profile/me"
           }
         },
         {
@@ -729,7 +729,7 @@
                 "value": "Bearer {{access_token}}"
               }
             ],
-            "url": "{{baseUrl}}/profile/personal",
+            "url": "{{baseUrl}}/api/v1/profile/personal",
             "body": {
               "mode": "raw",
               "raw": "{\n  \"firstName\": \"Updated Name\"\n}",
@@ -759,7 +759,7 @@
               "mode": "raw",
               "raw": "{\"experiences\":[\"E1\",\"E2\",\"E3\",\"E4\",\"E5\",\"E6\",\"E7\",\"E8\",\"E9\",\"E10\"]}"
             },
-            "url": "{{baseUrl}}/profile/personal"
+            "url": "{{baseUrl}}/api/v1/profile/personal"
           },
           "event": [
             {
@@ -790,7 +790,7 @@
               "mode": "raw",
               "raw": "{\"experiences\":[\"E1\",\"E2\",\"E3\",\"E4\",\"E5\",\"E6\",\"E7\",\"E8\",\"E9\",\"E10\",\"E11\"]}"
             },
-            "url": "{{baseUrl}}/profile/personal"
+            "url": "{{baseUrl}}/api/v1/profile/personal"
           },
           "event": [
             {
@@ -838,7 +838,7 @@
               "mode": "raw",
               "raw": "{\n  \"languageId\": \"{{valid_language_id}}\",\n  \"proficiencyLevelId\": \"{{proficiency_level_id}}\"\n}"
             },
-            "url": "{{baseUrl}}/profile/languages"
+            "url": "{{baseUrl}}/api/v1/profile/languages"
           }
         },
         {
@@ -872,14 +872,14 @@
               "mode": "raw",
               "raw": "{\"proficiencyLevelId\":\"{{proficiency_level_id}}\"}"
             },
-            "url": "{{baseUrl}}/profile/languages/{{profile_language_id}}"
+            "url": "{{baseUrl}}/api/v1/profile/languages/{{profile_language_id}}"
           }
         },
         {
           "name": "GET /profile/languages",
           "request": {
             "method": "GET",
-            "url": "{{baseUrl}}/profile/languages",
+            "url": "{{baseUrl}}/api/v1/profile/languages",
             "header": [
               {
                 "key": "Authorization",
@@ -921,7 +921,7 @@
                 "value": "Bearer {{access_token}}"
               }
             ],
-            "url": "{{baseUrl}}/profile/languages/{{profile_language_id}}"
+            "url": "{{baseUrl}}/api/v1/profile/languages/{{profile_language_id}}"
           }
         },
         {
@@ -947,7 +947,7 @@
                 "value": "Bearer {{access_token}}"
               }
             ],
-            "url": "{{baseUrl}}/profile/languages/{{profile_language_id}}"
+            "url": "{{baseUrl}}/api/v1/profile/languages/{{profile_language_id}}"
           }
         },
         {
@@ -992,7 +992,7 @@
                 }
               ]
             },
-            "url": "{{baseUrl}}/profile/documents"
+            "url": "{{baseUrl}}/api/v1/profile/documents"
           }
         },
         {
@@ -1022,7 +1022,7 @@
                 "value": "Bearer {{access_token}}"
               }
             ],
-            "url": "{{baseUrl}}/profile/documents/{{document_id}}/download"
+            "url": "{{baseUrl}}/api/v1/profile/documents/{{document_id}}/download"
           }
         },
         {
@@ -1048,7 +1048,7 @@
                 "value": "Bearer {{access_token}}"
               }
             ],
-            "url": "{{baseUrl}}/profile/documents/{{document_id}}"
+            "url": "{{baseUrl}}/api/v1/profile/documents/{{document_id}}"
           }
         },
         {
@@ -1081,7 +1081,7 @@
               "mode": "raw",
               "raw": "{\n  \"testId\": \"{{test_id}}\",\n  \"score\": 7.5\n}"
             },
-            "url": "{{baseUrl}}/profile/test-results"
+            "url": "{{baseUrl}}/api/v1/profile/test-results"
           }
         },
         {
@@ -1105,7 +1105,7 @@
                 "value": "Bearer {{access_token}}"
               }
             ],
-            "url": "{{baseUrl}}/profile/test-results"
+            "url": "{{baseUrl}}/api/v1/profile/test-results"
           }
         },
         {
@@ -1137,7 +1137,7 @@
               "mode": "raw",
               "raw": "{\n  \"score\": 8.0\n}"
             },
-            "url": "{{baseUrl}}/profile/test-results/{{test_result_id}}"
+            "url": "{{baseUrl}}/api/v1/profile/test-results/{{test_result_id}}"
           }
         },
         {
@@ -1161,7 +1161,7 @@
                 "value": "Bearer {{access_token}}"
               }
             ],
-            "url": "{{baseUrl}}/profile/test-results/{{test_result_id}}"
+            "url": "{{baseUrl}}/api/v1/profile/test-results/{{test_result_id}}"
           }
         },
         {
@@ -1185,7 +1185,7 @@
                 "value": "Bearer {{access_token}}"
               }
             ],
-            "url": "{{baseUrl}}/profile/test-results/{{test_result_id}}"
+            "url": "{{baseUrl}}/api/v1/profile/test-results/{{test_result_id}}"
           }
         },
         {
@@ -1217,7 +1217,7 @@
               "mode": "raw",
               "raw": "{\n  \"specialStatusId\": \"{{special_status_id}}\"\n}"
             },
-            "url": "{{baseUrl}}/profile/special-statuses"
+            "url": "{{baseUrl}}/api/v1/profile/special-statuses"
           }
         },
         {
@@ -1241,7 +1241,7 @@
                 "value": "Bearer {{access_token}}"
               }
             ],
-            "url": "{{baseUrl}}/profile/special-statuses"
+            "url": "{{baseUrl}}/api/v1/profile/special-statuses"
           }
         },
         {
@@ -1265,7 +1265,7 @@
                 "value": "Bearer {{access_token}}"
               }
             ],
-            "url": "{{baseUrl}}/profile/special-statuses/{{special_status_id}}"
+            "url": "{{baseUrl}}/api/v1/profile/special-statuses/{{special_status_id}}"
           }
         },
         {
@@ -1289,7 +1289,7 @@
                 "value": "Bearer {{access_token}}"
               }
             ],
-            "url": "{{baseUrl}}/profile/preferences"
+            "url": "{{baseUrl}}/api/v1/profile/preferences"
           }
         },
         {
@@ -1321,7 +1321,7 @@
               "mode": "raw",
               "raw": "{\n  \"educationLevelId\": \"{{education_level_id}}\"\n}"
             },
-            "url": "{{baseUrl}}/profile/preferences/degrees"
+            "url": "{{baseUrl}}/api/v1/profile/preferences/degrees"
           }
         },
         {
@@ -1345,7 +1345,7 @@
                 "value": "Bearer {{access_token}}"
               }
             ],
-            "url": "{{baseUrl}}/profile/preferences/degrees/{{education_level_id}}"
+            "url": "{{baseUrl}}/api/v1/profile/preferences/degrees/{{education_level_id}}"
           }
         },
         {
@@ -1377,7 +1377,7 @@
               "mode": "raw",
               "raw": "{\n  \"majorId\": \"{{major_id}}\"\n}"
             },
-            "url": "{{baseUrl}}/profile/preferences/majors"
+            "url": "{{baseUrl}}/api/v1/profile/preferences/majors"
           }
         },
         {
@@ -1401,7 +1401,7 @@
                 "value": "Bearer {{access_token}}"
               }
             ],
-            "url": "{{baseUrl}}/profile/preferences/majors/{{major_id}}"
+            "url": "{{baseUrl}}/api/v1/profile/preferences/majors/{{major_id}}"
           }
         },
         {
@@ -1433,7 +1433,7 @@
               "mode": "raw",
               "raw": "{\n  \"institutionId\": \"{{institution_id}}\"\n}"
             },
-            "url": "{{baseUrl}}/profile/preferences/institutions"
+            "url": "{{baseUrl}}/api/v1/profile/preferences/institutions"
           }
         },
         {
@@ -1457,7 +1457,7 @@
                 "value": "Bearer {{access_token}}"
               }
             ],
-            "url": "{{baseUrl}}/profile/preferences/institutions/{{institution_id}}"
+            "url": "{{baseUrl}}/api/v1/profile/preferences/institutions/{{institution_id}}"
           }
         },
         {
@@ -1481,7 +1481,7 @@
                 "value": "Bearer {{access_token}}"
               }
             ],
-            "url": "{{baseUrl}}/profile/documents"
+            "url": "{{baseUrl}}/api/v1/profile/documents"
           }
         }
       ]
@@ -1524,7 +1524,7 @@
               "mode": "raw",
               "raw": "{\n  \"unknownField\": \"value\"\n}"
             },
-            "url": "{{baseUrl}}/profile/personal"
+            "url": "{{baseUrl}}/api/v1/profile/personal"
           }
         }
       ]
@@ -1563,7 +1563,7 @@
                 "value": "application/json"
               }
             ],
-            "url": "{{baseUrl}}/profile/me"
+            "url": "{{baseUrl}}/api/v1/profile/me"
           }
         },
         {
@@ -1589,7 +1589,7 @@
                 "value": "application/json"
               }
             ],
-            "url": "{{baseUrl}}/auth/login",
+            "url": "{{baseUrl}}/api/v1/auth/login",
             "body": {
               "mode": "raw",
               "raw": "{\"email\":\"admin@levora.com' OR '1'='1\",\"password\":\"password\"}"
@@ -1628,7 +1628,7 @@
                 "value": "application/json"
               }
             ],
-            "url": "{{baseUrl}}/profile/me"
+            "url": "{{baseUrl}}/api/v1/profile/me"
           }
         },
         {
@@ -1661,7 +1661,7 @@
                 "value": "application/json"
               }
             ],
-            "url": "{{baseUrl}}/profile/me"
+            "url": "{{baseUrl}}/api/v1/profile/me"
           }
         },
         {
@@ -1689,7 +1689,7 @@
               "mode": "raw",
               "raw": "{\"email\": \"invalid@levora.com\", \"password\": \"invalid\"}"
             },
-            "url": "{{baseUrl}}/auth/login"
+            "url": "{{baseUrl}}/api/v1/auth/login"
           }
         }
       ]
@@ -1701,7 +1701,7 @@
           "name": "GET /health/ready",
           "request": {
             "method": "GET",
-            "url": "{{baseUrl}}/health/ready"
+            "url": "{{baseUrl}}/api/v1/health/ready"
           },
           "event": [
             {
@@ -1724,7 +1724,7 @@
           "name": "GET /auth/me",
           "request": {
             "method": "GET",
-            "url": "{{baseUrl}}/auth/me",
+            "url": "{{baseUrl}}/api/v1/auth/me",
             "header": [
               {
                 "key": "Authorization",
@@ -1748,7 +1748,7 @@
           "name": "POST /auth/refresh",
           "request": {
             "method": "POST",
-            "url": "{{baseUrl}}/auth/refresh",
+            "url": "{{baseUrl}}/api/v1/auth/refresh",
             "header": [
               {
                 "key": "Content-Type",
@@ -1804,7 +1804,7 @@
               "mode": "raw",
               "raw": "{\"currentPassword\": \"OldP@ssw0rd123!\", \"newPassword\": \"NewP@ssw0rd123!\", \"confirmPassword\": \"NewP@ssw0rd123!\"}"
             },
-            "url": "{{baseUrl}}/auth/change-password"
+            "url": "{{baseUrl}}/api/v1/auth/change-password"
           }
         },
         {
@@ -1837,7 +1837,7 @@
               "mode": "raw",
               "raw": "{\"userId\": \"00000000-0000-0000-0000-000000000000\", \"newPassword\": \"ForcedP@ss123!\", \"confirmPassword\": \"ForcedP@ss123!\"}"
             },
-            "url": "{{baseUrl}}/auth/force-password-reset"
+            "url": "{{baseUrl}}/api/v1/auth/force-password-reset"
           }
         }
       ]
@@ -1849,7 +1849,7 @@
           "name": "GET /users/profile/me",
           "request": {
             "method": "GET",
-            "url": "{{baseUrl}}/users/profile",
+            "url": "{{baseUrl}}/api/v1/users/profile",
             "header": [
               {
                 "key": "Authorization",
@@ -1878,7 +1878,7 @@
           "name": "GET /local-storage/{{file_key}}",
           "request": {
             "method": "GET",
-            "url": "{{baseUrl}}/local-storage/{{file_key}}?token={{storage_token}}"
+            "url": "{{baseUrl}}/api/v1/local-storage/{{file_key}}?token={{storage_token}}"
           },
           "event": [
             {
@@ -1901,7 +1901,7 @@
           "name": "GET /reference/education-levels",
           "request": {
             "method": "GET",
-            "url": "{{baseUrl}}/reference/education-levels"
+            "url": "{{baseUrl}}/api/v1/reference/education-levels"
           },
           "event": [
             {
@@ -1919,7 +1919,7 @@
           "name": "GET /reference/countries",
           "request": {
             "method": "GET",
-            "url": "{{baseUrl}}/reference/countries"
+            "url": "{{baseUrl}}/api/v1/reference/countries"
           },
           "event": [
             {
@@ -1939,7 +1939,7 @@
       "name": "POST /auth/logout",
       "request": {
         "method": "POST",
-        "url": "{{baseUrl}}/auth/logout",
+        "url": "{{baseUrl}}/api/v1/auth/logout",
         "header": [
           {
             "key": "Authorization",
