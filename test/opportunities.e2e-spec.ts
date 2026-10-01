@@ -15,73 +15,73 @@ describe('OpportunitiesController (e2e)', () => {
   const mockAiPrismaService = {
     cleanedOpportunity: {
       count: jest.fn().mockResolvedValue(0),
-        findMany: jest.fn().mockImplementation((args) => {
-          const allFields = {
-            id: 'uuid',
-            title: 't',
-            organization: 'o',
-            country: 'c',
-            deadline: new Date().toISOString(),
-            opportunityType: 'type',
-            isRemote: true,
-            description: 'd',
-            applicationUrl: 'u',
-            sourceUrl: 'u',
-            status: 's',
-            fieldsOfStudy: [],
-            studyLevels: [],
-            eligibility: {},
-            location: 'l',
-            fundingType: 'f',
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString(),
-          };
-          if (args && args.select) {
-            const res: any = {};
-            for (const k of Object.keys(args.select)) {
-              res[k] =
-                (allFields as any)[k] !== undefined
-                  ? (allFields as any)[k]
-                  : 'mock-value';
-            }
-            return Promise.resolve([res]);
+      findMany: jest.fn().mockImplementation((args) => {
+        const allFields = {
+          id: 'uuid',
+          title: 't',
+          organization: 'o',
+          country: 'c',
+          deadline: new Date().toISOString(),
+          opportunityType: 'type',
+          isRemote: true,
+          description: 'd',
+          applicationUrl: 'u',
+          sourceUrl: 'u',
+          status: 's',
+          fieldsOfStudy: [],
+          studyLevels: [],
+          eligibility: {},
+          location: 'l',
+          fundingType: 'f',
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        };
+        if (args && args.select) {
+          const res: any = {};
+          for (const k of Object.keys(args.select)) {
+            res[k] =
+              (allFields as any)[k] !== undefined
+                ? (allFields as any)[k]
+                : 'mock-value';
           }
-          return Promise.resolve([allFields]);
-        }),
-        findUnique: jest.fn().mockImplementation((args) => {
-          const allFields = {
-            id: args.where.id,
-            title: 't',
-            organization: 'o',
-            country: 'c',
-            deadline: new Date().toISOString(),
-            opportunityType: 'type',
-            isRemote: true,
-            description: 'd',
-            applicationUrl: 'u',
-            sourceUrl: 'u',
-            status: 's',
-            fieldsOfStudy: [],
-            studyLevels: [],
-            eligibility: {},
-            location: 'l',
-            fundingType: 'f',
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString(),
-          };
-          if (args && args.select) {
-            const res: any = {};
-            for (const k of Object.keys(args.select)) {
-              res[k] =
-                (allFields as any)[k] !== undefined
-                  ? (allFields as any)[k]
-                  : 'mock-value';
-            }
-            return Promise.resolve(res);
+          return Promise.resolve([res]);
+        }
+        return Promise.resolve([allFields]);
+      }),
+      findUnique: jest.fn().mockImplementation((args) => {
+        const allFields = {
+          id: args.where.id,
+          title: 't',
+          organization: 'o',
+          country: 'c',
+          deadline: new Date().toISOString(),
+          opportunityType: 'type',
+          isRemote: true,
+          description: 'd',
+          applicationUrl: 'u',
+          sourceUrl: 'u',
+          status: 's',
+          fieldsOfStudy: [],
+          studyLevels: [],
+          eligibility: {},
+          location: 'l',
+          fundingType: 'f',
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        };
+        if (args && args.select) {
+          const res: any = {};
+          for (const k of Object.keys(args.select)) {
+            res[k] =
+              (allFields as any)[k] !== undefined
+                ? (allFields as any)[k]
+                : 'mock-value';
           }
-          return Promise.resolve(allFields);
-        }),
-      },
+          return Promise.resolve(res);
+        }
+        return Promise.resolve(allFields);
+      }),
+    },
   };
 
   beforeAll(async () => {
@@ -116,12 +116,8 @@ describe('OpportunitiesController (e2e)', () => {
   });
 
   it('No params → 200, response has data: [] (fixture returns empty), meta object present with page, limit, total, pages (FR-001, FR-002, FR-008)', async () => {
-    mockAiPrismaService.cleanedOpportunity.findMany.mockResolvedValueOnce(
-      [],
-    );
-    mockAiPrismaService.cleanedOpportunity.count.mockResolvedValueOnce(
-      0,
-    );
+    mockAiPrismaService.cleanedOpportunity.findMany.mockResolvedValueOnce([]);
+    mockAiPrismaService.cleanedOpportunity.count.mockResolvedValueOnce(0);
 
     const res = await request(app.getHttpServer())
       .get('/api/v1/opportunities')
@@ -142,7 +138,8 @@ describe('OpportunitiesController (e2e)', () => {
       .get('/api/v1/opportunities?fields=id,title,deadline')
       .expect(200);
 
-    console.log('RES BODY', res.body); expect(res.body.data).toHaveLength(1);
+    console.log('RES BODY', res.body);
+    expect(res.body.data).toHaveLength(1);
     expect(Object.keys(res.body.data[0])).toHaveLength(3);
     expect(res.body.data[0]).toHaveProperty('id');
     expect(res.body.data[0]).toHaveProperty('title');
@@ -154,7 +151,8 @@ describe('OpportunitiesController (e2e)', () => {
       .get('/api/v1/opportunities?fields=*')
       .expect(200);
 
-    console.log('RES BODY', res.body); expect(res.body.data).toHaveLength(1);
+    console.log('RES BODY', res.body);
+    expect(res.body.data).toHaveLength(1);
     expect(Object.keys(res.body.data[0])).toHaveLength(18);
   });
 
@@ -163,7 +161,8 @@ describe('OpportunitiesController (e2e)', () => {
       .get('/api/v1/opportunities')
       .expect(200);
 
-    console.log('RES BODY', res.body); expect(res.body.data).toHaveLength(1);
+    console.log('RES BODY', res.body);
+    expect(res.body.data).toHaveLength(1);
     expect(Object.keys(res.body.data[0])).toHaveLength(7);
   });
 
@@ -239,7 +238,11 @@ describe('OpportunitiesController (e2e)', () => {
 
   it('Mock AI DB failure → 503, error: "SERVICE_UNAVAILABLE" (EC-024, ST-011)', async () => {
     mockAiPrismaService.cleanedOpportunity.count.mockRejectedValueOnce(
-      new Prisma.PrismaClientInitializationError('DB connection lost', 'P1001', 'P1001'),
+      new Prisma.PrismaClientInitializationError(
+        'DB connection lost',
+        'P1001',
+        'P1001',
+      ),
     );
 
     const res = await request(app.getHttpServer())
@@ -255,7 +258,8 @@ describe('OpportunitiesController (e2e)', () => {
       .get('/api/v1/opportunities?fields=*')
       .expect(200);
 
-    console.log('RES BODY', res.body); expect(res.body.data).toHaveLength(1);
+    console.log('RES BODY', res.body);
+    expect(res.body.data).toHaveLength(1);
     const item = res.body.data[0];
     expect(item).not.toHaveProperty('rawOpportunityId');
     expect(item).not.toHaveProperty('status');
@@ -307,7 +311,11 @@ describe('OpportunitiesController (e2e)', () => {
 
     it('AI DB failure (mock throws) → 503, error: "SERVICE_UNAVAILABLE" (EC-024)', async () => {
       mockAiPrismaService.cleanedOpportunity.findUnique.mockRejectedValueOnce(
-        new Prisma.PrismaClientInitializationError('DB failure', 'P1001', 'P1001'),
+        new Prisma.PrismaClientInitializationError(
+          'DB failure',
+          'P1001',
+          'P1001',
+        ),
       );
 
       const res = await request(app.getHttpServer())

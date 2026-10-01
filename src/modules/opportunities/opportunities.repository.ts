@@ -25,7 +25,14 @@ export class OpportunitiesRepository {
         `AI DB failure [${e.constructor.name}]: ${e.message}`,
         e.stack,
       );
-      throw new ServiceUnavailableException('SERVICE_UNAVAILABLE');
+      if (
+        e instanceof Prisma.PrismaClientInitializationError ||
+        (e instanceof Prisma.PrismaClientKnownRequestError &&
+          e.code.startsWith('P1'))
+      ) {
+        throw new ServiceUnavailableException('SERVICE_UNAVAILABLE');
+      }
+      throw error;
     }
   }
 
@@ -38,7 +45,14 @@ export class OpportunitiesRepository {
         `AI DB failure [${e.constructor.name}]: ${e.message}`,
         e.stack,
       );
-      throw new ServiceUnavailableException('SERVICE_UNAVAILABLE');
+      if (
+        e instanceof Prisma.PrismaClientInitializationError ||
+        (e instanceof Prisma.PrismaClientKnownRequestError &&
+          e.code.startsWith('P1'))
+      ) {
+        throw new ServiceUnavailableException('SERVICE_UNAVAILABLE');
+      }
+      throw error;
     }
   }
 }

@@ -183,7 +183,7 @@ describe('OpportunitiesService', () => {
   it('sort=forbidden:asc → error code is INVALID_SORT_FIELD, not SYSTEM_BAD_REQUEST', async () => {
     try {
       await service.findMany({ sort: 'forbidden:asc' });
-      fail('expected exception');
+      throw new Error('expected exception');
     } catch (err) {
       const response = (err as BadRequestException).getResponse() as {
         error?: string;
@@ -209,7 +209,7 @@ describe('OpportunitiesService', () => {
       mockRepository.findById.mockResolvedValueOnce(null);
       try {
         await service.findById('some-id');
-        fail('expected exception');
+        throw new Error('expected exception');
       } catch (err) {
         const response = (err as NotFoundException).getResponse() as {
           error?: string;

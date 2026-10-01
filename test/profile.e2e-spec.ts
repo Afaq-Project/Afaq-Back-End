@@ -381,16 +381,18 @@ describe('ProfileModule (e2e)', () => {
       res = await request(app.getHttpServer())
         .get('/api/v1/reference/countries')
         .expect(200);
-      expect(Array.isArray(res.body.data)).toBe(true);
+      const countries = res.body.data.data?.data || res.body.data.data;
+      expect(Array.isArray(countries)).toBe(true);
     });
 
     it('[FR-039] master items expose nameEn and nameAr', async () => {
       res = await request(app.getHttpServer())
         .get('/api/v1/reference/education-levels')
         .expect(200);
-      if (res.body.data.length > 0) {
-        expect(res.body.data[0]).toHaveProperty('nameEn');
-        expect(res.body.data[0]).toHaveProperty('nameAr');
+      const levels = res.body.data.data || res.body.data;
+      if (levels.length > 0) {
+        expect(levels[0]).toHaveProperty('nameEn');
+        expect(levels[0]).toHaveProperty('nameAr');
       }
     });
 
