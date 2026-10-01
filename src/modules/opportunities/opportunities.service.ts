@@ -1,4 +1,9 @@
-import { BadRequestException, Injectable, Logger } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common';
 import { Prisma } from '@prisma/ai-client';
 import { ListOpportunitiesDto } from './dto/list-opportunities.dto';
 import { OpportunitiesRepository } from './opportunities.repository';
@@ -145,5 +150,51 @@ export class OpportunitiesService {
         pages: Math.ceil(total / limit),
       },
     };
+  }
+
+  /**
+   * Retrieves a single opportunity by its ID.
+   *
+   * @param id - The UUID of the opportunity.
+   * @param fields - Optional comma-separated fields to return.
+   * @returns The opportunity object.
+   */
+  async findById(id: string, fields?: string) {
+    let selectedFields: readonly string[] = OPPORTUNITY_FIELD_WHITELIST;
+    if (fields === '*') {
+      selectedFields = OPPORTUNITY_FIELD_WHITELIST;
+    } else if (fields) {
+      const parsedFields = fields.split(',').map((f) => f.trim());
+      for (const field of parsedFields) {
+        if (
+          !(OPPORTUNITY_FIELD_WHITELIST as readonly string[]).includes(field)
+        ) {
+          throw new BadRequestException('INVALID_FIELD');
+        }
+      }
+      selectedFields = parsedFields;
+    }
+
+    const select: Record<string, boolean> = {};
+    for (const field of selectedFields) {
+      const camelCaseField = field.replace(/_([a-z])/g, (g) =>
+        g[1].toUpperCase(),
+      );
+      select[camelCaseField] = true;
+    }
+
+    const opportunity = await this.repository.findById({
+      where: { id },
+      select: select,
+    });
+
+    if (!opportunity) {
+      throw new NotFoundException(
+        'Opportunity not found',
+        'OPPORTUNITY_NOT_FOUND',
+      );
+    }
+
+    return opportunity;
   }
 }

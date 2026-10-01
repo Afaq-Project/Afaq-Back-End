@@ -18,9 +18,16 @@ export class AiPrismaService
   }
 
   async onModuleInit() {
-    this.logger.log('Connecting to AI Prisma database...');
-    await this.$connect();
-    this.logger.log('Successfully connected to AI Prisma database.');
+    try {
+      this.logger.log('Connecting to AI Prisma database...');
+      await this.$connect();
+      this.logger.log('Successfully connected to AI Prisma database.');
+    } catch (error) {
+      this.logger.warn(
+        'Failed to connect to AI Prisma database on startup. Connection will be retried on first query.',
+        error,
+      );
+    }
   }
 
   async onModuleDestroy() {

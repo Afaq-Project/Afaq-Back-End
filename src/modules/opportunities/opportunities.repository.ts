@@ -25,4 +25,13 @@ export class OpportunitiesRepository {
       throw new ServiceUnavailableException('SERVICE_UNAVAILABLE');
     }
   }
+
+  async findById(args: Prisma.CleanedOpportunityFindUniqueArgs) {
+    try {
+      return await this.aiPrisma.client.cleanedOpportunity.findUnique(args);
+    } catch (error) {
+      this.logger.error('Error fetching opportunity by ID from AI DB', error);
+      throw new ServiceUnavailableException('SERVICE_UNAVAILABLE');
+    }
+  }
 }
