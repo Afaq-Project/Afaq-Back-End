@@ -37,6 +37,7 @@ describe('OpportunitiesService', () => {
   describe('findMany', () => {
     it('Default params → skip=0, take=20, orderBy: { createdAt: desc }, 7-field select (EC-001)', async () => {
       await service.findMany({});
+
       // eslint-disable-next-line @typescript-eslint/unbound-method
       expect(repository.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -62,6 +63,7 @@ describe('OpportunitiesService', () => {
 
     it('limit=9999 → repository receives take=100 (EC-002)', async () => {
       await service.findMany({ limit: 9999 });
+
       // eslint-disable-next-line @typescript-eslint/unbound-method
       expect(repository.findMany).toHaveBeenCalledWith(
         expect.objectContaining({ take: 100 }),
@@ -81,7 +83,10 @@ describe('OpportunitiesService', () => {
 
     it('sort=forbidden:asc → throws BadRequestException with INVALID_SORT_FIELD (EC-004)', async () => {
       await expect(service.findMany({ sort: 'forbidden:asc' })).rejects.toThrow(
-        new BadRequestException('Invalid sort field', 'INVALID_SORT_FIELD'),
+        new BadRequestException(
+          `Sort field 'forbidden' is not allowed`,
+          'INVALID_SORT_FIELD',
+        ),
       );
     });
 
@@ -89,7 +94,10 @@ describe('OpportunitiesService', () => {
       await expect(
         service.findMany({ sort: 'title:sideways' }),
       ).rejects.toThrow(
-        new BadRequestException('Invalid sort order', 'VALIDATION_ERROR'),
+        new BadRequestException(
+          `Sort direction must be 'asc' or 'desc'`,
+          'VALIDATION_ERROR',
+        ),
       );
     });
 
@@ -122,12 +130,16 @@ describe('OpportunitiesService', () => {
           deadline_to: '2026-01-01',
         }),
       ).rejects.toThrow(
-        new BadRequestException('Invalid date range', 'INVALID_DATE_RANGE'),
+        new BadRequestException(
+          `deadline_from must not be later than deadline_to`,
+          'INVALID_DATE_RANGE',
+        ),
       );
     });
 
     it('study_levels=Master,PhD → where clause contains { studyLevels: { hasSome: [Master, PhD] } } (EC-012)', async () => {
       await service.findMany({ study_levels: 'Master,PhD' });
+
       // eslint-disable-next-line @typescript-eslint/unbound-method
       expect(repository.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -140,6 +152,7 @@ describe('OpportunitiesService', () => {
 
     it('fields_of_study=CS,Math → where clause contains { fieldsOfStudy: { hasSome: [CS, Math] } } (EC-012)', async () => {
       await service.findMany({ fields_of_study: 'CS,Math' });
+
       // eslint-disable-next-line @typescript-eslint/unbound-method
       expect(repository.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -152,6 +165,7 @@ describe('OpportunitiesService', () => {
 
     it('q=master → where clause contains OR with contains: master + mode: insensitive on title and description (EC-014)', async () => {
       await service.findMany({ q: 'master' });
+
       // eslint-disable-next-line @typescript-eslint/unbound-method
       expect(repository.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -166,7 +180,44 @@ describe('OpportunitiesService', () => {
     });
   });
 
+  it('sort=forbidden:asc → error code is INVALID_SORT_FIELD, not SYSTEM_BAD_REQUEST', async () => {
+    try {
+      await service.findMany({ sort: 'forbidden:asc' });
+      fail('expected exception');
+    } catch (err) {
+      const response = (err as BadRequestException).getResponse() as {
+        error?: string;
+      };
+      expect(response.error).toBe('INVALID_SORT_FIELD');
+    }
+  });
+
+  it('study_levels=Master,,PhD → hasSome contains only non-empty entries (EC-012)', async () => {
+    await service.findMany({ study_levels: 'Master,,PhD' });
+    // eslint-disable-next-line @typescript-eslint/unbound-method
+    expect(repository.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({
+          studyLevels: { hasSome: ['Master', 'PhD'] },
+        }),
+      }),
+    );
+  });
+
   describe('findById', () => {
+    it('findById error code check', async () => {
+      mockRepository.findById.mockResolvedValueOnce(null);
+      try {
+        await service.findById('some-id');
+        fail('expected exception');
+      } catch (err) {
+        const response = (err as NotFoundException).getResponse() as {
+          error?: string;
+        };
+        expect(response.error).toBe('OPPORTUNITY_NOT_FOUND');
+      }
+    });
+
     it('Valid ID, Prisma returns record → record returned with all 18 fields (EC-019, FR-015)', async () => {
       const mockRecord = { id: 'some-id' }; // For simplicity, we just check if it returns what repository mocked
       mockRepository.findById.mockResolvedValueOnce(mockRecord);

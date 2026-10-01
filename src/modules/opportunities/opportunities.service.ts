@@ -66,10 +66,16 @@ export class OpportunitiesService {
     if (
       !(OPPORTUNITY_SORT_WHITELIST as readonly string[]).includes(sortField)
     ) {
-      throw new BadRequestException('Invalid sort field', 'INVALID_SORT_FIELD');
+      throw new BadRequestException(
+        `Sort field '${sortField}' is not allowed`,
+        'INVALID_SORT_FIELD',
+      );
     }
     if (sortOrder !== 'asc' && sortOrder !== 'desc') {
-      throw new BadRequestException('Invalid sort order', 'VALIDATION_ERROR');
+      throw new BadRequestException(
+        `Sort direction must be 'asc' or 'desc'`,
+        'VALIDATION_ERROR',
+      );
     }
 
     const camelCaseSortField = sortField.replace(/_([a-z])/g, (g) =>
@@ -83,7 +89,7 @@ export class OpportunitiesService {
     if (dto.deadline_from && dto.deadline_to) {
       if (new Date(dto.deadline_from) > new Date(dto.deadline_to)) {
         throw new BadRequestException(
-          'Invalid date range',
+          `deadline_from must not be later than deadline_to`,
           'INVALID_DATE_RANGE',
         );
       }
@@ -119,12 +125,18 @@ export class OpportunitiesService {
     }
 
     if (dto.study_levels) {
-      const levels = dto.study_levels.split(',').map((s) => s.trim());
+      const levels = dto.study_levels
+        .split(',')
+        .map((s) => s.trim())
+        .filter(Boolean);
       where.studyLevels = { hasSome: levels };
     }
 
     if (dto.fields_of_study) {
-      const fields = dto.fields_of_study.split(',').map((s) => s.trim());
+      const fields = dto.fields_of_study
+        .split(',')
+        .map((s) => s.trim())
+        .filter(Boolean);
       where.fieldsOfStudy = { hasSome: fields };
     }
 

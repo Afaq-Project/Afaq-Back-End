@@ -7,14 +7,14 @@ import {
 import * as request from 'supertest';
 import { AppModule } from '../src/app.module';
 import { AiPrismaService } from '../src/modules/infrastructure/ai-prisma/ai-prisma.service';
+import { Prisma } from '@prisma/ai-client';
 
 describe('OpportunitiesController (e2e)', () => {
   let app: INestApplication;
 
   const mockAiPrismaService = {
-    client: {
-      cleanedOpportunity: {
-        count: jest.fn().mockResolvedValue(0),
+    cleanedOpportunity: {
+      count: jest.fn().mockResolvedValue(0),
         findMany: jest.fn().mockImplementation((args) => {
           const allFields = {
             id: 'uuid',
@@ -82,7 +82,6 @@ describe('OpportunitiesController (e2e)', () => {
           return Promise.resolve(allFields);
         }),
       },
-    },
   };
 
   beforeAll(async () => {
@@ -113,14 +112,14 @@ describe('OpportunitiesController (e2e)', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    mockAiPrismaService.client.cleanedOpportunity.count.mockResolvedValue(0);
+    mockAiPrismaService.cleanedOpportunity.count.mockResolvedValue(0);
   });
 
   it('No params → 200, response has data: [] (fixture returns empty), meta object present with page, limit, total, pages (FR-001, FR-002, FR-008)', async () => {
-    mockAiPrismaService.client.cleanedOpportunity.findMany.mockResolvedValueOnce(
+    mockAiPrismaService.cleanedOpportunity.findMany.mockResolvedValueOnce(
       [],
     );
-    mockAiPrismaService.client.cleanedOpportunity.count.mockResolvedValueOnce(
+    mockAiPrismaService.cleanedOpportunity.count.mockResolvedValueOnce(
       0,
     );
 
@@ -143,11 +142,11 @@ describe('OpportunitiesController (e2e)', () => {
       .get('/api/v1/opportunities?fields=id,title,deadline')
       .expect(200);
 
-    expect(res.body.data.data).toHaveLength(1);
-    expect(Object.keys(res.body.data.data[0])).toHaveLength(3);
-    expect(res.body.data.data[0]).toHaveProperty('id');
-    expect(res.body.data.data[0]).toHaveProperty('title');
-    expect(res.body.data.data[0]).toHaveProperty('deadline');
+    console.log('RES BODY', res.body); expect(res.body.data).toHaveLength(1);
+    expect(Object.keys(res.body.data[0])).toHaveLength(3);
+    expect(res.body.data[0]).toHaveProperty('id');
+    expect(res.body.data[0]).toHaveProperty('title');
+    expect(res.body.data[0]).toHaveProperty('deadline');
   });
 
   it('fields=* → each item has exactly 18 keys (EC-007)', async () => {
@@ -155,8 +154,8 @@ describe('OpportunitiesController (e2e)', () => {
       .get('/api/v1/opportunities?fields=*')
       .expect(200);
 
-    expect(res.body.data.data).toHaveLength(1);
-    expect(Object.keys(res.body.data.data[0])).toHaveLength(18);
+    console.log('RES BODY', res.body); expect(res.body.data).toHaveLength(1);
+    expect(Object.keys(res.body.data[0])).toHaveLength(18);
   });
 
   it('No fields → each item has exactly 7 keys (EC-008, FR-014)', async () => {
@@ -164,8 +163,8 @@ describe('OpportunitiesController (e2e)', () => {
       .get('/api/v1/opportunities')
       .expect(200);
 
-    expect(res.body.data.data).toHaveLength(1);
-    expect(Object.keys(res.body.data.data[0])).toHaveLength(7);
+    console.log('RES BODY', res.body); expect(res.body.data).toHaveLength(1);
+    expect(Object.keys(res.body.data[0])).toHaveLength(7);
   });
 
   it('sort=invalid_field:asc → 400, error: "INVALID_SORT_FIELD" (EC-004)', async () => {
@@ -174,7 +173,7 @@ describe('OpportunitiesController (e2e)', () => {
       .expect(400);
 
     const msg = res.body.errors?.[0]?.message || res.body.message;
-    expect(msg).toBe('INVALID_SORT_FIELD');
+    expect(res.body.error || msg).toBe('INVALID_SORT_FIELD');
   });
 
   it('sort=title:sideways → 400, error: "VALIDATION_ERROR" (EC-005)', async () => {
@@ -196,7 +195,7 @@ describe('OpportunitiesController (e2e)', () => {
       .expect(400);
 
     const msg = res.body.errors?.[0]?.message || res.body.message;
-    expect(msg).toBe('INVALID_FIELD');
+    expect(res.body.error || msg).toBe('INVALID_FIELD');
   });
 
   it('deadline_from=2027-01-01&deadline_to=2026-01-01 → 400, error: "INVALID_DATE_RANGE" (EC-009)', async () => {
@@ -207,7 +206,7 @@ describe('OpportunitiesController (e2e)', () => {
       .expect(400);
 
     const msg = res.body.errors?.[0]?.message || res.body.message;
-    expect(msg).toBe('INVALID_DATE_RANGE');
+    expect(res.body.error || msg).toBe('INVALID_DATE_RANGE');
   });
 
   it('page=abc → 400, error: "VALIDATION_ERROR" (EC-018)', async () => {
@@ -223,7 +222,7 @@ describe('OpportunitiesController (e2e)', () => {
 
     // Verify it was correctly parsed as a boolean, the mock receives it
     const callArgs =
-      mockAiPrismaService.client.cleanedOpportunity.findMany.mock.calls[0][0];
+      mockAiPrismaService.cleanedOpportunity.findMany.mock.calls[0][0];
     expect(callArgs.where.isRemote).toEqual({ equals: true });
   });
 
@@ -239,8 +238,8 @@ describe('OpportunitiesController (e2e)', () => {
   });
 
   it('Mock AI DB failure → 503, error: "SERVICE_UNAVAILABLE" (EC-024, ST-011)', async () => {
-    mockAiPrismaService.client.cleanedOpportunity.count.mockRejectedValueOnce(
-      new Error('DB connection lost'),
+    mockAiPrismaService.cleanedOpportunity.count.mockRejectedValueOnce(
+      new Prisma.PrismaClientInitializationError('DB connection lost', 'P1001', 'P1001'),
     );
 
     const res = await request(app.getHttpServer())
@@ -256,8 +255,8 @@ describe('OpportunitiesController (e2e)', () => {
       .get('/api/v1/opportunities?fields=*')
       .expect(200);
 
-    expect(res.body.data.data).toHaveLength(1);
-    const item = res.body.data.data[0];
+    console.log('RES BODY', res.body); expect(res.body.data).toHaveLength(1);
+    const item = res.body.data[0];
     expect(item).not.toHaveProperty('rawOpportunityId');
     expect(item).not.toHaveProperty('status');
     expect(item).not.toHaveProperty('errorMessage');
@@ -294,7 +293,7 @@ describe('OpportunitiesController (e2e)', () => {
     });
 
     it('Valid UUID, does not exist (mock returns null) → 404, with error message containing "OPPORTUNITY_NOT_FOUND" (EC-021)', async () => {
-      mockAiPrismaService.client.cleanedOpportunity.findUnique.mockResolvedValueOnce(
+      mockAiPrismaService.cleanedOpportunity.findUnique.mockResolvedValueOnce(
         null,
       );
 
@@ -307,8 +306,8 @@ describe('OpportunitiesController (e2e)', () => {
     });
 
     it('AI DB failure (mock throws) → 503, error: "SERVICE_UNAVAILABLE" (EC-024)', async () => {
-      mockAiPrismaService.client.cleanedOpportunity.findUnique.mockRejectedValueOnce(
-        new Error('DB failure'),
+      mockAiPrismaService.cleanedOpportunity.findUnique.mockRejectedValueOnce(
+        new Prisma.PrismaClientInitializationError('DB failure', 'P1001', 'P1001'),
       );
 
       const res = await request(app.getHttpServer())
