@@ -23,6 +23,7 @@
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "prisma:generate": "prisma generate",
+    "generate:ai": "prisma generate --schema=prisma/ai-schema.prisma",
     "prisma:sync": "bash scripts/prisma-sync.sh",
     "prisma:sync:force": "bash scripts/prisma-sync.sh --force",
     "prisma:migrate:dev": "prisma migrate dev",

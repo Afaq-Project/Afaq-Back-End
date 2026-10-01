@@ -30,6 +30,8 @@ import { AuthGuard, RolesGuard, IdempotencyGuard } from '@common/guards';
 import { RequestIdMiddleware, IdempotencyMiddleware } from '@common/middleware';
 import { ProfileModule } from './modules/profile/profile.module';
 import { MailModule } from './modules/mail/mail.module';
+import { AiPrismaModule } from './modules/infrastructure/ai-prisma/ai-prisma.module';
+import { OpportunitiesModule } from './modules/opportunities/opportunities.module';
 
 @Module({
   imports: [
@@ -204,6 +206,7 @@ import { MailModule } from './modules/mail/mail.module';
 
     // ── Database ─────────────────────────────────
     PrismaModule,
+    AiPrismaModule,
 
     // ── Redis ────────────────────────────────────
     RedisModule,
@@ -253,6 +256,7 @@ import { MailModule } from './modules/mail/mail.module';
     UsersModule,
     ProfileModule,
     MailModule,
+    OpportunitiesModule,
   ],
   providers: [
     // Global throttler guard

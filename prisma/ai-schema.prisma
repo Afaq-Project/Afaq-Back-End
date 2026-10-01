@@ -1,0 +1,57 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../node_modules/@prisma/ai-client"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_AIService_URL")
+}
+
+model Source {
+  id               String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name             String    @unique @db.Text
+  displayName      String    @map("display_name") @db.Text
+  baseUrl          String    @map("base_url") @db.Text
+  apiEndpoint      String    @default("") @map("api_endpoint") @db.Text
+  method           String    @default("wordpress_api") @db.Text
+  paginationConfig Json      @default("{}") @map("pagination_config")
+  fieldMapping     Json      @default("{}") @map("field_mapping")
+  isActive         Boolean   @default(true) @map("is_active")
+  scrapeFrequency  String?   @default("daily") @map("scrape_frequency")
+  lastScrapedAt    DateTime? @map("last_scraped_at")
+  createdAt        DateTime  @default(now()) @map("created_at")
+  updatedAt        DateTime  @updatedAt @map("updated_at")
+
+  opportunities CleanedOpportunity[]
+
+  @@map("sources")
+}
+
+model CleanedOpportunity {
+  id               String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  rawOpportunityId String  @unique @map("raw_opportunity_id") @db.Uuid
+  sourceId         String? @map("source_id") @db.Uuid
+  source           Source? @relation(fields: [sourceId], references: [id])
+  title            String  @db.Text
+  organization     String? @db.Text
+  opportunityType  String? @map("opportunity_type") @db.Text
+  description      String? @db.Text
+  eligibility      Json?
+  location         String? @db.Text
+  isRemote         Boolean? @map("is_remote")
+  fundingType      String? @map("funding_type") @db.Text
+  deadline         DateTime?
+  applicationUrl   String? @map("application_url") @db.Text
+  sourceUrl        String  @map("source_url") @db.Text
+  country          String? @db.Text
+  studyLevels      String[] @default([]) @map("study_levels")
+  fieldsOfStudy    String[] @default([]) @map("fields_of_study")
+  status           String? @db.Text
+  errorMessage     String? @map("error_message")
+  contentHash      String? @unique @map("content_hash") @db.Text
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @updatedAt @map("updated_at")
+
+  @@map("cleaned_opportunities")
+}
