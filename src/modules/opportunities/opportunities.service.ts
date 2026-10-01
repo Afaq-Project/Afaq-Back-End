@@ -37,12 +37,14 @@ export class OpportunitiesService {
       selectedFields = OPPORTUNITY_FIELD_WHITELIST;
     } else if (dto.fields) {
       const parsedFields = dto.fields.split(',').map((f) => f.trim());
-      for (const field of parsedFields) {
-        if (
-          !(OPPORTUNITY_FIELD_WHITELIST as readonly string[]).includes(field)
-        ) {
-          throw new BadRequestException('INVALID_FIELD');
-        }
+      const invalid = parsedFields.filter(
+        (f) => !(OPPORTUNITY_FIELD_WHITELIST as readonly string[]).includes(f),
+      );
+      if (invalid.length > 0) {
+        throw new BadRequestException(
+          `Fields not allowed: ${invalid.join(', ')}`,
+          'INVALID_FIELD',
+        );
       }
       selectedFields = parsedFields;
     }
@@ -64,10 +66,10 @@ export class OpportunitiesService {
     if (
       !(OPPORTUNITY_SORT_WHITELIST as readonly string[]).includes(sortField)
     ) {
-      throw new BadRequestException('INVALID_SORT_FIELD');
+      throw new BadRequestException('Invalid sort field', 'INVALID_SORT_FIELD');
     }
     if (sortOrder !== 'asc' && sortOrder !== 'desc') {
-      throw new BadRequestException('VALIDATION_ERROR');
+      throw new BadRequestException('Invalid sort order', 'VALIDATION_ERROR');
     }
 
     const camelCaseSortField = sortField.replace(/_([a-z])/g, (g) =>
@@ -80,7 +82,10 @@ export class OpportunitiesService {
     // Date validation
     if (dto.deadline_from && dto.deadline_to) {
       if (new Date(dto.deadline_from) > new Date(dto.deadline_to)) {
-        throw new BadRequestException('INVALID_DATE_RANGE');
+        throw new BadRequestException(
+          'Invalid date range',
+          'INVALID_DATE_RANGE',
+        );
       }
     }
 
@@ -165,12 +170,14 @@ export class OpportunitiesService {
       selectedFields = OPPORTUNITY_FIELD_WHITELIST;
     } else if (fields) {
       const parsedFields = fields.split(',').map((f) => f.trim());
-      for (const field of parsedFields) {
-        if (
-          !(OPPORTUNITY_FIELD_WHITELIST as readonly string[]).includes(field)
-        ) {
-          throw new BadRequestException('INVALID_FIELD');
-        }
+      const invalid = parsedFields.filter(
+        (f) => !(OPPORTUNITY_FIELD_WHITELIST as readonly string[]).includes(f),
+      );
+      if (invalid.length > 0) {
+        throw new BadRequestException(
+          `Fields not allowed: ${invalid.join(', ')}`,
+          'INVALID_FIELD',
+        );
       }
       selectedFields = parsedFields;
     }

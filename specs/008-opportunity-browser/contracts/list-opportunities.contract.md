@@ -37,7 +37,7 @@ GET /api/v1/opportunities
 
 `created_at`, `updated_at`, `deadline`, `title`, `country`, `opportunity_type`
 
-### Field Whitelist (19 fields)
+### Field Whitelist (18 fields)
 
 `id`, `title`, `organization`, `country`, `deadline`, `opportunity_type`, `is_remote`, `description`, `eligibility`, `location`, `funding_type`, `application_url`, `source_url`, `study_levels`, `fields_of_study`, `source_id`, `created_at`, `updated_at`
 
@@ -53,7 +53,8 @@ GET /api/v1/opportunities
 
 ```json
 {
-  "statusCode": 200,
+  "success": true,
+  "status": 200,
   "message": "Opportunities retrieved successfully",
   "data": [
     {
@@ -87,7 +88,8 @@ GET /api/v1/opportunities
 
 ```json
 {
-  "statusCode": 400,
+  "success": false,
+  "status": 400,
   "message": "string (user-facing description)",
   "error": "INVALID_SORT_FIELD | INVALID_FIELD | INVALID_DATE_RANGE | VALIDATION_ERROR",
   "timestamp": "ISO 8601 datetime"
@@ -105,7 +107,8 @@ GET /api/v1/opportunities
 
 ```json
 {
-  "statusCode": 503,
+  "success": false,
+  "status": 503,
   "message": "Opportunity data source is currently unavailable",
   "error": "SERVICE_UNAVAILABLE",
   "timestamp": "ISO 8601 datetime"
@@ -116,7 +119,8 @@ GET /api/v1/opportunities
 
 ```json
 {
-  "statusCode": 500,
+  "success": false,
+  "status": 500,
   "message": "Internal server error",
   "error": "INTERNAL_ERROR",
   "timestamp": "ISO 8601 datetime"

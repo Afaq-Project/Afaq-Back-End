@@ -117,7 +117,8 @@ GET /api/v1/opportunities?deadline_from=2026-01-01&deadline_to=2026-12-31
 
 ```json
 {
-  "statusCode": 200,
+  "success": true,
+  "status": 200,
   "message": "Opportunities retrieved successfully",
   "data": [
     {
@@ -201,7 +202,8 @@ GET /api/v1/opportunities/3f2a1b00-0000-0000-0000-000000000001?fields=id,title,d
 
 ```json
 {
-  "statusCode": 200,
+  "success": true,
+  "status": 200,
   "message": "Opportunity retrieved successfully",
   "data": {
     "id": "3f2a1b00-0000-0000-0000-000000000001",

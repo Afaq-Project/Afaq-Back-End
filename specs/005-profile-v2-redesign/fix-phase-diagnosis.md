@@ -6,7 +6,8 @@
   ```
   Batch 1 — Experiences max limit (EC-007)
     ✗   error code is TOO_MANY_EXPERIENCES
-        expected error 'TOO_MANY_EXPERIENCES', got 'VALIDATION_INVALID_FORMAT' — body: {"statusCode":400,"message":"Bad Request","data":null,"timestamp":"2026-09-24T17:25:32.484Z","path":"/api/profile/personal","errors":[{"field":"experiences","code":"VALIDATION_INVALID_FORMAT","message":"experiences must contain no more than 10 elements"}]}
+        expected error 'TOO_MANY_EXPERIENCES', got 'VALIDATION_INVALID_FORMAT' — body: {"success": false,
+  "status": 400,"message":"Bad Request","data":null,"timestamp":"2026-09-24T17:25:32.484Z","path":"/api/profile/personal","errors":[{"field":"experiences","code":"VALIDATION_INVALID_FORMAT","message":"experiences must contain no more than 10 elements"}]}
   ```
 - **Root cause:** The `UpdateProfileDto` contains `@ArrayMaxSize(10)` which triggers `class-validator` to throw `VALIDATION_INVALID_FORMAT` before the service logic can enforce the dynamic limit and throw `TOO_MANY_EXPERIENCES`.
 - **Assigned owner:** Executor

@@ -89,6 +89,8 @@ export class AllExceptionsFilter implements ExceptionFilter {
 
       if (res.code) {
         code = res.code as string;
+      } else if (res.error && typeof res.error === 'string') {
+        code = res.error;
       }
 
       message = (res.message as string) || message;
@@ -138,6 +140,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
       success: false as const,
       status,
       message,
+      error: code,
       data: null,
       meta: null,
       errors,

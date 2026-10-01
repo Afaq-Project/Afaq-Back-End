@@ -15,22 +15,29 @@ export class OpportunitiesRepository {
   async findMany(args: Prisma.CleanedOpportunityFindManyArgs) {
     try {
       const [total, data] = await Promise.all([
-        this.aiPrisma.client.cleanedOpportunity.count({ where: args.where }),
-        this.aiPrisma.client.cleanedOpportunity.findMany(args),
+        this.aiPrisma.cleanedOpportunity.count({ where: args.where }),
+        this.aiPrisma.cleanedOpportunity.findMany(args),
       ]);
       return { total, data };
     } catch (error) {
-      this.logger.error('Error fetching opportunities from AI DB', error);
-      // Catch Prisma connection errors or any other unhandled errors as Service Unavailable
+      const e = error as Error;
+      this.logger.error(
+        `AI DB failure [${e.constructor.name}]: ${e.message}`,
+        e.stack,
+      );
       throw new ServiceUnavailableException('SERVICE_UNAVAILABLE');
     }
   }
 
   async findById(args: Prisma.CleanedOpportunityFindUniqueArgs) {
     try {
-      return await this.aiPrisma.client.cleanedOpportunity.findUnique(args);
+      return await this.aiPrisma.cleanedOpportunity.findUnique(args);
     } catch (error) {
-      this.logger.error('Error fetching opportunity by ID from AI DB', error);
+      const e = error as Error;
+      this.logger.error(
+        `AI DB failure [${e.constructor.name}]: ${e.message}`,
+        e.stack,
+      );
       throw new ServiceUnavailableException('SERVICE_UNAVAILABLE');
     }
   }

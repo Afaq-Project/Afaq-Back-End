@@ -243,7 +243,8 @@ Authorization: Bearer <token>
 
 ```json
 {
-  "statusCode": 200,
+  "success": true,
+  "status": 200,
   "message": "Profile retrieved successfully",
   "data": {
     "userId": "uuid",
@@ -295,7 +296,8 @@ Content-Type: application/json
 
 ```json
 {
-  "statusCode": 200,
+  "success": true,
+  "status": 200,
   "message": "Profile updated successfully",
   "data": {
     "userId": "uuid",
@@ -324,7 +326,8 @@ docType: resume
 
 ```json
 {
-  "statusCode": 201,
+  "success": true,
+  "status": 201,
   "message": "Document uploaded successfully",
   "data": {
     "id": "uuid",
@@ -352,7 +355,8 @@ Authorization: Bearer <token>
 
 ```json
 {
-  "statusCode": 200,
+  "success": true,
+  "status": 200,
   "message": "Download URL generated successfully",
   "data": {
     "url": "https://s3.amazonaws.com/bucket/...?X-Amz-Expires=300...",
@@ -375,7 +379,8 @@ Authorization: Bearer <token>
 
 ```json
 {
-  "statusCode": 200,
+  "success": true,
+  "status": 200,
   "message": "Document deleted successfully",
   "data": null,
   "timestamp": "2026-08-30T10:00:00.000Z"
@@ -394,7 +399,8 @@ GET /reference/fields-of-study
 
 ```json
 {
-  "statusCode": 200,
+  "success": true,
+  "status": 200,
   "message": "Fields of study retrieved successfully",
   "data": [
     { "id": "uuid", "name": "Computer Science", "category": "STEM" },
@@ -416,7 +422,8 @@ GET /reference/skills-taxonomy
 
 ```json
 {
-  "statusCode": 200,
+  "success": true,
+  "status": 200,
   "message": "Skills taxonomy retrieved successfully",
   "data": [
     {

@@ -58,8 +58,8 @@ Every task group (Executor block → Tester block) forms one **cycle**:
 
 > [COORD] Assigns to Executor.
 
-- [ ] T001 [EXEC] Create `prisma/ai-schema.prisma` — define `CleanedOpportunity` and `Source` models mirroring the AI service schema; set `output = "../node_modules/@prisma/ai-client"` in the generator block; set `provider = "prisma-client-js"` and `url = env("DATABASE_AIService_URL")` in the datasource block
-- [ ] T002 [EXEC] Add `"generate:ai": "prisma generate --schema=prisma/ai-schema.prisma"` script to `package.json`
+-[x] T001 [EXEC] Create `prisma/ai-schema.prisma` — define `CleanedOpportunity` and `Source` models mirroring the AI service schema; set `output = "../node_modules/@prisma/ai-client"` in the generator block; set `provider = "prisma-client-js"` and `url = env("DATABASE_AIService_URL")` in the datasource block
+-[x] T002 [EXEC] Add `"generate:ai": "prisma generate --schema=prisma/ai-schema.prisma"` script to `package.json`
 
 > [COORD] Verifies: `prisma/ai-schema.prisma` exists; `generate:ai` script present in `package.json`.
 
@@ -71,17 +71,17 @@ Every task group (Executor block → Tester block) forms one **cycle**:
 
 > [COORD] Assigns to Executor.
 
-- [ ] T003 [EXEC] Create `src/modules/infrastructure/ai-prisma/ai-prisma.service.ts` — wraps the generated AI Prisma client; implements `OnModuleInit` (`$connect()`) and `OnModuleDestroy` (`$disconnect()`); injects `Logger` (scoped to `AiPrismaService`); exposes the Prisma client instance via a typed getter. The Prisma schema's `env()` call resolves the URL at the ORM layer; `AiPrismaService` MUST NOT access `process.env` or `ConfigService` directly.
-- [ ] T004 [EXEC] Create `src/modules/infrastructure/ai-prisma/ai-prisma.module.ts` — `@Global()` module; provides and exports `AiPrismaService`
-- [ ] T005 [EXEC] Register `AiPrismaModule` in `src/app.module.ts` imports array
+-[x] T003 [EXEC] Create `src/modules/infrastructure/ai-prisma/ai-prisma.service.ts` — wraps the generated AI Prisma client; implements `OnModuleInit` (`$connect()`) and `OnModuleDestroy` (`$disconnect()`); injects `Logger` (scoped to `AiPrismaService`); exposes the Prisma client instance via a typed getter. The Prisma schema's `env()` call resolves the URL at the ORM layer; `AiPrismaService` MUST NOT access `process.env` or `ConfigService` directly.
+-[x] T004 [EXEC] Create `src/modules/infrastructure/ai-prisma/ai-prisma.module.ts` — `@Global()` module; provides and exports `AiPrismaService`
+-[x] T005 [EXEC] Register `AiPrismaModule` in `src/app.module.ts` imports array
 
 > [COORD] Verifies: All three files exist; `pnpm build` exits 0; `pnpm lint` exits 0; `@Global()` present on module; no `process.env` in service file.
 
-- [ ] T006 [TEST] Write unit tests for `AiPrismaService` in `src/modules/infrastructure/ai-prisma/ai-prisma.service.spec.ts`:
+-[x] T006 [TEST] Write unit tests for `AiPrismaService` in `src/modules/infrastructure/ai-prisma/ai-prisma.service.spec.ts`:
   - `onModuleInit` calls `$connect()` exactly once
   - `onModuleDestroy` calls `$disconnect()` exactly once
   - Client getter returns the mocked Prisma instance
-- [ ] T007 [TEST] Code review of `ai-prisma.service.ts` and `ai-prisma.module.ts`:
+-[x] T007 [TEST] Code review of `ai-prisma.service.ts` and `ai-prisma.module.ts`:
   - Confirm no `console.*` calls (Logger used)
   - Confirm no `process.env` access
   - Confirm `@Global()` on module
@@ -95,15 +95,15 @@ Every task group (Executor block → Tester block) forms one **cycle**:
 
 > [COORD] Assigns to Executor.
 
-- [ ] T008 [EXEC] Add `DATABASE_AIService_URL` to the startup config validation schema in `src/config/app.config.ts` (or equivalent validation class) as a required string — application must fail to start if absent
-- [ ] T009 [EXEC] Add `DATABASE_AIService_URL=postgresql://user:pass@host:5432/ai_db` with the comment `# External AI service database (read-only)` to `.env.example`
-- [ ] T010 [EXEC] Write ADR entry `DEC-OPP-01` in `docx/decisions-log.md` documenting the dual Prisma client decision: problem, decision, rationale (separate DB user, separate lifecycle, no migration ownership), and alternatives rejected (single schema multi-datasource, raw pg, prisma queryRaw)
-- [ ] T010b [EXEC] [P] Update `README.md` to document `DATABASE_AIService_URL` and the `pnpm generate:ai` step in the local setup section
+-[x] T008 [EXEC] Add `DATABASE_AIService_URL` to the startup config validation schema in `src/config/app.config.ts` (or equivalent validation class) as a required string — application must fail to start if absent
+-[x] T009 [EXEC] Add `DATABASE_AIService_URL=postgresql://user:pass@host:5432/ai_db` with the comment `# External AI service database (read-only)` to `.env.example`
+-[x] T010 [EXEC] Write ADR entry `DEC-OPP-01` in `docx/decisions-log.md` documenting the dual Prisma client decision: problem, decision, rationale (separate DB user, separate lifecycle, no migration ownership), and alternatives rejected (single schema multi-datasource, raw pg, prisma queryRaw)
+-[x] T010b [EXEC] [P] Update `README.md` to document `DATABASE_AIService_URL` and the `pnpm generate:ai` step in the local setup section
 
 > [COORD] Verifies: `DATABASE_AIService_URL` in config schema; `.env.example` updated; `DEC-OPP-01` entry in decisions log; README updated; `pnpm build` and `pnpm lint` pass.
 
-- [ ] T011 [TEST] Write a Jest integration test using `Test.createTestingModule()` that attempts to initialize `AppModule` with `DATABASE_AIService_URL` absent from the environment and asserts the bootstrap throws a config validation error (maps to ST-003)
-- [ ] T012 [TEST] Static review: grep `src/modules/infrastructure/ai-prisma/` for `process.env` — confirm zero occurrences; submit report
+-[x] T011 [TEST] Write a Jest integration test using `Test.createTestingModule()` that attempts to initialize `AppModule` with `DATABASE_AIService_URL` absent from the environment and asserts the bootstrap throws a config validation error (maps to ST-003)
+-[x] T012 [TEST] Static review: grep `src/modules/infrastructure/ai-prisma/` for `process.env` — confirm zero occurrences; submit report
 
 > [COORD] Reviews Tester report. If issues → fix cycle. If clean → **Phase 1 complete. Phase 2 may begin.**
 
@@ -123,15 +123,15 @@ Every task group (Executor block → Tester block) forms one **cycle**:
 
 > [COORD] Assigns to Executor.
 
-- [ ] T013 [EXEC] Create `src/modules/opportunities/dto/opportunity-fields.enum.ts` — export three `as const` arrays:
-  - `OPPORTUNITY_FIELD_WHITELIST`: 19 field names from `data-model.md §Field Whitelist`
+-[x] T013 [EXEC] Create `src/modules/opportunities/dto/opportunity-fields.enum.ts` — export three `as const` arrays:
+  - `OPPORTUNITY_FIELD_WHITELIST`: 18 field names from `data-model.md §Field Whitelist`
   - `OPPORTUNITY_DEFAULT_FIELDS`: 7 field names from `data-model.md §Default Field Set`
   - `OPPORTUNITY_SORT_WHITELIST`: 6 field names from `data-model.md §Sort Whitelist`
 
-> [COORD] Verifies: File exists; FIELD_WHITELIST has exactly 19 entries; DEFAULT_FIELDS has 7; SORT_WHITELIST has 6; entries match `data-model.md` exactly; `pnpm build` and `pnpm lint` pass.
+> [COORD] Verifies: File exists; FIELD_WHITELIST has exactly 18 entries; DEFAULT_FIELDS has 7; SORT_WHITELIST has 6; entries match `data-model.md` exactly; `pnpm build` and `pnpm lint` pass.
 
-- [ ] T014 [TEST] Unit tests for constants in `src/modules/opportunities/dto/opportunity-fields.enum.spec.ts`:
-  - Assert `OPPORTUNITY_FIELD_WHITELIST.length === 19`
+-[x] T014 [TEST] Unit tests for constants in `src/modules/opportunities/dto/opportunity-fields.enum.spec.ts`:
+  - Assert `OPPORTUNITY_FIELD_WHITELIST.length === 18`
   - Assert `OPPORTUNITY_DEFAULT_FIELDS.length === 7`
   - Assert `OPPORTUNITY_SORT_WHITELIST.length === 6`
   - Spot-check 5 specific field names exist in each whitelist
@@ -146,11 +146,11 @@ Every task group (Executor block → Tester block) forms one **cycle**:
 
 > [COORD] Assigns to Executor.
 
-- [ ] T015 [EXEC] Create `src/modules/opportunities/dto/list-opportunities.dto.ts` — `ListOpportunitiesDto` class with all 13 query parameters from `contracts/list-opportunities.contract.md §Request Contract §Query Parameters`; apply correct `class-validator` decorators per each field's type and constraint; apply `@Type(() => Number)` for `page` and `limit`; apply `@Type(() => Boolean)` for `is_remote`; apply `@ApiPropertyOptional` for Swagger on each field
+-[x] T015 [EXEC] Create `src/modules/opportunities/dto/list-opportunities.dto.ts` — `ListOpportunitiesDto` class with all 13 query parameters from `contracts/list-opportunities.contract.md §Request Contract §Query Parameters`; apply correct `class-validator` decorators per each field's type and constraint; apply `@Type(() => Number)` for `page` and `limit`; apply `@Type(() => Boolean)` for `is_remote`; apply `@ApiPropertyOptional` for Swagger on each field
 
 > [COORD] Verifies: All 13 params present; `@Type` decorators on `page`, `limit`, `is_remote`; `@ApiPropertyOptional` on all fields; `pnpm build` and `pnpm lint` pass.
 
-- [ ] T016 [TEST] Unit tests for `ListOpportunitiesDto` in `src/modules/opportunities/dto/list-opportunities.dto.spec.ts`:
+-[x] T016 [TEST] Unit tests for `ListOpportunitiesDto` in `src/modules/opportunities/dto/list-opportunities.dto.spec.ts`:
   - Valid default (empty object) — passes validation
   - `limit=9999` — passes DTO validation (clamping is a service concern, not DTO)
   - `page=0` — fails with `@Min(1)` error
@@ -184,10 +184,10 @@ Every task group (Executor block → Tester block) forms one **cycle**:
 
 > [COORD] Assigns to Executor.
 
-- [ ] T017 [EXEC] Create `src/modules/opportunities/opportunities.repository.ts` and `src/modules/opportunities/opportunities.service.ts`:
+-[x] T017 [EXEC] Create `src/modules/opportunities/opportunities.repository.ts` and `src/modules/opportunities/opportunities.service.ts`:
   - **Repository**: Inject `AiPrismaService`. Implement `findMany` calling Prisma `Promise.all([count, findMany])`. Wrap Prisma calls in try/catch; catch `PrismaClientInitializationError` → throw `ServiceUnavailableException('SERVICE_UNAVAILABLE')` and log via `Logger.error`.
   - **Service**: Inject `OpportunitiesRepository` and `Logger`. Implement `findMany(dto: ListOpportunitiesDto)` with JSDoc comment explaining intent, parameters, and return shape.
-  - **Field selection**: parse `dto.fields` → split/trim → validate against `OPPORTUNITY_FIELD_WHITELIST` → throw `BadRequestException` with key `INVALID_FIELD` if any entry is unknown; use `OPPORTUNITY_DEFAULT_FIELDS` when `fields` omitted; use all 19 fields when `fields=*`; build Prisma `select` object as `Record<string, true>`
+  - **Field selection**: parse `dto.fields` → split/trim → validate against `OPPORTUNITY_FIELD_WHITELIST` → throw `BadRequestException` with key `INVALID_FIELD` if any entry is unknown; use `OPPORTUNITY_DEFAULT_FIELDS` when `fields` omitted; use all 18 fields when `fields=*`; build Prisma `select` object as `Record<string, true>`
   - **Sort parsing**: parse `dto.sort` (default `created_at:desc`) → validate field against `OPPORTUNITY_SORT_WHITELIST` → throw `BadRequestException('INVALID_SORT_FIELD')`; validate direction → throw `BadRequestException('VALIDATION_ERROR')`
   - **Limit cap**: `Math.min(dto.limit ?? 20, 100)`
   - **Pagination**: `skip = (page - 1) * limit`, `take = limit`
@@ -198,14 +198,14 @@ Every task group (Executor block → Tester block) forms one **cycle**:
 
 > [COORD] Verifies: `OpportunitiesRepository` created and used; public method signatures have JSDoc comments; all 9 filter params handled; `INVALID_FIELD`, `INVALID_SORT_FIELD`, `INVALID_DATE_RANGE` thrown correctly; `Promise.all` used (not sequential); limit cap present; `ServiceUnavailableException` on connection error; no `console.*`, no `process.env`; `pnpm build` and `pnpm lint` pass.
 
-- [ ] T018 [TEST] Write unit tests for `OpportunitiesService.findMany()` in `src/modules/opportunities/opportunities.service.spec.ts` with mocked `AiPrismaService`:
+-[x] T018 [TEST] Write unit tests for `OpportunitiesService.findMany()` in `src/modules/opportunities/opportunities.service.spec.ts` with mocked `AiPrismaService`:
   - Default params → `skip=0`, `take=20`, `orderBy: { created_at: 'desc' }`, 7-field select (EC-001)
   - `limit=9999` → Prisma receives `take=100` (EC-002)
   - `page=99999` → returns empty data array + correct meta (EC-003)
   - `sort=forbidden:asc` → throws `BadRequestException` with `INVALID_SORT_FIELD` (EC-004)
   - `sort=title:sideways` → throws `BadRequestException` with `VALIDATION_ERROR` (EC-005)
   - `fields=not_real` → throws `BadRequestException` with `INVALID_FIELD` (EC-006)
-  - `fields=*` → Prisma select has exactly 19 keys (EC-007)
+  - `fields=*` → Prisma select has exactly 18 keys (EC-007)
   - `fields` omitted → Prisma select has exactly 7 keys (EC-008)
   - `deadline_from=2027-01-01`, `deadline_to=2026-01-01` → throws `BadRequestException` with `INVALID_DATE_RANGE` (EC-009)
   - `study_levels=Master,PhD` → where clause contains `{ study_levels: { hasSome: ['Master', 'PhD'] } }` (EC-012)
@@ -225,20 +225,20 @@ Every task group (Executor block → Tester block) forms one **cycle**:
 
 > [COORD] Assigns to Executor.
 
-- [ ] T019 [EXEC] Create `src/modules/opportunities/opportunities.controller.ts` — implement `GET /` endpoint:
+-[x] T018 [EXEC] Create `src/modules/opportunities/opportunities.controller.ts` — implement `GET /` endpoint:
   - `@Get()`, `@Public()` (bypasses JWT guard), `@ApiTags('Opportunities')`, `@ApiOperation({ summary: 'List opportunities' })`
   - `@ApiResponse({ status: 200 })`, `@ApiResponse({ status: 400 })`, `@ApiResponse({ status: 503 })`
   - Accepts `@Query() dto: ListOpportunitiesDto`
   - Calls `OpportunitiesService.findMany(dto)` and returns response via existing response interceptor
-- [ ] T020 [EXEC] Create `src/modules/opportunities/opportunities.module.ts` — declares `OpportunitiesController`; provides and exports `OpportunitiesService`; imports nothing extra (relies on global `AiPrismaModule`)
-- [ ] T021 [EXEC] Register `OpportunitiesModule` in `src/app.module.ts` imports array
+-[x] T020 [EXEC] Create `src/modules/opportunities/opportunities.module.ts` — declares `OpportunitiesController`; provides and exports `OpportunitiesService`; imports nothing extra (relies on global `AiPrismaModule`)
+-[x] T021 [EXEC] Register `OpportunitiesModule` in `src/app.module.ts` imports array
 
 > [COORD] Verifies: `@Public()` present on `GET /`; no auth guard applied; `OpportunitiesModule` in `AppModule`; `pnpm build` and `pnpm lint` pass; Swagger UI shows the endpoint at `/api/v1/opportunities`.
 
-- [ ] T022 [TEST] Write E2E tests in `test/opportunities.e2e-spec.ts` for the list endpoint (AI Prisma client mocked at module level):
+-[x] T022 [TEST] Write E2E tests in `test/opportunities.e2e-spec.ts` for the list endpoint (AI Prisma client mocked at module level):
   - No params → `200`, response has `data: []` (fixture returns empty), `meta` object present with `page`, `limit`, `total`, `pages` (FR-001, FR-002, FR-008)
   - `fields=id,title,deadline` → each item has exactly 3 keys (FR-011, EC-007 variant)
-  - `fields=*` → each item has exactly 19 keys (EC-007)
+  - `fields=*` → each item has exactly 18 keys (EC-007)
   - No `fields` → each item has exactly 7 keys (EC-008, FR-014)
   - `sort=invalid_field:asc` → `400`, `error: "INVALID_SORT_FIELD"` (EC-004)
   - `sort=title:sideways` → `400`, `error: "VALIDATION_ERROR"` (EC-005)
@@ -251,7 +251,7 @@ Every task group (Executor block → Tester block) forms one **cycle**:
   - Mock AI DB failure → `503`, `error: "SERVICE_UNAVAILABLE"` (EC-024, ST-011)
   - Response body on any success → no `rawOpportunityId`, `status`, `errorMessage`, `contentHash` fields (ST-008)
   - Submit report with all E2E test results
-- [ ] T023 [TEST] [P] Code review of `opportunities.controller.ts`:
+-[x] T023 [TEST] [P] Code review of `opportunities.controller.ts`:
   - Confirm `@Public()` on `GET /` — no auth guard
   - Confirm all `@ApiResponse` decorators present
   - Confirm no business logic in controller (service call only)
@@ -271,7 +271,7 @@ Every task group (Executor block → Tester block) forms one **cycle**:
 
 **Spec reference**: [spec.md §User Story 3](./spec.md) (4 acceptance scenarios) + [spec.md §User Story 4](./spec.md) (4 acceptance scenarios)
 
-**Independent Test**: `GET /api/v1/opportunities/:id` with a valid UUID returns 200 with all 19 fields. Non-existent ID returns 404. Malformed UUID returns 400. `fields` parameter works on detail endpoint with same whitelist enforcement as list.
+**Independent Test**: `GET /api/v1/opportunities/:id` with a valid UUID returns 200 with all 18 fields. Non-existent ID returns 404. Malformed UUID returns 400. `fields` parameter works on detail endpoint with same whitelist enforcement as list.
 
 ---
 
@@ -279,19 +279,19 @@ Every task group (Executor block → Tester block) forms one **cycle**:
 
 > [COORD] Assigns to Executor.
 
-- [ ] T024 [EXEC] Add `findById(id: string, fields?: string)` method to `src/modules/opportunities/opportunities.service.ts`:
-  - **Field selection**: same logic as `findMany` — parse and validate `fields`; default is all 19 whitelisted fields (not the 7-field summary)
+-[x] T024 [EXEC] Add `findById(id: string, fields?: string)` method to `src/modules/opportunities/opportunities.service.ts`:
+  - **Field selection**: same logic as `findMany` — parse and validate `fields`; default is all 18 whitelisted fields (not the 7-field summary)
   - **Query**: `prisma.cleanedOpportunity.findUnique({ where: { id }, select })`
   - **Not found**: if result is `null` → throw `NotFoundException` with message `"Opportunity not found"` and key `OPPORTUNITY_NOT_FOUND`
   - **503 mapping**: same catch block as `findMany` — `PrismaClientInitializationError` → `ServiceUnavailableException`
 
 > [COORD] Verifies: `findById` added (not a new file); 404 thrown on null result; `INVALID_FIELD` thrown for unknown fields; 503 mapping present; no `console.*`; `pnpm build` and `pnpm lint` pass.
 
-- [ ] T025 [TEST] Extend unit tests in `src/modules/opportunities/opportunities.service.spec.ts` for `findById()`:
-  - Valid ID, Prisma returns record → record returned with all 19 fields (EC-019, FR-015)
+-[x] T025 [TEST] Extend unit tests in `src/modules/opportunities/opportunities.service.spec.ts` for `findById()`:
+  - Valid ID, Prisma returns record → record returned with all 18 fields (EC-018, FR-015)
   - Valid ID, `fields=id,title` → select has 2 keys (EC-022)
   - Valid ID, `fields=forbidden` → throws `BadRequestException` with `INVALID_FIELD` (EC-022)
-  - Valid ID, `fields=*` → select has 19 keys (EC-022)
+  - Valid ID, `fields=*` → select has 18 keys (EC-022)
   - Prisma returns `null` → throws `NotFoundException` with `OPPORTUNITY_NOT_FOUND` (EC-020, FR-016)
   - Prisma throws `PrismaClientInitializationError` → `ServiceUnavailableException` (EC-024)
   - Re-run coverage report — confirm coverage still ≥ 80%
@@ -305,7 +305,7 @@ Every task group (Executor block → Tester block) forms one **cycle**:
 
 > [COORD] Assigns to Executor.
 
-- [ ] T026 [EXEC] Add `GET /:id` endpoint to `src/modules/opportunities/opportunities.controller.ts`:
+-[x] T026 [EXEC] Add `GET /:id` endpoint to `src/modules/opportunities/opportunities.controller.ts`:
   - `@Get(':id')`, `@Public()`, `@ApiOperation({ summary: 'Get opportunity by ID' })`
   - `@ApiResponse({ status: 200 })`, `@ApiResponse({ status: 400 })`, `@ApiResponse({ status: 404 })`, `@ApiResponse({ status: 503 })`
   - `@Param('id', ParseUUIDPipe) id: string` — `ParseUUIDPipe` rejects malformed UUIDs before service is called
@@ -314,8 +314,8 @@ Every task group (Executor block → Tester block) forms one **cycle**:
 
 > [COORD] Verifies: `@Public()` and `ParseUUIDPipe` present; `@ApiResponse(404)` present; `pnpm build` and `pnpm lint` pass.
 
-- [ ] T027 [TEST] Extend E2E tests in `test/opportunities.e2e-spec.ts` for the detail endpoint:
-  - Valid UUID, Prisma returns fixture → `200`, `data` has 19 keys (EC-019, FR-015)
+-[x] T027 [TEST] Extend E2E tests in `test/opportunities.e2e-spec.ts` for the detail endpoint:
+  - Valid UUID, Prisma returns fixture → `200`, `data` has 18 keys (EC-018, FR-015)
   - `fields=id,title` on detail → `200`, `data` has exactly 2 keys (EC-022)
   - `fields=forbidden` on detail → `400`, `error: "INVALID_FIELD"` (EC-022, FR-012)
   - Valid UUID not found (Prisma returns null) → `404`, `error: "OPPORTUNITY_NOT_FOUND"` (EC-020, FR-016)
@@ -325,7 +325,7 @@ Every task group (Executor block → Tester block) forms one **cycle**:
   - Mock AI DB failure → `503`, `error: "SERVICE_UNAVAILABLE"` (EC-024, ST-011)
   - Response body → no internal AI service fields (`rawOpportunityId`, `status`, etc.) (ST-008)
   - Submit report with all E2E results
-- [ ] T028 [TEST] [P] Code review of updated `opportunities.controller.ts`:
+-[x] T028 [TEST] [P] Code review of updated `opportunities.controller.ts`:
   - Confirm `ParseUUIDPipe` applied to `:id` param (not just `@IsUUID`)
   - Confirm `@Public()` on both endpoints
   - Confirm no business logic in controller
@@ -349,10 +349,10 @@ Every task group (Executor block → Tester block) forms one **cycle**:
 
 > [COORD] Assigns to Tester.
 
-- [ ] T029 [TEST] Run `pnpm test` — capture output; confirm all unit tests pass; confirm `opportunities.service.spec.ts` coverage ≥ 80%; save output to `test-reports/$(date +%Y-%m-%d)/unit.txt`
-- [ ] T030 [TEST] Run `pnpm test:e2e` — capture output; confirm all E2E tests in `test/opportunities.e2e-spec.ts` pass; save output to `test-reports/$(date +%Y-%m-%d)/e2e.txt`
-- [ ] T031 [TEST] Run `pnpm build` — confirm zero TypeScript errors; record result
-- [ ] T032 [TEST] Run `pnpm lint` — confirm zero lint errors; record result
+-[x] T029 [TEST] Run `pnpm test` — capture output; confirm all unit tests pass; confirm `opportunities.service.spec.ts` coverage ≥ 80%; save output to `test-reports/$(date +%Y-%m-%d)/unit.txt`
+-[x] T030 [TEST] Run `pnpm test:e2e` — capture output; confirm all E2E tests in `test/opportunities.e2e-spec.ts` pass; save output to `test-reports/$(date +%Y-%m-%d)/e2e.txt`
+-[x] T031 [TEST] Run `pnpm build` — confirm zero TypeScript errors; record result
+-[x] T032 [TEST] Run `pnpm lint` — confirm zero lint errors; record result
 
 > [COORD] Reviews build/test evidence. If any gate fails → identify which task group owns the failing code → re-open that phase's fix cycle. If all pass → proceed to 5-B.
 
@@ -362,9 +362,9 @@ Every task group (Executor block → Tester block) forms one **cycle**:
 
 > [COORD] Assigns to Tester.
 
-- [ ] T033 [TEST] Execute security test register from `quality-and-security.md §4` — run ST-001 through ST-011 and record pass/fail for each
-- [ ] T034 [TEST] [P] Verify EC coverage — map each of the 30 edge cases (EC-001 through EC-030) from `quality-and-security.md §1` to a passing test case; produce a coverage table: `EC-ID | Test Name | Status`
-- [ ] T035 [TEST] [P] Static security grep across the new module:
+-[x] T033 [TEST] Execute security test register from `quality-and-security.md §4` — run ST-001 through ST-011 and record pass/fail for each
+-[x] T034 [TEST] [P] Verify EC coverage — map each of the 30 edge cases (EC-001 through EC-030) from `quality-and-security.md §1` to a passing test case; produce a coverage table: `EC-ID | Test Name | Status`
+-[x] T035 [TEST] [P] Static security grep across the new module:
   - `grep -r "process\.env" src/modules/opportunities/ src/modules/infrastructure/ai-prisma/` → must return zero matches
   - `grep -r "console\." src/modules/opportunities/ src/modules/infrastructure/ai-prisma/` → must return zero matches
   - `grep -r "rawOpportunityId\|errorMessage\|contentHash" src/modules/opportunities/` → must return zero matches in response-shaping code
@@ -378,9 +378,9 @@ Every task group (Executor block → Tester block) forms one **cycle**:
 
 > [COORD] Assigns to Executor.
 
-- [ ] T036 [COORD] Coordinator confirms `DEC-OPP-01` in `docx/decisions-log.md` contains all required fields: problem statement, decision, rationale, alternatives rejected, and date. If incomplete, re-open T010 fix cycle.
-- [ ] T037 [TEST] [P] Run `pnpm generate:ai` once more in CI context — confirm generated client compiles cleanly with `pnpm build`
-- [ ] T038 [TEST] [P] Verify `quickstart.md` Scenario 14 (startup-without-env) works as documented — run and record output
+-[x] T036 [COORD] Coordinator confirms `DEC-OPP-01` in `docx/decisions-log.md` contains all required fields: problem statement, decision, rationale, alternatives rejected, and date. If incomplete, re-open T010 fix cycle.
+-[x] T037 [TEST] [P] Run `pnpm generate:ai` once more in CI context — confirm generated client compiles cleanly with `pnpm build`
+-[x] T038 [TEST] [P] Verify `quickstart.md` Scenario 14 (startup-without-env) works as documented — run and record output
 
 > [COORD] Verifies all three items. `pnpm build` must still pass after T037. If issues → fix cycle. If clean → proceed to 5-D.
 
@@ -390,7 +390,7 @@ Every task group (Executor block → Tester block) forms one **cycle**:
 
 > [COORD] Only.
 
-- [ ] T039 [COORD] Collect all Tester reports from Phases 1–5; confirm every item in the `plan.md §Task 5 Acceptance Gate` checklist is green:
+-[x] T039 [COORD] Collect all Tester reports from Phases 1–5; confirm every item in the `plan.md §Task 5 Acceptance Gate` checklist is green:
   - `pnpm build` ✅ (T031)
   - `pnpm lint` ✅ (T032)
   - `pnpm test` — all pass, ≥ 80% service coverage ✅ (T029)
@@ -403,7 +403,7 @@ Every task group (Executor block → Tester block) forms one **cycle**:
   - `DEC-OPP-01` ADR written ✅ (T036)
   - `.env.example` updated ✅ (T009)
   - *(Note: Performance SC-001 and SC-002 are deferred to a future spike and are not verified in this iteration.)*
-- [ ] T040 [COORD] Declare feature production-ready. File a Conventional Commit message: `feat(opportunities): implement public opportunity browser module`
+-[x] T040 [COORD] Declare feature production-ready. File a Conventional Commit message: `feat(opportunities): implement public opportunity browser module`
 
 ---
 
@@ -482,7 +482,7 @@ Both streams complete → Tester merges findings into one report → sends to Co
 ```
 Phase 1:  Coordinator  →  Executor (T001–T005, T008–T010)  →  Tester (T006–T007, T011–T012)
 Phase 2:  Coordinator  →  Executor (T013, T015)            →  Tester (T014, T016)
-Phase 3:  Coordinator  →  Executor (T017, T019–T021)       →  Tester (T018, T022–T023)
+Phase 3:  Coordinator  →  Executor (T017, T018–T021)       →  Tester (T018, T022–T023)
 Phase 4:  Coordinator  →  Executor (T024, T026)            →  Tester (T025, T027–T028)
 Phase 5:  Coordinator  →  Tester   (T029–T035)             →  Executor if issues (T036–T038)  →  Coordinator (T039–T040)
 ```

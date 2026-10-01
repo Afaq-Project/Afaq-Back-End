@@ -64,6 +64,9 @@ export class SuccessResponse<T = unknown> {
   @ApiProperty({ example: 'OK' })
   message: string;
 
+  @ApiProperty({ nullable: true, example: null, type: Object })
+  error: null;
+
   @ApiProperty()
   data: T;
 
@@ -86,6 +89,9 @@ export class PaginatedResponse<T = unknown> {
 
   @ApiProperty({ example: 'OK' })
   message: string;
+
+  @ApiProperty({ nullable: true, example: null, type: Object })
+  error: null;
 
   @ApiProperty({ isArray: true })
   data: T[];
@@ -113,6 +119,9 @@ export class ErrorResponse {
 
   @ApiProperty({ example: 'User not found' })
   message: string;
+
+  @ApiProperty({ example: 'SYSTEM_RESOURCE_NOT_FOUND' })
+  error: string;
 
   @ApiProperty({ nullable: true, example: null, type: Object })
   data: null;

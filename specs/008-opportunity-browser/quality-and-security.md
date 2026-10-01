@@ -36,7 +36,7 @@ This file consolidates edge cases, testing strategy, security controls, and secu
 
 | ID | Scenario | Expected Behaviour | Source |
 |:---|:---|:---|:---|
-| EC-019 | Valid UUID supplied for an existing record | Full opportunity object returned with all whitelisted fields | FR-015 |
+| EC-018 | Valid UUID supplied for an existing record | Full opportunity object returned with all whitelisted fields | FR-015 |
 | EC-020 | UUID does not exist in the external database | `404 OPPORTUNITY_NOT_FOUND` — never an empty 200 or a 500 | FR-016 |
 | EC-021 | `id` path parameter is not a valid UUID format | `400 VALIDATION_ERROR` before any database lookup | endpoints §2 |
 | EC-022 | `fields` supplied on detail endpoint | Only the requested whitelisted fields returned; unknown field causes `400 INVALID_FIELD` | FR-011, FR-012 |
@@ -46,8 +46,8 @@ This file consolidates edge cases, testing strategy, security controls, and secu
 
 | ID | Scenario | Expected Behaviour | Source |
 |:---|:---|:---|:---|
-| EC-024 | External AI database is unreachable at request time | `503 SERVICE_UNAVAILABLE` with a meaningful message; no application-level retry; failure logged with context | FR-019, SC-009 |
-| EC-025 | External database connection is slow (latency spike, not full outage) | Request completes if within connection timeout; 503 if timeout threshold exceeded | FR-019 |
+| EC-024 | External AI database is unreachable at request time | `503 SERVICE_UNAVAILABLE` with a meaningful message; no application-level retry; failure logged with context | FR-018, SC-009 |
+| EC-025 | External database connection is slow (latency spike, not full outage) | Request completes if within connection timeout; 503 if timeout threshold exceeded | FR-018 |
 | EC-026 | External database user attempts a write (INSERT/UPDATE/DELETE) | Operation is impossible — DB user is provisioned with SELECT-only privileges at the PostgreSQL level; application layer performs no writes | FR-017, Assumptions |
 | EC-027 | A record in the external DB has an empty string title | Record is returned as-is; no backend filtering of records based on field values is performed (AI service is responsible for data quality) | Assumptions |
 
@@ -131,7 +131,7 @@ Use isolated fixture data injected via the mocked `AiPrismaService`. No real ext
 | FR-016 | `e2e-spec` | Non-existent ID returns `404 OPPORTUNITY_NOT_FOUND` | E2E |
 | FR-017 | Schema / DB user policy review | No INSERT/UPDATE/DELETE issued in any code path | Static |
 | FR-018 | `service.spec`, startup test | `DATABASE_AIService_URL` absent causes startup failure | Unit, Integration |
-| FR-019 | `service.spec`, `e2e-spec` | DB connection failure → `503 SERVICE_UNAVAILABLE`; logged | Unit, E2E |
+| FR-018 | `service.spec`, `e2e-spec` | DB connection failure → `503 SERVICE_UNAVAILABLE`; logged | Unit, E2E |
 
 ### 2.7 Regression Policy
 
@@ -157,7 +157,7 @@ Controls are traceable to the Constitution, `spec.md`, and `endpoints.md`. This 
 | SC-004 | Unknown and malformed request parameters rejected (Constitution IV; FR-007, FR-009, FR-012) | Global `ValidationPipe` (`whitelist: true`, `forbidNonWhitelisted: true`); field whitelist enforced in service layer | ST-004–007 |
 | SC-005 | All responses and errors use the documented envelope; no raw Prisma models or stack traces exposed (Constitution IV, IX) | `GlobalExceptionFilter`; DTOs shape all responses; error messages are user-facing strings only | ST-008–009 |
 | SC-006 | Secrets and configuration kept out of source and logs (Constitution V, X) | No `process.env` access inside Controllers or Services; no credentials logged at any level | ST-010 |
-| SC-007 | External database failure surfaced as `503`, not as an unhandled crash revealing internals (FR-019) | Caught at the service/repository layer; mapped to `503 SERVICE_UNAVAILABLE` with a safe user-facing message; full context logged internally | ST-011 |
+| SC-007 | External database failure surfaced as `503`, not as an unhandled crash revealing internals (FR-018) | Caught at the service/repository layer; mapped to `503 SERVICE_UNAVAILABLE` with a safe user-facing message; full context logged internally | ST-011 |
 
 ### 3.2 Notes
 

@@ -26,7 +26,7 @@ GET /api/v1/opportunities/:id
 |:---|:---|:---:|:---|:---|
 | `fields` | string | No | (all whitelisted fields) | Comma-separated; each item must be in field whitelist |
 
-> On the detail endpoint, the default when `fields` is omitted is **all 19 whitelisted fields** — not the 7-field summary set used by the list endpoint.
+> On the detail endpoint, the default when `fields` is omitted is **all 18 whitelisted fields** — not the 7-field summary set used by the list endpoint.
 
 ---
 
@@ -36,7 +36,8 @@ GET /api/v1/opportunities/:id
 
 ```json
 {
-  "statusCode": 200,
+  "success": true,
+  "status": 200,
   "message": "Opportunity retrieved successfully",
   "data": {
     "id": "string (UUID)",
@@ -73,7 +74,8 @@ GET /api/v1/opportunities/:id
 
 ```json
 {
-  "statusCode": 400,
+  "success": false,
+  "status": 400,
   "message": "Validation failed (uuid is expected)",
   "error": "VALIDATION_ERROR",
   "timestamp": "ISO 8601 datetime"
@@ -86,7 +88,8 @@ Triggered when `:id` is not a valid UUID format (e.g., `"abc"`, `"123"`).
 
 ```json
 {
-  "statusCode": 400,
+  "success": false,
+  "status": 400,
   "message": "Field '<name>' is not allowed",
   "error": "INVALID_FIELD",
   "timestamp": "ISO 8601 datetime"
@@ -97,7 +100,8 @@ Triggered when `:id` is not a valid UUID format (e.g., `"abc"`, `"123"`).
 
 ```json
 {
-  "statusCode": 404,
+  "success": false,
+  "status": 404,
   "message": "Opportunity not found",
   "error": "OPPORTUNITY_NOT_FOUND",
   "timestamp": "ISO 8601 datetime"
@@ -110,7 +114,8 @@ Triggered when no record exists for the given UUID (including records that were 
 
 ```json
 {
-  "statusCode": 503,
+  "success": false,
+  "status": 503,
   "message": "Opportunity data source is currently unavailable",
   "error": "SERVICE_UNAVAILABLE",
   "timestamp": "ISO 8601 datetime"
@@ -121,7 +126,8 @@ Triggered when no record exists for the given UUID (including records that were 
 
 ```json
 {
-  "statusCode": 500,
+  "success": false,
+  "status": 500,
   "message": "Internal server error",
   "error": "INTERNAL_ERROR",
   "timestamp": "ISO 8601 datetime"

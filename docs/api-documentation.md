@@ -158,7 +158,8 @@ Public and authenticated routes for account creation, login, session refresh, OA
 #### Response `201 Created`
 ```json
 {
-  "statusCode": 201,
+  "success": true,
+  "status": 201,
   "message": "User registered successfully",
   "data": {
     "id": "u1111111-1111-1111-1111-111111111111",
@@ -193,7 +194,8 @@ Public and authenticated routes for account creation, login, session refresh, OA
 *Sets cookies `access_token` and `refresh_token`.*
 ```json
 {
-  "statusCode": 200,
+  "success": true,
+  "status": 200,
   "message": "Login successful, returns access and refresh tokens",
   "data": {
     "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
@@ -229,7 +231,8 @@ Public and authenticated routes for account creation, login, session refresh, OA
 #### Response `200 OK`
 ```json
 {
-  "statusCode": 200,
+  "success": true,
+  "status": 200,
   "message": "Tokens refreshed successfully",
   "data": {
     "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
@@ -259,7 +262,8 @@ Revokes the refresh token family, blacklists the access token in Redis, and clea
 #### Response `200 OK`
 ```json
 {
-  "statusCode": 200,
+  "success": true,
+  "status": 200,
   "message": "OK",
   "data": {
     "id": "u1111111-1111-1111-1111-111111111111",
@@ -312,7 +316,8 @@ Public lookup endpoints designed for form dropdowns, search-as-you-type inputs, 
 #### Response `200 OK`
 ```json
 {
-  "statusCode": 200,
+  "success": true,
+  "status": 200,
   "message": "App languages retrieved successfully",
   "data": [
     { "code": "en", "name": "English", "nativeName": "English", "dir": "ltr" },
@@ -336,7 +341,8 @@ Public lookup endpoints designed for form dropdowns, search-as-you-type inputs, 
 #### Response `200 OK`
 ```json
 {
-  "statusCode": 200,
+  "success": true,
+  "status": 200,
   "message": "Education levels retrieved successfully",
   "data": [
     { "id": "a0000000-0000-0000-0000-000000000003", "name": "bachelor", "labelEn": "Bachelor's Degree", "labelAr": "بكالوريوس", "isActive": true },
@@ -361,7 +367,8 @@ Public lookup endpoints designed for form dropdowns, search-as-you-type inputs, 
 #### Response `200 OK`
 ```json
 {
-  "statusCode": 200,
+  "success": true,
+  "status": 200,
   "message": "Languages retrieved successfully",
   "data": [
     { "id": "11111111-1111-1111-1111-111111111111", "name": "Arabic" },
@@ -384,7 +391,8 @@ Public lookup endpoints designed for form dropdowns, search-as-you-type inputs, 
 #### Response `200 OK`
 ```json
 {
-  "statusCode": 200,
+  "success": true,
+  "status": 200,
   "message": "Fields of study retrieved successfully",
   "data": [
     { "id": "c1111111-1111-1111-1111-111111111111", "name": "Computer Science", "category": "Engineering & Technology" }
@@ -407,7 +415,8 @@ Public lookup endpoints designed for form dropdowns, search-as-you-type inputs, 
 #### Response `200 OK` (Grouped Mode)
 ```json
 {
-  "statusCode": 200,
+  "success": true,
+  "status": 200,
   "message": "Skills taxonomy retrieved successfully",
   "data": [
     {
@@ -450,7 +459,8 @@ The system returns `completionPct` (0–100) and `coreFieldsComplete` on profile
 #### Response `200 OK`
 ```json
 {
-  "statusCode": 200,
+  "success": true,
+  "status": 200,
   "message": "Profile retrieved successfully",
   "data": {
     "userId": "u1111111-1111-1111-1111-111111111111",
@@ -521,7 +531,8 @@ The system returns `completionPct` (0–100) and `coreFieldsComplete` on profile
 #### Response `200 OK`
 ```json
 {
-  "statusCode": 200,
+  "success": true,
+  "status": 200,
   "message": "Updated successfully",
   "data": {
     "userId": "u1111111-1111-1111-1111-111111111111",
@@ -540,7 +551,8 @@ The system returns `completionPct` (0–100) and `coreFieldsComplete` on profile
 - **Path**: `/profile/publish`
 - **Auth**: Bearer Token
 - **Payload**: None
-- **Response `200 OK`**: `{ "statusCode": 200, "message": "Profile published successfully", "data": { "isPublished": true, "publishedAt": "2026-09-20T08:30:00.000Z" } }`
+- **Response `200 OK`**: `{ "success": true,
+  "status": 200, "message": "Profile published successfully", "data": { "isPublished": true, "publishedAt": "2026-09-20T08:30:00.000Z" } }`
 - **Error `409 Conflict`**: Returned if already published or if `coreFieldsComplete === false`.
 
 ---
@@ -619,7 +631,8 @@ Endpoints for administrative user governance and viewing own user account detail
 #### Response `200 OK`
 ```json
 {
-  "statusCode": 200,
+  "success": true,
+  "status": 200,
   "message": "OK",
   "data": [
     {

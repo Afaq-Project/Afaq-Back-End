@@ -218,7 +218,7 @@ docx/
 **Scope**:
 1. Create `src/modules/opportunities/dto/list-opportunities.dto.ts` — `ListOpportunitiesDto` class with all 13 query parameters from `endpoints.md §1 Query Parameters`. Apply correct `class-validator` decorators: `@IsOptional`, `@IsInt`, `@Min`, `@IsString`, `@MaxLength`, `@IsBoolean`, `@IsDateString`, `@IsUUID`, `@IsEnum`. Use `@Type(() => Number)` / `@Type(() => Boolean)` for type coercion.
 2. Create `src/modules/opportunities/dto/opportunity-fields.enum.ts` — export:
-   - `OPPORTUNITY_FIELD_WHITELIST`: `readonly string[]` of all 19 allowed field names (from `endpoints.md` Domain Rules table).
+   - `OPPORTUNITY_FIELD_WHITELIST`: `readonly string[]` of all 18 allowed field names (from `endpoints.md` Domain Rules table).
    - `OPPORTUNITY_SORT_WHITELIST`: `readonly string[]` of the 6 allowed sort fields.
    - `OPPORTUNITY_DEFAULT_FIELDS`: `readonly string[]` of the 7 default list fields.
 3. Add custom `@IsWhitelistedFields()` validator (or inline logic in the service) to reject unknown `fields` values — this is enforced at the service layer not the DTO layer, but the DTO must accept the raw `fields` string for forwarding.
@@ -230,7 +230,7 @@ docx/
 
 **Coordinator Verification Checklist**:
 - [ ] All 13 query params present in `ListOpportunitiesDto` with correct types and validators
-- [ ] `OPPORTUNITY_FIELD_WHITELIST` contains exactly 19 entries matching `endpoints.md`
+- [ ] `OPPORTUNITY_FIELD_WHITELIST` contains exactly 18 entries matching `endpoints.md`
 - [ ] `OPPORTUNITY_SORT_WHITELIST` contains exactly 6 entries matching `endpoints.md`
 - [ ] `OPPORTUNITY_DEFAULT_FIELDS` contains exactly 7 entries matching `endpoints.md`
 - [ ] `pnpm build` and `pnpm lint` pass
@@ -259,7 +259,7 @@ docx/
    - Inject `OpportunitiesRepository` via constructor.
    - Implement `findMany(dto: ListOpportunitiesDto): Promise<{ data: Partial<CleanedOpportunity>[]; meta: PaginationMeta }>` — orchestrates validation and calls the repository.
 3. Inside `OpportunitiesService.findMany`:
-   - **Field selection**: Parse `dto.fields` (split by comma, trim). If `*`, use all 19 whitelist fields. If absent, use the 7 default fields. If any parsed name is not in the whitelist, throw `BadRequestException` with error key `INVALID_FIELD`.
+   - **Field selection**: Parse `dto.fields` (split by comma, trim). If `*`, use all 18 whitelist fields. If absent, use the 7 default fields. If any parsed name is not in the whitelist, throw `BadRequestException` with error key `INVALID_FIELD`.
    - **Sort parsing**: Parse `dto.sort` (`field:direction`). Validate field against sort whitelist → `BadRequestException('INVALID_SORT_FIELD')` if invalid. Validate direction → `BadRequestException('VALIDATION_ERROR')` if not `asc`/`desc`.
    - **Limit cap**: `Math.min(dto.limit ?? 20, 100)`.
    - **Pagination**: `skip = (page - 1) * limit`, `take = limit`.
@@ -291,7 +291,7 @@ docx/
   - `sort=invalid_field:asc` → `INVALID_SORT_FIELD` (EC-004).
   - `sort=title:sideways` → `VALIDATION_ERROR` (EC-005).
   - `fields=nonexistent` → `INVALID_FIELD` (EC-006).
-  - `fields=*` → all 19 fields in select (EC-007).
+  - `fields=*` → all 18 fields in select (EC-007).
   - `deadline_from` > `deadline_to` → `INVALID_DATE_RANGE` (EC-009).
   - `study_levels=Master,PhD` → `hasSome: ['Master', 'PhD']` in where (EC-012).
   - `q=master` → `contains: 'master'` on title AND description with OR (EC-014).

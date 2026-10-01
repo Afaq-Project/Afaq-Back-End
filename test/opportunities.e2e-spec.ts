@@ -36,7 +36,7 @@ describe('OpportunitiesController (e2e)', () => {
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString(),
           };
-          if (args.select) {
+          if (args && args.select) {
             const res: any = {};
             for (const k of Object.keys(args.select)) {
               res[k] =
@@ -69,7 +69,7 @@ describe('OpportunitiesController (e2e)', () => {
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString(),
           };
-          if (args.select) {
+          if (args && args.select) {
             const res: any = {};
             for (const k of Object.keys(args.select)) {
               res[k] =
@@ -113,6 +113,7 @@ describe('OpportunitiesController (e2e)', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    mockAiPrismaService.client.cleanedOpportunity.count.mockResolvedValue(0);
   });
 
   it('No params → 200, response has data: [] (fixture returns empty), meta object present with page, limit, total, pages (FR-001, FR-002, FR-008)', async () => {
@@ -142,11 +143,11 @@ describe('OpportunitiesController (e2e)', () => {
       .get('/api/v1/opportunities?fields=id,title,deadline')
       .expect(200);
 
-    expect(res.body.data).toHaveLength(1);
-    expect(Object.keys(res.body.data[0])).toHaveLength(3);
-    expect(res.body.data[0]).toHaveProperty('id');
-    expect(res.body.data[0]).toHaveProperty('title');
-    expect(res.body.data[0]).toHaveProperty('deadline');
+    expect(res.body.data.data).toHaveLength(1);
+    expect(Object.keys(res.body.data.data[0])).toHaveLength(3);
+    expect(res.body.data.data[0]).toHaveProperty('id');
+    expect(res.body.data.data[0]).toHaveProperty('title');
+    expect(res.body.data.data[0]).toHaveProperty('deadline');
   });
 
   it('fields=* → each item has exactly 18 keys (EC-007)', async () => {
@@ -154,8 +155,8 @@ describe('OpportunitiesController (e2e)', () => {
       .get('/api/v1/opportunities?fields=*')
       .expect(200);
 
-    expect(res.body.data).toHaveLength(1);
-    expect(Object.keys(res.body.data[0])).toHaveLength(18);
+    expect(res.body.data.data).toHaveLength(1);
+    expect(Object.keys(res.body.data.data[0])).toHaveLength(18);
   });
 
   it('No fields → each item has exactly 7 keys (EC-008, FR-014)', async () => {
@@ -163,8 +164,8 @@ describe('OpportunitiesController (e2e)', () => {
       .get('/api/v1/opportunities')
       .expect(200);
 
-    expect(res.body.data).toHaveLength(1);
-    expect(Object.keys(res.body.data[0])).toHaveLength(7);
+    expect(res.body.data.data).toHaveLength(1);
+    expect(Object.keys(res.body.data.data[0])).toHaveLength(7);
   });
 
   it('sort=invalid_field:asc → 400, error: "INVALID_SORT_FIELD" (EC-004)', async () => {
@@ -172,7 +173,8 @@ describe('OpportunitiesController (e2e)', () => {
       .get('/api/v1/opportunities?sort=invalid_field:asc')
       .expect(400);
 
-    expect(res.body.message).toBe('INVALID_SORT_FIELD');
+    const msg = res.body.errors?.[0]?.message || res.body.message;
+    expect(msg).toBe('INVALID_SORT_FIELD');
   });
 
   it('sort=title:sideways → 400, error: "VALIDATION_ERROR" (EC-005)', async () => {
@@ -182,7 +184,9 @@ describe('OpportunitiesController (e2e)', () => {
 
     // Using arrays for class-validator standard message
     expect(
-      Array.isArray(res.body.message) ? res.body.message[0] : res.body.message,
+      Array.isArray(res.body.errors?.[0]?.message || res.body.message)
+        ? (res.body.errors?.[0]?.message || res.body.message)[0]
+        : res.body.errors?.[0]?.message || res.body.message,
     ).toContain('sort must be in format field:asc or field:desc');
   });
 
@@ -191,7 +195,8 @@ describe('OpportunitiesController (e2e)', () => {
       .get('/api/v1/opportunities?fields=nonexistent')
       .expect(400);
 
-    expect(res.body.message).toBe('INVALID_FIELD');
+    const msg = res.body.errors?.[0]?.message || res.body.message;
+    expect(msg).toBe('INVALID_FIELD');
   });
 
   it('deadline_from=2027-01-01&deadline_to=2026-01-01 → 400, error: "INVALID_DATE_RANGE" (EC-009)', async () => {
@@ -201,7 +206,8 @@ describe('OpportunitiesController (e2e)', () => {
       )
       .expect(400);
 
-    expect(res.body.message).toBe('INVALID_DATE_RANGE');
+    const msg = res.body.errors?.[0]?.message || res.body.message;
+    expect(msg).toBe('INVALID_DATE_RANGE');
   });
 
   it('page=abc → 400, error: "VALIDATION_ERROR" (EC-018)', async () => {
@@ -241,7 +247,8 @@ describe('OpportunitiesController (e2e)', () => {
       .get('/api/v1/opportunities')
       .expect(503);
 
-    expect(res.body.message).toBe('SERVICE_UNAVAILABLE');
+    const msg = res.body.errors?.[0]?.message || res.body.message;
+    expect(msg).toBe('SERVICE_UNAVAILABLE');
   });
 
   it('Response body on any success → no rawOpportunityId, status, errorMessage, contentHash fields (ST-008)', async () => {
@@ -249,8 +256,8 @@ describe('OpportunitiesController (e2e)', () => {
       .get('/api/v1/opportunities?fields=*')
       .expect(200);
 
-    expect(res.body.data).toHaveLength(1);
-    const item = res.body.data[0];
+    expect(res.body.data.data).toHaveLength(1);
+    const item = res.body.data.data[0];
     expect(item).not.toHaveProperty('rawOpportunityId');
     expect(item).not.toHaveProperty('status');
     expect(item).not.toHaveProperty('errorMessage');
@@ -295,7 +302,8 @@ describe('OpportunitiesController (e2e)', () => {
         .get('/api/v1/opportunities/123e4567-e89b-12d3-a456-426614174000')
         .expect(404);
 
-      expect(res.body.message).toMatch(/not found/i);
+      const msg = res.body.errors?.[0]?.message || res.body.message;
+      expect(msg).toMatch(/not found/i);
     });
 
     it('AI DB failure (mock throws) → 503, error: "SERVICE_UNAVAILABLE" (EC-024)', async () => {
@@ -307,7 +315,8 @@ describe('OpportunitiesController (e2e)', () => {
         .get('/api/v1/opportunities/123e4567-e89b-12d3-a456-426614174000')
         .expect(503);
 
-      expect(res.body.message).toBe('SERVICE_UNAVAILABLE');
+      const msg = res.body.errors?.[0]?.message || res.body.message;
+      expect(msg).toBe('SERVICE_UNAVAILABLE');
     });
   });
 });

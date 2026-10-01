@@ -30,7 +30,7 @@ export class ListOpportunitiesDto {
   @ApiPropertyOptional({ description: 'Format: {field}:{asc|desc}' })
   @IsOptional()
   @IsString()
-  @Matches(/^[a-zA-Z_]+:(asc|desc)$/, {
+  @Matches(/^[a-z_]+:(asc|desc)$/, {
     message: 'sort must be in format field:asc or field:desc',
   })
   sort?: string;
@@ -66,7 +66,15 @@ export class ListOpportunitiesDto {
 
   @ApiPropertyOptional()
   @IsOptional()
-  @Transform(({ value }) => value === 'true' || value === true)
+  @Transform(({ value }) => {
+    if (value === 'true' || value === true) {
+      return true;
+    }
+    if (value === 'false' || value === false) {
+      return false;
+    }
+    return value;
+  })
   @IsBoolean()
   is_remote?: boolean;
 

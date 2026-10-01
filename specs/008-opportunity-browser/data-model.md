@@ -43,7 +43,7 @@ The primary entity consumed by both endpoints. Stored in the AI service database
 | `createdAt` | `DateTime` | `created_at` | No | Default `now()` |
 | `updatedAt` | `DateTime` | `updated_at` | No | `@updatedAt` |
 
-> **Exposed field count**: 19 (excludes `status`, `errorMessage`, `contentHash`, `rawOpportunityId` which are internal AI service fields not in the API whitelist)
+> **Exposed field count**: 18 (excludes `status`, `errorMessage`, `contentHash`, `rawOpportunityId` which are internal AI service fields not in the API whitelist)
 
 **Relationships** (read-only, navigated in Prisma queries):
 - `source` → `Source` (via `sourceId`)
@@ -68,7 +68,7 @@ Used as a filter dimension (`source_id` filter on the list endpoint). Full sourc
 
 ## Field Whitelist (API-Exposed Fields)
 
-Fields available to the `fields` query parameter. Exactly 19 entries.
+Fields available to the `fields` query parameter. Exactly 18 entries.
 
 ```typescript
 export const OPPORTUNITY_FIELD_WHITELIST = [

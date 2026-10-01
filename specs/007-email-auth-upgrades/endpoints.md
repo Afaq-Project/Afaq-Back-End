@@ -49,7 +49,8 @@ Create a new user account. Dispatches a verification email immediately on succes
 
 ```json
 {
-  "statusCode": 201,
+  "success": true,
+  "status": 201,
   "message": "Registration successful. Please check your email to verify your account.",
   "data": null,
   "timestamp": "2026-09-29T12:00:00.000Z"
@@ -92,7 +93,8 @@ Authenticate a user. Now blocked for unverified users and users flagged for forc
 
 ```json
 {
-  "statusCode": 200,
+  "success": true,
+  "status": 200,
   "message": "Login successful",
   "data": {
     "accessToken": "eyJhbG...",
@@ -134,7 +136,8 @@ Consume a single-use verification token from an email link to mark the account a
 
 ```json
 {
-  "statusCode": 200,
+  "success": true,
+  "status": 200,
   "message": "Email verified successfully. You may now log in.",
   "data": null,
   "timestamp": "2026-09-29T12:00:00.000Z"
@@ -177,7 +180,8 @@ Invalidates any pending verification tokens for the user and emails a fresh one.
 
 ```json
 {
-  "statusCode": 200,
+  "success": true,
+  "status": 200,
   "message": "If this email is registered and unverified, a new verification email has been sent.",
   "data": null,
   "timestamp": "2026-09-29T12:00:00.000Z"
@@ -220,7 +224,8 @@ Request a password reset link to be sent to the user's email. Rate-limited to 1 
 
 ```json
 {
-  "statusCode": 200,
+  "success": true,
+  "status": 200,
   "message": "If this email is registered, a password reset link has been sent.",
   "data": null,
   "timestamp": "2026-09-29T12:00:00.000Z"
@@ -265,7 +270,8 @@ Consume a single-use reset token and set a new password. Revokes all active refr
 
 ```json
 {
-  "statusCode": 200,
+  "success": true,
+  "status": 200,
   "message": "Password has been reset successfully. Please log in with your new password.",
   "data": null,
   "timestamp": "2026-09-29T12:00:00.000Z"
@@ -310,7 +316,8 @@ Change password for an authenticated user. Requires valid current password. Revo
 
 ```json
 {
-  "statusCode": 200,
+  "success": true,
+  "status": 200,
   "message": "Password changed successfully. Other active sessions have been signed out.",
   "data": null,
   "timestamp": "2026-09-29T12:00:00.000Z"

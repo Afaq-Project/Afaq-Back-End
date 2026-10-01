@@ -85,7 +85,7 @@ curl -s "http://localhost:3000/api/v1/opportunities?fields=id,title,deadline" | 
 
 # All fields
 curl -s "http://localhost:3000/api/v1/opportunities?fields=*" | jq '.data[0] | keys | length'
-# Expected: 19
+# Expected: 18
 ```
 
 ---
@@ -161,7 +161,7 @@ ID=$(curl -s "http://localhost:3000/api/v1/opportunities" | jq -r '.data[0].id')
 curl -s "http://localhost:3000/api/v1/opportunities/$ID" | jq '{statusCode, keys: (.data | keys | length)}'
 ```
 
-**Expected outcome**: `statusCode: 200`; `keys` count is `19` (all whitelisted fields).
+**Expected outcome**: `statusCode: 200`; `keys` count is `18` (all whitelisted fields).
 
 ---
 

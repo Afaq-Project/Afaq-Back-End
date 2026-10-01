@@ -81,19 +81,21 @@ describe('OpportunitiesService', () => {
 
     it('sort=forbidden:asc → throws BadRequestException with INVALID_SORT_FIELD (EC-004)', async () => {
       await expect(service.findMany({ sort: 'forbidden:asc' })).rejects.toThrow(
-        new BadRequestException('INVALID_SORT_FIELD'),
+        new BadRequestException('Invalid sort field', 'INVALID_SORT_FIELD'),
       );
     });
 
     it('sort=title:sideways → throws BadRequestException with VALIDATION_ERROR (EC-005)', async () => {
       await expect(
         service.findMany({ sort: 'title:sideways' }),
-      ).rejects.toThrow(new BadRequestException('VALIDATION_ERROR'));
+      ).rejects.toThrow(
+        new BadRequestException('Invalid sort order', 'VALIDATION_ERROR'),
+      );
     });
 
     it('fields=not_real → throws BadRequestException with INVALID_FIELD (EC-006)', async () => {
       await expect(service.findMany({ fields: 'not_real' })).rejects.toThrow(
-        new BadRequestException('INVALID_FIELD'),
+        new BadRequestException('Fields not allowed: not_real'),
       );
     });
 
@@ -119,7 +121,9 @@ describe('OpportunitiesService', () => {
           deadline_from: '2027-01-01',
           deadline_to: '2026-01-01',
         }),
-      ).rejects.toThrow(new BadRequestException('INVALID_DATE_RANGE'));
+      ).rejects.toThrow(
+        new BadRequestException('Invalid date range', 'INVALID_DATE_RANGE'),
+      );
     });
 
     it('study_levels=Master,PhD → where clause contains { studyLevels: { hasSome: [Master, PhD] } } (EC-012)', async () => {
@@ -184,7 +188,7 @@ describe('OpportunitiesService', () => {
 
     it('Valid ID, fields=forbidden → throws BadRequestException with INVALID_FIELD (EC-022)', async () => {
       await expect(service.findById('some-id', 'forbidden')).rejects.toThrow(
-        new BadRequestException('INVALID_FIELD'),
+        new BadRequestException('Fields not allowed: forbidden'),
       );
     });
 

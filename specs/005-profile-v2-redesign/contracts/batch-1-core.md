@@ -203,7 +203,8 @@ All errors follow the global exception filter format:
 
 ```json
 {
-  "statusCode": 400,
+  "success": false,
+  "status": 400,
   "message": "Validation failed",
   "errors": ["gender must be one of the following values: MALE, FEMALE"],
   "timestamp": "2026-09-21T15:00:00.000Z"

@@ -25,7 +25,7 @@ All design decisions required to implement this feature are resolved below. No N
 
 ## Decision 2: Dynamic `select` Object Construction
 
-**Decision**: Build the Prisma `select` object in the service layer from a validated, compile-time constant whitelist (`OPPORTUNITY_FIELD_WHITELIST`). If `fields=*`, expand to all 19 whitelist entries. If `fields` is absent on the list endpoint, use the 7-entry `OPPORTUNITY_DEFAULT_FIELDS` constant. Otherwise, split the comma-separated string, trim each entry, validate every entry against the whitelist (unknown → `400 INVALID_FIELD`), and build `{ [field]: true }` for each.
+**Decision**: Build the Prisma `select` object in the service layer from a validated, compile-time constant whitelist (`OPPORTUNITY_FIELD_WHITELIST`). If `fields=*`, expand to all 18 whitelist entries. If `fields` is absent on the list endpoint, use the 7-entry `OPPORTUNITY_DEFAULT_FIELDS` constant. Otherwise, split the comma-separated string, trim each entry, validate every entry against the whitelist (unknown → `400 INVALID_FIELD`), and build `{ [field]: true }` for each.
 
 **Rationale**:
 - Using a typed constant whitelist prevents any field outside the schema from reaching the Prisma select object, which guards against unintended data exposure.
