@@ -1853,6 +1853,89 @@
           "response": []
         }
       ]
+    },
+    {
+      "name": "Opportunities",
+      "item": [
+        {
+          "name": "List Opportunities",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/opportunities?page=1&limit=10&is_remote=true&study_levels=bachelor,master&deadline_from=2024-01-01&deadline_to=2024-12-31&sort=created_at:desc",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "opportunities"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "is_remote",
+                  "value": "true"
+                },
+                {
+                  "key": "study_levels",
+                  "value": "bachelor,master"
+                },
+                {
+                  "key": "deadline_from",
+                  "value": "2024-01-01"
+                },
+                {
+                  "key": "deadline_to",
+                  "value": "2024-12-31"
+                },
+                {
+                  "key": "sort",
+                  "value": "created_at:desc"
+                },
+                {
+                  "key": "source_id",
+                  "value": "00000000-0000-4000-8000-000000000000",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Get a list of opportunities with filtering and pagination"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Opportunity by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/opportunities/00000000-0000-4000-8000-000000000000?fields=id,title,description",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "opportunities",
+                "00000000-0000-4000-8000-000000000000"
+              ],
+              "query": [
+                {
+                  "key": "fields",
+                  "value": "id,title,description"
+                }
+              ]
+            },
+            "description": "Get a single opportunity by its UUID, optionally specifying fields to return"
+          },
+          "response": []
+        }
+      ]
     }
   ],
   "variable": [

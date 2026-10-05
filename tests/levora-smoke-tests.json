@@ -1958,6 +1958,532 @@
           }
         }
       ]
+    },
+    {
+      "name": "Opportunities (Smoke Tests)",
+      "item": [
+        {
+          "name": "1) findById with array fields",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is correct\", function () {",
+                  "    pm.expect(pm.response.code === 500 || pm.response.code === 400).to.be.true;",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/opportunities/00000000-0000-4000-8000-000000000000?fields=id&fields=title",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "opportunities",
+                "00000000-0000-4000-8000-000000000000"
+              ],
+              "query": [
+                {
+                  "key": "fields",
+                  "value": "id"
+                },
+                {
+                  "key": "fields",
+                  "value": "title"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "2) invalid is_remote",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is correct\", function () {",
+                  "    pm.expect(pm.response.code === 400 || pm.response.code === 500).to.be.true;",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/opportunities?is_remote=notabool",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "opportunities"
+              ],
+              "query": [
+                {
+                  "key": "is_remote",
+                  "value": "notabool"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "3) invalid page",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is correct\", function () {",
+                  "    pm.expect(pm.response.code === 400 || pm.response.code === 500).to.be.true;",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/opportunities?page=abc",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "opportunities"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "abc"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "4) invalid source_id",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is correct\", function () {",
+                  "    pm.expect(pm.response.code === 400 || pm.response.code === 500).to.be.true;",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/opportunities?source_id=not-a-uuid",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "opportunities"
+              ],
+              "query": [
+                {
+                  "key": "source_id",
+                  "value": "not-a-uuid"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "5) invalid deadline_from",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is correct\", function () {",
+                  "    pm.expect(pm.response.code === 400 || pm.response.code === 500).to.be.true;",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/opportunities?deadline_from=not-a-date",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "opportunities"
+              ],
+              "query": [
+                {
+                  "key": "deadline_from",
+                  "value": "not-a-date"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "6) empty study_levels",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is correct\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/opportunities?study_levels=,,",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "opportunities"
+              ],
+              "query": [
+                {
+                  "key": "study_levels",
+                  "value": ",,"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "7) findById with invalid UUID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is correct\", function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/opportunities/not-a-uuid",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "opportunities",
+                "not-a-uuid"
+              ],
+              "query": []
+            }
+          }
+        },
+        {
+          "name": "8) findById without fields",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is correct\", function () {",
+                  "    pm.expect(pm.response.code === 200 || pm.response.code === 404).to.be.true;",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/opportunities/00000000-0000-4000-8000-000000000000",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "opportunities",
+                "00000000-0000-4000-8000-000000000000"
+              ],
+              "query": []
+            }
+          }
+        },
+        {
+          "name": "9) findById with specific fields",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is correct\", function () {",
+                  "    pm.expect(pm.response.code === 200 || pm.response.code === 404).to.be.true;",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/opportunities/00000000-0000-4000-8000-000000000000?fields=id,title",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "opportunities",
+                "00000000-0000-4000-8000-000000000000"
+              ],
+              "query": [
+                {
+                  "key": "fields",
+                  "value": "id,title"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "10) findById with forbidden field",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is correct\", function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/opportunities/00000000-0000-4000-8000-000000000000?fields=forbidden",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "opportunities",
+                "00000000-0000-4000-8000-000000000000"
+              ],
+              "query": [
+                {
+                  "key": "fields",
+                  "value": "forbidden"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "11) invalid sort field",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is correct\", function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/opportunities?sort=forbidden:asc",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "opportunities"
+              ],
+              "query": [
+                {
+                  "key": "sort",
+                  "value": "forbidden:asc"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "12) invalid sort direction",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is correct\", function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/opportunities?sort=title:sideways",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "opportunities"
+              ],
+              "query": [
+                {
+                  "key": "sort",
+                  "value": "title:sideways"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "13) invalid date range",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is correct\", function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/opportunities?deadline_from=2027-01-01&deadline_to=2026-01-01",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "opportunities"
+              ],
+              "query": [
+                {
+                  "key": "deadline_from",
+                  "value": "2027-01-01"
+                },
+                {
+                  "key": "deadline_to",
+                  "value": "2026-01-01"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "14) unknown field",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is correct\", function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/opportunities?unknown_field=hello",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "opportunities"
+              ],
+              "query": [
+                {
+                  "key": "unknown_field",
+                  "value": "hello"
+                }
+              ]
+            }
+          }
+        }
+      ]
     }
   ]
 }
