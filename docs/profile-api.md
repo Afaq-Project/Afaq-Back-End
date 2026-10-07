@@ -122,8 +122,7 @@ Returns the static, curated list of frontend interface languages with writing di
 #### Response `200 OK`
 ```json
 {
-  "success": true,
-  "status": 200,
+  "statusCode": 200,
   "message": "App languages retrieved successfully",
   "data": [
     { "code": "en", "name": "English", "nativeName": "English", "dir": "ltr" },
@@ -150,8 +149,7 @@ Returns the canonical list of active education qualifications with both English 
 #### Response `200 OK`
 ```json
 {
-  "success": true,
-  "status": 200,
+  "statusCode": 200,
   "message": "Education levels retrieved successfully",
   "data": [
     {
@@ -228,8 +226,7 @@ Returns the paginated master list of spoken/written languages.
 #### Response `200 OK`
 ```json
 {
-  "success": true,
-  "status": 200,
+  "statusCode": 200,
   "message": "Languages retrieved successfully",
   "data": [
     { "id": "11111111-1111-1111-1111-111111111111", "name": "Arabic" },
@@ -269,8 +266,7 @@ Returns the paginated master list of academic fields and disciplines.
 #### Response `200 OK`
 ```json
 {
-  "success": true,
-  "status": 200,
+  "statusCode": 200,
   "message": "Fields of study retrieved successfully",
   "data": [
     {
@@ -320,8 +316,7 @@ Retrieves the master taxonomy of skills. Supports a **dual response mode**:
 #### Response `200 OK` (Default Grouped Mode: `GET /reference/skills-taxonomy`)
 ```json
 {
-  "success": true,
-  "status": 200,
+  "statusCode": 200,
   "message": "Skills taxonomy retrieved successfully",
   "data": [
     {
@@ -348,8 +343,7 @@ Retrieves the master taxonomy of skills. Supports a **dual response mode**:
 #### Response `200 OK` (Flat Paginated Mode: `GET /reference/skills-taxonomy?search=type`)
 ```json
 {
-  "success": true,
-  "status": 200,
+  "statusCode": 200,
   "message": "Skills taxonomy retrieved successfully",
   "data": [
     {
@@ -390,8 +384,7 @@ Fetches the full profile details of the authenticated user, including sub-collec
 #### Response `200 OK`
 ```json
 {
-  "success": true,
-  "status": 200,
+  "statusCode": 200,
   "message": "Profile retrieved successfully",
   "data": {
     "userId": "u1111111-1111-1111-1111-111111111111",
@@ -488,8 +481,7 @@ Partially updates the user's profile details.
 #### Response `200 OK`
 ```json
 {
-  "success": true,
-  "status": 200,
+  "statusCode": 200,
   "message": "Updated successfully",
   "data": {
     "userId": "u1111111-1111-1111-1111-111111111111",
@@ -517,8 +509,7 @@ Locks in and marks the profile as publicly active. Requires core fields (`educat
 #### Response `200 OK`
 ```json
 {
-  "success": true,
-  "status": 200,
+  "statusCode": 200,
   "message": "Profile published successfully",
   "data": {
     "isPublished": true,
@@ -552,8 +543,7 @@ All sub-resources operate within the authenticated user's scope. Attempting to m
 ##### Response `200 OK`
 ```json
 {
-  "success": true,
-  "status": 200,
+  "statusCode": 200,
   "message": "Skills retrieved successfully",
   "data": [
     {
@@ -592,8 +582,7 @@ All sub-resources operate within the authenticated user's scope. Attempting to m
 ##### Response `200 OK`
 ```json
 {
-  "success": true,
-  "status": 200,
+  "statusCode": 200,
   "message": "Skill retrieved successfully",
   "data": {
     "id": "us111111-1111-1111-1111-111111111111",
@@ -632,8 +621,7 @@ All sub-resources operate within the authenticated user's scope. Attempting to m
 ##### Response `201 Created`
 ```json
 {
-  "success": true,
-  "status": 201,
+  "statusCode": 201,
   "message": "Skill added successfully",
   "data": {
     "id": "us111111-1111-1111-1111-111111111111",
@@ -663,8 +651,7 @@ All sub-resources operate within the authenticated user's scope. Attempting to m
 ##### Response `200 OK`
 ```json
 {
-  "success": true,
-  "status": 200,
+  "statusCode": 200,
   "message": "Skill updated successfully",
   "data": {
     "id": "us111111-1111-1111-1111-111111111111",
@@ -696,8 +683,7 @@ All sub-resources operate within the authenticated user's scope. Attempting to m
 ##### Response `200 OK`
 ```json
 {
-  "success": true,
-  "status": 200,
+  "statusCode": 200,
   "message": "Return all user languages.",
   "data": [
     {
@@ -735,8 +721,7 @@ All sub-resources operate within the authenticated user's scope. Attempting to m
 ##### Response `200 OK`
 ```json
 {
-  "success": true,
-  "status": 200,
+  "statusCode": 200,
   "message": "Return the user language.",
   "data": {
     "id": "ul111111-1111-1111-1111-111111111111",
@@ -774,8 +759,7 @@ All sub-resources operate within the authenticated user's scope. Attempting to m
 ##### Response `201 Created`
 ```json
 {
-  "success": true,
-  "status": 201,
+  "statusCode": 201,
   "message": "Language added successfully.",
   "data": {
     "id": "ul111111-1111-1111-1111-111111111111",
@@ -805,8 +789,7 @@ All sub-resources operate within the authenticated user's scope. Attempting to m
 ##### Response `200 OK`
 ```json
 {
-  "success": true,
-  "status": 200,
+  "statusCode": 200,
   "message": "Language updated successfully.",
   "data": {
     "id": "ul111111-1111-1111-1111-111111111111",
@@ -838,8 +821,7 @@ All sub-resources operate within the authenticated user's scope. Attempting to m
 ##### Response `200 OK`
 ```json
 {
-  "success": true,
-  "status": 200,
+  "statusCode": 200,
   "message": "OK",
   "data": [
     {
@@ -895,8 +877,7 @@ All sub-resources operate within the authenticated user's scope. Attempting to m
 ##### Response `201 Created`
 ```json
 {
-  "success": true,
-  "status": 201,
+  "statusCode": 201,
   "message": "Created successfully",
   "data": {
     "id": "e1111111-1111-1111-1111-111111111111",
@@ -942,8 +923,7 @@ All fields from creation are optional, plus GPA configuration:
 ##### Response `200 OK`
 ```json
 {
-  "success": true,
-  "status": 200,
+  "statusCode": 200,
   "message": "Updated successfully",
   "data": {
     "id": "e1111111-1111-1111-1111-111111111111",
@@ -989,8 +969,7 @@ Upload and manage resumes, transcripts, recommendation letters, and essays. File
 ##### Response `201 Created`
 ```json
 {
-  "success": true,
-  "status": 201,
+  "statusCode": 201,
   "message": "Created successfully",
   "data": {
     "id": "d1111111-1111-1111-1111-111111111111",
@@ -1017,8 +996,7 @@ Upload and manage resumes, transcripts, recommendation letters, and essays. File
 ##### Response `200 OK`
 ```json
 {
-  "success": true,
-  "status": 200,
+  "statusCode": 200,
   "message": "OK",
   "data": [
     {
@@ -1061,8 +1039,7 @@ Generates a time-limited signed URL for secure file download or preview.
 ##### Response `200 OK`
 ```json
 {
-  "success": true,
-  "status": 200,
+  "statusCode": 200,
   "message": "OK",
   "data": {
     "url": "http://localhost:3000/api/v1/local-storage/documents%2Fu1111111-1111-1111-1111-111111111111%2F1726820000000-resume.pdf?token=eyJhbGciOi...",
@@ -1091,8 +1068,7 @@ The API returns consistent error payloads matching the Levora standard:
 
 ```json
 {
-  "success": false,
-  "status": 400,
+  "statusCode": 400,
   "message": "Validation failed",
   "errors": [
     {

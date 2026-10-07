@@ -158,13 +158,18 @@ export class OpportunitiesService {
       select,
     });
 
+    const totalPages = Math.ceil(total / limit);
     return {
       data,
       meta: {
-        page,
-        limit,
-        total,
-        pages: Math.ceil(total / limit),
+        pagination: {
+          total,
+          page,
+          limit,
+          totalPages,
+          hasNext: page < totalPages,
+          hasPrev: page > 1,
+        },
       },
     };
   }
@@ -215,5 +220,30 @@ export class OpportunitiesService {
     }
 
     return opportunity;
+  }
+
+  /**
+   * Retrieves the 10 most recent opportunities.
+   */
+  async findTopTen() {
+    this.logger.debug('Fetching top 10 recent opportunities');
+
+    const select: Record<string, boolean> = {};
+    for (const field of OPPORTUNITY_DEFAULT_FIELDS) {
+      const camelCaseField = field.replace(/_([a-z])/g, (g) =>
+        g[1].toUpperCase(),
+      );
+      select[camelCaseField] = true;
+    }
+
+    const { data } = await this.repository.findMany({
+      skip: 0,
+      take: 10,
+      orderBy: { createdAt: 'desc' },
+      select,
+      where: {},
+    });
+
+    return data;
   }
 }

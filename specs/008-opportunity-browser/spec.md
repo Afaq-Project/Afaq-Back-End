@@ -144,7 +144,7 @@ An API consumer (e.g., a mobile client or a low-bandwidth scenario) can request 
 
 - **FR-017**: All opportunity data MUST be read from the external AI service database. The system MUST NOT write to, update, or delete records in that database under any circumstances.
 - **FR-018**: The connection to the external database MUST be configured exclusively via an environment variable — no credentials are hardcoded.
-- **FR-018**: If the external database connection fails or becomes unreachable, the system MUST immediately return a `503 Service Unavailable` response with a meaningful error message — no application-level retry is attempted. The failure MUST be logged with enough context for diagnosis.
+- **FR-019**: If the external database connection fails or becomes unreachable, the system MUST immediately return a `503 Service Unavailable` response with a meaningful error message — no application-level retry is attempted. The failure MUST be logged with enough context for diagnosis.
 
 ### Key Entities
 

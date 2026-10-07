@@ -36,8 +36,7 @@ GET /api/v1/opportunities/:id
 
 ```json
 {
-  "success": true,
-  "status": 200,
+  "statusCode": 200,
   "message": "Opportunity retrieved successfully",
   "data": {
     "id": "string (UUID)",
@@ -74,8 +73,7 @@ GET /api/v1/opportunities/:id
 
 ```json
 {
-  "success": false,
-  "status": 400,
+  "statusCode": 400,
   "message": "Validation failed (uuid is expected)",
   "error": "VALIDATION_ERROR",
   "timestamp": "ISO 8601 datetime"
@@ -88,8 +86,7 @@ Triggered when `:id` is not a valid UUID format (e.g., `"abc"`, `"123"`).
 
 ```json
 {
-  "success": false,
-  "status": 400,
+  "statusCode": 400,
   "message": "Field '<name>' is not allowed",
   "error": "INVALID_FIELD",
   "timestamp": "ISO 8601 datetime"
@@ -100,8 +97,7 @@ Triggered when `:id` is not a valid UUID format (e.g., `"abc"`, `"123"`).
 
 ```json
 {
-  "success": false,
-  "status": 404,
+  "statusCode": 404,
   "message": "Opportunity not found",
   "error": "OPPORTUNITY_NOT_FOUND",
   "timestamp": "ISO 8601 datetime"
@@ -114,8 +110,7 @@ Triggered when no record exists for the given UUID (including records that were 
 
 ```json
 {
-  "success": false,
-  "status": 503,
+  "statusCode": 503,
   "message": "Opportunity data source is currently unavailable",
   "error": "SERVICE_UNAVAILABLE",
   "timestamp": "ISO 8601 datetime"
@@ -126,8 +121,7 @@ Triggered when no record exists for the given UUID (including records that were 
 
 ```json
 {
-  "success": false,
-  "status": 500,
+  "statusCode": 500,
   "message": "Internal server error",
   "error": "INTERNAL_ERROR",
   "timestamp": "ISO 8601 datetime"

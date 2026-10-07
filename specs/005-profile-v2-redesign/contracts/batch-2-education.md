@@ -135,8 +135,7 @@ Create a new education record for the authenticated user.
 
 ```json
 {
-  "success": true,
-  "status": 201,
+  "statusCode": 201,
   "message": "Education record created successfully",
   "data": {
     "id": "uuid",
@@ -201,8 +200,7 @@ Retrieve all education records belonging to the authenticated user.
 
 ```json
 {
-  "success": true,
-  "status": 200,
+  "statusCode": 200,
   "message": "Education records retrieved successfully",
   "data": [
     {
@@ -429,8 +427,7 @@ GET /api/v1/reference/major-categories?search=Eng&page=1&limit=20
 
 ```json
 {
-  "success": true,
-  "status": 200,
+  "statusCode": 200,
   "message": "Major categories retrieved successfully",
   "data": [
     { "id": "uuid-1", "nameEn": "Engineering", "nameAr": "الهندسة" },
@@ -492,8 +489,7 @@ GET /api/v1/reference/majors?categoryId=uuid-eng&search=Comp&page=1&limit=20
 
 ```json
 {
-  "success": true,
-  "status": 200,
+  "statusCode": 200,
   "message": "Majors retrieved successfully",
   "data": [
     {
@@ -560,8 +556,7 @@ GET /api/v1/reference/institutions?countryId=uuid-ps&cityId=uuid-ramallah&search
 
 ```json
 {
-  "success": true,
-  "status": 200,
+  "statusCode": 200,
   "message": "Institutions retrieved successfully",
   "data": [
     {
@@ -600,8 +595,7 @@ GET /api/v1/reference/institutions?countryId=uuid-ps&cityId=uuid-ramallah&search
 **Success**:
 ```json
 {
-  "success": true,
-  "status": 200,
+  "statusCode": 200,
   "message": "Human-readable message",
   "data": { },
   "meta": { },
@@ -612,8 +606,7 @@ GET /api/v1/reference/institutions?countryId=uuid-ps&cityId=uuid-ramallah&search
 **Error**:
 ```json
 {
-  "success": false,
-  "status": 400,
+  "statusCode": 400,
   "message": "Human-readable message",
   "error": "ErrorKey",
   "timestamp": "ISO 8601"

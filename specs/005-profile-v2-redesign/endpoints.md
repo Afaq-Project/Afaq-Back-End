@@ -53,8 +53,7 @@ Retrieve the complete profile of the authenticated user, including all 8 section
 
 ```json
 {
-  "success": true,
-  "status": 200,
+  "statusCode": 200,
   "message": "Profile retrieved successfully",
   "data": {
     "userId": "uuid",
@@ -202,8 +201,7 @@ Retrieve a paginated, filterable, sortable list of countries. No authentication 
 
 ```json
 {
-  "success": true,
-  "status": 200,
+  "statusCode": 200,
   "message": "Countries retrieved successfully",
   "data": [
     {
@@ -251,8 +249,7 @@ Retrieve a paginated, filterable list of cities. Filtering by `countryId` is opt
 
 ```json
 {
-  "success": true,
-  "status": 200,
+  "statusCode": 200,
   "message": "Cities retrieved successfully",
   "data": [
     {
@@ -282,8 +279,7 @@ Retrieve a paginated, filterable list of cities. Filtering by `countryId` is opt
 
 ```json
 {
-  "success": true,
-  "status": 200,
+  "statusCode": 200,
   "message": "Marital statuses retrieved successfully",
   "data": [
     { "id": "uuid-1", "nameEn": "Single",  "nameAr": "أعزب" },
@@ -301,8 +297,7 @@ Retrieve a paginated, filterable list of cities. Filtering by `countryId` is opt
 
 ```json
 {
-  "success": true,
-  "status": 200,
+  "statusCode": 200,
   "message": "Education levels retrieved successfully",
   "data": [
     {
@@ -324,8 +319,7 @@ Retrieve a paginated, filterable list of cities. Filtering by `countryId` is opt
 
 ```json
 {
-  "success": true,
-  "status": 200,
+  "statusCode": 200,
   "message": "App languages retrieved successfully",
   "data": [
     { "code": "ar", "nameEn": "Arabic",  "nameAr": "العربية" },
@@ -446,8 +440,7 @@ Create a new education record for the authenticated user.
 
 ```json
 {
-  "success": true,
-  "status": 201,
+  "statusCode": 201,
   "message": "Education record created successfully",
   "data": {
     "id": "uuid",
@@ -512,8 +505,7 @@ Retrieve all education records belonging to the authenticated user.
 
 ```json
 {
-  "success": true,
-  "status": 200,
+  "statusCode": 200,
   "message": "Education records retrieved successfully",
   "data": [
     {
@@ -740,8 +732,7 @@ GET /api/v1/reference/major-categories?search=Eng&page=1&limit=20
 
 ```json
 {
-  "success": true,
-  "status": 200,
+  "statusCode": 200,
   "message": "Major categories retrieved successfully",
   "data": [
     { "id": "uuid-1", "nameEn": "Engineering", "nameAr": "الهندسة" },
@@ -803,8 +794,7 @@ GET /api/v1/reference/majors?categoryId=uuid-eng&search=Comp&page=1&limit=20
 
 ```json
 {
-  "success": true,
-  "status": 200,
+  "statusCode": 200,
   "message": "Majors retrieved successfully",
   "data": [
     {
@@ -871,8 +861,7 @@ GET /api/v1/reference/institutions?countryId=uuid-ps&cityId=uuid-ramallah&search
 
 ```json
 {
-  "success": true,
-  "status": 200,
+  "statusCode": 200,
   "message": "Institutions retrieved successfully",
   "data": [
     {
@@ -1009,8 +998,7 @@ Add a new language record to the authenticated user's profile.
 
 ```json
 {
-  "success": true,
-  "status": 201,
+  "statusCode": 201,
   "message": "Language record created successfully",
   "data": {
     "userId": "uuid",
@@ -1076,8 +1064,7 @@ Retrieve all language records belonging to the authenticated user, with embedded
 
 ```json
 {
-  "success": true,
-  "status": 200,
+  "statusCode": 200,
   "message": "Language records retrieved successfully",
   "data": [
     {
@@ -1258,8 +1245,7 @@ Retrieve the list of all languages supported by the system.
 
 ```json
 {
-  "success": true,
-  "status": 200,
+  "statusCode": 200,
   "message": "Languages retrieved successfully",
   "data": [
     { "id": "uuid-ar", "nameEn": "Arabic",  "nameAr": "العربية",    "isoCode": "ar" },
@@ -1302,8 +1288,7 @@ Retrieve the list of language proficiency levels (Beginner, Intermediate, Advanc
 
 ```json
 {
-  "success": true,
-  "status": 200,
+  "statusCode": 200,
   "message": "Proficiency levels retrieved successfully",
   "data": [
     { "id": "uuid-beginner",     "nameEn": "Beginner",     "nameAr": "مبتدئ",      "sortOrder": 1 },
@@ -1352,8 +1337,7 @@ Retrieve the list of language proficiency levels (Beginner, Intermediate, Advanc
 **Success**:
 ```json
 {
-  "success": true,
-  "status": 201,
+  "statusCode": 201,
   "message": "Human-readable message",
   "data": { },
   "timestamp": "ISO 8601"
@@ -1363,8 +1347,7 @@ Retrieve the list of language proficiency levels (Beginner, Intermediate, Advanc
 **Error**:
 ```json
 {
-  "success": false,
-  "status": 409,
+  "statusCode": 409,
   "message": "Human-readable message",
   "error": "ErrorKey",
   "timestamp": "ISO 8601"
@@ -1556,8 +1539,7 @@ Add a new standardized test result to the authenticated user's profile.
 
 ```json
 {
-  "success": true,
-  "status": 201,
+  "statusCode": 201,
   "message": "Test result created successfully",
   "data": {
     "id": "uuid",
@@ -1622,8 +1604,7 @@ Retrieve all test results belonging to the authenticated user, with embedded tes
 
 ```json
 {
-  "success": true,
-  "status": 200,
+  "statusCode": 200,
   "message": "Test results retrieved successfully",
   "data": [
     {
@@ -1804,8 +1785,7 @@ Retrieve the list of all supported standardized tests, with their score ranges a
 
 ```json
 {
-  "success": true,
-  "status": 200,
+  "statusCode": 200,
   "message": "Standardized tests retrieved successfully",
   "data": [
     {
@@ -1881,8 +1861,7 @@ Retrieve the list of all supported standardized tests, with their score ranges a
 **Success**:
 ```json
 {
-  "success": true,
-  "status": 201,
+  "statusCode": 201,
   "message": "Human-readable message",
   "data": { },
   "timestamp": "ISO 8601"
@@ -1892,8 +1871,7 @@ Retrieve the list of all supported standardized tests, with their score ranges a
 **Error**:
 ```json
 {
-  "success": false,
-  "status": 400,
+  "statusCode": 400,
   "message": "Human-readable message",
   "error": "ErrorKey",
   "timestamp": "ISO 8601"
@@ -2104,8 +2082,7 @@ Add a special status to the authenticated user's profile. Idempotent.
 
 ```json
 {
-  "success": true,
-  "status": 200,
+  "statusCode": 200,
   "message": "Special status added successfully",
   "data": {
     "userId": "uuid",
@@ -2156,8 +2133,7 @@ Retrieve all special statuses belonging to the authenticated user.
 
 ```json
 {
-  "success": true,
-  "status": 200,
+  "statusCode": 200,
   "message": "Special statuses retrieved successfully",
   "data": [
     {
@@ -2250,8 +2226,7 @@ Retrieve all target preferences for the authenticated user in a single unified r
 
 ```json
 {
-  "success": true,
-  "status": 200,
+  "statusCode": 200,
   "message": "Preferences retrieved successfully",
   "data": {
     "targetDegrees": [
@@ -2348,8 +2323,7 @@ Add a target degree. Idempotent.
 
 ```json
 {
-  "success": true,
-  "status": 200,
+  "statusCode": 200,
   "message": "Target degree added successfully",
   "data": {
     "userId": "uuid",
@@ -2451,8 +2425,7 @@ Add a target major. Idempotent.
 
 ```json
 {
-  "success": true,
-  "status": 200,
+  "statusCode": 200,
   "message": "Target major added successfully",
   "data": {
     "userId": "uuid",
@@ -2552,8 +2525,7 @@ Add a target institution. Idempotent.
 
 ```json
 {
-  "success": true,
-  "status": 200,
+  "statusCode": 200,
   "message": "Target institution added successfully",
   "data": {
     "userId": "uuid",
@@ -2639,8 +2611,7 @@ Retrieve the list of all supported special statuses.
 
 ```json
 {
-  "success": true,
-  "status": 200,
+  "statusCode": 200,
   "message": "Special statuses retrieved successfully",
   "data": [
     { "id": "uuid-1", "nameEn": "Refugee",                 "nameAr": "لاجئ" },
@@ -2692,8 +2663,7 @@ Retrieve the list of all supported special statuses.
 **Success**:
 ```json
 {
-  "success": true,
-  "status": 200,
+  "statusCode": 200,
   "message": "Human-readable message",
   "data": { },
   "timestamp": "ISO 8601"
@@ -2703,8 +2673,7 @@ Retrieve the list of all supported special statuses.
 **Error**:
 ```json
 {
-  "success": false,
-  "status": 409,
+  "statusCode": 409,
   "message": "Human-readable message",
   "error": "ErrorKey",
   "timestamp": "ISO 8601"
@@ -2925,8 +2894,7 @@ curl -X POST /api/v1/profile/documents \
 
 ```json
 {
-  "success": true,
-  "status": 201,
+  "statusCode": 201,
   "message": "Document uploaded successfully",
   "data": {
     "id": "uuid",
@@ -2995,8 +2963,7 @@ Retrieve all documents belonging to the authenticated user (metadata only — no
 
 ```json
 {
-  "success": true,
-  "status": 200,
+  "statusCode": 200,
   "message": "Documents retrieved successfully",
   "data": [
     {
@@ -3053,8 +3020,7 @@ Generate a signed, time-limited download URL for a document.
 
 ```json
 {
-  "success": true,
-  "status": 200,
+  "statusCode": 200,
   "message": "Signed download URL generated successfully",
   "data": {
     "signedUrl": "https://storage.example.com/users/uuid/documents/abc123.pdf?token=xyz&expires=1700000900",
@@ -3145,8 +3111,7 @@ Retrieve the list of all supported document types.
 
 ```json
 {
-  "success": true,
-  "status": 200,
+  "statusCode": 200,
   "message": "Document types retrieved successfully",
   "data": [
     { "id": "uuid-1", "nameEn": "Academic Transcript",   "nameAr": "كشف الدرجات" },
@@ -3192,8 +3157,7 @@ Retrieve the list of all supported document types.
 **Success**:
 ```json
 {
-  "success": true,
-  "status": 201,
+  "statusCode": 201,
   "message": "Human-readable message",
   "data": { },
   "timestamp": "ISO 8601"
@@ -3203,8 +3167,7 @@ Retrieve the list of all supported document types.
 **Error**:
 ```json
 {
-  "success": false,
-  "status": 400,
+  "statusCode": 400,
   "message": "Human-readable message",
   "error": "ErrorKey",
   "timestamp": "ISO 8601"

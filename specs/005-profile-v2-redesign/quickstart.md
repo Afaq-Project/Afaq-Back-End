@@ -63,8 +63,7 @@ curl -s http://localhost:3000/api/v1/profile/me \
 **Expected**:
 ```json
 {
-  "success": true,
-  "status": 200,
+  "statusCode": 200,
   "data": {
     "userId": "<uuid>",
     "firstName": null,
@@ -145,8 +144,7 @@ curl -s -X PATCH http://localhost:3000/api/v1/profile/personal \
   -d '{"countryOfResidenceId": "uuid-jordan", "currentCityId": "uuid-ramallah"}'
 ```
 
-**Expected (400 Bad Request):** `{"success": false,
-  "status": 400, "message": "Selected city does not belong to the selected country", "error": "CITY_COUNTRY_MISMATCH"}`
+**Expected (400 Bad Request):** `{"statusCode": 400, "message": "Selected city does not belong to the selected country", "error": "CITY_COUNTRY_MISMATCH"}`
 
 ---
 

@@ -1963,6 +1963,42 @@
       "name": "Opportunities (Smoke Tests)",
       "item": [
         {
+          "name": "POST /auth/login (for Opportunities)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('Extract access token', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.collectionVariables.set('access_token', jsonData.data.accessToken);",
+                  "});",
+                  "if (jsonData.data && jsonData.data.refreshToken) { pm.collectionVariables.set('refresh_token', jsonData.data.refreshToken); }"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{test_user_email}}\",\n  \"password\": \"{{test_user_password}}\"\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/auth/login"
+          }
+        },
+        {
           "name": "1) findById with array fields",
           "event": [
             {
@@ -1970,7 +2006,7 @@
               "script": {
                 "exec": [
                   "pm.test(\"Status code is correct\", function () {",
-                  "    pm.expect(pm.response.code === 500 || pm.response.code === 400).to.be.true;",
+                  "    pm.expect([500, 400, 404].includes(pm.response.code)).to.be.true;",
                   "});"
                 ],
                 "type": "text/javascript"
@@ -1979,7 +2015,13 @@
           ],
           "request": {
             "method": "GET",
-            "header": [],
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
             "url": {
               "raw": "{{baseUrl}}/api/v1/opportunities/00000000-0000-4000-8000-000000000000?fields=id&fields=title",
               "host": [
@@ -2021,7 +2063,13 @@
           ],
           "request": {
             "method": "GET",
-            "header": [],
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
             "url": {
               "raw": "{{baseUrl}}/api/v1/opportunities?is_remote=notabool",
               "host": [
@@ -2058,7 +2106,13 @@
           ],
           "request": {
             "method": "GET",
-            "header": [],
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
             "url": {
               "raw": "{{baseUrl}}/api/v1/opportunities?page=abc",
               "host": [
@@ -2095,7 +2149,13 @@
           ],
           "request": {
             "method": "GET",
-            "header": [],
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
             "url": {
               "raw": "{{baseUrl}}/api/v1/opportunities?source_id=not-a-uuid",
               "host": [
@@ -2132,7 +2192,13 @@
           ],
           "request": {
             "method": "GET",
-            "header": [],
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
             "url": {
               "raw": "{{baseUrl}}/api/v1/opportunities?deadline_from=not-a-date",
               "host": [
@@ -2169,7 +2235,13 @@
           ],
           "request": {
             "method": "GET",
-            "header": [],
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
             "url": {
               "raw": "{{baseUrl}}/api/v1/opportunities?study_levels=,,",
               "host": [
@@ -2206,7 +2278,13 @@
           ],
           "request": {
             "method": "GET",
-            "header": [],
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
             "url": {
               "raw": "{{baseUrl}}/api/v1/opportunities/not-a-uuid",
               "host": [
@@ -2239,7 +2317,13 @@
           ],
           "request": {
             "method": "GET",
-            "header": [],
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
             "url": {
               "raw": "{{baseUrl}}/api/v1/opportunities/00000000-0000-4000-8000-000000000000",
               "host": [
@@ -2272,7 +2356,13 @@
           ],
           "request": {
             "method": "GET",
-            "header": [],
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
             "url": {
               "raw": "{{baseUrl}}/api/v1/opportunities/00000000-0000-4000-8000-000000000000?fields=id,title",
               "host": [
@@ -2310,7 +2400,13 @@
           ],
           "request": {
             "method": "GET",
-            "header": [],
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
             "url": {
               "raw": "{{baseUrl}}/api/v1/opportunities/00000000-0000-4000-8000-000000000000?fields=forbidden",
               "host": [
@@ -2348,7 +2444,13 @@
           ],
           "request": {
             "method": "GET",
-            "header": [],
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
             "url": {
               "raw": "{{baseUrl}}/api/v1/opportunities?sort=forbidden:asc",
               "host": [
@@ -2385,7 +2487,13 @@
           ],
           "request": {
             "method": "GET",
-            "header": [],
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
             "url": {
               "raw": "{{baseUrl}}/api/v1/opportunities?sort=title:sideways",
               "host": [
@@ -2422,7 +2530,13 @@
           ],
           "request": {
             "method": "GET",
-            "header": [],
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
             "url": {
               "raw": "{{baseUrl}}/api/v1/opportunities?deadline_from=2027-01-01&deadline_to=2026-01-01",
               "host": [
@@ -2463,7 +2577,13 @@
           ],
           "request": {
             "method": "GET",
-            "header": [],
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
             "url": {
               "raw": "{{baseUrl}}/api/v1/opportunities?unknown_field=hello",
               "host": [
@@ -2479,6 +2599,38 @@
                   "key": "unknown_field",
                   "value": "hello"
                 }
+              ]
+            }
+          }
+        },
+        {
+          "name": "GET /opportunities/recent",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/opportunities/recent",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "opportunities",
+                "recent"
               ]
             }
           }

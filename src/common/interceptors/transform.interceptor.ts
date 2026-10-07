@@ -19,10 +19,14 @@ type RequestWithMeta = Request & { generatedRequestId?: boolean };
 interface PaginatedShape {
   data: unknown[];
   meta: {
-    page?: number;
-    limit?: number;
-    total?: number;
-    [key: string]: unknown;
+    pagination: {
+      total: number;
+      page: number;
+      limit: number;
+      totalPages: number;
+      hasNext: boolean;
+      hasPrev: boolean;
+    };
   };
 }
 
@@ -32,7 +36,9 @@ function isPaginated(value: unknown): value is PaginatedShape {
     typeof value === 'object' &&
     'data' in value &&
     'meta' in value &&
-    typeof (value as Record<string, unknown>).meta === 'object'
+    typeof (value as Record<string, unknown>).meta === 'object' &&
+    'pagination' in
+      ((value as Record<string, unknown>).meta as Record<string, unknown>)
   );
 }
 
@@ -106,7 +112,7 @@ export class TransformInterceptor implements NestInterceptor {
         const isAlreadyWrapped =
           responseData !== null &&
           typeof responseData === 'object' &&
-          'status' in responseData &&
+          'statusCode' in responseData &&
           'data' in responseData;
 
         const wrappedResponse = isAlreadyWrapped
@@ -123,17 +129,14 @@ export class TransformInterceptor implements NestInterceptor {
         if (isPaginated(finalData)) {
           const { data, meta: originalMeta } = finalData;
           return {
-            success: true,
-            status: statusCode,
+            statusCode,
             message: finalMessage,
-            error: null,
             data,
             meta: {
               ...originalMeta,
               ...requestIdMeta,
               ...(deprecationMeta ? { deprecation: deprecationMeta } : {}),
             },
-            errors: null,
             timestamp,
           };
         }
@@ -144,16 +147,13 @@ export class TransformInterceptor implements NestInterceptor {
                 ...requestIdMeta,
                 ...(deprecationMeta ? { deprecation: deprecationMeta } : {}),
               }
-            : null;
+            : undefined;
 
         return {
-          success: true,
-          status: statusCode,
+          statusCode,
           message: finalMessage,
-          error: null,
           data: finalData,
-          meta,
-          errors: null,
+          ...(meta ? { meta } : {}),
           timestamp,
         };
       }),

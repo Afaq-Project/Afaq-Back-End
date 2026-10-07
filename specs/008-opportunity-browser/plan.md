@@ -259,7 +259,7 @@ docx/
    - Inject `OpportunitiesRepository` via constructor.
    - Implement `findMany(dto: ListOpportunitiesDto): Promise<{ data: Partial<CleanedOpportunity>[]; meta: PaginationMeta }>` — orchestrates validation and calls the repository.
 3. Inside `OpportunitiesService.findMany`:
-   - **Field selection**: Parse `dto.fields` (split by comma, trim). If `*`, use all 18 whitelist fields. If absent, use the 7 default fields. If any parsed name is not in the whitelist, throw `BadRequestException` with error key `INVALID_FIELD`.
+   - **Field selection**: Parse `dto.fields` (split by comma, trim). If `*`, use all 19 whitelist fields. If absent, use the 7 default fields. If any parsed name is not in the whitelist, throw `BadRequestException` with error key `INVALID_FIELD`.
    - **Sort parsing**: Parse `dto.sort` (`field:direction`). Validate field against sort whitelist → `BadRequestException('INVALID_SORT_FIELD')` if invalid. Validate direction → `BadRequestException('VALIDATION_ERROR')` if not `asc`/`desc`.
    - **Limit cap**: `Math.min(dto.limit ?? 20, 100)`.
    - **Pagination**: `skip = (page - 1) * limit`, `take = limit`.

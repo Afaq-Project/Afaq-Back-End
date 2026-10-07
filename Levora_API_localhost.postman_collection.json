@@ -719,7 +719,7 @@
             "header": [
               {
                 "key": "Authorization",
-                "value": "Bearer {{access_token}}"
+                "value": "Bearer {{accessToken}}"
               }
             ],
             "body": {
@@ -772,7 +772,7 @@
             "header": [
               {
                 "key": "Authorization",
-                "value": "Bearer {{access_token}}"
+                "value": "Bearer {{accessToken}}"
               }
             ],
             "url": {
@@ -802,7 +802,7 @@
             "header": [
               {
                 "key": "Authorization",
-                "value": "Bearer {{access_token}}"
+                "value": "Bearer {{accessToken}}"
               }
             ],
             "url": {
@@ -1861,7 +1861,13 @@
           "name": "List Opportunities",
           "request": {
             "method": "GET",
-            "header": [],
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
             "url": {
               "raw": "{{baseUrl}}/opportunities?page=1&limit=10&is_remote=true&study_levels=bachelor,master&deadline_from=2024-01-01&deadline_to=2024-12-31&sort=created_at:desc",
               "host": [
@@ -1914,7 +1920,13 @@
           "name": "Get Opportunity by ID",
           "request": {
             "method": "GET",
-            "header": [],
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
             "url": {
               "raw": "{{baseUrl}}/opportunities/00000000-0000-4000-8000-000000000000?fields=id,title,description",
               "host": [
@@ -1934,6 +1946,42 @@
             "description": "Get a single opportunity by its UUID, optionally specifying fields to return"
           },
           "response": []
+        },
+        {
+          "name": "GET /opportunities/recent",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/opportunities/recent",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "opportunities",
+                "recent"
+              ]
+            }
+          }
         }
       ]
     }

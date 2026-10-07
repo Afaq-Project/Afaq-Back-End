@@ -1,15 +1,20 @@
 import { Controller, Get, Param, ParseUUIDPipe, Query } from '@nestjs/common';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { Public } from '@common/decorators';
+import {
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+  ApiBearerAuth,
+} from '@nestjs/swagger';
 import { OpportunitiesService } from './opportunities.service';
 import { ListOpportunitiesDto } from './dto/list-opportunities.dto';
+import { Public } from '@common/decorators/public.decorator';
 
 @ApiTags('Opportunities')
+@ApiBearerAuth()
 @Controller('opportunities')
 export class OpportunitiesController {
   constructor(private readonly opportunitiesService: OpportunitiesService) {}
 
-  @Public()
   @Get()
   @ApiOperation({ summary: 'List opportunities' })
   @ApiResponse({
@@ -23,6 +28,17 @@ export class OpportunitiesController {
   }
 
   @Public()
+  @Get('recent')
+  @ApiOperation({ summary: 'Get top 10 recent opportunities' })
+  @ApiResponse({
+    status: 200,
+    description: 'Top 10 opportunities retrieved successfully',
+  })
+  @ApiResponse({ status: 503, description: 'Service Unavailable' })
+  async findTopTen() {
+    return this.opportunitiesService.findTopTen();
+  }
+
   @Get(':id')
   @ApiOperation({ summary: 'Get opportunity by ID' })
   @ApiResponse({

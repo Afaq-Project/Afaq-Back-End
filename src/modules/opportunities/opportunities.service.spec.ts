@@ -74,10 +74,14 @@ describe('OpportunitiesService', () => {
       const res = await service.findMany({ page: 99999, limit: 10 });
       expect(res.data).toEqual([]);
       expect(res.meta).toEqual({
-        page: 99999,
-        limit: 10,
-        total: 0,
-        pages: 0,
+        pagination: {
+          page: 99999,
+          limit: 10,
+          total: 0,
+          totalPages: 0,
+          hasNext: false,
+          hasPrev: true,
+        },
       });
     });
 

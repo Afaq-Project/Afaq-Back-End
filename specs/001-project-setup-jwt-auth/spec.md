@@ -218,8 +218,7 @@ All responses must follow the standardized format:
 
 ```json
 {
-  "success": true,
-  "status": 200,
+  "statusCode": 200,
   "message": "Success",
   "data": { ... },
   "timestamp": "2026-08-19T10:00:00.000Z"

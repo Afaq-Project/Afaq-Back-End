@@ -29,8 +29,7 @@
 **Response — 201 Created**:
 ```json
 {
-  "success": true,
-  "status": 201,
+  "statusCode": 201,
   "message": "Registration successful. Please check your email to verify your account.",
   "data": null,
   "timestamp": "2026-09-29T12:00:00.000Z"
@@ -80,8 +79,7 @@
 **Response — 200 OK**:
 ```json
 {
-  "success": true,
-  "status": 200,
+  "statusCode": 200,
   "message": "Email verified successfully. You may now log in.",
   "data": null,
   "timestamp": "2026-09-29T12:00:00.000Z"
@@ -112,8 +110,7 @@
 **Response — 200 OK** *(always, regardless of whether email exists — no enumeration)*:
 ```json
 {
-  "success": true,
-  "status": 200,
+  "statusCode": 200,
   "message": "If this email is registered and unverified, a new verification email has been sent.",
   "data": null,
   "timestamp": "2026-09-29T12:00:00.000Z"
@@ -144,8 +141,7 @@
 **Response — 200 OK** *(always — no email enumeration)*:
 ```json
 {
-  "success": true,
-  "status": 200,
+  "statusCode": 200,
   "message": "If this email is registered, a password reset link has been sent.",
   "data": null,
   "timestamp": "2026-09-29T12:00:00.000Z"
@@ -178,8 +174,7 @@
 **Response — 200 OK**:
 ```json
 {
-  "success": true,
-  "status": 200,
+  "statusCode": 200,
   "message": "Password has been reset successfully. Please log in with your new password.",
   "data": null,
   "timestamp": "2026-09-29T12:00:00.000Z"
@@ -221,8 +216,7 @@
 **Response — 200 OK**:
 ```json
 {
-  "success": true,
-  "status": 200,
+  "statusCode": 200,
   "message": "Password changed successfully. Other active sessions have been signed out.",
   "data": null,
   "timestamp": "2026-09-29T12:00:00.000Z"

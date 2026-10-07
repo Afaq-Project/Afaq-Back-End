@@ -204,8 +204,7 @@ Request:
 
 Response (201):
 {
-"success": true,
-  "status": 201,
+"statusCode": 201,
 "message": "User registered successfully",
 "data": {
 "id": "uuid",
@@ -237,8 +236,7 @@ Request:
 
 Response (200):
 {
-"success": true,
-  "status": 200,
+"statusCode": 200,
 "message": "Login successful",
 "data": {
 "accessToken": "eyJhbGci...",
@@ -270,8 +268,7 @@ Request:
 
 Response (200):
 {
-"success": true,
-  "status": 200,
+"statusCode": 200,
 "message": "Token refreshed successfully",
 "data": {
 "accessToken": "eyJhbGci..."
@@ -294,8 +291,7 @@ Authorization: Bearer <accessToken>
 
 Response (200):
 {
-"success": true,
-  "status": 200,
+"statusCode": 200,
 "message": "Profile retrieved successfully",
 "data": {
 "id": "uuid",
