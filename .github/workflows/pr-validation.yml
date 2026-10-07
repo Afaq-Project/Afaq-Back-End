@@ -193,6 +193,7 @@ jobs:
             -e API_PREFIX=api \
             -e DATABASE_URL="postgresql://test_user:test_password@localhost:5432/levora_test?schema=public" \
             -e DIRECT_URL="postgresql://test_user:test_password@localhost:5432/levora_test?schema=public" \
+            -e DATABASE_AIService_URL="postgresql://test_user:test_password@localhost:5432/levora_test?schema=public" \
             -e REDIS_HOST="localhost" \
             -e REDIS_PORT="6379" \
             -e JWT_SECRET="ci-cd-test-jwt-secret-key-minimum-32-chars-long" \
