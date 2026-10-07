@@ -1,5 +1,4 @@
 import { Test } from '@nestjs/testing';
-import { AppModule } from '../src/app.module';
 
 describe('AppModule Environment Validation (e2e)', () => {
   const originalEnv = process.env;
@@ -29,6 +28,7 @@ describe('AppModule Environment Validation (e2e)', () => {
 
   it('should throw an error if DATABASE_AIService_URL is missing', async () => {
     delete process.env.DATABASE_AIService_URL;
+    const { AppModule } = require('../src/app.module');
 
     await expect(
       Test.createTestingModule({
