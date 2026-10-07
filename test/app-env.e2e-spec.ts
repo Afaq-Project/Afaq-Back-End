@@ -3,6 +3,20 @@ import { AppModule } from '../src/app.module';
 
 describe('AppModule Environment Validation (e2e)', () => {
   const originalEnv = process.env;
+  const originalNodeEnv = process.env.NODE_ENV;
+  let originalAiUrl: string | undefined;
+
+  beforeAll(() => {
+    process.env.NODE_ENV = 'production';
+    originalAiUrl = process.env.DATABASE_AIService_URL;
+  });
+
+  afterAll(() => {
+    process.env.NODE_ENV = originalNodeEnv;
+    if (originalAiUrl !== undefined) {
+      process.env.DATABASE_AIService_URL = originalAiUrl;
+    }
+  });
 
   beforeEach(() => {
     jest.resetModules();
