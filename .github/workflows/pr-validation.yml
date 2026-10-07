@@ -43,7 +43,7 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Generate Prisma Client
-        run: pnpm prisma:generate
+        run: pnpm prisma:generate && pnpm generate:ai
 
       - name: Run ESLint
         run: pnpm exec eslint "{src,apps,libs,test}/**/*.ts"
@@ -116,7 +116,7 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Generate Prisma Client
-        run: pnpm prisma:generate
+        run: pnpm prisma:generate && pnpm generate:ai
 
       - name: Enable CITEXT Extension in Test Database
         run: PGPASSWORD=test_password psql -h localhost -U test_user -d levora_test -c "CREATE EXTENSION IF NOT EXISTS citext;"
@@ -193,6 +193,7 @@ jobs:
             -e API_PREFIX=api \
             -e DATABASE_URL="postgresql://test_user:test_password@localhost:5432/levora_test?schema=public" \
             -e DIRECT_URL="postgresql://test_user:test_password@localhost:5432/levora_test?schema=public" \
+            -e DATABASE_AIService_URL="postgresql://test_user:test_password@localhost:5432/levora_test?schema=public" \
             -e REDIS_HOST="localhost" \
             -e REDIS_PORT="6379" \
             -e JWT_SECRET="ci-cd-test-jwt-secret-key-minimum-32-chars-long" \

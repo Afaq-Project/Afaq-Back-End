@@ -1,0 +1,37 @@
+$ jest --passWithNoTests
+PASS src/modules/profile/services/documents.service.spec.ts
+PASS src/modules/auth/auth.service.spec.ts
+PASS src/modules/auth/services/oauth-processor.service.spec.ts
+PASS src/modules/profile/services/profile.service.spec.ts
+PASS src/modules/auth/auth.controller.spec.ts (5.053 s)
+PASS src/modules/auth/strategies/linkedin.strategy.spec.ts
+PASS src/modules/profile/services/languages.service.spec.ts
+PASS src/modules/opportunities/dto/list-opportunities.dto.spec.ts
+PASS src/modules/profile/services/educations.service.spec.ts
+PASS src/common/utils/sanitizer.util.spec.ts
+PASS src/modules/profile/services/preferences.service.spec.ts
+PASS src/modules/opportunities/opportunities.service.spec.ts
+PASS src/modules/auth/strategies/google.strategy.spec.ts
+PASS src/modules/users/users.service.spec.ts
+PASS src/modules/auth/auth.module.spec.ts
+PASS src/modules/auth/guards/csrf-origin.guard.spec.ts
+PASS src/modules/profile/services/system-settings.service.spec.ts
+PASS src/modules/auth/guards/email-rate-limit.guard.spec.ts
+PASS src/modules/auth/services/oauth.service.spec.ts
+PASS src/modules/profile/services/reference.service.spec.ts
+PASS src/modules/auth/config/strategy.registry.spec.ts
+PASS src/modules/infrastructure/ai-prisma/ai-prisma.service.spec.ts
+PASS src/modules/auth/services/encryption.service.spec.ts
+PASS src/modules/auth/services/oauth-identity.service.spec.ts
+PASS src/modules/auth/config/providers.config.spec.ts
+PASS src/modules/profile/services/test-results.service.spec.ts
+PASS src/modules/profile/services/special-statuses.service.spec.ts
+PASS src/modules/opportunities/dto/opportunity-fields.enum.spec.ts
+PASS src/modules/auth/guards/oauth.guard.spec.ts
+PASS src/common/utils/gpa-normalizer.spec.ts
+
+Test Suites: 30 passed, 30 total
+Tests:       269 passed, 269 total
+Snapshots:   0 total
+Time:        24.122 s, estimated 34 s
+Ran all test suites.

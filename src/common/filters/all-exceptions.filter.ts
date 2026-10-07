@@ -135,11 +135,9 @@ export class AllExceptionsFilter implements ExceptionFilter {
     }
 
     const errorBody = {
-      success: false as const,
-      status,
+      statusCode: status,
       message,
       data: null,
-      meta: null,
       errors,
       timestamp: toApiDatetime(new Date()),
     };

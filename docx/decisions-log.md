@@ -188,3 +188,14 @@ It serves as the source of truth for implementation. Decisions are listed by mod
 - Replaces the generic `RolesGuard` for all `/operations/*` routes.
 - The static map defines what roles (e.g., `system_admin`, `content_admin`) possess which permissions (e.g., `dashboard:read`, `users:write`).
 - A missing or unmatched permission results in a `403 FORBIDDEN`.
+
+### DEC-OPP-01 — Dual Prisma Client for AI Service Integration
+**Decision:** The Opportunity Browser integrates with the AI service database by generating a secondary Prisma client (`@prisma/ai-client`) from a dedicated `ai-schema.prisma` file.
+- **Problem:** The AI service manages its own database schema (`cleaned_opportunities`, `sources`). The main application needs read-only access to this data without taking ownership of its migrations.
+- **Rationale:** 
+  1. The AI service DB has a separate lifecycle, user, and credentials (`DATABASE_AIService_URL`).
+  2. The main app should not generate migrations for tables it does not own.
+  3. Generating a separate typed client provides type safety while isolating the domain.
+- **Alternatives Rejected:**
+  - *Single schema multi-datasource*: Prisma does not support multiple datasources in a single schema.
+  - *Raw pg / prisma queryRaw*: Drops the type safety and developer experience of the Prisma client.

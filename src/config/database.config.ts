@@ -5,6 +5,10 @@ import { z } from 'zod';
  */
 export const databaseConfigSchema = z.object({
   DATABASE_URL: z.string().url(),
+  DATABASE_AIService_URL:
+    process.env.NODE_ENV === 'test'
+      ? z.string().url().optional()
+      : z.string().url(),
 });
 
 export type DatabaseConfig = z.infer<typeof databaseConfigSchema>;
@@ -12,5 +16,6 @@ export type DatabaseConfig = z.infer<typeof databaseConfigSchema>;
 export const databaseConfig = () => ({
   database: databaseConfigSchema.parse({
     DATABASE_URL: process.env.DATABASE_URL,
+    DATABASE_AIService_URL: process.env.DATABASE_AIService_URL,
   }),
 });
