@@ -28,6 +28,7 @@ describe('AppModule Environment Validation (e2e)', () => {
 
   it('should throw an error if DATABASE_AIService_URL is missing', async () => {
     delete process.env.DATABASE_AIService_URL;
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
     const { AppModule } = require('../src/app.module');
 
     await expect(
