@@ -39,6 +39,26 @@ PASS=0; FAIL=0; SKIP=0
 declare -a ISSUES=()
 declare -a FAILURES=()
 
+
+# --- Fetch Token ---
+export TEST_TOKEN="${TEST_TOKEN:-}"
+if [[ -z "$TEST_TOKEN" ]]; then
+  echo -e "${CYA}Fetching a valid test token...${RST}"
+  TEST_EMAIL="testuser_$(date +%s)@example.com"
+  TEST_PASS="Password123!"
+  curl -s -X POST "$BASE_URL/auth/register" -H "Content-Type: application/json" -d "{\"email\":\"$TEST_EMAIL\",\"password\":\"$TEST_PASS\",\"firstName\":\"Test\",\"lastName\":\"User\"}" > /dev/null
+  # Since this is a test script, we assume PGPASSWORD is set or default localhost postgres is accessible
+  PGPASSWORD=mysecretpassword psql -h localhost -U myuser -d mydb -c "UPDATE users SET is_email_verified = true WHERE email = '$TEST_EMAIL';" > /dev/null 2>&1 || true
+  # In case DB update fails, some setups might not enforce email verification in dev, or it's CI
+  RES=$(curl -s -X POST "$BASE_URL/auth/login" -H "Content-Type: application/json" -d "{\"email\":\"$TEST_EMAIL\",\"password\":\"$TEST_PASS\"}")
+  TEST_TOKEN=$(echo "$RES" | jq -r '.data.accessToken // .accessToken // empty')
+  if [[ -z "$TEST_TOKEN" ]]; then
+    echo -e "${RED}Failed to fetch test token. Ensure DB is accessible or provide TEST_TOKEN env var.${RST}"
+  else
+    echo -e "${GRN}Token fetched successfully.${RST}"
+  fi
+fi
+
 # --- HTTP transport state (globals) -----------------------------------------
 # These are set by http_get(). Do NOT call http_get inside $(...).
 HTTP_CODE=""
@@ -85,8 +105,14 @@ http_get() {
   local url="$1"
   local tmp rc
   tmp="$(mktemp)"
-  HTTP_CODE=$(curl --max-time "$CURL_TIMEOUT" -sS -o "$tmp" \
-                   -w '%{http_code}' "$url" 2>/dev/null)
+  if [[ -n "${TEST_TOKEN:-}" ]]; then
+    HTTP_CODE=$(curl --max-time "$CURL_TIMEOUT" -sS -o "$tmp" \
+                     -H "Authorization: Bearer $TEST_TOKEN" \
+                     -w '%{http_code}' "$url" 2>/dev/null)
+  else
+    HTTP_CODE=$(curl --max-time "$CURL_TIMEOUT" -sS -o "$tmp" \
+                     -w '%{http_code}' "$url" 2>/dev/null)
+  fi
   rc=$?
   CURL_EXIT=$rc
   if [[ $rc -ne 0 ]]; then
@@ -151,7 +177,7 @@ echo "Mode   : FAILURE-TOLERANT — every test runs regardless of errors"
 
 section "0. Connectivity & service state"
 
-http_get "$OPP"
+HTTP_CODE=$(curl --max-time "$CURL_TIMEOUT" -sS -o /dev/null -w '%{http_code}' "$OPP" 2>/dev/null)
 CONN_CODE="$HTTP_CODE"
 
 if [[ "$CONN_CODE" == "200" ]]; then
@@ -198,7 +224,7 @@ fi
 # =============================================================================
 section "1. Default list — FR-002, FR-014"
 
-http_get "$OPP"
+HTTP_CODE=$(curl --max-time "$CURL_TIMEOUT" -sS -o /dev/null -w '%{http_code}' "$OPP" 2>/dev/null)
 if [[ "$HTTP_CODE" == "200" ]] && body_is_json; then
   assert_eq "HTTP 200"            "200" "$HTTP_CODE"
   assert_eq "statusCode == 200"   "200" "$(jq -r '.status' <<<"$BODY")"
@@ -499,22 +525,22 @@ fi
 # =============================================================================
 section "9. Security checks"
 
-http_get "$OPP"
-assert_eq "ST-001a list without Authorization → not 401/403" "yes" \
-  "$( [[ "$HTTP_CODE" != "401" && "$HTTP_CODE" != "403" ]] && echo yes || echo no )"
+HTTP_CODE=$(curl --max-time "$CURL_TIMEOUT" -sS -o /dev/null -w '%{http_code}' "$OPP" 2>/dev/null)
+assert_eq "ST-001a list without Authorization → 401/403" "yes" \
+  "$( [[ "$HTTP_CODE" == "401" || "$HTTP_CODE" == "403" ]] && echo yes || echo no )"
 
 if [[ -n "$SAMPLE_ID" ]]; then
-  http_get "${OPP}/${SAMPLE_ID}"
-  assert_eq "ST-001b detail without Authorization → not 401/403" "yes" \
-    "$( [[ "$HTTP_CODE" != "401" && "$HTTP_CODE" != "403" ]] && echo yes || echo no )"
+  HTTP_CODE=$(curl --max-time "$CURL_TIMEOUT" -sS -o /dev/null -w '%{http_code}' "${OPP}/${SAMPLE_ID}" 2>/dev/null)
+  assert_eq "ST-001b detail without Authorization → 401/403" "yes" \
+    "$( [[ "$HTTP_CODE" == "401" || "$HTTP_CODE" == "403" ]] && echo yes || echo no )"
 else
   skip "ST-001b — no sample id"
 fi
 
 HTTP_CODE=$(curl --max-time "$CURL_TIMEOUT" -sS -o /dev/null -w '%{http_code}' \
   -H "Authorization: Bearer not.a.real.token" "$OPP" 2>/dev/null)
-assert_eq "ST-001c bogus bearer token still public → not 401/403" "yes" \
-  "$( [[ "$HTTP_CODE" != "401" && "$HTTP_CODE" != "403" ]] && echo yes || echo no )"
+assert_eq "ST-001c bogus bearer token rejected → 401/403" "yes" \
+  "$( [[ "$HTTP_CODE" == "401" || "$HTTP_CODE" == "403" ]] && echo yes || echo no )"
 
 if [[ "$DATA_OK" == "1" ]] && [[ -n "$SAMPLE_ID" ]]; then
   http_get "${OPP}?fields=*&limit=1"
@@ -564,7 +590,7 @@ else
 fi
 
 if [[ -n "$SAMPLE_ID" ]] && [[ "$DATA_OK" == "1" ]]; then
-  http_get "${OPP}/${SAMPLE_ID}"
+  HTTP_CODE=$(curl --max-time "$CURL_TIMEOUT" -sS -o /dev/null -w '%{http_code}' "${OPP}/${SAMPLE_ID}" 2>/dev/null)
   assert_eq "existing UUID → 200" "200" "$HTTP_CODE"
   if body_is_json; then
     n=$(jq '.data | keys | length' <<<"$BODY")
@@ -607,7 +633,7 @@ if (( ${#ISSUES[@]} > 0 )); then
 fi
 
 # Distinguish "code broken" from "DB down".
-http_get "$OPP"
+HTTP_CODE=$(curl --max-time "$CURL_TIMEOUT" -sS -o /dev/null -w '%{http_code}' "$OPP" 2>/dev/null)
 if [[ "$HTTP_CODE" == "503" ]]; then
   echo
   echo -e "${YEL}${BLD}NOTE: The AI Prisma DB appears unreachable (data endpoints return 503).${RST}"
