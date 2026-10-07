@@ -5,7 +5,10 @@ import { z } from 'zod';
  */
 export const databaseConfigSchema = z.object({
   DATABASE_URL: z.string().url(),
-  DATABASE_AIService_URL: z.string().url(),
+  DATABASE_AIService_URL:
+    process.env.NODE_ENV === 'test'
+      ? z.string().url().optional()
+      : z.string().url(),
 });
 
 export type DatabaseConfig = z.infer<typeof databaseConfigSchema>;
