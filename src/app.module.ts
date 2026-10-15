@@ -18,6 +18,7 @@ import {
   uploadConfig,
   oauthConfig,
   storageConfig,
+  recommendationsConfig,
 } from '@config/index';
 import { PrismaModule } from '@/prisma';
 import { RedisThrottlerStorage } from './common/throttler/redis-throttler.storage';
@@ -32,6 +33,7 @@ import { ProfileModule } from './modules/profile/profile.module';
 import { MailModule } from './modules/mail/mail.module';
 import { AiPrismaModule } from './modules/infrastructure/ai-prisma/ai-prisma.module';
 import { OpportunitiesModule } from './modules/opportunities/opportunities.module';
+import { RecommendationsModule } from './modules/recommendations/recommendations.module';
 
 @Module({
   imports: [
@@ -47,6 +49,7 @@ import { OpportunitiesModule } from './modules/opportunities/opportunities.modul
         uploadConfig,
         oauthConfig,
         storageConfig,
+        recommendationsConfig,
       ],
       envFilePath: ['.env.local', '.env'],
     }),
@@ -257,6 +260,7 @@ import { OpportunitiesModule } from './modules/opportunities/opportunities.modul
     ProfileModule,
     MailModule,
     OpportunitiesModule,
+    RecommendationsModule,
   ],
   providers: [
     // Global throttler guard

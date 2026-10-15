@@ -1,0 +1,67 @@
+--- recommendations.service.spec.ts
++++ recommendations.service.spec.ts
+@@ -165,6 +165,64 @@
+     });
+   });
+ 
++  describe('getMatchesWithOpportunities (US3)', () => {
++    const userId = 'user123';
++
++    it('should return combined shape and use correct cache prefix (short TTL)', async () => {
++      repository.findMatchesWithOpportunity.mockResolvedValue({ data: [], total: 0 });
++      cacheManager.get.mockResolvedValue(null);
++
++      const result = await service.getMatchesWithOpportunities(userId, {});
++
++      expect(repository.findMatchesWithOpportunity).toHaveBeenCalledWith(
++        userId,
++        {},
++        20,
++        0,
++      );
++      expect(result.meta).toMatchObject({
++        page: 1,
++        limit: 20,
++        total: 0,
++        pages: 0,
++      });
++      // Check short TTL separation (uses a different cache key prefix)
++      expect(cacheManager.get).toHaveBeenCalledWith(expect.stringContaining('req-combined:'));
++      expect(cacheManager.set).toHaveBeenCalled();
++    });
++
++    it('should throw BadRequestException on invalid sort (EC-021 parity)', async () => {
++      const dto = { sort: 'invalid_sort' } as any;
++      await expect(service.getMatchesWithOpportunities(userId, dto)).rejects.toThrow(
++        new BadRequestException('INVALID_SORT'),
++      );
++    });
++
++    it('should handle cache hit and not call repository', async () => {
++      const cachedResult = {
++        data: [],
++        meta: { page: 1, limit: 20, total: 0, pages: 0, synced_at: new Date() },
++      };
++      cacheManager.get.mockResolvedValue(cachedResult);
++
++      const result = await service.getMatchesWithOpportunities(userId, {});
++
++      expect(result).toEqual(cachedResult);
++      expect(repository.findMatchesWithOpportunity).not.toHaveBeenCalled();
++    });
++
++    it('should propagate errors from the repository (e.g., 503 mapping)', async () => {
++      cacheManager.get.mockResolvedValue(null);
++      repository.findMatchesWithOpportunity.mockRejectedValue(
++        new Error('SERVICE_UNAVAILABLE'),
++      );
++
++      await expect(service.getMatchesWithOpportunities(userId, {})).rejects.toThrow(
++        'SERVICE_UNAVAILABLE',
++      );
++    });
++  });
++
+   describe('RecommendationsRepository Filters', () => {
+     let repository: RecommendationsRepository;
+ 

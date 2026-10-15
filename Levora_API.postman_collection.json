@@ -169,7 +169,7 @@
           "response": []
         },
         {
-          "name": "OAuth Google → Initiate",
+          "name": "OAuth Google \u2192 Initiate",
           "request": {
             "method": "GET",
             "header": [],
@@ -199,7 +199,7 @@
           ]
         },
         {
-          "name": "OAuth Google → Callback (Doc Only)",
+          "name": "OAuth Google \u2192 Callback (Doc Only)",
           "request": {
             "method": "GET",
             "header": [],
@@ -225,7 +225,7 @@
           "response": []
         },
         {
-          "name": "OAuth LinkedIn → Initiate",
+          "name": "OAuth LinkedIn \u2192 Initiate",
           "request": {
             "method": "GET",
             "header": [],
@@ -255,7 +255,7 @@
           ]
         },
         {
-          "name": "OAuth LinkedIn → Callback (Doc Only)",
+          "name": "OAuth LinkedIn \u2192 Callback (Doc Only)",
           "request": {
             "method": "GET",
             "header": [],
@@ -1982,6 +1982,146 @@
               ]
             }
           }
+        }
+      ]
+    },
+    {
+      "name": "Recommendations",
+      "description": "Endpoints for personalized match scores",
+      "item": [
+        {
+          "name": "Get Matches",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/recommendations/matches?min_score=70&sort=score_desc&limit=10",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "recommendations",
+                "matches"
+              ],
+              "query": [
+                {
+                  "key": "min_score",
+                  "value": "70"
+                },
+                {
+                  "key": "sort",
+                  "value": "score_desc"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            },
+            "description": "Returns the authenticated user's match records without opportunity fields."
+          },
+          "response": [
+            {
+              "name": "Success",
+              "originalRequest": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{access_token}}",
+                    "type": "text"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/recommendations/matches",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "recommendations",
+                    "matches"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"statusCode\": 200,\n  \"message\": \"Matches retrieved successfully\",\n  \"data\": [\n    {\n      \"opportunity_id\": \"3f2a1b00-0000-0000-0000-000000000001\",\n      \"score_pct\": 87,\n      \"score_breakdown\": { \"study_level\": 30, \"field\": 40, \"country\": 17 },\n      \"calculation_version\": 1,\n      \"calculated_at\": \"2026-10-05T10:00:00.000Z\"\n    }\n  ],\n  \"meta\": {\n    \"page\": 1,\n    \"limit\": 20,\n    \"total\": 42,\n    \"pages\": 3,\n    \"synced_at\": \"2026-10-07T13:00:00.000Z\"\n  },\n  \"timestamp\": \"2026-10-07T13:00:00.000Z\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Get Matches With Opportunities",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/recommendations/matches-with-opportunities?limit=5",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "recommendations",
+                "matches-with-opportunities"
+              ],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "5"
+                }
+              ]
+            },
+            "description": "Returns match records with a brief opportunity summary."
+          },
+          "response": [
+            {
+              "name": "Success",
+              "originalRequest": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{access_token}}",
+                    "type": "text"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/recommendations/matches-with-opportunities",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "recommendations",
+                    "matches-with-opportunities"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"statusCode\": 200,\n  \"message\": \"Matches retrieved successfully\",\n  \"data\": [\n    {\n      \"opportunity_id\": \"3f2a1b00-0000-0000-0000-000000000001\",\n      \"score_pct\": 87,\n      \"score_breakdown\": { \"study_level\": 30, \"field\": 40, \"country\": 17 },\n      \"calculation_version\": 1,\n      \"calculated_at\": \"2026-10-05T10:00:00.000Z\",\n      \"opportunity\": {\n        \"id\": \"3f2a1b00-0000-0000-0000-000000000001\",\n        \"title\": \"Erasmus Mundus Joint Master Degree in Computer Science\",\n        \"organization\": \"European Commission\",\n        \"deadline\": \"2026-12-15T00:00:00.000Z\",\n        \"country\": \"Belgium\",\n        \"opportunity_type\": \"scholarship\",\n        \"is_remote\": false\n      }\n    }\n  ],\n  \"meta\": {\n    \"page\": 1,\n    \"limit\": 20,\n    \"total\": 42,\n    \"pages\": 3,\n    \"synced_at\": \"2026-10-07T13:00:00.000Z\"\n  },\n  \"timestamp\": \"2026-10-07T13:00:00.000Z\"\n}"
+            }
+          ]
         }
       ]
     }

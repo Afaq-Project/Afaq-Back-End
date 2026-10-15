@@ -12,6 +12,7 @@ import {
   OPPORTUNITY_DEFAULT_FIELDS,
   OPPORTUNITY_SORT_WHITELIST,
 } from './dto/opportunity-fields.enum';
+import { buildOpportunityWhere } from './opportunity-filter.builder';
 
 @Injectable()
 export class OpportunitiesService {
@@ -85,70 +86,8 @@ export class OpportunitiesService {
       [camelCaseSortField]: sortOrder,
     };
 
-    // Date validation
-    if (dto.deadline_from && dto.deadline_to) {
-      if (new Date(dto.deadline_from) > new Date(dto.deadline_to)) {
-        throw new BadRequestException(
-          `deadline_from must not be later than deadline_to`,
-          'INVALID_DATE_RANGE',
-        );
-      }
-    }
-
     // Where clause building
-    const where: Prisma.CleanedOpportunityWhereInput = {};
-
-    if (dto.country) {
-      where.country = { equals: dto.country };
-    }
-    if (dto.opportunity_type) {
-      where.opportunityType = { equals: dto.opportunity_type };
-    }
-    if (dto.funding_type) {
-      where.fundingType = { equals: dto.funding_type };
-    }
-    if (dto.is_remote !== undefined) {
-      where.isRemote = { equals: dto.is_remote };
-    }
-    if (dto.source_id) {
-      where.sourceId = { equals: dto.source_id };
-    }
-
-    if (dto.deadline_from || dto.deadline_to) {
-      where.deadline = {};
-      if (dto.deadline_from) {
-        where.deadline.gte = new Date(dto.deadline_from);
-      }
-      if (dto.deadline_to) {
-        where.deadline.lte = new Date(dto.deadline_to);
-      }
-    }
-
-    if (dto.study_levels) {
-      const levels = dto.study_levels
-        .split(',')
-        .map((s) => s.trim())
-        .filter(Boolean);
-      where.studyLevels = { hasSome: levels };
-    }
-
-    if (dto.fields_of_study) {
-      const fields = dto.fields_of_study
-        .split(',')
-        .map((s) => s.trim())
-        .filter(Boolean);
-      where.fieldsOfStudy = { hasSome: fields };
-    }
-
-    if (dto.q) {
-      const qTrimmed = dto.q.trim();
-      if (qTrimmed) {
-        where.OR = [
-          { title: { contains: qTrimmed, mode: 'insensitive' } },
-          { description: { contains: qTrimmed, mode: 'insensitive' } },
-        ];
-      }
-    }
+    const where = buildOpportunityWhere(dto);
 
     const { data, total } = await this.repository.findMany({
       skip,

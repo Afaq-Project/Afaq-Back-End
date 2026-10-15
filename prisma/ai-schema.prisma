@@ -50,8 +50,25 @@ model CleanedOpportunity {
   status           String? @db.Text
   errorMessage     String? @map("error_message")
   contentHash      String? @unique @map("content_hash") @db.Text
+  matchScores      MatchScore[]
   createdAt        DateTime @default(now()) @map("created_at")
   updatedAt        DateTime @updatedAt @map("updated_at")
 
   @@map("cleaned_opportunities")
+}
+
+model MatchScore {
+  id                 String             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId             String             @map("user_id") @db.Uuid
+  opportunityId      String             @map("opportunity_id") @db.Uuid
+  opportunity        CleanedOpportunity @relation(fields: [opportunityId], references: [id])
+  scorePct           Int                @map("score_pct")
+  scoreBreakdown     Json               @default("{}") @map("score_breakdown")
+  calculationVersion Int                @default(1) @map("calculation_version")
+  calculatedAt       DateTime           @default(now()) @map("calculated_at")
+  createdAt          DateTime           @default(now()) @map("created_at")
+  updatedAt          DateTime           @updatedAt @map("updated_at")
+
+  @@unique([userId, opportunityId])
+  @@map("match_scores")
 }

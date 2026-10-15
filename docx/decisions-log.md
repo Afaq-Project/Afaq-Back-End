@@ -199,3 +199,12 @@ It serves as the source of truth for implementation. Decisions are listed by mod
 - **Alternatives Rejected:**
   - *Single schema multi-datasource*: Prisma does not support multiple datasources in a single schema.
   - *Raw pg / prisma queryRaw*: Drops the type safety and developer experience of the Prisma client.
+
+## [ADR] Recommendations Matches (Branch 009)
+**Date**: 2026-10-07
+**Context**: We need to read match scores produced by the Python AI service. The data lives in a separate database (`match_scores` table). We also need to list opportunities using the same filtering logic that exists in `OpportunitiesService`, and return a brief version of the opportunity.
+**Decision**: 
+1. Use `prisma/ai-schema.prisma` to map the `match_scores` table as read-only.
+2. Extract the `where` construction logic out of `OpportunitiesService` into `opportunity-filter.builder.ts` for reuse by recommendations.
+3. Extract `toBriefOpportunity()` into `opportunity-brief.mapper.ts`.
+**Consequences**: The recommendations module can safely query match scores and apply opportunity filters natively in Prisma through the relation `opportunity: { is: {...} }` without duplicating complex query building logic. We maintain clean separation of concerns and avoid behavioral divergence.
