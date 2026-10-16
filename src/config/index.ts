@@ -7,3 +7,4 @@ export { uploadConfig } from './upload.config';
 export { oauthConfig } from './oauth.config';
 export { storageConfig } from './storage.config';
 export { mailConfig } from './mail.config';
+export { recommendationsConfig } from './recommendations.config';

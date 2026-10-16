@@ -72,6 +72,7 @@ temp/
 .agents/
 .omg/
 .oma/
+.spec-context.json
 
 # ============
 # Session artifacts

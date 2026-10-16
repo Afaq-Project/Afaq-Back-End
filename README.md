@@ -6,3 +6,9 @@
 3. Generate the AI Prisma client: `pnpm generate:ai`
 4. Generate the main Prisma client: `pnpm run prisma:generate`
 5. Start the server: `pnpm start:dev`
+
+## Environment Variables
+
+### Recommendations
+* `RECOMMENDATIONS_MATCHES_CACHE_TTL_SEC`: Cache TTL in seconds for standard match responses (default: 1800).
+* `RECOMMENDATIONS_COMBINED_CACHE_TTL_SEC`: Cache TTL in seconds for combined match and opportunity responses (default: 300).

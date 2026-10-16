@@ -12,12 +12,12 @@
     },
     {
       "key": "test_user_email",
-      "value": "user1@levora.app",
+      "value": "user@example.com",
       "type": "string"
     },
     {
       "key": "test_user_password",
-      "value": "User1Password!",
+      "value": "P@ssw0rd123!",
       "type": "string"
     },
     {
@@ -2669,6 +2669,145 @@
                 "v1",
                 "opportunities",
                 "recent"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Recommendations (009)",
+      "item": [
+        {
+          "name": "[Recommendations] Get Matches",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// [OMA-W001-T001] (integration) assertions for score_pct > 0, non-null, and pagination meta",
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test(\"Response has data array\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.data.data).to.be.an('array');",
+                  "});",
+                  "pm.test(\"No opportunity object returned\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    var items = jsonData.data.data || [];",
+                  "    if(items.length > 0) {",
+                  "        pm.expect(items[0]).to.not.have.property('opportunity');",
+                  "    }",
+                  "});",
+                  "pm.test(\"All items have score_pct > 0 and not null\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    var items = jsonData.data.data || [];",
+                  "    items.forEach(function (item) {",
+                  "        pm.expect(item.score_pct).to.not.be.null;",
+                  "        pm.expect(item.score_pct).to.be.above(0);",
+                  "    });",
+                  "});",
+                  "pm.test(\"Correct pagination metadata structure\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    var meta = jsonData.data.meta || {};",
+                  "    pm.expect(meta).to.be.an('object');",
+                  "    pm.expect(meta).to.have.property('page');",
+                  "    pm.expect(meta).to.have.property('limit');",
+                  "    pm.expect(meta).to.have.property('total');",
+                  "    pm.expect(meta).to.have.property('pages');",
+                  "    pm.expect(meta).to.have.property('synced_at');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/recommendations/matches",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "recommendations",
+                "matches"
+              ]
+            }
+          }
+        },
+        {
+          "name": "[Recommendations] Get Matches With Opportunities",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// [OMA-W001-T001] (integration) assertions for score_pct > 0, non-null, and pagination meta",
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test(\"Response has opportunity object\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    var items = jsonData.data.data || [];",
+                  "    pm.expect(items).to.be.an('array');",
+                  "    if(items.length > 0) {",
+                  "        pm.expect(items[0]).to.have.property('opportunity');",
+                  "        pm.expect(items[0].opportunity).to.have.property('id');",
+                  "    }",
+                  "});",
+                  "pm.test(\"All items have score_pct > 0 and not null\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    var items = jsonData.data.data || [];",
+                  "    items.forEach(function (item) {",
+                  "        pm.expect(item.score_pct).to.not.be.null;",
+                  "        pm.expect(item.score_pct).to.be.above(0);",
+                  "    });",
+                  "});",
+                  "pm.test(\"Correct pagination metadata structure\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    var meta = jsonData.data.meta || {};",
+                  "    pm.expect(meta).to.be.an('object');",
+                  "    pm.expect(meta).to.have.property('page');",
+                  "    pm.expect(meta).to.have.property('limit');",
+                  "    pm.expect(meta).to.have.property('total');",
+                  "    pm.expect(meta).to.have.property('pages');",
+                  "    pm.expect(meta).to.have.property('synced_at');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/recommendations/matches-with-opportunities",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "recommendations",
+                "matches-with-opportunities"
               ]
             }
           }
