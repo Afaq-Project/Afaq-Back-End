@@ -25,6 +25,9 @@ import {
 import { getStrategyClass } from './config/strategy.registry';
 import { getAllSupportedProviders } from './config/providers.config';
 
+import { InvitationsController } from './invitations.controller';
+import { InvitationsService } from './invitations.service';
+
 @Module({
   imports: [
     PassportModule.register({ defaultStrategy: 'jwt' }),
@@ -46,9 +49,10 @@ import { getAllSupportedProviders } from './config/providers.config';
     forwardRef(() => UsersModule),
     ProfileModule,
   ],
-  controllers: [AuthController],
+  controllers: [AuthController, InvitationsController],
   providers: [
     AuthService,
+    InvitationsService,
     JwtStrategy,
     JwtAuthGuard,
     UsersRepository,
@@ -65,6 +69,6 @@ import { getAllSupportedProviders } from './config/providers.config';
         (strategy): strategy is NonNullable<typeof strategy> => !!strategy,
       ),
   ],
-  exports: [AuthService, JwtAuthGuard, OAuthService],
+  exports: [AuthService, InvitationsService, JwtAuthGuard, OAuthService],
 })
 export class AuthModule {}

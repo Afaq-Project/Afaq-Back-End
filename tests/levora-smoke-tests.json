@@ -34,6 +34,51 @@
       "key": "document_type_id",
       "value": "",
       "type": "string"
+    },
+    {
+      "key": "invite_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "space_slug",
+      "value": "scholarship-prep",
+      "type": "string"
+    },
+    {
+      "key": "draft_page_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "draft_tag_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "draft_attachment_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "draft_template_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "ai_proposal_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "version_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "notification_id",
+      "value": "",
+      "type": "string"
     }
   ],
   "item": [
@@ -2810,6 +2855,1052 @@
                 "matches-with-opportunities"
               ]
             }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Features 10 & 11 - Onboarding, Drafts, AI Assistant & Notifications",
+      "description": "// [OMA-W007-T002] Smoke test suite covering Feature 10 & Feature 11 API endpoints",
+      "item": [
+        {
+          "name": "POST /auth/invitations",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// [OMA-W007-T002] Issue onboarding invitation",
+                  "pm.test('Status code is 201 or 403 (role check)', function () {",
+                  "    pm.expect([201, 403]).to.include(pm.response.code);",
+                  "});",
+                  "if (pm.response.code === 201) {",
+                  "    var jsonData = pm.response.json();",
+                  "    var token = (jsonData.data && jsonData.data.token) || jsonData.token;",
+                  "    if (token) {",
+                  "        pm.collectionVariables.set('invite_token', token);",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"invitee@example.com\",\n  \"expiresInDays\": 7\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/auth/invitations"
+          }
+        },
+        {
+          "name": "GET /auth/invitations/:token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// [OMA-W007-T002] Validate invitation token before registration",
+                  "pm.test('Status code is 200 or 404', function () {",
+                  "    pm.expect([200, 404]).to.include(pm.response.code);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/auth/invitations/{{invite_token}}"
+          }
+        },
+        {
+          "name": "POST /auth/register-with-invite",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// [OMA-W007-T002] Register account with invitation token",
+                  "pm.test('Status code is 201 or 400 or 404', function () {",
+                  "    pm.expect([201, 400, 404]).to.include(pm.response.code);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"{{invite_token}}\",\n  \"firstName\": \"Tariq\",\n  \"lastName\": \"Al-Sabah\",\n  \"password\": \"SecurePass123!\"\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/auth/register-with-invite"
+          }
+        },
+        {
+          "name": "POST /drafts/spaces",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// [OMA-W007-T002] Create draft workspace",
+                  "pm.test('Status code is 201', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.data && jsonData.data.slug) {",
+                  "    pm.collectionVariables.set('space_slug', jsonData.data.slug);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Scholarship Applications Workspace\",\n  \"description\": \"Drafts and statements for university applications\",\n  \"icon\": \"book-open\"\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/drafts/spaces"
+          }
+        },
+        {
+          "name": "GET /drafts/spaces",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// [OMA-W007-T002] List draft workspaces",
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "var jsonData = pm.response.json();",
+                  "pm.expect(jsonData.data).to.be.an('array');"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/drafts/spaces"
+          }
+        },
+        {
+          "name": "GET /drafts/spaces/:spaceSlug",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// [OMA-W007-T002] Get draft workspace by slug",
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/drafts/spaces/{{space_slug}}"
+          }
+        },
+        {
+          "name": "PATCH /drafts/spaces/:spaceSlug",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// [OMA-W007-T002] Update draft workspace metadata",
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"description\": \"Updated workspace notes and documentation.\"\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/drafts/spaces/{{space_slug}}"
+          }
+        },
+        {
+          "name": "POST /drafts/spaces/:spaceSlug/pages",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// [OMA-W007-T002] Create page in workspace",
+                  "pm.test('Status code is 201', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.data && jsonData.data.id) {",
+                  "    pm.collectionVariables.set('draft_page_id', jsonData.data.id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Statement of Purpose\",\n  \"contentJson\": {\n    \"type\": \"doc\",\n    \"content\": [\n      {\n        \"type\": \"paragraph\",\n        \"content\": [{ \"type\": \"text\", \"text\": \"Draft statement of purpose introduction.\" }]\n      }\n    ]\n  }\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/drafts/spaces/{{space_slug}}/pages"
+          }
+        },
+        {
+          "name": "GET /drafts/spaces/:spaceSlug/pages/:pageId",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// [OMA-W007-T002] Get draft page by ID",
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/drafts/spaces/{{space_slug}}/pages/{{draft_page_id}}"
+          }
+        },
+        {
+          "name": "PATCH /drafts/spaces/:spaceSlug/pages/:pageId",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// [OMA-W007-T002] Auto-save draft page update",
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Updated Statement of Purpose\",\n  \"contentJson\": {\n    \"type\": \"doc\",\n    \"content\": [\n      {\n        \"type\": \"paragraph\",\n        \"content\": [{ \"type\": \"text\", \"text\": \"Updated paragraph body content.\" }]\n      }\n    ]\n  }\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/drafts/spaces/{{space_slug}}/pages/{{draft_page_id}}"
+          }
+        },
+        {
+          "name": "POST /drafts/spaces/:spaceSlug/tags",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// [OMA-W007-T002] Create workspace tag",
+                  "pm.test('Status code is 201', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.data && jsonData.data.id) {",
+                  "    pm.collectionVariables.set('draft_tag_id', jsonData.data.id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Final Review\",\n  \"color\": \"#3B82F6\"\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/drafts/spaces/{{space_slug}}/tags"
+          }
+        },
+        {
+          "name": "GET /drafts/spaces/:spaceSlug/tags",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// [OMA-W007-T002] List workspace tags",
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/drafts/spaces/{{space_slug}}/tags"
+          }
+        },
+        {
+          "name": "POST /drafts/spaces/:spaceSlug/tags/:tagId/pages/:pageId",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// [OMA-W007-T002] Assign tag to page",
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/drafts/spaces/{{space_slug}}/tags/{{draft_tag_id}}/pages/{{draft_page_id}}"
+          }
+        },
+        {
+          "name": "DELETE /drafts/spaces/:spaceSlug/tags/:tagId/pages/:pageId",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// [OMA-W007-T002] Remove tag from page",
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/drafts/spaces/{{space_slug}}/tags/{{draft_tag_id}}/pages/{{draft_page_id}}"
+          }
+        },
+        {
+          "name": "POST /drafts/spaces/:spaceSlug/pages/:pageId/attachments",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// [OMA-W007-T002] Upload draft attachment",
+                  "pm.test('Status code is 201 or 400', function () {",
+                  "    pm.expect([201, 400]).to.include(pm.response.code);",
+                  "});",
+                  "if (pm.response.code === 201) {",
+                  "    var jsonData = pm.response.json();",
+                  "    if (jsonData.data && jsonData.data.id) {",
+                  "        pm.collectionVariables.set('draft_attachment_id', jsonData.data.id);",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "description": "Attachment file (PDF, TXT, MD, etc.)",
+                  "type": "file",
+                  "src": "sample.pdf"
+                }
+              ]
+            },
+            "url": "{{baseUrl}}/api/v1/drafts/spaces/{{space_slug}}/pages/{{draft_page_id}}/attachments"
+          }
+        },
+        {
+          "name": "GET /drafts/spaces/:spaceSlug/pages/:pageId/attachments",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// [OMA-W007-T002] Get page attachments embedded in page find",
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/drafts/spaces/{{space_slug}}/pages/{{draft_page_id}}"
+          }
+        },
+        {
+          "name": "GET /drafts/spaces/:spaceSlug/pages/:pageId/attachments/:attachmentId/download",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// [OMA-W007-T002] Get download signed URL for draft attachment",
+                  "pm.test('Status code is 200 or 404', function () {",
+                  "    pm.expect([200, 404]).to.include(pm.response.code);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/drafts/spaces/{{space_slug}}/pages/{{draft_page_id}}/attachments/{{draft_attachment_id}}/download"
+          }
+        },
+        {
+          "name": "GET /drafts/templates",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// [OMA-W007-T002] List draft templates",
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "var jsonData = pm.response.json();",
+                  "pm.expect(jsonData.data).to.be.an('array');"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/drafts/templates"
+          }
+        },
+        {
+          "name": "POST /drafts/templates",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// [OMA-W007-T002] Create draft template",
+                  "pm.test('Status code is 201', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.data && jsonData.data.id) {",
+                  "    pm.collectionVariables.set('draft_template_id', jsonData.data.id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Custom Research Proposal Template\",\n  \"description\": \"Starter outline for thesis and research grants\",\n  \"category\": \"Academic\",\n  \"contentJson\": {\n    \"type\": \"doc\",\n    \"content\": [\n      {\n        \"type\": \"heading\",\n        \"attrs\": { \"level\": 1 },\n        \"content\": [{ \"type\": \"text\", \"text\": \"Research Proposal Outline\" }]\n      }\n    ]\n  }\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/drafts/templates"
+          }
+        },
+        {
+          "name": "POST /editor/ai/edit",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// [OMA-W007-T002] Transform draft text using AI copilot",
+                  "pm.test('Status code is 200 or 503 (provider fallback)', function () {",
+                  "    pm.expect([200, 503]).to.include(pm.response.code);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"text\": \"I want to apply because the school is very good and has nice teachers.\",\n  \"mode\": \"academic_tone\",\n  \"instructions\": \"Elevate academic rigor and scholarly register\"\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/editor/ai/edit"
+          }
+        },
+        {
+          "name": "POST /editor/ai/generate",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// [OMA-W007-T002] Generate starter content using AI assistant",
+                  "pm.test('Status code is 200 or 503 (provider fallback)', function () {",
+                  "    pm.expect([200, 503]).to.include(pm.response.code);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"prompt\": \"Draft a compelling opening statement for a Chevening Scholarship essay focusing on youth leadership in community development.\"\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/editor/ai/generate"
+          }
+        },
+        {
+          "name": "POST /editor/ai/chat",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// [OMA-W007-T002] Conversational writing copilot chat",
+                  "pm.test('Status code is 200 or 503 (provider fallback)', function () {",
+                  "    pm.expect([200, 503]).to.include(pm.response.code);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"message\": \"Can you review the tone of my statement of purpose draft?\",\n  \"pageContext\": \"Draft statement of purpose introduction.\"\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/editor/ai/chat"
+          }
+        },
+        {
+          "name": "GET /editor/ai/proposals/page/:pageId",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// [OMA-W007-T002] Retrieve AI edit proposals for page",
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "var jsonData = pm.response.json();",
+                  "var proposals = jsonData.data || [];",
+                  "if (Array.isArray(proposals) && proposals.length > 0) {",
+                  "    pm.collectionVariables.set('ai_proposal_id', proposals[0].id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/editor/ai/proposals/page/{{draft_page_id}}"
+          }
+        },
+        {
+          "name": "POST /editor/ai/proposals/:proposalId/accept",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// [OMA-W007-T002] Accept AI edit proposal",
+                  "pm.test('Status code is 200 or 404', function () {",
+                  "    pm.expect([200, 404]).to.include(pm.response.code);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/editor/ai/proposals/{{ai_proposal_id}}/accept"
+          }
+        },
+        {
+          "name": "POST /editor/ai/proposals/:proposalId/reject",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// [OMA-W007-T002] Reject AI edit proposal",
+                  "pm.test('Status code is 200 or 404', function () {",
+                  "    pm.expect([200, 404]).to.include(pm.response.code);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/editor/ai/proposals/{{ai_proposal_id}}/reject"
+          }
+        },
+        {
+          "name": "GET /drafts/pages/:pageId/versions",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// [OMA-W007-T002] List draft page version history",
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "var jsonData = pm.response.json();",
+                  "var versions = jsonData.data || [];",
+                  "if (Array.isArray(versions) && versions.length > 0) {",
+                  "    pm.collectionVariables.set('version_id', versions[0].id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/drafts/pages/{{draft_page_id}}/versions"
+          }
+        },
+        {
+          "name": "POST /drafts/pages/:pageId/versions/:versionId/revert",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// [OMA-W007-T002] Revert draft page to version snapshot",
+                  "pm.test('Status code is 200 or 404', function () {",
+                  "    pm.expect([200, 404]).to.include(pm.response.code);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/drafts/pages/{{draft_page_id}}/versions/{{version_id}}/revert"
+          }
+        },
+        {
+          "name": "POST /drafts/pages/:pageId/finalize",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// [OMA-W007-T002] Finalize draft into PDF document",
+                  "pm.test('Status code is 201 or 400', function () {",
+                  "    pm.expect([201, 400]).to.include(pm.response.code);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"displayName\": \"Finalized_Statement_Of_Purpose.pdf\"\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/drafts/pages/{{draft_page_id}}/finalize"
+          }
+        },
+        {
+          "name": "POST /drafts/pages/:pageId/unlock",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// [OMA-W007-T002] Unlock finalized draft for new revisions",
+                  "pm.test('Status code is 200 or 400', function () {",
+                  "    pm.expect([200, 400]).to.include(pm.response.code);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/drafts/pages/{{draft_page_id}}/unlock"
+          }
+        },
+        {
+          "name": "GET /notifications",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// [OMA-W007-T002] List user notifications",
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "var jsonData = pm.response.json();",
+                  "var items = (jsonData.data && jsonData.data.items) || jsonData.data || [];",
+                  "if (Array.isArray(items) && items.length > 0) {",
+                  "    pm.collectionVariables.set('notification_id', items[0].id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/notifications"
+          }
+        },
+        {
+          "name": "PATCH /notifications/:id/read",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// [OMA-W007-T002] Mark individual notification as read",
+                  "pm.test('Status code is 200 or 404', function () {",
+                  "    pm.expect([200, 404]).to.include(pm.response.code);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/notifications/{{notification_id}}/read"
+          }
+        },
+        {
+          "name": "PATCH /notifications/read-all",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// [OMA-W007-T002] Mark all user notifications as read",
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/notifications/read-all"
           }
         }
       ]

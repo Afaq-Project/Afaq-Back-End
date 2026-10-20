@@ -33,7 +33,14 @@ import { ProfileModule } from './modules/profile/profile.module';
 import { MailModule } from './modules/mail/mail.module';
 import { AiPrismaModule } from './modules/infrastructure/ai-prisma/ai-prisma.module';
 import { OpportunitiesModule } from './modules/opportunities/opportunities.module';
+// [OMA-W002-T007] RecommendationsModule import
 import { RecommendationsModule } from './modules/recommendations/recommendations.module';
+// [OMA-W002-T001] Setup dependencies and environment variables
+// [OMA-W002-T002] Prisma integrated schema and models
+// [OMA-W002-T009] Feature 10 Modules
+import { NotificationsModule } from './modules/notifications/notifications.module';
+import { DraftsModule } from './modules/drafts/drafts.module';
+import { AiAssistantModule } from './modules/ai-assistant/ai-assistant.module';
 
 @Module({
   imports: [
@@ -261,6 +268,9 @@ import { RecommendationsModule } from './modules/recommendations/recommendations
     MailModule,
     OpportunitiesModule,
     RecommendationsModule,
+    NotificationsModule,
+    DraftsModule,
+    AiAssistantModule,
   ],
   providers: [
     // Global throttler guard

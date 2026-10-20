@@ -1,12 +1,20 @@
+// [OMA-W006-T001] Setup @xenova/transformers and pgvector previewFeatures
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions"]
 }
 
 datasource db {
-  provider  = "postgresql"
-  url       = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")
+  provider   = "postgresql"
+  url        = env("DATABASE_URL")
+  directUrl  = env("DIRECT_URL")
+  extensions = [vector]
 }
+
+
+// ============================================================================
+// PART 1: AFAQ-BACKEND BASE TABLES (100% UNCHANGED)
+// ============================================================================
 
 model Users {
   id                      String               @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
@@ -30,6 +38,18 @@ model Users {
   userProfile             UserProfiles?
   userRoles               UserRoles[]
 
+  // Reverse relations to Integrated Drafts & AI Modules
+  draftSpacesOwned        DraftSpaces[]
+  draftPages              DraftPages[]
+  draftPageVersions       DraftPageVersions[]
+  draftAttachments        DraftAttachments[]
+  draftTemplates          DraftTemplates[]
+  aiConversations         AiConversations[]
+  invitationsSent         Invitations[]        @relation("InvitationsSent")
+  // [OMA-W006-T002] Feature 11 AI Message Embeddings & Edit Proposals
+  aiMessageEmbeddings     AiMessageEmbeddings[]
+  aiEditProposals         AiEditProposals[]
+
   @@index([deletedAt])
   @@map("users")
 }
@@ -42,6 +62,7 @@ model Roles {
   createdAt   DateTime    @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt   DateTime?   @updatedAt @map("updated_at") @db.Timestamptz(6)
   userRoles   UserRoles[]
+  invitations Invitations[]
 
   @@map("roles")
 }
@@ -423,6 +444,7 @@ model Documents {
   documentTypeId String        @map("document_type_id") @db.Uuid
   documentType   DocumentTypes @relation(fields: [documentTypeId], references: [id])
   user           UserProfiles  @relation(fields: [userId], references: [userId], onDelete: Cascade)
+  draftPages     DraftPages[]
 
   @@index([userId])
   @@index([documentTypeId])
@@ -511,3 +533,270 @@ enum GpaScale {
   OUT_OF_5
   OUT_OF_4
 }
+
+// ============================================================================
+// PART 2: ADAPTED PERSONAL DRAFTS / EDITOR & AI MODELS
+// ============================================================================
+
+enum DraftPageStatus {
+  DRAFT
+  IN_PROGRESS
+  FINALIZED
+  ARCHIVED
+}
+
+model DraftSpaces {
+  id          String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  slug        String           @db.VarChar(255)
+  name        String           @db.VarChar(255)
+  description String?          @db.Text
+  icon        String?          @db.VarChar(100)
+  ownerId     String           @map("owner_id") @db.Uuid
+  createdAt   DateTime         @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt   DateTime?        @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  owner       Users            @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  pages       DraftPages[]
+  templates   DraftTemplates[]
+  tags        DraftTags[]
+
+  @@unique([ownerId, slug])
+  @@index([ownerId])
+  @@map("draft_spaces")
+}
+
+model DraftPages {
+  id          String              @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  spaceId     String              @map("space_id") @db.Uuid
+  parentId    String?             @map("parent_id") @db.Uuid
+  userId      String              @map("user_id") @db.Uuid
+  documentId  String?             @map("document_id") @db.Uuid
+  title       String              @db.VarChar(500)
+  slug        String              @db.VarChar(500)
+  contentJson Json?               @map("content_json")
+  status      DraftPageStatus     @default(DRAFT)
+  position    Int                 @default(0)
+  deletedAt   DateTime?           @map("deleted_at") @db.Timestamptz(6)
+  deletedBy   String?             @map("deleted_by") @db.Uuid
+  createdAt   DateTime            @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt   DateTime?           @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  space       DraftSpaces         @relation(fields: [spaceId], references: [id], onDelete: Cascade)
+  parent      DraftPages?         @relation("DraftPageTree", fields: [parentId], references: [id], onDelete: Cascade)
+  children    DraftPages[]        @relation("DraftPageTree")
+  user        Users               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  document    Documents?          @relation(fields: [documentId], references: [id], onDelete: SetNull)
+  versions    DraftPageVersions[]
+  attachments DraftAttachments[]
+  tags        DraftPageTags[]
+  // [OMA-W006-T002] Proposals relation
+  proposals   AiEditProposals[]
+
+  @@index([spaceId, deletedAt])
+  @@index([userId])
+  @@index([documentId])
+  @@index([parentId])
+  @@map("draft_pages")
+}
+
+model DraftPageVersions {
+  id                  String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  pageId              String     @map("page_id") @db.Uuid
+  userId              String     @map("user_id") @db.Uuid
+  contentJson         Json       @map("content_json")
+  isFinalizedSnapshot Boolean    @default(false) @map("is_finalized_snapshot")
+  finalizedDocumentId String?    @map("finalized_document_id") @db.Uuid
+  createdAt           DateTime   @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  page                DraftPages @relation(fields: [pageId], references: [id], onDelete: Cascade)
+  user                Users      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([pageId, createdAt(sort: Desc)])
+  @@index([userId])
+  @@map("draft_page_versions")
+}
+
+model DraftAttachments {
+  id          String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  pageId      String     @map("page_id") @db.Uuid
+  uploaderId  String     @map("uploader_id") @db.Uuid
+  filename    String     @db.VarChar(255)
+  mimeType    String     @map("mime_type") @db.VarChar(100)
+  sizeBytes   Int        @map("size_bytes")
+  storagePath String     @map("storage_path") @db.Text
+  createdAt   DateTime   @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  page        DraftPages @relation(fields: [pageId], references: [id], onDelete: Cascade)
+  uploader    Users      @relation(fields: [uploaderId], references: [id], onDelete: Cascade)
+
+  @@index([pageId])
+  @@index([uploaderId])
+  @@map("draft_attachments")
+}
+
+model DraftTags {
+  id        String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  spaceId   String          @map("space_id") @db.Uuid
+  name      String          @db.VarChar(100)
+  color     String?         @db.VarChar(50)
+  createdAt DateTime        @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  space     DraftSpaces     @relation(fields: [spaceId], references: [id], onDelete: Cascade)
+  pages     DraftPageTags[]
+
+  @@unique([spaceId, name])
+  @@index([spaceId])
+  @@map("draft_tags")
+}
+
+model DraftPageTags {
+  pageId String     @map("page_id") @db.Uuid
+  tagId  String     @map("tag_id") @db.Uuid
+
+  page   DraftPages @relation(fields: [pageId], references: [id], onDelete: Cascade)
+  tag    DraftTags  @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([pageId, tagId])
+  @@map("draft_page_tags")
+}
+
+model DraftTemplates {
+  id          String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  title       String       @db.VarChar(255)
+  description String?      @db.Text
+  contentJson Json         @map("content_json")
+  category    String       @default("General") @db.VarChar(100)
+  icon        String?      @db.VarChar(100)
+  isDefault   Boolean      @default(false) @map("is_default")
+  spaceId     String?      @map("space_id") @db.Uuid
+  creatorId   String?      @map("creator_id") @db.Uuid
+  createdAt   DateTime     @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt   DateTime?    @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  space       DraftSpaces? @relation(fields: [spaceId], references: [id], onDelete: Cascade)
+  creator     Users?       @relation(fields: [creatorId], references: [id], onDelete: SetNull)
+
+  @@index([spaceId])
+  @@index([creatorId])
+  @@map("draft_templates")
+}
+
+model AiConversations {
+  id        String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId    String       @map("user_id") @db.Uuid
+  title     String       @default("New conversation") @db.VarChar(255)
+  createdAt DateTime     @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime?    @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  user              Users                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  messages          AiMessages[]
+  // [OMA-W006-T002] Feature 11 relations
+  messageEmbeddings AiMessageEmbeddings[]
+  proposals         AiEditProposals[]
+
+  @@index([userId, updatedAt(sort: Desc)])
+  @@map("ai_conversations")
+}
+
+model AiMessages {
+  id             String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  conversationId String          @map("conversation_id") @db.Uuid
+  role           String          @db.VarChar(50)
+  content        String          @db.Text
+  sources        Json?
+  createdAt      DateTime        @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  conversation   AiConversations @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  // [OMA-W006-T002] Feature 11 relation
+  embedding      AiMessageEmbeddings?
+
+  @@index([conversationId, createdAt])
+  @@map("ai_messages")
+}
+
+model AiConfigs {
+  id         String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  provider   String    @unique @db.VarChar(50)
+  apiKey     String?   @map("api_key") @db.Text
+  endpoint   String?   @db.VarChar(255)
+  model      String?   @db.VarChar(100)
+  deployment String?   @db.Text
+  apiVersion String?   @map("api_version") @db.VarChar(50)
+  isActive   Boolean   @default(false) @map("is_active")
+  createdAt  DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt  DateTime? @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  @@index([isActive])
+  @@map("ai_configs")
+}
+
+// [OMA-W006-T002] Feature 11: Proposal status enum and pgvector / proposal models
+enum AiEditProposalStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+
+  @@map("ai_edit_proposal_status")
+}
+
+model AiMessageEmbeddings {
+  id             String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  messageId      String          @unique @map("message_id") @db.Uuid
+  conversationId String          @map("conversation_id") @db.Uuid
+  userId         String          @map("user_id") @db.Uuid
+  embedding      Unsupported("vector(384)")
+  createdAt      DateTime        @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  message        AiMessages      @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  conversation   AiConversations @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  user           Users           @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([conversationId])
+  @@index([userId])
+  @@map("ai_message_embeddings")
+}
+
+model AiEditProposals {
+  id             String               @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  pageId         String               @map("page_id") @db.Uuid
+  conversationId String?              @map("conversation_id") @db.Uuid
+  userId         String               @map("user_id") @db.Uuid
+  originalText   String               @map("original_text") @db.Text
+  suggestedText  String               @map("suggested_text") @db.Text
+  explanation    String?              @db.Text
+  status         AiEditProposalStatus @default(PENDING)
+  appliedAt      DateTime?            @map("applied_at") @db.Timestamptz(6)
+  createdAt      DateTime             @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  page           DraftPages           @relation(fields: [pageId], references: [id], onDelete: Cascade)
+  conversation   AiConversations?     @relation(fields: [conversationId], references: [id], onDelete: SetNull)
+  user           Users                @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([pageId])
+  @@index([userId])
+  @@index([status])
+  @@map("ai_edit_proposals")
+}
+
+// ============================================================================
+// PART 3: ENHANCED AUTH & INVITATION MODELS
+// ============================================================================
+
+model Invitations {
+  id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  email       String    @db.Citext
+  tokenHash   String    @unique @map("token_hash")
+  roleId      Int?      @map("role_id")
+  invitedById String    @map("invited_by_id") @db.Uuid
+  acceptedAt  DateTime? @map("accepted_at") @db.Timestamptz(6)
+  expiresAt   DateTime  @map("expires_at") @db.Timestamptz(6)
+  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  invitedBy   Users     @relation("InvitationsSent", fields: [invitedById], references: [id], onDelete: Cascade)
+  role        Roles?    @relation(fields: [roleId], references: [id])
+
+  @@index([email])
+  @@index([tokenHash])
+  @@map("invitations")
+}
+

@@ -12,6 +12,7 @@ export default tseslint.config(
       'node_modules/**',
       'coverage/**',
       '.agents/**/*',               // تجاهل مجلد .agents بالكامل
+      'src/__mocks__/**',
       'add-security-tests.js',      // ملفات الجذر التي تظهر في الأخطاء
       'fix-tests.js',
       'update-security-tests.js',

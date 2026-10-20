@@ -1,0 +1,97 @@
+openapi: 3.0.3
+info:
+  title: Afaq In-Editor AI Writing Assistant API
+  version: 1.0.0
+  description: Endpoints for inline text transformation, content generation, and multi-turn writing assistance.
+servers:
+  - url: /api/v1
+security:
+  - BearerAuth: []
+
+paths:
+  /editor/ai/edit:
+    post:
+      summary: Transform selected text (rephrase, grammar check, shorten, expand)
+      tags: [AI Assistant]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [text, mode]
+              properties:
+                text:
+                  type: string
+                  description: The highlighted text snippet to transform
+                mode:
+                  type: string
+                  enum: [rephrase, grammar, shorten, expand, summarize, academic_tone]
+                instructions:
+                  type: string
+                  description: Optional custom guidance (e.g. "Focus on clarity and conciseness")
+      responses:
+        '200':
+          description: Transformed text result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  result:
+                    type: string
+                  mode:
+                    type: string
+
+  /editor/ai/generate:
+    post:
+      summary: Generate starter content based on a user prompt
+      tags: [AI Assistant]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [prompt]
+              properties:
+                prompt:
+                  type: string
+                  example: Draft an introductory paragraph describing leadership in community projects for a scholarship essay.
+                context:
+                  type: string
+                  description: Optional document context
+      responses:
+        '200':
+          description: Generated content block
+
+  /editor/ai/chat:
+    post:
+      summary: Send a conversational message to the AI writing copilot
+      tags: [AI Assistant]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [message]
+              properties:
+                conversationId:
+                  type: string
+                  format: uuid
+                message:
+                  type: string
+                pageContext:
+                  type: string
+                  description: Optional current draft text to provide contextual grounding
+      responses:
+        '200':
+          description: AI assistant response message with conversation ID
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

@@ -8,26 +8,9 @@
   "item": [
     {
       "name": "Auth",
-      "description": "Authentication and authorization endpoints.",
       "item": [
         {
           "name": "Register",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "if (pm.response.code === 201) {",
-                  "    var jsonData = pm.response.json();",
-                  "    if (jsonData.data && jsonData.data.id) {",
-                  "        pm.collectionVariables.set('userId', jsonData.data.id);",
-                  "    }",
-                  "}"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
           "request": {
             "method": "POST",
             "header": [
@@ -36,10 +19,6 @@
                 "value": "application/json"
               }
             ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"email\": \"user@example.com\",\n  \"password\": \"P@ssw0rd123!\",\n  \"firstName\": \"John\",\n  \"lastName\": \"Doe\"\n}"
-            },
             "url": {
               "raw": "{{baseUrl}}/auth/register",
               "host": [
@@ -50,72 +29,32 @@
                 "register"
               ]
             },
-            "description": "Registers a new user and creates an initial profile."
+            "description": "Registers a new user and creates an initial profile.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"user@example.com\",\n  \"password\": \"P@ssw0rd123!\",\n  \"firstName\": \"John\",\n  \"lastName\": \"Doe\"\n}"
+            }
           },
-          "response": [
+          "response": [],
+          "event": [
             {
-              "name": "201 Created",
-              "originalRequest": {
-                "method": "POST",
-                "header": [
-                  {
-                    "key": "Content-Type",
-                    "value": "application/json"
-                  }
-                ],
-                "body": {
-                  "mode": "raw",
-                  "raw": "{\n  \"email\": \"user@example.com\",\n  \"password\": \"P@ssw0rd123!\",\n  \"firstName\": \"John\",\n  \"lastName\": \"Doe\"\n}"
-                },
-                "url": {
-                  "raw": "{{baseUrl}}/auth/register",
-                  "host": [
-                    "{{baseUrl}}"
-                  ],
-                  "path": [
-                    "auth",
-                    "register"
-                  ]
-                }
-              },
-              "status": "Created",
-              "code": 201,
-              "_postman_previewlanguage": "json",
-              "header": [
-                {
-                  "key": "Content-Type",
-                  "value": "application/json"
-                }
-              ],
-              "cookie": [],
-              "body": "{\n  \"success\": true,\n  \"status\": 201,\n  \"message\": \"Created successfully\",\n  \"data\": {\n    \"id\": \"9dd10e8f-0f3c-4295-befb-6109efd2587f\",\n    \"email\": \"user@example.com\",\n    \"firstName\": \"John\",\n    \"lastName\": \"Doe\",\n    \"isEmailVerified\": false,\n    \"isActive\": true,\n    \"lastLoginAt\": null,\n    \"createdAt\": \"2026-08-19T20:00:00.000Z\",\n    \"userProfile\": {\n      \"fullName\": \"John Doe\",\n      \"completionPct\": 0,\n      \"isDraft\": true\n    },\n    \"roles\": [\n      \"user\"\n    ]\n  },\n  \"meta\": {\n    \"requestId\": \"f8207c5b-4442-442b-ac9f-a42e3e5a7e36\"\n  },\n  \"errors\": null,\n  \"timestamp\": \"2026-08-19T20:00:00+00:00\"\n}"
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    var jsonData = pm.response.json();",
+                  "    if (jsonData.data && jsonData.data.id) {",
+                  "        pm.collectionVariables.set('userId', jsonData.data.id);",
+                  "    }",
+                  "}"
+                ]
+              }
             }
           ]
         },
         {
           "name": "Login",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "if (pm.response.code === 200) {",
-                  "    var jsonData = pm.response.json();",
-                  "    if (jsonData.data && jsonData.data.accessToken) {",
-                  "        pm.collectionVariables.set('accessToken', jsonData.data.accessToken);",
-                  "    }",
-                  "    if (jsonData.data && jsonData.data.refreshToken) {",
-                  "        pm.collectionVariables.set('refreshToken', jsonData.data.refreshToken);",
-                  "    }",
-                  "    if (jsonData.data && jsonData.data.user && jsonData.data.user.id) {",
-                  "        pm.collectionVariables.set('userId', jsonData.data.user.id);",
-                  "    }",
-                  "}"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
           "request": {
             "method": "POST",
             "header": [
@@ -124,10 +63,6 @@
                 "value": "application/json"
               }
             ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"email\": \"user@example.com\",\n  \"password\": \"P@ssw0rd123!\"\n}"
-            },
             "url": {
               "raw": "{{baseUrl}}/auth/login",
               "host": [
@@ -138,127 +73,31 @@
                 "login"
               ]
             },
-            "description": "Authenticates user credentials and returns JWT access and refresh tokens."
-          },
-          "response": [
-            {
-              "name": "200 OK",
-              "originalRequest": {
-                "method": "POST",
-                "header": [
-                  {
-                    "key": "Content-Type",
-                    "value": "application/json"
-                  }
-                ],
-                "body": {
-                  "mode": "raw",
-                  "raw": "{\n  \"email\": \"user@example.com\",\n  \"password\": \"P@ssw0rd123!\"\n}"
-                },
-                "url": {
-                  "raw": "{{baseUrl}}/auth/login",
-                  "host": [
-                    "{{baseUrl}}"
-                  ],
-                  "path": [
-                    "auth",
-                    "login"
-                  ]
-                }
-              },
-              "status": "OK",
-              "code": 200,
-              "_postman_previewlanguage": "json",
-              "header": [
-                {
-                  "key": "Content-Type",
-                  "value": "application/json"
-                }
-              ],
-              "cookie": [],
-              "body": "{\n  \"success\": true,\n  \"status\": 200,\n  \"message\": \"OK\",\n  \"data\": {\n    \"accessToken\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...\",\n    \"refreshToken\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...\",\n    \"user\": {\n      \"id\": \"9dd10e8f-0f3c-4295-befb-6109efd2587f\",\n      \"email\": \"user@example.com\",\n      \"firstName\": \"John\",\n      \"lastName\": \"Doe\",\n      \"isEmailVerified\": false,\n      \"isActive\": true,\n      \"lastLoginAt\": \"2026-08-19T20:05:00.000Z\",\n      \"createdAt\": \"2026-08-19T20:00:00.000Z\",\n      \"userProfile\": {\n        \"fullName\": \"John Doe\",\n        \"completionPct\": 0,\n        \"isDraft\": true\n      },\n      \"roles\": [\n        \"user\"\n      ]\n    }\n  },\n  \"meta\": {\n    \"requestId\": \"0375eb67-40c9-4427-ae57-a719b7df22da\"\n  },\n  \"errors\": null,\n  \"timestamp\": \"2026-08-19T20:05:00+00:00\"\n}"
+            "description": "Login with email and password",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"user@example.com\",\n  \"password\": \"P@ssw0rd123!\"\n}"
             }
-          ]
-        },
-        {
-          "name": "Get Current Profile (Me)",
-          "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{accessToken}}",
-                  "type": "string"
-                }
-              ]
-            },
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/auth/me",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "auth",
-                "me"
-              ]
-            },
-            "description": "Retrieves current authenticated user details."
           },
-          "response": [
+          "response": [],
+          "event": [
             {
-              "name": "200 OK",
-              "originalRequest": {
-                "method": "GET",
-                "header": [],
-                "url": {
-                  "raw": "{{baseUrl}}/auth/me",
-                  "host": [
-                    "{{baseUrl}}"
-                  ],
-                  "path": [
-                    "auth",
-                    "me"
-                  ]
-                }
-              },
-              "status": "OK",
-              "code": 200,
-              "_postman_previewlanguage": "json",
-              "header": [
-                {
-                  "key": "Content-Type",
-                  "value": "application/json"
-                }
-              ],
-              "cookie": [],
-              "body": "{\n  \"success\": true,\n  \"status\": 200,\n  \"message\": \"OK\",\n  \"data\": {\n    \"id\": \"9dd10e8f-0f3c-4295-befb-6109efd2587f\",\n    \"email\": \"user@example.com\",\n    \"firstName\": \"John\",\n    \"lastName\": \"Doe\",\n    \"isEmailVerified\": false,\n    \"isActive\": true,\n    \"lastLoginAt\": \"2026-08-19T20:05:00.000Z\",\n    \"createdAt\": \"2026-08-19T20:00:00.000Z\",\n    \"userProfile\": {\n      \"fullName\": \"John Doe\",\n      \"completionPct\": 0,\n      \"isDraft\": true\n    },\n    \"roles\": [\n      \"user\"\n    ]\n  },\n  \"meta\": {\n    \"requestId\": \"92b0d93e-8881-4b24-a77f-840d4379a554\"\n  },\n  \"errors\": null,\n  \"timestamp\": \"2026-08-19T20:05:00+00:00\"\n}"
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    var jsonData = pm.response.json();",
+                  "    if (jsonData.data && jsonData.data.accessToken) { pm.collectionVariables.set('accessToken', jsonData.data.accessToken); }",
+                  "    if (jsonData.data && jsonData.data.refreshToken) { pm.collectionVariables.set('refreshToken', jsonData.data.refreshToken); }",
+                  "}"
+                ]
+              }
             }
           ]
         },
         {
           "name": "Refresh Token",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "if (pm.response.code === 200) {",
-                  "    var jsonData = pm.response.json();",
-                  "    if (jsonData.data && jsonData.data.accessToken) {",
-                  "        pm.collectionVariables.set('accessToken', jsonData.data.accessToken);",
-                  "    }",
-                  "    if (jsonData.data && jsonData.data.refreshToken) {",
-                  "        pm.collectionVariables.set('refreshToken', jsonData.data.refreshToken);",
-                  "    }",
-                  "}"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
           "request": {
             "method": "POST",
             "header": [
@@ -267,10 +106,6 @@
                 "value": "application/json"
               }
             ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}"
-            },
             "url": {
               "raw": "{{baseUrl}}/auth/refresh",
               "host": [
@@ -281,61 +116,32 @@
                 "refresh"
               ]
             },
-            "description": "Refreshes an expired access token using a valid refresh token."
+            "description": "Refresh access token",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}"
+            }
           },
-          "response": [
+          "response": [],
+          "event": [
             {
-              "name": "200 OK",
-              "originalRequest": {
-                "method": "POST",
-                "header": [
-                  {
-                    "key": "Content-Type",
-                    "value": "application/json"
-                  }
-                ],
-                "body": {
-                  "mode": "raw",
-                  "raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}"
-                },
-                "url": {
-                  "raw": "{{baseUrl}}/auth/refresh",
-                  "host": [
-                    "{{baseUrl}}"
-                  ],
-                  "path": [
-                    "auth",
-                    "refresh"
-                  ]
-                }
-              },
-              "status": "OK",
-              "code": 200,
-              "_postman_previewlanguage": "json",
-              "header": [
-                {
-                  "key": "Content-Type",
-                  "value": "application/json"
-                }
-              ],
-              "cookie": [],
-              "body": "{\n  \"success\": true,\n  \"status\": 200,\n  \"message\": \"OK\",\n  \"data\": {\n    \"accessToken\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...\",\n    \"refreshToken\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...\"\n  },\n  \"meta\": {\n    \"requestId\": \"d6e0fb9f-3fb7-4122-8f36-e7b1dc2179c4\"\n  },\n  \"errors\": null,\n  \"timestamp\": \"2026-08-19T20:10:00+00:00\"\n}"
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    var jsonData = pm.response.json();",
+                  "    if (jsonData.data && jsonData.data.accessToken) { pm.collectionVariables.set('accessToken', jsonData.data.accessToken); }",
+                  "    if (jsonData.data && jsonData.data.refreshToken) { pm.collectionVariables.set('refreshToken', jsonData.data.refreshToken); }",
+                  "}"
+                ]
+              }
             }
           ]
         },
         {
           "name": "Logout",
           "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{accessToken}}",
-                  "type": "string"
-                }
-              ]
-            },
             "method": "POST",
             "header": [],
             "url": {
@@ -348,61 +154,22 @@
                 "logout"
               ]
             },
-            "description": "Logs out the user and clears authentication cookies."
-          },
-          "response": [
-            {
-              "name": "204 No Content",
-              "originalRequest": {
-                "method": "POST",
-                "header": [],
-                "url": {
-                  "raw": "{{baseUrl}}/auth/logout",
-                  "host": [
-                    "{{baseUrl}}"
-                  ],
-                  "path": [
-                    "auth",
-                    "logout"
-                  ]
+            "description": "Logout (clear cookies)",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
                 }
-              },
-              "status": "No Content",
-              "code": 204,
-              "_postman_previewlanguage": "text",
-              "body": ""
+              ]
             }
-          ]
+          },
+          "response": []
         },
         {
-          "name": "OAuth Google \u2192 Initiate",
-          "event": [
-            {
-              "listen": "prerequest",
-              "script": {
-                "exec": [
-                  "// Clear cookies before initiating OAuth to avoid session interference.",
-                  "pm.cookies.clear();",
-                  "pm.request.headers.remove('Cookie');"
-                ],
-                "type": "text/javascript"
-              }
-            },
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Status is 302 Redirect to Google', function () {",
-                  "    pm.response.to.have.status(302);",
-                  "});",
-                  "pm.test('Location header points to accounts.google.com', function () {",
-                  "    pm.expect(pm.response.headers.get('Location')).to.include('accounts.google.com');",
-                  "});"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
+          "name": "OAuth Google → Initiate",
           "request": {
             "method": "GET",
             "header": [],
@@ -416,69 +183,23 @@
                 "google"
               ]
             },
-            "description": "Initiates the Google OAuth 2.0 authentication flow. The server will respond with a 302 redirect to Google's consent screen. The user must follow the redirect in a browser to complete authentication.\n\n**Flow:**\n1. Client calls `GET /auth/google`\n2. Server redirects \u2192 `https://accounts.google.com/o/oauth2/v2/auth?...`\n3. User grants permissions\n4. Google redirects \u2192 `/auth/google/callback?code=...`\n5. Server processes callback and returns JWT tokens\n\n**Note:** This endpoint cannot be tested end-to-end in Postman because it requires a browser session to follow the OAuth redirect and complete the consent flow."
+            "description": "Initiate OAuth login with Google"
           },
-          "response": [
+          "response": [],
+          "event": [
             {
-              "name": "302 Redirect to Google",
-              "originalRequest": {
-                "method": "GET",
-                "header": [],
-                "url": {
-                  "raw": "{{baseUrl}}/auth/google",
-                  "host": [
-                    "{{baseUrl}}"
-                  ],
-                  "path": [
-                    "auth",
-                    "google"
-                  ]
-                }
-              },
-              "status": "Found",
-              "code": 302,
-              "_postman_previewlanguage": "text",
-              "header": [
-                {
-                  "key": "Location",
-                  "value": "https://accounts.google.com/o/oauth2/v2/auth?response_type=code&redirect_uri=...&scope=email%20profile&client_id=..."
-                }
-              ],
-              "cookie": [],
-              "body": ""
-            },
-            {
-              "name": "400 Unsupported Provider",
-              "originalRequest": {
-                "method": "GET",
-                "header": [],
-                "url": {
-                  "raw": "{{baseUrl}}/auth/other",
-                  "host": [
-                    "{{baseUrl}}"
-                  ],
-                  "path": [
-                    "auth",
-                    "other"
-                  ]
-                }
-              },
-              "status": "Bad Request",
-              "code": 400,
-              "_postman_previewlanguage": "json",
-              "header": [
-                {
-                  "key": "Content-Type",
-                  "value": "application/json"
-                }
-              ],
-              "cookie": [],
-              "body": "{\n  \"success\": false,\n  \"status\": 400,\n  \"message\": \"Provider other is not supported\",\n  \"data\": null,\n  \"errors\": null,\n  \"timestamp\": \"2026-08-28T20:00:00+00:00\"\n}"
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.cookies.clear(); pm.request.headers.remove('Cookie');"
+                ]
+              }
             }
           ]
         },
         {
-          "name": "OAuth Google \u2192 Callback (Doc Only)",
+          "name": "OAuth Google → Callback (Doc Only)",
           "request": {
             "method": "GET",
             "header": [],
@@ -495,107 +216,16 @@
               "query": [
                 {
                   "key": "code",
-                  "value": "AUTHORIZATION_CODE_FROM_GOOGLE",
-                  "description": "Authorization code returned by Google after the user grants consent. This is generated by Google and cannot be fabricated."
+                  "value": "AUTHORIZATION_CODE_FROM_GOOGLE"
                 }
               ]
             },
-            "description": "\u26a0\ufe0f **DOCUMENTATION ONLY \u2014 Cannot be tested directly in Postman.**\n\nThis endpoint is the OAuth callback for Google. It is called automatically by Google after the user grants or denies consent on the Google consent screen. The `code` query parameter is a one-time authorization code issued by Google that cannot be generated manually.\n\n**On success (200 OK):** Returns JWT access token, refresh token, and user profile. Sets `accessToken` and `refreshToken` cookies.\n\n**On missing email (400 Bad Request):** Returns `\"Unable to retrieve email from the provider. Please ensure your email is public or use another login method.\"`\n\n**Testing:** Use the browser-based OAuth flow with real credentials, or refer to `test/oauth.e2e-spec.ts` for automated E2E testing with mocked guards."
+            "description": "OAuth callback endpoint for Google"
           },
-          "response": [
-            {
-              "name": "200 OK \u2014 New User Created (isDraft: true)",
-              "originalRequest": {
-                "method": "GET",
-                "header": [],
-                "url": {
-                  "raw": "{{baseUrl}}/auth/google/callback?code=AUTHORIZATION_CODE_FROM_GOOGLE",
-                  "host": [
-                    "{{baseUrl}}"
-                  ],
-                  "path": [
-                    "auth",
-                    "google",
-                    "callback"
-                  ]
-                }
-              },
-              "status": "OK",
-              "code": 200,
-              "_postman_previewlanguage": "json",
-              "header": [
-                {
-                  "key": "Content-Type",
-                  "value": "application/json"
-                },
-                {
-                  "key": "Set-Cookie",
-                  "value": "accessToken=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...; Path=/; HttpOnly; SameSite=Lax"
-                }
-              ],
-              "cookie": [],
-              "body": "{\n  \"accessToken\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...\",\n  \"refreshToken\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...\",\n  \"user\": {\n    \"id\": \"9dd10e8f-0f3c-4295-befb-6109efd2587f\",\n    \"email\": \"john.doe@gmail.com\",\n    \"firstName\": \"John\",\n    \"lastName\": \"Doe\",\n    \"isEmailVerified\": true,\n    \"isActive\": true,\n    \"lastLoginAt\": \"2026-08-28T20:00:00.000Z\",\n    \"createdAt\": \"2026-08-28T20:00:00.000Z\",\n    \"userProfile\": {\n      \"fullName\": \"John Doe\",\n      \"completionPct\": 0,\n      \"isDraft\": true\n    },\n    \"roles\": [\"user\"]\n  }\n}"
-            },
-            {
-              "name": "400 Bad Request \u2014 Missing Email",
-              "originalRequest": {
-                "method": "GET",
-                "header": [],
-                "url": {
-                  "raw": "{{baseUrl}}/auth/google/callback?code=AUTHORIZATION_CODE_FROM_GOOGLE",
-                  "host": [
-                    "{{baseUrl}}"
-                  ],
-                  "path": [
-                    "auth",
-                    "google",
-                    "callback"
-                  ]
-                }
-              },
-              "status": "Bad Request",
-              "code": 400,
-              "_postman_previewlanguage": "json",
-              "header": [
-                {
-                  "key": "Content-Type",
-                  "value": "application/json"
-                }
-              ],
-              "cookie": [],
-              "body": "{\n  \"success\": false,\n  \"status\": 400,\n  \"message\": \"Unable to retrieve email from the provider. Please ensure your email is public or use another login method.\",\n  \"data\": null,\n  \"errors\": null,\n  \"timestamp\": \"2026-08-28T20:00:00+00:00\"\n}"
-            }
-          ]
+          "response": []
         },
         {
-          "name": "OAuth LinkedIn \u2192 Initiate",
-          "event": [
-            {
-              "listen": "prerequest",
-              "script": {
-                "exec": [
-                  "// Clear cookies before initiating OAuth to avoid session interference.",
-                  "pm.cookies.clear();",
-                  "pm.request.headers.remove('Cookie');"
-                ],
-                "type": "text/javascript"
-              }
-            },
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Status is 302 Redirect to LinkedIn', function () {",
-                  "    pm.response.to.have.status(302);",
-                  "});",
-                  "pm.test('Location header points to linkedin.com', function () {",
-                  "    pm.expect(pm.response.headers.get('Location')).to.include('linkedin.com');",
-                  "});"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
+          "name": "OAuth LinkedIn → Initiate",
           "request": {
             "method": "GET",
             "header": [],
@@ -609,41 +239,23 @@
                 "linkedin"
               ]
             },
-            "description": "Initiates the LinkedIn OAuth 2.0 authentication flow. The server will respond with a 302 redirect to LinkedIn's authorization page. The user must follow the redirect in a browser to complete authentication.\n\n**Flow:**\n1. Client calls `GET /auth/linkedin`\n2. Server redirects \u2192 `https://www.linkedin.com/oauth/v2/authorization?...`\n3. User grants permissions\n4. LinkedIn redirects \u2192 `/auth/linkedin/callback?code=...`\n5. Server processes callback and returns JWT tokens\n\n**Note:** This endpoint cannot be tested end-to-end in Postman because it requires a browser session to follow the OAuth redirect and complete the consent flow."
+            "description": "Initiate OAuth login with LinkedIn"
           },
-          "response": [
+          "response": [],
+          "event": [
             {
-              "name": "302 Redirect to LinkedIn",
-              "originalRequest": {
-                "method": "GET",
-                "header": [],
-                "url": {
-                  "raw": "{{baseUrl}}/auth/linkedin",
-                  "host": [
-                    "{{baseUrl}}"
-                  ],
-                  "path": [
-                    "auth",
-                    "linkedin"
-                  ]
-                }
-              },
-              "status": "Found",
-              "code": 302,
-              "_postman_previewlanguage": "text",
-              "header": [
-                {
-                  "key": "Location",
-                  "value": "https://www.linkedin.com/oauth/v2/authorization?response_type=code&redirect_uri=...&scope=r_emailaddress%20r_liteprofile&client_id=..."
-                }
-              ],
-              "cookie": [],
-              "body": ""
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.cookies.clear(); pm.request.headers.remove('Cookie');"
+                ]
+              }
             }
           ]
         },
         {
-          "name": "OAuth LinkedIn \u2192 Callback (Doc Only)",
+          "name": "OAuth LinkedIn → Callback (Doc Only)",
           "request": {
             "method": "GET",
             "header": [],
@@ -660,44 +272,13 @@
               "query": [
                 {
                   "key": "code",
-                  "value": "AUTHORIZATION_CODE_FROM_LINKEDIN",
-                  "description": "Authorization code returned by LinkedIn after the user grants consent. This is generated by LinkedIn and cannot be fabricated."
+                  "value": "AUTHORIZATION_CODE_FROM_LINKEDIN"
                 }
               ]
             },
-            "description": "\u26a0\ufe0f **DOCUMENTATION ONLY \u2014 Cannot be tested directly in Postman.**\n\nThis endpoint is the OAuth callback for LinkedIn. It is called automatically by LinkedIn after the user grants or denies consent on the LinkedIn authorization page. The `code` query parameter is a one-time authorization code issued by LinkedIn that cannot be generated manually.\n\n**On success (200 OK):** Returns JWT access token, refresh token, and user profile. Sets `accessToken` and `refreshToken` cookies. If the email matches an existing user, the OAuth identity is linked to that account instead of creating a new one.\n\n**On missing email (400 Bad Request):** Returns `\"Unable to retrieve email from the provider. Please ensure your email is public or use another login method.\"`\n\n**Testing:** Use the browser-based OAuth flow with real credentials, or refer to `test/oauth.e2e-spec.ts` for automated E2E testing with mocked guards."
+            "description": "OAuth callback endpoint for LinkedIn"
           },
-          "response": [
-            {
-              "name": "200 OK \u2014 Existing User Linked",
-              "originalRequest": {
-                "method": "GET",
-                "header": [],
-                "url": {
-                  "raw": "{{baseUrl}}/auth/linkedin/callback?code=AUTHORIZATION_CODE_FROM_LINKEDIN",
-                  "host": [
-                    "{{baseUrl}}"
-                  ],
-                  "path": [
-                    "auth",
-                    "linkedin",
-                    "callback"
-                  ]
-                }
-              },
-              "status": "OK",
-              "code": 200,
-              "_postman_previewlanguage": "json",
-              "header": [
-                {
-                  "key": "Content-Type",
-                  "value": "application/json"
-                }
-              ],
-              "cookie": [],
-              "body": "{\n  \"accessToken\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...\",\n  \"refreshToken\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...\",\n  \"user\": {\n    \"id\": \"9dd10e8f-0f3c-4295-befb-6109efd2587f\",\n    \"email\": \"john.doe@linkedin.com\",\n    \"firstName\": \"John\",\n    \"lastName\": \"Doe\",\n    \"isEmailVerified\": true,\n    \"isActive\": true,\n    \"lastLoginAt\": \"2026-08-28T20:00:00.000Z\",\n    \"createdAt\": \"2026-08-28T19:00:00.000Z\",\n    \"userProfile\": {\n      \"fullName\": \"John Doe\",\n      \"completionPct\": 80,\n      \"isDraft\": false\n    },\n    \"roles\": [\"user\"]\n  }\n}"
-            }
-          ]
+          "response": []
         },
         {
           "name": "Verify Email",
@@ -858,126 +439,61 @@
               "raw": "{\n  \"userId\": \"USER_ID_HERE\",\n  \"newPassword\": \"ForcedP@ss123!\",\n  \"confirmPassword\": \"ForcedP@ss123!\"\n}"
             }
           }
-        }
-      ]
-    },
-    {
-      "name": "Users",
-      "description": "User management endpoints.",
-      "item": [
+        },
         {
-          "name": "Get Own Profile",
+          "name": "Issue Invitation (Admin)",
           "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{accessToken}}",
-                  "type": "string"
-                }
-              ]
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"candidate@university.edu\",\n  \"roleId\": 1,\n  \"expiresInDays\": 7\n}"
             },
-            "method": "GET",
-            "header": [],
             "url": {
-              "raw": "{{baseUrl}}/users/profile",
+              "raw": "{{baseUrl}}/api/v1/auth/invitations",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
-                "users",
-                "profile"
+                "api",
+                "v1",
+                "auth",
+                "invitations"
               ]
-            },
-            "description": "Retrieves profile of currently logged-in user."
-          },
-          "response": []
+            }
+          }
         },
         {
-          "name": "List Users (Admin)",
+          "name": "Validate Invitation Token",
           "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{accessToken}}",
-                  "type": "string"
-                }
-              ]
-            },
             "method": "GET",
-            "header": [],
             "url": {
-              "raw": "{{baseUrl}}/users?page=1&limit=20&order=desc",
+              "raw": "{{baseUrl}}/api/v1/auth/invitations/{{inviteToken}}",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
-                "users"
-              ],
-              "query": [
-                {
-                  "key": "page",
-                  "value": "1"
-                },
-                {
-                  "key": "limit",
-                  "value": "20"
-                },
-                {
-                  "key": "order",
-                  "value": "desc"
-                }
+                "api",
+                "v1",
+                "auth",
+                "invitations",
+                "{{inviteToken}}"
               ]
-            },
-            "description": "Retrieves paginated list of users (Admin only)."
-          },
-          "response": []
+            }
+          }
         },
         {
-          "name": "Get User By ID (Admin)",
+          "name": "Register with Invitation Token",
           "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{accessToken}}",
-                  "type": "string"
-                }
-              ]
-            },
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/users/{{userId}}",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "users",
-                "{{userId}}"
-              ]
-            },
-            "description": "Retrieves details of a specific user by ID (Admin only)."
-          },
-          "response": []
-        },
-        {
-          "name": "Create User (Admin)",
-          "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{accessToken}}",
-                  "type": "string"
-                }
-              ]
-            },
             "method": "POST",
             "header": [
               {
@@ -987,962 +503,293 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"email\": \"newuser@example.com\",\n  \"name\": \"Jane Doe\"\n}"
+              "raw": "{\n  \"token\": \"{{inviteToken}}\",\n  \"password\": \"Password123!\",\n  \"firstName\": \"Invited\",\n  \"lastName\": \"Candidate\"\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/users",
+              "raw": "{{baseUrl}}/api/v1/auth/register-with-invite",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
-                "users"
+                "api",
+                "v1",
+                "auth",
+                "register-with-invite"
               ]
-            },
-            "description": "Creates a new user (Admin only)."
-          },
-          "response": []
-        },
-        {
-          "name": "Update User",
-          "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{accessToken}}",
-                  "type": "string"
-                }
-              ]
-            },
-            "method": "PATCH",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"name\": \"Jane Smith\"\n}"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/users/{{userId}}",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "users",
-                "{{userId}}"
-              ]
-            },
-            "description": "Updates user info."
-          },
-          "response": []
-        },
-        {
-          "name": "Delete User (Admin)",
-          "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{accessToken}}",
-                  "type": "string"
-                }
-              ]
-            },
-            "method": "DELETE",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/users/{{userId}}",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "users",
-                "{{userId}}"
-              ]
-            },
-            "description": "Deletes a user by ID (Admin only)."
-          },
-          "response": []
+            }
+          }
         }
       ]
     },
     {
       "name": "Profile",
-      "description": "User profile management, documents, and reference data endpoints.",
       "item": [
         {
-          "name": "Profile",
-          "description": "User profile CRUD operations.",
-          "item": [
-            {
-              "name": "Get User Profile",
-              "event": [
-                {
-                  "listen": "test",
-                  "script": {
-                    "exec": [
-                      "pm.test(\"Status code is 200\", function () {",
-                      "    pm.response.to.have.status(200);",
-                      "});",
-                      "pm.test(\"Profile data retrieved\", function () {",
-                      "    var jsonData = pm.response.json();",
-                      "    pm.expect(jsonData).to.have.property(\"data\");",
-                      "    pm.expect(jsonData.data).to.have.property(\"userId\");",
-                      "});"
-                    ],
-                    "type": "text/javascript"
-                  }
-                }
+          "name": "Get My Profile",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/profile/me",
+              "host": [
+                "{{baseUrl}}"
               ],
-              "request": {
-                "auth": {
-                  "type": "bearer",
-                  "bearer": [
-                    {
-                      "key": "token",
-                      "value": "{{accessToken}}",
-                      "type": "string"
-                    }
-                  ]
-                },
-                "method": "GET",
-                "header": [],
-                "url": {
-                  "raw": "{{baseUrl}}/profile",
-                  "host": [
-                    "{{baseUrl}}"
-                  ],
-                  "path": [
-                    "profile"
-                  ]
-                },
-                "description": "Retrieves the current authenticated user profile with detailed relations (education, skills, languages, documents, and completion percentage)."
-              },
-              "response": [
-                {
-                  "name": "200 OK",
-                  "originalRequest": {
-                    "method": "GET",
-                    "header": [
-                      {
-                        "key": "Authorization",
-                        "value": "Bearer {{accessToken}}"
-                      }
-                    ],
-                    "url": {
-                      "raw": "{{baseUrl}}/profile",
-                      "host": [
-                        "{{baseUrl}}"
-                      ],
-                      "path": [
-                        "profile"
-                      ]
-                    }
-                  },
-                  "status": "OK",
-                  "code": 200,
-                  "_postman_previewlanguage": "json",
-                  "header": [
-                    {
-                      "key": "Content-Type",
-                      "value": "application/json"
-                    }
-                  ],
-                  "cookie": [],
-                  "body": "{\n  \"statusCode\": 200,\n  \"message\": \"Profile retrieved successfully\",\n  \"data\": {\n    \"id\": \"d3b07384-d113-460d-a773-f9c15d5ec3ef\",\n    \"userId\": \"9dd10e8f-0f3c-4295-befb-6109efd2587f\",\n    \"fullName\": \"John Doe\",\n    \"dateOfBirth\": \"1998-05-15T00:00:00.000Z\",\n    \"nationality\": \"US\",\n    \"educationLevel\": \"Bachelor\",\n    \"fieldOfStudy\": [\n      \"Computer Science\",\n      \"Software Engineering\"\n    ],\n    \"currentCountry\": \"United States\",\n    \"currentCity\": \"San Francisco\",\n    \"phone\": \"+1-555-0199\",\n    \"experienceLevel\": \"Mid-Level\",\n    \"hasFinancialNeed\": false,\n    \"careerGoals\": \"Aspiring AI Engineer looking for master scholarship opportunities.\",\n    \"profilePhotoUrl\": \"https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80\",\n    \"completionPct\": 85,\n    \"coreFieldsComplete\": true,\n    \"isDraft\": false,\n    \"createdAt\": \"2026-08-28T19:00:00.000Z\",\n    \"updatedAt\": \"2026-09-02T12:00:00.000Z\",\n    \"user\": {\n      \"userEducations\": [\n        {\n          \"id\": \"e1a2b3c4-d5e6-7f8a-9b0c-1d2e3f4a5b6c\",\n          \"userId\": \"9dd10e8f-0f3c-4295-befb-6109efd2587f\",\n          \"degree\": \"Bachelor of Science\",\n          \"institution\": \"Stanford University\",\n          \"gpaValue\": \"3.85\",\n          \"gpaScale\": \"4.0\",\n          \"normalizedGpa\": 3.85,\n          \"startYear\": 2016,\n          \"endYear\": 2020\n        }\n      ],\n      \"userSkills\": [\n        {\n          \"id\": \"s1a2b3c4-d5e6-7f8a-9b0c-1d2e3f4a5b6c\",\n          \"userId\": \"9dd10e8f-0f3c-4295-befb-6109efd2587f\",\n          \"skillId\": \"f0a1b2c3-d4e5-6f7a-8b9c-0d1e2f3a4b5c\",\n          \"proficiency\": 4,\n          \"skill\": {\n            \"id\": \"f0a1b2c3-d4e5-6f7a-8b9c-0d1e2f3a4b5c\",\n            \"name\": \"TypeScript\",\n            \"category\": \"Technical\"\n          }\n        }\n      ],\n      \"userLanguages\": [\n        {\n          \"id\": \"l1a2b3c4-d5e6-7f8a-9b0c-1d2e3f4a5b6c\",\n          \"userId\": \"9dd10e8f-0f3c-4295-befb-6109efd2587f\",\n          \"languageId\": \"en-us\",\n          \"proficiency\": \"Native\",\n          \"language\": {\n            \"id\": \"en-us\",\n            \"name\": \"English\"\n          }\n        }\n      ],\n      \"documents\": [\n        {\n          \"id\": \"a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d\",\n          \"userId\": \"9dd10e8f-0f3c-4295-befb-6109efd2587f\",\n          \"docType\": \"resume\",\n          \"displayName\": \"John_Doe_Resume.pdf\",\n          \"mimeType\": \"application/pdf\",\n          \"sizeBytes\": 1048576,\n          \"createdAt\": \"2026-09-01T10:00:00.000Z\"\n        }\n      ]\n    }\n  },\n  \"timestamp\": \"2026-09-02T12:00:00.000Z\"\n}"
-                }
-              ]
-            },
-            {
-              "name": "Update User Profile",
-              "event": [
-                {
-                  "listen": "test",
-                  "script": {
-                    "exec": [
-                      "pm.test(\"Status code is 200\", function () {",
-                      "    pm.response.to.have.status(200);",
-                      "});",
-                      "pm.test(\"Profile updated successfully\", function () {",
-                      "    var jsonData = pm.response.json();",
-                      "    pm.expect(jsonData.statusCode).to.eql(200);",
-                      "    pm.expect(jsonData.data).to.have.property(\"completionPct\");",
-                      "});"
-                    ],
-                    "type": "text/javascript"
-                  }
-                }
-              ],
-              "request": {
-                "auth": {
-                  "type": "bearer",
-                  "bearer": [
-                    {
-                      "key": "token",
-                      "value": "{{accessToken}}",
-                      "type": "string"
-                    }
-                  ]
-                },
-                "method": "PATCH",
-                "header": [
-                  {
-                    "key": "Content-Type",
-                    "value": "application/json"
-                  }
-                ],
-                "body": {
-                  "mode": "raw",
-                  "raw": "{\n  \"fullName\": \"John Doe\",\n  \"dateOfBirth\": \"1998-05-15\",\n  \"nationality\": \"US\",\n  \"educationLevel\": \"Bachelor\",\n  \"fieldOfStudy\": [\n    \"Computer Science\",\n    \"Artificial Intelligence\"\n  ],\n  \"currentCountry\": \"United States\",\n  \"currentCity\": \"San Francisco\",\n  \"phone\": \"+1-555-0199\",\n  \"experienceLevel\": \"Mid-Level\",\n  \"hasFinancialNeed\": false,\n  \"careerGoals\": \"Aspiring AI Engineer looking for master scholarship and research opportunities.\",\n  \"profilePhotoUrl\": \"https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80\",\n  \"gpaValue\": \"3.85\",\n  \"gpaScale\": \"4.0\"\n}"
-                },
-                "url": {
-                  "raw": "{{baseUrl}}/profile",
-                  "host": [
-                    "{{baseUrl}}"
-                  ],
-                  "path": [
-                    "profile"
-                  ]
-                },
-                "description": "Updates profile fields with ready-to-use payload for the front-end team. Automatically recalculates profile completion percentage and core field statuses."
-              },
-              "response": [
-                {
-                  "name": "200 OK",
-                  "originalRequest": {
-                    "method": "PATCH",
-                    "header": [
-                      {
-                        "key": "Content-Type",
-                        "value": "application/json"
-                      },
-                      {
-                        "key": "Authorization",
-                        "value": "Bearer {{accessToken}}"
-                      }
-                    ],
-                    "body": {
-                      "mode": "raw",
-                      "raw": "{\n  \"fullName\": \"John Doe\",\n  \"nationality\": \"US\",\n  \"educationLevel\": \"Bachelor\"\n}"
-                    },
-                    "url": {
-                      "raw": "{{baseUrl}}/profile",
-                      "host": [
-                        "{{baseUrl}}"
-                      ],
-                      "path": [
-                        "profile"
-                      ]
-                    }
-                  },
-                  "status": "OK",
-                  "code": 200,
-                  "_postman_previewlanguage": "json",
-                  "header": [
-                    {
-                      "key": "Content-Type",
-                      "value": "application/json"
-                    }
-                  ],
-                  "cookie": [],
-                  "body": "{\n  \"statusCode\": 200,\n  \"message\": \"Profile updated successfully\",\n  \"data\": {\n    \"userId\": \"9dd10e8f-0f3c-4295-befb-6109efd2587f\",\n    \"completionPct\": 85,\n    \"coreFieldsComplete\": true,\n    \"updatedAt\": \"2026-09-02T12:00:00.000Z\"\n  },\n  \"timestamp\": \"2026-09-02T12:00:00.000Z\"\n}"
-                }
-              ]
-            },
-            {
-              "name": "Get Educations",
-              "request": {
-                "auth": {
-                  "type": "bearer",
-                  "bearer": [
-                    {
-                      "key": "token",
-                      "value": "{{accessToken}}",
-                      "type": "string"
-                    }
-                  ]
-                },
-                "method": "GET",
-                "header": [],
-                "url": {
-                  "raw": "{{baseUrl}}/profile/educations",
-                  "host": [
-                    "{{baseUrl}}"
-                  ],
-                  "path": [
-                    "profile",
-                    "educations"
-                  ]
-                },
-                "description": "Retrieves the current user's educations."
-              },
-              "response": []
-            },
-            {
-              "name": "Create Education",
-              "request": {
-                "auth": {
-                  "type": "bearer",
-                  "bearer": [
-                    {
-                      "key": "token",
-                      "value": "{{accessToken}}",
-                      "type": "string"
-                    }
-                  ]
-                },
-                "method": "POST",
-                "header": [
-                  {
-                    "key": "Content-Type",
-                    "value": "application/json"
-                  }
-                ],
-                "body": {
-                  "mode": "raw",
-                  "raw": "{\n  \"degree\": \"BSc Computer Science\",\n  \"major\": \"Software Engineering\",\n  \"institution\": \"University of Technology\",\n  \"graduationYear\": 2024\n}"
-                },
-                "url": {
-                  "raw": "{{baseUrl}}/profile/educations",
-                  "host": [
-                    "{{baseUrl}}"
-                  ],
-                  "path": [
-                    "profile",
-                    "educations"
-                  ]
-                },
-                "description": "Creates a new education entry."
-              },
-              "response": []
-            },
-            {
-              "name": "Update Education",
-              "request": {
-                "auth": {
-                  "type": "bearer",
-                  "bearer": [
-                    {
-                      "key": "token",
-                      "value": "{{accessToken}}",
-                      "type": "string"
-                    }
-                  ]
-                },
-                "method": "PATCH",
-                "header": [
-                  {
-                    "key": "Content-Type",
-                    "value": "application/json"
-                  }
-                ],
-                "body": {
-                  "mode": "raw",
-                  "raw": "{\n  \"degree\": \"MSc Computer Science\",\n  \"major\": \"AI\",\n  \"institution\": \"University of Technology\",\n  \"graduationYear\": 2026,\n  \"gpaValue\": 3.8,\n  \"gpaScale\": 4\n}"
-                },
-                "url": {
-                  "raw": "{{baseUrl}}/profile/educations/:id",
-                  "host": [
-                    "{{baseUrl}}"
-                  ],
-                  "path": [
-                    "profile",
-                    "educations",
-                    ":id"
-                  ],
-                  "variable": [
-                    {
-                      "key": "id",
-                      "value": "uuid-of-education"
-                    }
-                  ]
-                },
-                "description": "Updates an existing education entry."
-              },
-              "response": []
-            },
-            {
-              "name": "Delete Education",
-              "request": {
-                "auth": {
-                  "type": "bearer",
-                  "bearer": [
-                    {
-                      "key": "token",
-                      "value": "{{accessToken}}",
-                      "type": "string"
-                    }
-                  ]
-                },
-                "method": "DELETE",
-                "header": [],
-                "url": {
-                  "raw": "{{baseUrl}}/profile/educations/:id",
-                  "host": [
-                    "{{baseUrl}}"
-                  ],
-                  "path": [
-                    "profile",
-                    "educations",
-                    ":id"
-                  ],
-                  "variable": [
-                    {
-                      "key": "id",
-                      "value": "uuid-of-education"
-                    }
-                  ]
-                },
-                "description": "Deletes an education entry."
-              },
-              "response": []
-            }
-          ]
-        },
-        {
-          "name": "Documents",
-          "description": "Encrypted document uploads and management for user profiles.",
-          "item": [
-            {
-              "name": "Upload Document",
-              "event": [
-                {
-                  "listen": "test",
-                  "script": {
-                    "exec": [
-                      "if (pm.response.code === 201) {",
-                      "    var jsonData = pm.response.json();",
-                      "    if (jsonData.data && jsonData.data.id) {",
-                      "        pm.collectionVariables.set(documentId, jsonData.data.id);",
-                      "    }",
-                      "}",
-                      "pm.test(\"Status code is 201\", function () {",
-                      "    pm.response.to.have.status(201);",
-                      "});"
-                    ],
-                    "type": "text/javascript"
-                  }
-                }
-              ],
-              "request": {
-                "auth": {
-                  "type": "bearer",
-                  "bearer": [
-                    {
-                      "key": "token",
-                      "value": "{{accessToken}}",
-                      "type": "string"
-                    }
-                  ]
-                },
-                "method": "POST",
-                "header": [],
-                "body": {
-                  "mode": "formdata",
-                  "formdata": [
-                    {
-                      "key": "file",
-                      "type": "file",
-                      "src": "",
-                      "description": "File to upload (PDF, DOC, DOCX, PNG, JPG - max 5MB)"
-                    },
-                    {
-                      "key": "docType",
-                      "value": "resume",
-                      "type": "text",
-                      "description": "One of: resume, essay, transcript, recommendation_letter, other"
-                    }
-                  ]
-                },
-                "url": {
-                  "raw": "{{baseUrl}}/profile/documents",
-                  "host": [
-                    "{{baseUrl}}"
-                  ],
-                  "path": [
-                    "profile",
-                    "documents"
-                  ]
-                },
-                "description": "Uploads a user document (encrypted at rest with AES-256). Supported document types: resume, essay, transcript, recommendation_letter, other."
-              },
-              "response": [
-                {
-                  "name": "201 Created",
-                  "originalRequest": {
-                    "method": "POST",
-                    "header": [
-                      {
-                        "key": "Authorization",
-                        "value": "Bearer {{accessToken}}"
-                      }
-                    ],
-                    "url": {
-                      "raw": "{{baseUrl}}/profile/documents",
-                      "host": [
-                        "{{baseUrl}}"
-                      ],
-                      "path": [
-                        "profile",
-                        "documents"
-                      ]
-                    }
-                  },
-                  "status": "Created",
-                  "code": 201,
-                  "_postman_previewlanguage": "json",
-                  "header": [
-                    {
-                      "key": "Content-Type",
-                      "value": "application/json"
-                    }
-                  ],
-                  "cookie": [],
-                  "body": "{\n  \"statusCode\": 201,\n  \"message\": \"Document uploaded successfully\",\n  \"data\": {\n    \"id\": \"a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d\",\n    \"docType\": \"resume\",\n    \"displayName\": \"Resume_2026.pdf\",\n    \"storagePath\": \"documents/9dd10e8f-0f3c-4295-befb-6109efd2587f/a1b2c3d4-e5f6.pdf\",\n    \"mimeType\": \"application/pdf\",\n    \"sizeBytes\": 1048576,\n    \"createdAt\": \"2026-09-02T12:00:00.000Z\"\n  },\n  \"timestamp\": \"2026-09-02T12:00:00.000Z\"\n}"
-                }
-              ]
-            },
-            {
-              "name": "List Documents",
-              "event": [
-                {
-                  "listen": "test",
-                  "script": {
-                    "exec": [
-                      "pm.test(\"Status code is 200\", function () {",
-                      "    pm.response.to.have.status(200);",
-                      "});",
-                      "pm.test(\"Documents array returned\", function () {",
-                      "    var jsonData = pm.response.json();",
-                      "    pm.expect(jsonData.data).to.be.an(\"array\");",
-                      "});"
-                    ],
-                    "type": "text/javascript"
-                  }
-                }
-              ],
-              "request": {
-                "auth": {
-                  "type": "bearer",
-                  "bearer": [
-                    {
-                      "key": "token",
-                      "value": "{{accessToken}}",
-                      "type": "string"
-                    }
-                  ]
-                },
-                "method": "GET",
-                "header": [],
-                "url": {
-                  "raw": "{{baseUrl}}/profile/documents",
-                  "host": [
-                    "{{baseUrl}}"
-                  ],
-                  "path": [
-                    "profile",
-                    "documents"
-                  ]
-                },
-                "description": "Retrieves all active uploaded documents for the user profile."
-              },
-              "response": [
-                {
-                  "name": "200 OK",
-                  "originalRequest": {
-                    "method": "GET",
-                    "header": [
-                      {
-                        "key": "Authorization",
-                        "value": "Bearer {{accessToken}}"
-                      }
-                    ],
-                    "url": {
-                      "raw": "{{baseUrl}}/profile/documents",
-                      "host": [
-                        "{{baseUrl}}"
-                      ],
-                      "path": [
-                        "profile",
-                        "documents"
-                      ]
-                    }
-                  },
-                  "status": "OK",
-                  "code": 200,
-                  "_postman_previewlanguage": "json",
-                  "header": [
-                    {
-                      "key": "Content-Type",
-                      "value": "application/json"
-                    }
-                  ],
-                  "cookie": [],
-                  "body": "{\n  \"statusCode\": 200,\n  \"message\": \"Documents retrieved successfully\",\n  \"data\": [\n    {\n      \"id\": \"a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d\",\n      \"userId\": \"9dd10e8f-0f3c-4295-befb-6109efd2587f\",\n      \"docType\": \"resume\",\n      \"displayName\": \"Resume_2026.pdf\",\n      \"storagePath\": \"documents/9dd10e8f-0f3c-4295-befb-6109efd2587f/a1b2c3d4-e5f6.pdf\",\n      \"mimeType\": \"application/pdf\",\n      \"sizeBytes\": 1048576,\n      \"isEncrypted\": true,\n      \"createdAt\": \"2026-09-02T12:00:00.000Z\",\n      \"updatedAt\": \"2026-09-02T12:00:00.000Z\"\n    }\n  ],\n  \"timestamp\": \"2026-09-02T12:00:00.000Z\"\n}"
-                }
-              ]
-            },
-            {
-              "name": "Get Document Download URL",
-              "event": [
-                {
-                  "listen": "test",
-                  "script": {
-                    "exec": [
-                      "pm.test(\"Status code is 200\", function () {",
-                      "    pm.response.to.have.status(200);",
-                      "});",
-                      "pm.test(\"Download URL returned\", function () {",
-                      "    var jsonData = pm.response.json();",
-                      "    pm.expect(jsonData.data).to.have.property(\"url\");",
-                      "    pm.expect(jsonData.data).to.have.property(\"expiresAt\");",
-                      "});"
-                    ],
-                    "type": "text/javascript"
-                  }
-                }
-              ],
-              "request": {
-                "auth": {
-                  "type": "bearer",
-                  "bearer": [
-                    {
-                      "key": "token",
-                      "value": "{{accessToken}}",
-                      "type": "string"
-                    }
-                  ]
-                },
-                "method": "GET",
-                "header": [],
-                "url": {
-                  "raw": "{{baseUrl}}/profile/documents/{{documentId}}/download",
-                  "host": [
-                    "{{baseUrl}}"
-                  ],
-                  "path": [
-                    "profile",
-                    "documents",
-                    "{{documentId}}",
-                    "download"
-                  ]
-                },
-                "description": "Generates a secure temporary signed download URL for the requested document."
-              },
-              "response": [
-                {
-                  "name": "200 OK",
-                  "originalRequest": {
-                    "method": "GET",
-                    "header": [
-                      {
-                        "key": "Authorization",
-                        "value": "Bearer {{accessToken}}"
-                      }
-                    ],
-                    "url": {
-                      "raw": "{{baseUrl}}/profile/documents/{{documentId}}/download",
-                      "host": [
-                        "{{baseUrl}}"
-                      ],
-                      "path": [
-                        "profile",
-                        "documents",
-                        "{{documentId}}",
-                        "download"
-                      ]
-                    }
-                  },
-                  "status": "OK",
-                  "code": 200,
-                  "_postman_previewlanguage": "json",
-                  "header": [
-                    {
-                      "key": "Content-Type",
-                      "value": "application/json"
-                    }
-                  ],
-                  "cookie": [],
-                  "body": "{\n  \"statusCode\": 200,\n  \"message\": \"Download URL generated successfully\",\n  \"data\": {\n    \"url\": \"https://levora-back-end.onrender.com/api/v1/local-storage/documents-9dd10e8f-Resume_2026.pdf?token=eyJhbGciOi...\",\n    \"expiresAt\": \"2026-09-02T12:05:00.000Z\"\n  },\n  \"timestamp\": \"2026-09-02T12:00:00.000Z\"\n}"
-                }
-              ]
-            },
-            {
-              "name": "Delete Document",
-              "event": [
-                {
-                  "listen": "test",
-                  "script": {
-                    "exec": [
-                      "pm.test(\"Status code is 200\", function () {",
-                      "    pm.response.to.have.status(200);",
-                      "});"
-                    ],
-                    "type": "text/javascript"
-                  }
-                }
-              ],
-              "request": {
-                "auth": {
-                  "type": "bearer",
-                  "bearer": [
-                    {
-                      "key": "token",
-                      "value": "{{accessToken}}",
-                      "type": "string"
-                    }
-                  ]
-                },
-                "method": "DELETE",
-                "header": [],
-                "url": {
-                  "raw": "{{baseUrl}}/profile/documents/{{documentId}}",
-                  "host": [
-                    "{{baseUrl}}"
-                  ],
-                  "path": [
-                    "profile",
-                    "documents",
-                    "{{documentId}}"
-                  ]
-                },
-                "description": "Permanently deletes a document from user storage."
-              },
-              "response": [
-                {
-                  "name": "200 OK",
-                  "originalRequest": {
-                    "method": "DELETE",
-                    "header": [
-                      {
-                        "key": "Authorization",
-                        "value": "Bearer {{accessToken}}"
-                      }
-                    ],
-                    "url": {
-                      "raw": "{{baseUrl}}/profile/documents/{{documentId}}",
-                      "host": [
-                        "{{baseUrl}}"
-                      ],
-                      "path": [
-                        "profile",
-                        "documents",
-                        "{{documentId}}"
-                      ]
-                    }
-                  },
-                  "status": "OK",
-                  "code": 200,
-                  "_postman_previewlanguage": "json",
-                  "header": [
-                    {
-                      "key": "Content-Type",
-                      "value": "application/json"
-                    }
-                  ],
-                  "cookie": [],
-                  "body": "{\n  \"statusCode\": 200,\n  \"message\": \"Document deleted successfully\",\n  \"data\": null,\n  \"timestamp\": \"2026-09-02T12:00:00.000Z\"\n}"
-                }
+              "path": [
+                "profile",
+                "me"
               ]
             }
-          ]
+          }
         },
         {
-          "name": "Reference Data",
-          "description": "Public reference taxonomies and dropdown data for profile builder.",
-          "item": [
-            {
-              "name": "Get Fields of Study",
-              "event": [
-                {
-                  "listen": "test",
-                  "script": {
-                    "exec": [
-                      "pm.test(\"Status code is 200\", function () {",
-                      "    pm.response.to.have.status(200);",
-                      "});",
-                      "pm.test(\"Fields of study array returned\", function () {",
-                      "    var jsonData = pm.response.json();",
-                      "    pm.expect(jsonData.data).to.be.an(\"array\");",
-                      "});"
-                    ],
-                    "type": "text/javascript"
-                  }
-                }
-              ],
-              "request": {
-                "method": "GET",
-                "header": [],
-                "url": {
-                  "raw": "{{baseUrl}}/reference/fields-of-study",
-                  "host": [
-                    "{{baseUrl}}"
-                  ],
-                  "path": [
-                    "reference",
-                    "fields-of-study"
-                  ]
-                },
-                "description": "Returns list of active fields of study for academic profile dropdowns."
-              },
-              "response": [
-                {
-                  "name": "200 OK",
-                  "originalRequest": {
-                    "method": "GET",
-                    "url": {
-                      "raw": "{{baseUrl}}/reference/fields-of-study",
-                      "host": [
-                        "{{baseUrl}}"
-                      ],
-                      "path": [
-                        "reference",
-                        "fields-of-study"
-                      ]
-                    }
-                  },
-                  "status": "OK",
-                  "code": 200,
-                  "_postman_previewlanguage": "json",
-                  "header": [
-                    {
-                      "key": "Content-Type",
-                      "value": "application/json"
-                    }
-                  ],
-                  "cookie": [],
-                  "body": "{\n  \"statusCode\": 200,\n  \"message\": \"Fields of study retrieved successfully\",\n  \"data\": [\n    {\n      \"id\": \"1\",\n      \"name\": \"Computer Science\",\n      \"category\": \"STEM\"\n    },\n    {\n      \"id\": \"2\",\n      \"name\": \"Mechanical Engineering\",\n      \"category\": \"Engineering\"\n    },\n    {\n      \"id\": \"3\",\n      \"name\": \"Business Administration\",\n      \"category\": \"Business\"\n    }\n  ],\n  \"timestamp\": \"2026-09-02T12:00:00.000Z\"\n}"
-                }
-              ]
-            },
-            {
-              "name": "Get Skills Taxonomy",
-              "event": [
-                {
-                  "listen": "test",
-                  "script": {
-                    "exec": [
-                      "pm.test(\"Status code is 200\", function () {",
-                      "    pm.response.to.have.status(200);",
-                      "});",
-                      "pm.test(\"Skills taxonomy categorized list returned\", function () {",
-                      "    var jsonData = pm.response.json();",
-                      "    pm.expect(jsonData.data).to.be.an(\"array\");",
-                      "});"
-                    ],
-                    "type": "text/javascript"
-                  }
-                }
-              ],
-              "request": {
-                "method": "GET",
-                "header": [],
-                "url": {
-                  "raw": "{{baseUrl}}/reference/skills-taxonomy",
-                  "host": [
-                    "{{baseUrl}}"
-                  ],
-                  "path": [
-                    "reference",
-                    "skills-taxonomy"
-                  ]
-                },
-                "description": "Returns standardized skills taxonomy grouped by categories for multi-select tagging."
-              },
-              "response": [
-                {
-                  "name": "200 OK",
-                  "originalRequest": {
-                    "method": "GET",
-                    "url": {
-                      "raw": "{{baseUrl}}/reference/skills-taxonomy",
-                      "host": [
-                        "{{baseUrl}}"
-                      ],
-                      "path": [
-                        "reference",
-                        "skills-taxonomy"
-                      ]
-                    }
-                  },
-                  "status": "OK",
-                  "code": 200,
-                  "_postman_previewlanguage": "json",
-                  "header": [
-                    {
-                      "key": "Content-Type",
-                      "value": "application/json"
-                    }
-                  ],
-                  "cookie": [],
-                  "body": "{\n  \"statusCode\": 200,\n  \"message\": \"Skills taxonomy retrieved successfully\",\n  \"data\": [\n    {\n      \"category\": \"Programming Languages\",\n      \"skills\": [\n        {\n          \"id\": \"s-ts\",\n          \"name\": \"TypeScript\"\n        },\n        {\n          \"id\": \"s-py\",\n          \"name\": \"Python\"\n        },\n        {\n          \"id\": \"s-go\",\n          \"name\": \"Go\"\n        }\n      ]\n    },\n    {\n      \"category\": \"AI & Machine Learning\",\n      \"skills\": [\n        {\n          \"id\": \"s-pt\",\n          \"name\": \"PyTorch\"\n        },\n        {\n          \"id\": \"s-tf\",\n          \"name\": \"TensorFlow\"\n        }\n      ]\n    }\n  ],\n  \"timestamp\": \"2026-09-02T12:00:00.000Z\"\n}"
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "name": "General",
-          "item": [
-            {
-              "name": "Get User Profile (me)",
-              "request": {
-                "method": "GET",
-                "header": [
-                  {
-                    "key": "Authorization",
-                    "value": "Bearer {{access_token}}"
-                  }
-                ],
-                "url": {
-                  "raw": "{{baseUrl}}/profile/me",
-                  "host": [
-                    "{{baseUrl}}"
-                  ],
-                  "path": [
-                    "profile",
-                    "me"
-                  ]
+          "name": "Update Personal Info",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"firstName\": \"John\",\n    \"lastName\": \"Doe\",\n    \"email\": \"john.doe@example.com\",\n    \"dateOfBirth\": \"1995-08-15\",\n    \"gender\": \"MALE\",\n    \"maritalStatusId\": \"{{maritalStatusId}}\",\n    \"phone\": \"+970599000000\",\n    \"bio\": \"Software Engineer with 5 years of experience.\",\n    \"profilePhotoUrl\": \"https://example.com/photo.jpg\",\n    \"experiences\": [\n        \"Senior Developer at Tech Corp (2020-Present)\",\n        \"Junior Developer at Startup Inc (2018-2020)\"\n    ],\n    \"countryOfResidenceId\": \"{{countryId}}\",\n    \"nationalityId\": \"{{nationalityId}}\",\n    \"currentCityId\": \"{{cityId}}\",\n    \"educationLevelId\": \"{{educationLevelId}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
                 }
               }
             },
+            "url": {
+              "raw": "{{baseUrl}}/profile/personal",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "profile",
+                "personal"
+              ]
+            }
+          },
+          "event": [
             {
-              "name": "Update Personal Profile",
-              "request": {
-                "method": "PATCH",
-                "header": [
-                  {
-                    "key": "Authorization",
-                    "value": "Bearer {{access_token}}"
-                  }
-                ],
-                "url": {
-                  "raw": "{{baseUrl}}/profile/personal",
-                  "host": [
-                    "{{baseUrl}}"
-                  ],
-                  "path": [
-                    "profile",
-                    "personal"
-                  ]
-                },
-                "body": {
-                  "mode": "raw",
-                  "raw": "{\n  \"firstName\": \"Updated Name\"\n}",
-                  "options": {
-                    "raw": {
-                      "language": "json"
-                    }
-                  }
-                }
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const baseUrl = pm.collectionVariables.get('baseUrl');",
+                  "pm.sendRequest({url: baseUrl + '/reference/countries', method: 'GET'}, function (err, res) {",
+                  "    const countries = res.json().data;",
+                  "    if (countries && countries.length > 0) {",
+                  "        const countryId = countries[0].id;",
+                  "        pm.collectionVariables.set('countryId', countryId);",
+                  "        pm.collectionVariables.set('nationalityId', countryId);",
+                  "        pm.sendRequest({url: baseUrl + '/reference/cities', method: 'GET'}, function (err, res) {",
+                  "            const cities = res.json().data;",
+                  "            const city = cities.find(c => c.countryId === countryId);",
+                  "            if (city) { pm.collectionVariables.set('cityId', city.id); }",
+                  "        });",
+                  "    }",
+                  "});",
+                  "pm.sendRequest({url: baseUrl + '/reference/marital-statuses', method: 'GET'}, function (err, res) {",
+                  "    const statuses = res.json().data;",
+                  "    if (statuses && statuses.length > 0) { pm.collectionVariables.set('maritalStatusId', statuses[0].id); }",
+                  "});",
+                  "pm.sendRequest({url: baseUrl + '/reference/education-levels', method: 'GET'}, function (err, res) {",
+                  "    const levels = res.json().data;",
+                  "    if (levels && levels.length > 0) { pm.collectionVariables.set('educationLevelId', levels[0].id); }",
+                  "});"
+                ]
               }
             }
           ]
+        },
+        {
+          "name": "Create Education",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"institutionId\": \"{{institutionId}}\",\n    \"majorId\": \"{{majorId}}\",\n    \"educationLevelId\": \"{{educationLevelId}}\",\n    \"minorMajorId\": \"{{minorMajorId}}\",\n    \"startDate\": \"2018-09-01\",\n    \"endDate\": \"2022-06-15\",\n    \"expectedGraduationDate\": null,\n    \"isCurrent\": false,\n    \"gpaRaw\": 3.8,\n    \"gpaScale\": \"OUT_OF_4\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/profile/educations",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "profile",
+                "educations"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const baseUrl = pm.collectionVariables.get('baseUrl');",
+                  "pm.sendRequest({url: baseUrl + '/reference/institutions', method: 'GET'}, function (err, res) {",
+                  "    const items = res.json().data;",
+                  "    if (items && items.length > 0) { pm.collectionVariables.set('institutionId', items[0].id); }",
+                  "});",
+                  "pm.sendRequest({url: baseUrl + '/reference/majors', method: 'GET'}, function (err, res) {",
+                  "    const items = res.json().data;",
+                  "    if (items && items.length > 1) {",
+                  "        pm.collectionVariables.set('majorId', items[0].id);",
+                  "        pm.collectionVariables.set('minorMajorId', items[1].id);",
+                  "    }",
+                  "});",
+                  "pm.sendRequest({url: baseUrl + '/reference/education-levels', method: 'GET'}, function (err, res) {",
+                  "    const items = res.json().data;",
+                  "    if (items && items.length > 0) { pm.collectionVariables.set('educationLevelId', items[0].id); }",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "List Educations",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/profile/educations",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "profile",
+                "educations"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Single Education",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/profile/educations/:id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "profile",
+                "educations",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "UUID"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update Education",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"gpaRaw\": 3.9,\n    \"isCurrent\": true,\n    \"endDate\": null,\n    \"expectedGraduationDate\": \"2025-06-30\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/profile/educations/:id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "profile",
+                "educations",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "UUID"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Delete Education",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/profile/educations/:id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "profile",
+                "educations",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "UUID"
+                }
+              ]
+            }
+          }
         },
         {
           "name": "Upload Document",
@@ -1951,7 +798,7 @@
             "header": [
               {
                 "key": "Authorization",
-                "value": "Bearer {{access_token}}"
+                "value": "Bearer {{accessToken}}"
               }
             ],
             "body": {
@@ -1959,7 +806,7 @@
               "formdata": [
                 {
                   "key": "documentTypeId",
-                  "value": "type-uuid-here",
+                  "value": "{{documentTypeId}}",
                   "type": "text"
                 },
                 {
@@ -1978,8 +825,24 @@
                 "profile",
                 "documents"
               ]
+            },
+            "description": "The uploaded file must be a PDF, JPEG, or PNG. Other MIME types will be rejected.\n\n"
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const baseUrl = pm.collectionVariables.get('baseUrl');",
+                  "pm.sendRequest({url: baseUrl + '/reference/document-types', method: 'GET'}, function (err, res) {",
+                  "    const items = res.json().data;",
+                  "    if (items && items.length > 0) { pm.collectionVariables.set('documentTypeId', items[0].id); }",
+                  "});"
+                ]
+              }
             }
-          }
+          ]
         },
         {
           "name": "Get Document Download URL",
@@ -1988,7 +851,7 @@
             "header": [
               {
                 "key": "Authorization",
-                "value": "Bearer {{access_token}}"
+                "value": "Bearer {{accessToken}}"
               }
             ],
             "url": {
@@ -2018,7 +881,7 @@
             "header": [
               {
                 "key": "Authorization",
-                "value": "Bearer {{access_token}}"
+                "value": "Bearer {{accessToken}}"
               }
             ],
             "url": {
@@ -2039,12 +902,997 @@
               ]
             }
           }
+        },
+        {
+          "name": "Add Language",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"languageId\": \"{{languageId}}\",\n    \"proficiencyLevelId\": \"{{proficiencyLevelId}}\",\n    \"isNative\": false\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/profile/languages",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "profile",
+                "languages"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const baseUrl = pm.collectionVariables.get('baseUrl');",
+                  "pm.sendRequest({url: baseUrl + '/reference/languages', method: 'GET'}, function (err, res) {",
+                  "    const items = res.json().data;",
+                  "    if (items && items.length > 0) { pm.collectionVariables.set('languageId', items[0].id); }",
+                  "});",
+                  "pm.sendRequest({url: baseUrl + '/reference/proficiency-levels', method: 'GET'}, function (err, res) {",
+                  "    const items = res.json().data;",
+                  "    if (items && items.length > 0) { pm.collectionVariables.set('proficiencyLevelId', items[0].id); }",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "List Languages",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/profile/languages",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "profile",
+                "languages"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Single Language",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/profile/languages/:id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "profile",
+                "languages",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "UUID"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update Language",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"proficiencyLevelId\": \"{{newProficiencyLevelId}}\",\n    \"isNative\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/profile/languages/:id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "profile",
+                "languages",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "UUID"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const baseUrl = pm.collectionVariables.get('baseUrl');",
+                  "pm.sendRequest({url: baseUrl + '/reference/proficiency-levels', method: 'GET'}, function (err, res) {",
+                  "    const items = res.json().data;",
+                  "    if (items && items.length > 1) { pm.collectionVariables.set('newProficiencyLevelId', items[1].id); }",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Delete Language",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/profile/languages/:id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "profile",
+                "languages",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "UUID"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Add Test Result",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"testId\": \"{{testId}}\",\n    \"score\": 7.5,\n    \"testDate\": \"2024-01-15\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/profile/test-results",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "profile",
+                "test-results"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const baseUrl = pm.collectionVariables.get('baseUrl');",
+                  "pm.sendRequest({url: baseUrl + '/reference/standardized-tests', method: 'GET'}, function (err, res) {",
+                  "    const items = res.json().data;",
+                  "    if (items && items.length > 0) { pm.collectionVariables.set('testId', items[0].id); }",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "List Test Results",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/profile/test-results",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "profile",
+                "test-results"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Single Test Result",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/profile/test-results/:id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "profile",
+                "test-results",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "UUID"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update Test Result",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"score\": 8.0\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/profile/test-results/:id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "profile",
+                "test-results",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "UUID"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Delete Test Result",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/profile/test-results/:id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "profile",
+                "test-results",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "UUID"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Add Special Status",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"specialStatusId\": \"{{specialStatusId}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/profile/special-statuses",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "profile",
+                "special-statuses"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const baseUrl = pm.collectionVariables.get('baseUrl');",
+                  "pm.sendRequest({url: baseUrl + '/reference/special-statuses', method: 'GET'}, function (err, res) {",
+                  "    const items = res.json().data;",
+                  "    if (items && items.length > 0) { pm.collectionVariables.set('specialStatusId', items[0].id); }",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "List Special Statuses",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/profile/special-statuses",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "profile",
+                "special-statuses"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Delete Special Status",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/profile/special-statuses/:specialStatusId",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "profile",
+                "special-statuses",
+                ":specialStatusId"
+              ],
+              "variable": [
+                {
+                  "key": "specialStatusId",
+                  "value": "UUID"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Preferences",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/profile/preferences",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "profile",
+                "preferences"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Add Target Degree",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"educationLevelId\": \"{{prefEducationLevelId}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/profile/preferences/degrees",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "profile",
+                "preferences",
+                "degrees"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const baseUrl = pm.collectionVariables.get('baseUrl');",
+                  "pm.sendRequest({url: baseUrl + '/reference/education-levels', method: 'GET'}, function (err, res) {",
+                  "    const items = res.json().data;",
+                  "    if (items && items.length > 0) { pm.collectionVariables.set('prefEducationLevelId', items[0].id); }",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Delete Target Degree",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/profile/preferences/degrees/:educationLevelId",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "profile",
+                "preferences",
+                "degrees",
+                ":educationLevelId"
+              ],
+              "variable": [
+                {
+                  "key": "educationLevelId",
+                  "value": "UUID"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Add Target Major",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"majorId\": \"{{prefMajorId}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/profile/preferences/majors",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "profile",
+                "preferences",
+                "majors"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const baseUrl = pm.collectionVariables.get('baseUrl');",
+                  "pm.sendRequest({url: baseUrl + '/reference/majors', method: 'GET'}, function (err, res) {",
+                  "    const items = res.json().data;",
+                  "    if (items && items.length > 0) { pm.collectionVariables.set('prefMajorId', items[0].id); }",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Delete Target Major",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/profile/preferences/majors/:majorId",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "profile",
+                "preferences",
+                "majors",
+                ":majorId"
+              ],
+              "variable": [
+                {
+                  "key": "majorId",
+                  "value": "UUID"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Add Target Institution",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"institutionId\": \"{{prefInstitutionId}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/profile/preferences/institutions",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "profile",
+                "preferences",
+                "institutions"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const baseUrl = pm.collectionVariables.get('baseUrl');",
+                  "pm.sendRequest({url: baseUrl + '/reference/institutions', method: 'GET'}, function (err, res) {",
+                  "    const items = res.json().data;",
+                  "    if (items && items.length > 0) { pm.collectionVariables.set('prefInstitutionId', items[0].id); }",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Delete Target Institution",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/profile/preferences/institutions/:institutionId",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "profile",
+                "preferences",
+                "institutions",
+                ":institutionId"
+              ],
+              "variable": [
+                {
+                  "key": "institutionId",
+                  "value": "UUID"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "List Documents",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/profile/documents",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "profile",
+                "documents"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Reference Data",
+      "item": [
+        {
+          "name": "List Countries",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/reference/countries",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "reference",
+                "countries"
+              ]
+            }
+          }
+        },
+        {
+          "name": "List Cities",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/reference/cities?countryId=&page=1&limit=50&search=&sort=nameEn&order=asc",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "reference",
+                "cities"
+              ],
+              "query": [
+                {
+                  "key": "countryId",
+                  "value": "",
+                  "description": "Filter by country ID (UUID)"
+                },
+                {
+                  "key": "page",
+                  "value": "1",
+                  "description": "Page number"
+                },
+                {
+                  "key": "limit",
+                  "value": "50",
+                  "description": "Items per page"
+                },
+                {
+                  "key": "search",
+                  "value": "",
+                  "description": "Search by city name"
+                },
+                {
+                  "key": "sort",
+                  "value": "nameEn",
+                  "description": "Sort by nameEn or nameAr"
+                },
+                {
+                  "key": "order",
+                  "value": "asc",
+                  "description": "Sort order (asc/desc)"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "List Marital Statuses",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/reference/marital-statuses",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "reference",
+                "marital-statuses"
+              ]
+            }
+          }
+        },
+        {
+          "name": "List Education Levels",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/reference/education-levels",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "reference",
+                "education-levels"
+              ]
+            }
+          }
+        },
+        {
+          "name": "List App Languages",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/reference/app-languages",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "reference",
+                "app-languages"
+              ]
+            }
+          }
+        },
+        {
+          "name": "List Major Categories",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/reference/major-categories",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "reference",
+                "major-categories"
+              ]
+            }
+          }
+        },
+        {
+          "name": "List Majors",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/reference/majors",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "reference",
+                "majors"
+              ]
+            }
+          }
+        },
+        {
+          "name": "List Institutions",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/reference/institutions",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "reference",
+                "institutions"
+              ]
+            }
+          }
+        },
+        {
+          "name": "List Document Types",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/reference/document-types",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "reference",
+                "document-types"
+              ]
+            }
+          }
+        },
+        {
+          "name": "List Languages",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/reference/languages",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "reference",
+                "languages"
+              ]
+            }
+          }
+        },
+        {
+          "name": "List Proficiency Levels",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/reference/proficiency-levels",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "reference",
+                "proficiency-levels"
+              ]
+            }
+          }
+        },
+        {
+          "name": "List Standardized Tests",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/reference/standardized-tests",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "reference",
+                "standardized-tests"
+              ]
+            }
+          }
+        },
+        {
+          "name": "List Special Statuses",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/reference/special-statuses",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "reference",
+                "special-statuses"
+              ]
+            }
+          }
         }
       ]
     },
     {
       "name": "Health",
-      "description": "Health check endpoints for liveness and readiness probes.",
       "item": [
         {
           "name": "Liveness Probe",
@@ -2086,69 +1934,754 @@
       ]
     },
     {
-      "name": "Reference Data",
+      "name": "Opportunities",
       "item": [
         {
-          "name": "Get Countries",
+          "name": "List Opportunities",
           "request": {
             "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
             "url": {
-              "raw": "{{baseUrl}}/reference/countries",
+              "raw": "{{baseUrl}}/opportunities?page=1&limit=10&is_remote=true&study_levels=bachelor,master&deadline_from=2024-01-01&deadline_to=2024-12-31&sort=created_at:desc",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
-                "reference",
-                "countries"
+                "opportunities"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "is_remote",
+                  "value": "true"
+                },
+                {
+                  "key": "study_levels",
+                  "value": "bachelor,master"
+                },
+                {
+                  "key": "deadline_from",
+                  "value": "2024-01-01"
+                },
+                {
+                  "key": "deadline_to",
+                  "value": "2024-12-31"
+                },
+                {
+                  "key": "sort",
+                  "value": "created_at:desc"
+                },
+                {
+                  "key": "source_id",
+                  "value": "00000000-0000-4000-8000-000000000000",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Get a list of opportunities with filtering and pagination"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Opportunity by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/opportunities/00000000-0000-4000-8000-000000000000?fields=id,title,description",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "opportunities",
+                "00000000-0000-4000-8000-000000000000"
+              ],
+              "query": [
+                {
+                  "key": "fields",
+                  "value": "id,title,description"
+                }
+              ]
+            },
+            "description": "Get a single opportunity by its UUID, optionally specifying fields to return"
+          },
+          "response": []
+        },
+        {
+          "name": "GET /opportunities/recent",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/opportunities/recent",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "opportunities",
+                "recent"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Recommendations",
+      "description": "Endpoints for personalized match scores",
+      "item": [
+        {
+          "name": "Get Matches",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/recommendations/matches?min_score=70&sort=score_desc&limit=10",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "recommendations",
+                "matches"
+              ],
+              "query": [
+                {
+                  "key": "min_score",
+                  "value": "70"
+                },
+                {
+                  "key": "sort",
+                  "value": "score_desc"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            },
+            "description": "Returns the authenticated user's match records without opportunity fields."
+          },
+          "response": [
+            {
+              "name": "Success",
+              "originalRequest": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{access_token}}",
+                    "type": "text"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/recommendations/matches",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "recommendations",
+                    "matches"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"statusCode\": 200,\n  \"message\": \"Matches retrieved successfully\",\n  \"data\": [\n    {\n      \"opportunity_id\": \"3f2a1b00-0000-0000-0000-000000000001\",\n      \"score_pct\": 87,\n      \"score_breakdown\": { \"study_level\": 30, \"field\": 40, \"country\": 17 },\n      \"calculation_version\": 1,\n      \"calculated_at\": \"2026-10-05T10:00:00.000Z\"\n    }\n  ],\n  \"meta\": {\n    \"page\": 1,\n    \"limit\": 20,\n    \"total\": 42,\n    \"pages\": 3,\n    \"synced_at\": \"2026-10-07T13:00:00.000Z\"\n  },\n  \"timestamp\": \"2026-10-07T13:00:00.000Z\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Get Matches With Opportunities",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/recommendations/matches-with-opportunities?limit=5",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "recommendations",
+                "matches-with-opportunities"
+              ],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "5"
+                }
+              ]
+            },
+            "description": "Returns match records with a brief opportunity summary."
+          },
+          "response": [
+            {
+              "name": "Success",
+              "originalRequest": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{access_token}}",
+                    "type": "text"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/recommendations/matches-with-opportunities",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "recommendations",
+                    "matches-with-opportunities"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"statusCode\": 200,\n  \"message\": \"Matches retrieved successfully\",\n  \"data\": [\n    {\n      \"opportunity_id\": \"3f2a1b00-0000-0000-0000-000000000001\",\n      \"score_pct\": 87,\n      \"score_breakdown\": { \"study_level\": 30, \"field\": 40, \"country\": 17 },\n      \"calculation_version\": 1,\n      \"calculated_at\": \"2026-10-05T10:00:00.000Z\",\n      \"opportunity\": {\n        \"id\": \"3f2a1b00-0000-0000-0000-000000000001\",\n        \"title\": \"Erasmus Mundus Joint Master Degree in Computer Science\",\n        \"organization\": \"European Commission\",\n        \"deadline\": \"2026-12-15T00:00:00.000Z\",\n        \"country\": \"Belgium\",\n        \"opportunity_type\": \"scholarship\",\n        \"is_remote\": false\n      }\n    }\n  ],\n  \"meta\": {\n    \"page\": 1,\n    \"limit\": 20,\n    \"total\": 42,\n    \"pages\": 3,\n    \"synced_at\": \"2026-10-07T13:00:00.000Z\"\n  },\n  \"timestamp\": \"2026-10-07T13:00:00.000Z\"\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Notifications",
+      "item": [
+        {
+          "name": "List Notifications",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/notifications?limit=20&unreadOnly=false",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "notifications"
+              ],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "20"
+                },
+                {
+                  "key": "unreadOnly",
+                  "value": "false"
+                }
               ]
             }
           }
         },
         {
-          "name": "Get Cities",
+          "name": "Get Unread Count",
           "request": {
             "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
             "url": {
-              "raw": "{{baseUrl}}/reference/cities",
+              "raw": "{{baseUrl}}/api/v1/notifications/unread-count",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
-                "reference",
-                "cities"
+                "api",
+                "v1",
+                "notifications",
+                "unread-count"
               ]
             }
           }
         },
         {
-          "name": "Get Marital Statuses",
+          "name": "Mark Notification Read",
           "request": {
-            "method": "GET",
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
             "url": {
-              "raw": "{{baseUrl}}/reference/marital-statuses",
+              "raw": "{{baseUrl}}/api/v1/notifications/{{notificationId}}/read",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
-                "reference",
-                "marital-statuses"
+                "api",
+                "v1",
+                "notifications",
+                "{{notificationId}}",
+                "read"
               ]
             }
           }
         },
         {
-          "name": "List Document Types",
+          "name": "Mark All Read",
           "request": {
-            "method": "GET",
-            "header": [],
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
             "url": {
-              "raw": "{{baseUrl}}/reference/document-types",
+              "raw": "{{baseUrl}}/api/v1/notifications/read-all",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
-                "reference",
-                "document-types"
+                "api",
+                "v1",
+                "notifications",
+                "read-all"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Drafts",
+      "item": [
+        {
+          "name": "List Spaces",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/drafts/spaces",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "drafts",
+                "spaces"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create Space",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Chevening 2026\",\n  \"description\": \"Master Scholarship essays\",\n  \"icon\": \"folder\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/drafts/spaces",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "drafts",
+                "spaces"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Space by Slug",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/drafts/spaces/chevening-2026",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "drafts",
+                "spaces",
+                "chevening-2026"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create Page in Space",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Personal Statement\",\n  \"contentJson\": {\n    \"type\": \"doc\",\n    \"content\": [\n      {\n        \"type\": \"paragraph\",\n        \"content\": [\n          {\n            \"type\": \"text\",\n            \"text\": \"Draft statement...\"\n          }\n        ]\n      }\n    ]\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/drafts/spaces/chevening-2026/pages",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "drafts",
+                "spaces",
+                "chevening-2026",
+                "pages"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Auto-Save Page (PATCH)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Personal Statement Updated\",\n  \"contentJson\": {\n    \"type\": \"doc\",\n    \"content\": [\n      {\n        \"type\": \"paragraph\",\n        \"content\": [\n          {\n            \"type\": \"text\",\n            \"text\": \"Revised content.\"\n          }\n        ]\n      }\n    ]\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/drafts/spaces/chevening-2026/pages/{{pageId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "drafts",
+                "spaces",
+                "chevening-2026",
+                "pages",
+                "{{pageId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Page Versions",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/drafts/pages/{{pageId}}/versions",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "drafts",
+                "pages",
+                "{{pageId}}",
+                "versions"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Revert to Version",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/drafts/pages/{{pageId}}/versions/{{versionId}}/revert",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "drafts",
+                "pages",
+                "{{pageId}}",
+                "versions",
+                "{{versionId}}",
+                "revert"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Finalize Draft to Official PDF",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"displayName\": \"Chevening_Statement_Final.pdf\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/drafts/pages/{{pageId}}/finalize",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "drafts",
+                "pages",
+                "{{pageId}}",
+                "finalize"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Unlock Finalized Draft",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/drafts/pages/{{pageId}}/unlock",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "drafts",
+                "pages",
+                "{{pageId}}",
+                "unlock"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "AI Assistant",
+      "item": [
+        {
+          "name": "Transform Text (Edit)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"text\": \"I want to apply for this scholarship.\",\n  \"mode\": \"academic_tone\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/editor/ai/edit",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "editor",
+                "ai",
+                "edit"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Generate Content",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"prompt\": \"Draft an introductory paragraph for a master scholarship essay.\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/editor/ai/generate",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "editor",
+                "ai",
+                "generate"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Chat with Copilot",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"message\": \"How can I make my leadership example stronger?\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/editor/ai/chat",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "editor",
+                "ai",
+                "chat"
               ]
             }
           }
@@ -2159,7 +2692,7 @@
   "variable": [
     {
       "key": "baseUrl",
-      "value": "https://levora-back-end.onrender.com/api/v1",
+      "value": "https://romantic-radiance-afaq1.up.railway.app/api/v1",
       "type": "string"
     },
     {
@@ -2179,6 +2712,111 @@
     },
     {
       "key": "documentId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "educationId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "skillId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "languageId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "fileKey",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "storageToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "countryId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "cityId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "nationalityId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "maritalStatusId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "educationLevelId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "institutionId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "majorId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "minorMajorId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "testId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "documentTypeId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "proficiencyLevelId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "newProficiencyLevelId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "specialStatusId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "prefEducationLevelId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "prefMajorId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "prefInstitutionId",
       "value": "",
       "type": "string"
     }

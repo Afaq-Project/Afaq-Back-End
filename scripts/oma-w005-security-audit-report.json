@@ -1,0 +1,265 @@
+{
+  "timestamp": "2026-10-18T16:07:15.145Z",
+  "total": 13,
+  "passed": 13,
+  "failed": 0,
+  "probes": [
+    {
+      "id": "SEC-01-DEP-PUPPETEER-REMOVAL",
+      "name": "Complete removal of Puppeteer and Chromium from package.json",
+      "category": "Attack Surface Reduction",
+      "passed": true,
+      "severity": "none",
+      "details": "Zero occurrences of puppeteer, puppeteer-core, or @sparticuz/chromium in dependencies or devDependencies.",
+      "evidence": {
+        "detectedForbiddenDeps": [],
+        "pdfmakeVersion": "^0.3.11"
+      }
+    },
+    {
+      "id": "SEC-02-SRC-BROWSER-ELIMINATION",
+      "name": "Elimination of browser process spawning and unsafe flags in DraftExportService",
+      "category": "Process Isolation & Host Safety",
+      "passed": true,
+      "severity": "none",
+      "details": "Verified no browser imports, no child process execution, and no --no-sandbox CLI flags exist in DraftExportService.",
+      "evidence": {
+        "hasBrowserImport": false,
+        "hasBrowserSpawn": false,
+        "hasNoSandbox": false
+      }
+    },
+    {
+      "id": "SEC-03-SSRF-BROWSER-VECTOR-ELIMINATION",
+      "name": "Elimination of Chromium HTML / DOM rendering attack surface (file:// and SSRF)",
+      "category": "SSRF & Local File Inclusion",
+      "passed": true,
+      "severity": "none",
+      "details": "HTML rendering engine and DOM evaluation completely superseded by in-process AST-to-PDF compiler.",
+      "evidence": {
+        "hasHtmlRenderer": false
+      }
+    },
+    {
+      "id": "SEC-04-FONT-PATH-TRAVERSAL",
+      "name": "Font descriptors use standard PostScript PDF built-in fonts without filesystem paths",
+      "category": "Path Traversal & Filesystem Safety",
+      "passed": true,
+      "severity": "none",
+      "details": "Verified fonts configuration references only built-in standard PDF font families (Helvetica, Times-Roman, Courier). No filesystem paths (.ttf, .otf, slashes) present.",
+      "evidence": {
+        "fontDefSnippet": "Helvetica: { normal: 'Helvetica', bold: 'Helvetica-Bold', italics: 'Helvetica-Oblique', bolditalics: 'Helvetica-BoldOblique', }, Times: { normal: 'Times-Roman', bold: 'Times-Bold', italics: 'Times-Italic', bolditalics: 'Times-BoldOblique', }, Courier: { normal: 'Courier', bold: 'Courier-Bold', italics: 'Courier-Oblique', bolditalics: 'Courier-BoldOblique', },"
+      }
+    },
+    {
+      "id": "SEC-05-USER-FONT-INJECTION",
+      "name": "Prohibition of user-controlled font overrides in AST parser",
+      "category": "Injection & Parameter Tampering",
+      "passed": true,
+      "severity": "none",
+      "details": "AST compiler maps only fixed system fonts (Courier for code/codeBlock, Helvetica as defaultStyle). User input cannot inject arbitrary font descriptors.",
+      "evidence": {
+        "acceptsCustomFontFromUser": false
+      }
+    },
+    {
+      "id": "SEC-06-AST-LARGE-PAYLOAD-DOS",
+      "name": "Linear performance and memory stability on large AST structures (1,000 blocks)",
+      "category": "Denial of Service (DoS)",
+      "passed": true,
+      "severity": "none",
+      "details": "Compiled 1,000 paragraphs into valid PDF in 374ms (size: 70786 bytes).",
+      "evidence": {
+        "largeAstDurationMs": 374,
+        "largeAstBufferLen": 70786,
+        "thresholdMs": 5000
+      }
+    },
+    {
+      "id": "SEC-07-AST-DEEP-NESTING-RECURSION",
+      "name": "Stack safety under deeply nested AST hierarchy (100 levels)",
+      "category": "Recursion & Memory Safety",
+      "passed": true,
+      "severity": "none",
+      "details": "Successfully handled 100 levels of recursive nesting without stack overflow (PDF size: 2620 bytes).",
+      "evidence": {
+        "deepNestingPassed": true
+      }
+    },
+    {
+      "id": "SEC-08-AST-MALFORMED-INPUT-HANDLING",
+      "name": "Graceful degradation and null-safety on malformed, unknown, or primitive ASTs",
+      "category": "Input Validation & Fault Tolerance",
+      "passed": true,
+      "severity": "none",
+      "details": "All malformed inputs safely handled and compiled into valid fallback PDFs without process termination.",
+      "evidence": {
+        "malformedResults": [
+          {
+            "name": "null node in content",
+            "success": true
+          },
+          {
+            "name": "missing type property",
+            "success": true
+          },
+          {
+            "name": "unknown type with content",
+            "success": true
+          },
+          {
+            "name": "image node with SSRF attempt",
+            "success": true
+          },
+          {
+            "name": "raw number as contentJson",
+            "success": true
+          },
+          {
+            "name": "raw boolean as contentJson",
+            "success": true
+          },
+          {
+            "name": "null contentJson",
+            "success": true
+          }
+        ]
+      }
+    },
+    {
+      "id": "SEC-09-AST-NON-ARRAY-CONTENT-EDGE-CASE",
+      "name": "Defensive type check for non-array content properties",
+      "category": "Type Safety & Robustness",
+      "passed": true,
+      "severity": "none",
+      "details": "Non-array content properties gracefully ignored or handled.",
+      "evidence": {
+        "nonArrayResults": [
+          {
+            "name": "doc with content as string",
+            "threw": false
+          },
+          {
+            "name": "paragraph with content as object",
+            "threw": false
+          },
+          {
+            "name": "heading with content as number",
+            "threw": false
+          },
+          {
+            "name": "bulletList with content as object",
+            "threw": false
+          }
+        ]
+      }
+    },
+    {
+      "id": "SEC-10-SERVER-SIDE-URI-EVALUATION",
+      "name": "Zero server-side execution of link URIs during compilation",
+      "category": "Server-Side Safety",
+      "passed": true,
+      "severity": "none",
+      "details": "Verified that link URIs are treated purely as passive data attributes in PDF dictionaries; no server-side fetching, execution, or local file access occurs during compilation.",
+      "evidence": {
+        "uriTestResults": [
+          {
+            "scheme": "https",
+            "uri": "https://afaq.org/scholarships",
+            "compiled": true,
+            "embeddedInPdf": true
+          },
+          {
+            "scheme": "http",
+            "uri": "http://example.com",
+            "compiled": true,
+            "embeddedInPdf": true
+          },
+          {
+            "scheme": "javascript",
+            "uri": "javascript:alert(1)",
+            "compiled": true,
+            "embeddedInPdf": false
+          },
+          {
+            "scheme": "file",
+            "uri": "file:///etc/passwd",
+            "compiled": true,
+            "embeddedInPdf": false
+          },
+          {
+            "scheme": "data",
+            "uri": "data:text/html,<script>alert(1)</script>",
+            "compiled": true,
+            "embeddedInPdf": false
+          }
+        ]
+      }
+    },
+    {
+      "id": "SEC-11-CLIENT-SIDE-URI-SCHEMES",
+      "name": "Passive PDF link URI embedding inspection",
+      "category": "Client-Side PDF Link Handling",
+      "passed": true,
+      "severity": "none",
+      "details": "All URI schemes handled safely.",
+      "evidence": {
+        "uriTestResults": [
+          {
+            "scheme": "https",
+            "uri": "https://afaq.org/scholarships",
+            "compiled": true,
+            "embeddedInPdf": true
+          },
+          {
+            "scheme": "http",
+            "uri": "http://example.com",
+            "compiled": true,
+            "embeddedInPdf": true
+          },
+          {
+            "scheme": "javascript",
+            "uri": "javascript:alert(1)",
+            "compiled": true,
+            "embeddedInPdf": false
+          },
+          {
+            "scheme": "file",
+            "uri": "file:///etc/passwd",
+            "compiled": true,
+            "embeddedInPdf": false
+          },
+          {
+            "scheme": "data",
+            "uri": "data:text/html,<script>alert(1)</script>",
+            "compiled": true,
+            "embeddedInPdf": false
+          }
+        ]
+      }
+    },
+    {
+      "id": "SEC-12-PROTOTYPE-POLLUTION",
+      "name": "Resistance to prototype pollution attacks in AST processing",
+      "category": "Prototype Pollution",
+      "passed": true,
+      "severity": "none",
+      "details": "AST processing does not perform unsafe object merges, clone operations, or prototype mutations.",
+      "evidence": {
+        "isPrototypePolluted": false
+      }
+    },
+    {
+      "id": "SEC-13-REDOS-VULNERABILITY",
+      "name": "Absence of complex or vulnerable regular expressions in DraftExportService",
+      "category": "ReDoS & Algorithmic Complexity",
+      "passed": true,
+      "severity": "none",
+      "details": "Zero regular expressions utilized in DraftExportService AST mapping or PDF compilation pipeline (zero ReDoS risk).",
+      "evidence": {
+        "actualRegexCount": 0,
+        "regexLiteralMatches": []
+      }
+    }
+  ]
+}

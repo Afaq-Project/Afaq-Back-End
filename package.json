@@ -34,6 +34,7 @@
     "prepare": "husky"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.135.0",
     "@aws-sdk/client-s3": "^3.1121.0",
     "@aws-sdk/s3-request-presigner": "^3.1121.0",
     "@keyv/redis": "^5.1.6",
@@ -50,7 +51,12 @@
     "@nestjs/terminus": "^11.1.1",
     "@nestjs/throttler": "^6.5.0",
     "@prisma/client": "^6.19.2",
+    "@tiptap/core": "^3.32.0",
+    "@tiptap/html": "^3.32.0",
+    "@tiptap/pm": "^3.32.0",
+    "@tiptap/starter-kit": "^3.32.0",
     "@types/multer": "^2.2.0",
+    "@xenova/transformers": "^2.17.2",
     "bcryptjs": "^3.0.3",
     "bullmq": "^5.81.3",
     "cache-manager": "^7.2.8",
@@ -69,15 +75,18 @@
     "nestjs-pino": "^4.6.0",
     "nestjs-social-auth": "^0.0.6",
     "nodemailer": "^10.0.12",
+    "openai": "^7.34.0",
     "passport": "^0.7.0",
     "passport-google-oauth20": "^2.0.0",
     "passport-jwt": "^4.0.1",
     "passport-linkedin-oauth2": "^2.0.0",
+    "pdfmake": "^0.3.11",
     "pino": "^10.3.1",
     "pino-http": "^10.5.0",
     "pino-roll": "^4.0.0",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.2",
+    "slugify": "^1.6.9",
     "uuid": "^14.0.2",
     "zod": "^3.24.0"
   },
@@ -105,8 +114,10 @@
     "@types/passport-google-oauth20": "^2.0.17",
     "@types/passport-jwt": "^4.0.1",
     "@types/passport-linkedin-oauth2": "^1.5.6",
+    "@types/pdfmake": "^0.3.3",
     "@types/supertest": "^6.0.3",
     "adm-zip": "^0.6.1",
+    "dotenv": "^18.0.8",
     "eslint": "^9.39.3",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.5",
@@ -147,13 +158,14 @@
     "coverageDirectory": "../coverage",
     "testEnvironment": "node",
     "moduleNameMapper": {
+      "^uuid$": "<rootDir>/__mocks__/uuid.js",
       "^@/(.*)$": "<rootDir>/$1",
       "^@common/(.*)$": "<rootDir>/common/$1",
       "^@modules/(.*)$": "<rootDir>/modules/$1",
       "^@config/(.*)$": "<rootDir>/config/$1"
     },
     "transformIgnorePatterns": [
-      "/node_modules/(?!uuid)/"
+      "/node_modules/(?!(uuid|@xenova)/)"
     ]
   },
   "prisma": {

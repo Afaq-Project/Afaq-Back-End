@@ -1057,6 +1057,7 @@ describe('ProfileModule (e2e)', () => {
       expect(res.body.data?.signedUrl || res.body.signedUrl).toBeDefined();
     });
 
+    // [OMA-W008-T002] Verify unified StorageModule singleton fixes Batch 6 delete failure mock
     it('Simulated storage failure during DELETE -> 5xx and keeps in DB', async () => {
       if (storageService) {
         jest

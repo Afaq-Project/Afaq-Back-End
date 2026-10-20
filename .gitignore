@@ -121,3 +121,9 @@ cookies.txt
 uploads/
 logs/
 EOF
+# Test Coverage Reports
+test-reports/
+
+# Sonar analysis & temp inspection files
+.scannerwork/
+tree.txt

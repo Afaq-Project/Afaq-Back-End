@@ -8,9 +8,9 @@ import { ReferenceService } from './services/reference.service';
 
 import { DocumentsController } from './controllers/documents.controller';
 import { DocumentsService } from './services/documents.service';
-import { StorageServiceProvider } from './storage/storage.service';
+// [OMA-W008-T001] Import unified StorageModule
+import { StorageModule } from './storage/storage.module';
 import { LocalStorageController } from './controllers/local-storage.controller';
-import { LocalStorageService } from './storage/local-storage.service';
 
 // Disabled until Batch 2 (T039) / Batch 3 (T050) — see tasks.md
 import { EducationsController } from './controllers/educations.controller';
@@ -28,7 +28,9 @@ import { SpecialStatusesService } from './services/special-statuses.service';
 import { PreferencesController } from './controllers/preferences.controller';
 import { PreferencesService } from './services/preferences.service';
 
+// [OMA-W008-T001] Import unified StorageModule
 @Module({
+  imports: [StorageModule],
   controllers: [
     ProfileController,
     ReferenceController,
@@ -45,14 +47,12 @@ import { PreferencesService } from './services/preferences.service';
     SystemSettingsService,
     ReferenceService,
     DocumentsService,
-    StorageServiceProvider,
-    LocalStorageService,
     EducationsService,
     LanguagesService,
     TestResultsService,
     SpecialStatusesService,
     PreferencesService,
   ],
-  exports: [ProfileService, SystemSettingsService],
+  exports: [ProfileService, SystemSettingsService, StorageModule],
 })
 export class ProfileModule {}

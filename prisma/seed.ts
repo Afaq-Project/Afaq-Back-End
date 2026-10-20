@@ -111,6 +111,17 @@ const SYSTEM_SETTINGS = [
     ],
     description: 'Allowed document MIME types',
   },
+  // [OMA-W002-T009] Default registration settings
+  {
+    key: 'auth.registration_enabled',
+    value: true,
+    description: 'Whether public self-registration is enabled',
+  },
+  {
+    key: 'auth.allowed_email_domains',
+    value: [],
+    description: 'List of allowed email domains for public registration (empty for any domain)',
+  },
 ];
 
 const MARITAL_STATUSES = [
@@ -250,6 +261,14 @@ const DOCUMENT_TYPES = [
   { nameEn: 'Certificate', nameAr: 'شهادة', sortOrder: 6 },
 ];
 
+// [OMA-W002-T009] Baseline notification types
+const NOTIFICATION_TYPES = [
+  { code: 'DRAFT_FINALIZED', nameEn: 'Draft Finalized', nameAr: 'تم اعتماد المسودة', sortOrder: 1 },
+  { code: 'AI_SUGGESTION_READY', nameEn: 'AI Suggestion Ready', nameAr: 'اقتراح الذكاء الاصطناعي جاهز', sortOrder: 2 },
+  { code: 'INVITATION_ACCEPTED', nameEn: 'Invitation Accepted', nameAr: 'تم قبول الدعوة', sortOrder: 3 },
+  { code: 'DOCUMENT_APPROVED', nameEn: 'Document Approved', nameAr: 'تمت الموافقة على المستند', sortOrder: 4 },
+];
+
 async function main() {
   console.log('🌱 Seeding database...\n');
 
@@ -358,6 +377,18 @@ async function main() {
       create: dt,
     });
     console.log(`  ✔ Document Type: ${dt.nameEn}`);
+  }
+
+  // ── Notification Types ──────────────────────
+  // [OMA-W002-T009] Seed baseline notification types
+  console.log('\n── Notification Types ────────────────');
+  for (const nt of NOTIFICATION_TYPES) {
+    await prisma.notificationTypes.upsert({
+      where: { code: nt.code },
+      update: { nameEn: nt.nameEn, nameAr: nt.nameAr, sortOrder: nt.sortOrder },
+      create: nt,
+    });
+    console.log(`  ✔ Notification Type: ${nt.code}`);
   }
 
   // ── Admin user ─────────────────────────────
