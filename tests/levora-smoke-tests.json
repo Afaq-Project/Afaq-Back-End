@@ -79,6 +79,11 @@
       "key": "notification_id",
       "value": "",
       "type": "string"
+    },
+    {
+      "key": "conversation_id",
+      "value": "",
+      "type": "string"
     }
   ],
   "item": [
@@ -2860,7 +2865,7 @@
       ]
     },
     {
-      "name": "Features 10 & 11 - Onboarding, Drafts, AI Assistant & Notifications",
+      "name": "Features 10, 11 & 12 - Onboarding, Drafts, AI Assistant & Conversations",
       "description": "// [OMA-W007-T002] Smoke test suite covering Feature 10 & Feature 11 API endpoints",
       "item": [
         {
@@ -3598,6 +3603,84 @@
               "raw": "{\n  \"message\": \"Can you review the tone of my statement of purpose draft?\",\n  \"pageContext\": \"Draft statement of purpose introduction.\"\n}"
             },
             "url": "{{baseUrl}}/api/v1/editor/ai/chat"
+          }
+        },
+        {
+          "name": "GET /editor/ai/conversations",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// [OMA-W009-T005] Smoke test: List conversations and capture conversation_id",
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response has items and meta envelope\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.statusCode).to.eql(200);",
+                  "    var data = jsonData.data || jsonData;",
+                  "    pm.expect(data).to.have.property(\"items\");",
+                  "    pm.expect(data).to.have.property(\"meta\");",
+                  "    if (data.items && data.items.length > 0) {",
+                  "        pm.collectionVariables.set(\"conversation_id\", data.items[0].id);",
+                  "    }",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/editor/ai/conversations?page=1&limit=20"
+          }
+        },
+        {
+          "name": "GET /editor/ai/conversations/:conversationId/messages",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// [OMA-W009-T005] Smoke test: Get conversation message history",
+                  "var convId = pm.collectionVariables.get(\"conversation_id\") || \"00000000-0000-0000-0000-000000000000\";",
+                  "pm.test(\"Status code is 200 or 404 (if no conversation turns seeded)\", function () {",
+                  "    pm.expect([200, 404]).to.include(pm.response.code);",
+                  "});",
+                  "",
+                  "if (pm.response.code === 200) {",
+                  "    pm.test(\"Response contains message history envelope\", function () {",
+                  "        var jsonData = pm.response.json();",
+                  "        pm.expect(jsonData.statusCode).to.eql(200);",
+                  "        var data = jsonData.data || jsonData;",
+                  "        pm.expect(data).to.have.property(\"messages\");",
+                  "        pm.expect(data).to.have.property(\"meta\");",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/editor/ai/conversations/{{conversation_id}}/messages?page=1&limit=20"
           }
         },
         {
