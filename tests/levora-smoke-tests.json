@@ -12,12 +12,12 @@
     },
     {
       "key": "test_user_email",
-      "value": "user@example.com",
+      "value": "user1@levora.app",
       "type": "string"
     },
     {
       "key": "test_user_password",
-      "value": "P@ssw0rd123!",
+      "value": "User1Password!",
       "type": "string"
     },
     {
@@ -37,7 +37,7 @@
     },
     {
       "key": "invite_token",
-      "value": "",
+      "value": "dummy-smoke-token-not-found",
       "type": "string"
     },
     {
@@ -2920,7 +2920,7 @@
                 "type": "text/javascript",
                 "exec": [
                   "// [OMA-W007-T002] Validate invitation token before registration",
-                  "pm.test('Status code is 200 or 404', function () {",
+                  "pm.test(\"Status code is 200 or 404\", function () {",
                   "    pm.expect([200, 404]).to.include(pm.response.code);",
                   "});"
                 ]
