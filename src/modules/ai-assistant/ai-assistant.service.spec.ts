@@ -1,5 +1,6 @@
 // [OMA-W002-T006] AiAssistantService Spec
 // [OMA-W006-T006] Test AI assistant chat with memory RAG and tool-calling proposal dispatch
+import { NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { ConfigService } from '@nestjs/config';
 import { AiAssistantService } from './ai-assistant.service';
@@ -44,11 +45,14 @@ describe('AiAssistantService', () => {
   const mockPrisma = {
     aiConversations: {
       findFirst: jest.fn(),
+      findMany: jest.fn(),
+      count: jest.fn(),
       create: jest.fn(),
       update: jest.fn(),
     },
     aiMessages: {
       findMany: jest.fn(),
+      count: jest.fn(),
       create: jest.fn(),
     },
   };
@@ -628,6 +632,239 @@ describe('AiAssistantService', () => {
         'Attempted proposal but draft page was deleted.',
       );
       expect(result.proposals).toBeUndefined();
+    });
+  });
+
+  describe('listConversations', () => {
+    const userId = 'user-conv-123';
+
+    // [OMA-W009-T004]
+    it('should use pagination default values (page 1, limit 20) and order by updatedAt desc', async () => {
+      mockPrisma.aiConversations.count.mockResolvedValue(0);
+      mockPrisma.aiConversations.findMany.mockResolvedValue([]);
+
+      const result = await service.listConversations(userId, {});
+
+      expect(mockPrisma.aiConversations.count).toHaveBeenCalledWith({
+        where: { userId },
+      });
+      expect(mockPrisma.aiConversations.findMany).toHaveBeenCalledWith({
+        where: { userId },
+        orderBy: { updatedAt: 'desc' },
+        skip: 0,
+        take: 20,
+        include: {
+          _count: {
+            select: { messages: true },
+          },
+          messages: {
+            take: 1,
+            orderBy: { createdAt: 'desc' },
+            select: { content: true },
+          },
+        },
+      });
+      expect(result.meta).toEqual({
+        total: 0,
+        page: 1,
+        limit: 20,
+        totalPages: 1,
+      });
+      expect(result.items).toEqual([]);
+    });
+
+    // [OMA-W009-T004]
+    it('should truncate lastMessagePreview to 100 characters when message content exceeds 100 characters', async () => {
+      const longMessage = 'A'.repeat(150);
+      const mockDate = new Date();
+      mockPrisma.aiConversations.count.mockResolvedValue(1);
+      mockPrisma.aiConversations.findMany.mockResolvedValue([
+        {
+          id: 'conv-1',
+          title: 'Essay Draft Review',
+          createdAt: mockDate,
+          updatedAt: mockDate,
+          _count: { messages: 5 },
+          messages: [{ content: longMessage }],
+        },
+      ]);
+
+      const result = await service.listConversations(userId, {
+        page: 1,
+        limit: 10,
+      });
+
+      expect(result.items).toHaveLength(1);
+      expect(result.items[0].lastMessagePreview).toBe('A'.repeat(100));
+      expect(result.items[0].lastMessagePreview?.length).toBe(100);
+      expect(result.items[0].messageCount).toBe(5);
+    });
+
+    // [OMA-W009-T004]
+    it('should handle conversations with no messages (null preview, messageCount 0)', async () => {
+      const mockDate = new Date();
+      mockPrisma.aiConversations.count.mockResolvedValue(1);
+      mockPrisma.aiConversations.findMany.mockResolvedValue([
+        {
+          id: 'conv-empty',
+          title: 'Empty Discussion',
+          createdAt: mockDate,
+          updatedAt: mockDate,
+          _count: { messages: 0 },
+          messages: [],
+        },
+      ]);
+
+      const result = await service.listConversations(userId, {});
+
+      expect(result.items[0]).toEqual({
+        id: 'conv-empty',
+        title: 'Empty Discussion',
+        messageCount: 0,
+        lastMessagePreview: null,
+        createdAt: mockDate,
+        updatedAt: mockDate,
+      });
+    });
+
+    // [OMA-W009-T004]
+    it('should calculate meta pagination values (total, totalPages) correctly across pages', async () => {
+      mockPrisma.aiConversations.count.mockResolvedValue(45);
+      mockPrisma.aiConversations.findMany.mockResolvedValue([]);
+
+      const result = await service.listConversations(userId, {
+        page: 3,
+        limit: 10,
+      });
+
+      expect(mockPrisma.aiConversations.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          skip: 20,
+          take: 10,
+        }),
+      );
+      expect(result.meta).toEqual({
+        total: 45,
+        page: 3,
+        limit: 10,
+        totalPages: 5,
+      });
+    });
+  });
+
+  describe('getConversationMessages', () => {
+    const userId = 'user-msg-123';
+    const conversationId = 'conv-msg-456';
+
+    // [OMA-W009-T004]
+    it('should return messages ordered chronologically (createdAt: asc) with pagination on message turns', async () => {
+      const mockMessages = [
+        {
+          id: 'msg-1',
+          role: 'user',
+          content: 'Hello AI',
+          createdAt: new Date('2026-10-01T10:00:00Z'),
+        },
+        {
+          id: 'msg-2',
+          role: 'assistant',
+          content: 'Hello User',
+          createdAt: new Date('2026-10-01T10:01:00Z'),
+        },
+      ];
+
+      mockPrisma.aiConversations.findFirst.mockResolvedValue({
+        id: conversationId,
+        title: 'Discussion Session',
+      });
+      mockPrisma.aiMessages.count.mockResolvedValue(2);
+      mockPrisma.aiMessages.findMany.mockResolvedValue(mockMessages);
+
+      const result = await service.getConversationMessages(
+        userId,
+        conversationId,
+        {
+          page: 1,
+          limit: 10,
+        },
+      );
+
+      expect(mockPrisma.aiConversations.findFirst).toHaveBeenCalledWith({
+        where: { id: conversationId, userId },
+        select: { id: true, title: true },
+      });
+      expect(mockPrisma.aiMessages.findMany).toHaveBeenCalledWith({
+        where: { conversationId },
+        orderBy: { createdAt: 'asc' },
+        skip: 0,
+        take: 10,
+        select: {
+          id: true,
+          role: true,
+          content: true,
+          createdAt: true,
+        },
+      });
+      expect(result).toEqual({
+        conversationId,
+        title: 'Discussion Session',
+        messages: mockMessages,
+        meta: {
+          total: 2,
+          page: 1,
+          limit: 10,
+          totalPages: 1,
+        },
+      });
+    });
+
+    // [OMA-W009-T004]
+    it('should enforce multi-tenant isolation and throw NotFoundException when conversation does not exist or belongs to another user', async () => {
+      mockPrisma.aiConversations.findFirst.mockResolvedValue(null);
+
+      await expect(
+        service.getConversationMessages(
+          userId,
+          'unowned-or-nonexistent-conv',
+          {},
+        ),
+      ).rejects.toThrow(NotFoundException);
+
+      expect(mockPrisma.aiConversations.findFirst).toHaveBeenCalledWith({
+        where: { id: 'unowned-or-nonexistent-conv', userId },
+        select: { id: true, title: true },
+      });
+      expect(mockPrisma.aiMessages.count).not.toHaveBeenCalled();
+      expect(mockPrisma.aiMessages.findMany).not.toHaveBeenCalled();
+    });
+
+    // [OMA-W009-T004]
+    it('should use default pagination values (page 1, limit 20) when query params are omitted', async () => {
+      mockPrisma.aiConversations.findFirst.mockResolvedValue({
+        id: conversationId,
+        title: 'Default Pagination Conv',
+      });
+      mockPrisma.aiMessages.count.mockResolvedValue(30);
+      mockPrisma.aiMessages.findMany.mockResolvedValue([]);
+
+      const result = await service.getConversationMessages(
+        userId,
+        conversationId,
+        {},
+      );
+
+      expect(mockPrisma.aiMessages.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          skip: 0,
+          take: 20,
+        }),
+      );
+      expect(result.meta).toEqual({
+        total: 30,
+        page: 1,
+        limit: 20,
+        totalPages: 2,
+      });
     });
   });
 });
