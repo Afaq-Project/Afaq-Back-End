@@ -1,5 +1,5 @@
 // [OMA-W006-T004] Conversational memory RAG service and profile grounding
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
@@ -12,6 +12,7 @@ import { AiProposalsService } from './ai-proposals/ai-proposals.service';
 import { AiEditDto, AiEditMode } from './dto/ai-edit.dto';
 import { AiGenerateDto } from './dto/ai-generate.dto';
 import { AiChatDto } from './dto/ai-chat.dto';
+import { ConversationPaginationQueryDto } from './dto/conversation-pagination-query.dto';
 
 @Injectable()
 export class AiAssistantService {
@@ -291,6 +292,107 @@ export class AiAssistantService {
       reply: assistantReply,
       model: modelName,
       ...(proposals.length > 0 ? { proposals } : {}),
+    };
+  }
+
+  // [OMA-W009-T002]
+  async listConversations(
+    userId: string,
+    query: ConversationPaginationQueryDto,
+  ) {
+    const page = query.page ?? 1;
+    const limit = query.limit ?? 20;
+
+    const [total, conversations] = await Promise.all([
+      this.prisma.aiConversations.count({
+        where: { userId },
+      }),
+      this.prisma.aiConversations.findMany({
+        where: { userId },
+        orderBy: { updatedAt: 'desc' },
+        skip: (page - 1) * limit,
+        take: limit,
+        include: {
+          _count: {
+            select: { messages: true },
+          },
+          messages: {
+            take: 1,
+            orderBy: { createdAt: 'desc' },
+            select: { content: true },
+          },
+        },
+      }),
+    ]);
+
+    const items = conversations.map((c) => ({
+      id: c.id,
+      title: c.title,
+      messageCount: c._count.messages,
+      lastMessagePreview: c.messages[0]?.content
+        ? c.messages[0].content.slice(0, 100)
+        : null,
+      createdAt: c.createdAt,
+      updatedAt: c.updatedAt,
+    }));
+
+    return {
+      items,
+      meta: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit) || 1,
+      },
+    };
+  }
+
+  // [OMA-W009-T002]
+  async getConversationMessages(
+    userId: string,
+    conversationId: string,
+    query: ConversationPaginationQueryDto,
+  ) {
+    const page = query.page ?? 1;
+    const limit = query.limit ?? 20;
+
+    const conversation = await this.prisma.aiConversations.findFirst({
+      where: { id: conversationId, userId },
+      select: { id: true, title: true },
+    });
+
+    if (!conversation) {
+      throw new NotFoundException('Conversation not found');
+    }
+
+    const [total, messages] = await Promise.all([
+      this.prisma.aiMessages.count({
+        where: { conversationId },
+      }),
+      this.prisma.aiMessages.findMany({
+        where: { conversationId },
+        orderBy: { createdAt: 'asc' },
+        skip: (page - 1) * limit,
+        take: limit,
+        select: {
+          id: true,
+          role: true,
+          content: true,
+          createdAt: true,
+        },
+      }),
+    ]);
+
+    return {
+      conversationId: conversation.id,
+      title: conversation.title,
+      messages,
+      meta: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit) || 1,
+      },
     };
   }
 }
