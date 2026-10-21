@@ -11,13 +11,20 @@ import { LocalEmbeddingService } from './memory/local-embedding.service';
 import { AiMemoryService } from './memory/ai-memory.service';
 import { AiProposalsService } from './ai-proposals/ai-proposals.service';
 import { AiAssistantService } from './ai-assistant.service';
+// [OMA-W009-T003] Register AiConversationsController
+import { AiConversationsController } from './ai-conversations/ai-conversations.controller';
 import { AiTransformController } from './ai-transform/ai-transform.controller';
 import { AiChatController } from './ai-chat/ai-chat.controller';
 import { AiProposalsController } from './ai-proposals/ai-proposals.controller';
 
 @Module({
   imports: [ConfigModule, PrismaModule, DraftsModule],
-  controllers: [AiTransformController, AiChatController, AiProposalsController],
+  controllers: [
+    AiTransformController,
+    AiChatController,
+    AiProposalsController,
+    AiConversationsController,
+  ],
   providers: [
     OpenAiProvider,
     AnthropicProvider,
