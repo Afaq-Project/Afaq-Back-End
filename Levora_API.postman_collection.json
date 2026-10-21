@@ -3016,6 +3016,160 @@
           "response": []
         },
         {
+          "name": "List User Conversations",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/editor/ai/conversations?page=1&limit=20",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "editor",
+                "ai",
+                "conversations"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1",
+                  "description": "Page number (1-based)"
+                },
+                {
+                  "key": "limit",
+                  "value": "20",
+                  "description": "Number of items per page (default 20, max 50)"
+                }
+              ]
+            },
+            "description": "List user conversation sessions with pagination ordered by last activity descending."
+          },
+          "response": [
+            {
+              "name": "Success",
+              "originalRequest": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/editor/ai/conversations?page=1&limit=20",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "editor",
+                    "ai",
+                    "conversations"
+                  ],
+                  "query": [
+                    {
+                      "key": "page",
+                      "value": "1"
+                    },
+                    {
+                      "key": "limit",
+                      "value": "20"
+                    }
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"statusCode\": 200,\n  \"message\": \"OK\",\n  \"data\": {\n    \"items\": [\n      {\n        \"id\": \"3bd69d37-a966-4a53-9f20-3d26fc25f7ce\",\n        \"title\": \"Scholarship Essay Strategy\",\n        \"messageCount\": 6,\n        \"lastMessagePreview\": \"Here is an improved conclusion highlighting your leadership credentials...\",\n        \"createdAt\": \"2026-10-21T08:00:00.000Z\",\n        \"updatedAt\": \"2026-10-21T08:15:30.000Z\"\n      }\n    ],\n    \"meta\": {\n      \"total\": 1,\n      \"page\": 1,\n      \"limit\": 20,\n      \"totalPages\": 1\n    }\n  },\n  \"timestamp\": \"2026-10-21T08:15:30.000Z\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Get Conversation Message History",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/editor/ai/conversations/{{conversationId}}/messages?page=1&limit=20",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "editor",
+                "ai",
+                "conversations",
+                "{{conversationId}}",
+                "messages"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1",
+                  "description": "Page number (1-based)"
+                },
+                {
+                  "key": "limit",
+                  "value": "20",
+                  "description": "Number of items per page (default 20, max 50)"
+                }
+              ]
+            },
+            "description": "Get chronological message history for a conversation session owned by the authenticated user."
+          },
+          "response": [
+            {
+              "name": "Success",
+              "originalRequest": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/editor/ai/conversations/{{conversationId}}/messages?page=1&limit=20",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "editor",
+                    "ai",
+                    "conversations",
+                    "{{conversationId}}",
+                    "messages"
+                  ],
+                  "query": [
+                    {
+                      "key": "page",
+                      "value": "1"
+                    },
+                    {
+                      "key": "limit",
+                      "value": "20"
+                    }
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"statusCode\": 200,\n  \"message\": \"OK\",\n  \"data\": {\n    \"conversationId\": \"3bd69d37-a966-4a53-9f20-3d26fc25f7ce\",\n    \"title\": \"Scholarship Essay Strategy\",\n    \"messages\": [\n      {\n        \"id\": \"52a0c7fe-6ff1-4165-aaf5-b1327f85b525\",\n        \"role\": \"user\",\n        \"content\": \"How can I improve my statement?\",\n        \"createdAt\": \"2026-10-21T08:00:00.000Z\"\n      },\n      {\n        \"id\": \"52a0c7fe-6ff1-4165-aaf5-b1327f85b526\",\n        \"role\": \"assistant\",\n        \"content\": \"I recommend focusing on your specific contribution to the research team.\",\n        \"createdAt\": \"2026-10-21T08:01:00.000Z\"\n      }\n    ],\n    \"meta\": {\n      \"total\": 2,\n      \"page\": 1,\n      \"limit\": 20,\n      \"totalPages\": 1\n    }\n  },\n  \"timestamp\": \"2026-10-21T08:15:30.000Z\"\n}"
+            }
+          ]
+        },
+        {
           "name": "List Proposals for Draft Page",
           "request": {
             "method": "GET",
