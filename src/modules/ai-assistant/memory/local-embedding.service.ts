@@ -1,64 +1,80 @@
-// [OMA-W006-T001] Setup @xenova/transformers dependencies and pgvector previewFeatures
-// [OMA-W006-T002] Local in-process embedding service with all-MiniLM-L6-v2
+// [OMA-W010-T001] Refactor LocalEmbeddingService to use Gemini embedContent REST API with mock fallback
+// [OMA-W010-T002] Remove @xenova/transformers and ONNX runtime dependencies in favor of Google Cloud embeddings
 import { Injectable, Logger } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 
-type PipelineExtractor = (
-  text: string,
-  options?: { pooling?: string; normalize?: boolean },
-) => Promise<{ data: Float32Array | number[] }>;
+interface GeminiEmbedResponse {
+  embedding?: {
+    values?: number[];
+  };
+}
 
 @Injectable()
 export class LocalEmbeddingService {
   private readonly logger = new Logger(LocalEmbeddingService.name);
-  private pipelinePromise: Promise<PipelineExtractor | null> | null = null;
 
-  private async getPipeline(): Promise<PipelineExtractor | null> {
-    if (!this.pipelinePromise) {
-      this.pipelinePromise = (async () => {
-        try {
-          const { pipeline } = await import('@xenova/transformers');
-          const extractor = (await pipeline(
-            'feature-extraction',
-            'Xenova/all-MiniLM-L6-v2',
-            { quantized: true },
-          )) as unknown as PipelineExtractor;
-          return extractor;
-        } catch (err) {
-          this.logger.warn(
-            `Failed to load @xenova/transformers pipeline, using mock embeddings: ${(err as Error).message}`,
-          );
-          return null;
-        }
-      })();
-    }
-    return this.pipelinePromise;
-  }
+  constructor(private readonly configService: ConfigService) {}
 
   async generateEmbedding(text: string): Promise<number[]> {
     if (!text || text.trim().length === 0) {
       return this.generateMockEmbedding('empty');
     }
 
+    const apiKey =
+      this.configService.get<string>('GEMINI_API_KEY') ||
+      process.env.GEMINI_API_KEY ||
+      '';
+    const model =
+      this.configService.get<string>('GEMINI_EMBEDDING_MODEL') ||
+      process.env.GEMINI_EMBEDDING_MODEL ||
+      'gemini-embedding-001';
+
+    if (!apiKey || apiKey === 'mock' || apiKey.length < 5) {
+      this.logger.warn(
+        'GEMINI_API_KEY not configured or set to mock. Using mock embeddings.',
+      );
+      return this.generateMockEmbedding(text);
+    }
+
     try {
-      const extractor = await this.getPipeline();
-      if (!extractor) {
+      const response = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/${model}:embedContent?key=${apiKey}`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            model: `models/${model}`,
+            content: {
+              parts: [{ text }],
+            },
+            outputDimensionality: 384,
+          }),
+          signal: AbortSignal.timeout(5000),
+        },
+      );
+
+      if (!response.ok) {
+        const errorText = await response.text().catch(() => '');
+        this.logger.warn(
+          `Gemini embedding API returned status ${response.status}: ${errorText}. Falling back to mock.`,
+        );
         return this.generateMockEmbedding(text);
       }
 
-      const output = await extractor(text, {
-        pooling: 'mean',
-        normalize: true,
-      });
-
-      const embedding = Array.from(output.data);
-
-      if (embedding.length === 384) {
-        return embedding;
+      const data = (await response.json()) as GeminiEmbedResponse;
+      if (data.embedding?.values && data.embedding.values.length === 384) {
+        return data.embedding.values;
       }
+
+      this.logger.warn(
+        `Gemini embedding API returned invalid embedding dimensions. Falling back to mock.`,
+      );
       return this.generateMockEmbedding(text);
     } catch (err) {
       this.logger.warn(
-        `Error generating embedding with @xenova/transformers: ${(err as Error).message}. Falling back to mock.`,
+        `Error generating embedding with Gemini: ${(err as Error).message}. Falling back to mock.`,
       );
       return this.generateMockEmbedding(text);
     }
