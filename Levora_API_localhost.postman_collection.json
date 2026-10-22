@@ -2,7 +2,7 @@
   "info": {
     "_postman_id": "c1f72a4d-8e81-4f11-9a74-29007f35a8e3",
     "name": "Levora API (Localhost)",
-    "description": "Postman collection for Levora Intelligent Opportunity Discovery Platform API.",
+    "description": "// [OMA-W007-T001] Postman collection for Levora Intelligent Opportunity Discovery Platform API.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "item": [
@@ -169,7 +169,7 @@
           "response": []
         },
         {
-          "name": "OAuth Google \u2192 Initiate",
+          "name": "OAuth Google → Initiate",
           "request": {
             "method": "GET",
             "header": [],
@@ -199,7 +199,7 @@
           ]
         },
         {
-          "name": "OAuth Google \u2192 Callback (Doc Only)",
+          "name": "OAuth Google → Callback (Doc Only)",
           "request": {
             "method": "GET",
             "header": [],
@@ -225,7 +225,7 @@
           "response": []
         },
         {
-          "name": "OAuth LinkedIn \u2192 Initiate",
+          "name": "OAuth LinkedIn → Initiate",
           "request": {
             "method": "GET",
             "header": [],
@@ -255,7 +255,7 @@
           ]
         },
         {
-          "name": "OAuth LinkedIn \u2192 Callback (Doc Only)",
+          "name": "OAuth LinkedIn → Callback (Doc Only)",
           "request": {
             "method": "GET",
             "header": [],
@@ -439,6 +439,86 @@
               "raw": "{\n  \"userId\": \"USER_ID_HERE\",\n  \"newPassword\": \"ForcedP@ss123!\",\n  \"confirmPassword\": \"ForcedP@ss123!\"\n}"
             }
           }
+        },
+        {
+          "name": "Issue Invitation (Admin)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"candidate@oxford.ac.uk\",\n  \"roleId\": 1,\n  \"expiresInDays\": 7\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/invitations",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "invitations"
+              ]
+            },
+            "description": "Admin issues an onboarding invitation with raw token link."
+          },
+          "response": []
+        },
+        {
+          "name": "Validate Invitation Token",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/invitations/{{inviteToken}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "invitations",
+                "{{inviteToken}}"
+              ]
+            },
+            "description": "Public endpoint to validate an invitation token before registration."
+          },
+          "response": []
+        },
+        {
+          "name": "Register with Invitation Token",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"4f9b8c2d1e0a9876543210fedcba...\",\n  \"password\": \"SecurePassword123!\",\n  \"firstName\": \"Fatima\",\n  \"lastName\": \"Al-Mansoor\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/register-with-invite",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "register-with-invite"
+              ]
+            },
+            "description": "Public candidate registration using a verified invitation token."
+          },
+          "response": []
         }
       ]
     },
@@ -1996,7 +2076,7 @@
             "header": [
               {
                 "key": "Authorization",
-                "value": "Bearer {{accessToken}}",
+                "value": "Bearer {{access_token}}",
                 "type": "text"
               }
             ],
@@ -2034,7 +2114,7 @@
                 "header": [
                   {
                     "key": "Authorization",
-                    "value": "Bearer {{accessToken}}",
+                    "value": "Bearer {{access_token}}",
                     "type": "text"
                   }
                 ],
@@ -2063,7 +2143,7 @@
             "header": [
               {
                 "key": "Authorization",
-                "value": "Bearer {{accessToken}}",
+                "value": "Bearer {{access_token}}",
                 "type": "text"
               }
             ],
@@ -2093,7 +2173,7 @@
                 "header": [
                   {
                     "key": "Authorization",
-                    "value": "Bearer {{accessToken}}",
+                    "value": "Bearer {{access_token}}",
                     "type": "text"
                   }
                 ],
@@ -2114,6 +2194,1061 @@
               "body": "{\n  \"statusCode\": 200,\n  \"message\": \"Matches retrieved successfully\",\n  \"data\": [\n    {\n      \"opportunity_id\": \"3f2a1b00-0000-0000-0000-000000000001\",\n      \"score_pct\": 87,\n      \"score_breakdown\": { \"study_level\": 30, \"field\": 40, \"country\": 17 },\n      \"calculation_version\": 1,\n      \"calculated_at\": \"2026-10-05T10:00:00.000Z\",\n      \"opportunity\": {\n        \"id\": \"3f2a1b00-0000-0000-0000-000000000001\",\n        \"title\": \"Erasmus Mundus Joint Master Degree in Computer Science\",\n        \"organization\": \"European Commission\",\n        \"deadline\": \"2026-12-15T00:00:00.000Z\",\n        \"country\": \"Belgium\",\n        \"opportunity_type\": \"scholarship\",\n        \"is_remote\": false\n      }\n    }\n  ],\n  \"meta\": {\n    \"page\": 1,\n    \"limit\": 20,\n    \"total\": 42,\n    \"pages\": 3,\n    \"synced_at\": \"2026-10-07T13:00:00.000Z\"\n  },\n  \"timestamp\": \"2026-10-07T13:00:00.000Z\"\n}"
             }
           ]
+        }
+      ]
+    },
+    {
+      "name": "Notifications",
+      "item": [
+        {
+          "name": "List Notifications",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/notifications?limit=20&unreadOnly=false",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "notifications"
+              ],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "20"
+                },
+                {
+                  "key": "unreadOnly",
+                  "value": "false"
+                }
+              ]
+            },
+            "description": "Get paginated candidate notifications with optional unreadOnly filter."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Unread Count",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/notifications/unread-count",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "notifications",
+                "unread-count"
+              ]
+            },
+            "description": "Get badge counter of unread candidate notifications."
+          },
+          "response": []
+        },
+        {
+          "name": "Mark Notification Read",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/notifications/{{notificationId}}/read",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "notifications",
+                "{{notificationId}}",
+                "read"
+              ]
+            },
+            "description": "Mark a single candidate notification as read."
+          },
+          "response": []
+        },
+        {
+          "name": "Mark All Read",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/notifications/read-all",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "notifications",
+                "read-all"
+              ]
+            },
+            "description": "Mark all candidate notifications as read in a single batch operation."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Drafts",
+      "item": [
+        {
+          "name": "List Spaces",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/drafts/spaces",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "drafts",
+                "spaces"
+              ]
+            },
+            "description": "List all draft workspaces belonging to the authenticated candidate."
+          },
+          "response": []
+        },
+        {
+          "name": "Create Space",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Erasmus Mundus 2026\",\n  \"description\": \"Application package for Joint Master Degree\",\n  \"icon\": \"book-open\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/drafts/spaces",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "drafts",
+                "spaces"
+              ]
+            },
+            "description": "Create a new draft workspace for organizing documents."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Space by Slug",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/drafts/spaces/{{spaceSlug}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "drafts",
+                "spaces",
+                "{{spaceSlug}}"
+              ]
+            },
+            "description": "Retrieve workspace details and document hierarchy tree."
+          },
+          "response": []
+        },
+        {
+          "name": "Update Space",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Chevening UK 2026 (Revised)\",\n  \"description\": \"Updated application package\",\n  \"icon\": \"folder-check\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/drafts/spaces/{{spaceSlug}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "drafts",
+                "spaces",
+                "{{spaceSlug}}"
+              ]
+            },
+            "description": "Update workspace name, description, or icon."
+          },
+          "response": []
+        },
+        {
+          "name": "Create Page in Space",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Personal Statement\",\n  \"parentId\": null,\n  \"documentId\": null,\n  \"contentJson\": {\n    \"type\": \"doc\",\n    \"content\": [\n      {\n        \"type\": \"paragraph\",\n        \"content\": [\n          {\n            \"type\": \"text\",\n            \"text\": \"I am applying for...\"\n          }\n        ]\n      }\n    ]\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/drafts/spaces/{{spaceSlug}}/pages",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "drafts",
+                "spaces",
+                "{{spaceSlug}}",
+                "pages"
+              ]
+            },
+            "description": "Create a new document draft page inside a workspace."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Page Details",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/drafts/spaces/{{spaceSlug}}/pages/{{pageId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "drafts",
+                "spaces",
+                "{{spaceSlug}}",
+                "pages",
+                "{{pageId}}"
+              ]
+            },
+            "description": "Get full details of a draft page including AST content, tags, and attachments."
+          },
+          "response": []
+        },
+        {
+          "name": "Auto-Save Page (PATCH)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Personal Statement - Final Draft\",\n  \"contentJson\": {\n    \"type\": \"doc\",\n    \"content\": [\n      {\n        \"type\": \"heading\",\n        \"attrs\": {\n          \"level\": 1\n        },\n        \"content\": [\n          {\n            \"type\": \"text\",\n            \"text\": \"Leadership & Community Impact\"\n          }\n        ]\n      },\n      {\n        \"type\": \"paragraph\",\n        \"content\": [\n          {\n            \"type\": \"text\",\n            \"text\": \"Over the past three years...\"\n          }\n        ]\n      }\n    ]\n  },\n  \"status\": \"IN_PROGRESS\",\n  \"position\": 0,\n  \"parentId\": null\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/drafts/spaces/{{spaceSlug}}/pages/{{pageId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "drafts",
+                "spaces",
+                "{{spaceSlug}}",
+                "pages",
+                "{{pageId}}"
+              ]
+            },
+            "description": "Auto-save page title, AST content, or status (returns 409 if locked in FINALIZED)."
+          },
+          "response": []
+        },
+        {
+          "name": "Create Tag in Space",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Urgent Revision\",\n  \"color\": \"#EF4444\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/drafts/spaces/{{spaceSlug}}/tags",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "drafts",
+                "spaces",
+                "{{spaceSlug}}",
+                "tags"
+              ]
+            },
+            "description": "Create a new tag within a workspace."
+          },
+          "response": []
+        },
+        {
+          "name": "List Tags in Space",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/drafts/spaces/{{spaceSlug}}/tags",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "drafts",
+                "spaces",
+                "{{spaceSlug}}",
+                "tags"
+              ]
+            },
+            "description": "List all tags in a workspace with page counts."
+          },
+          "response": []
+        },
+        {
+          "name": "Assign Tag to Page",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/drafts/spaces/{{spaceSlug}}/tags/{{tagId}}/pages/{{pageId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "drafts",
+                "spaces",
+                "{{spaceSlug}}",
+                "tags",
+                "{{tagId}}",
+                "pages",
+                "{{pageId}}"
+              ]
+            },
+            "description": "Associate an existing workspace tag with a draft page."
+          },
+          "response": []
+        },
+        {
+          "name": "Remove Tag from Page",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/drafts/spaces/{{spaceSlug}}/tags/{{tagId}}/pages/{{pageId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "drafts",
+                "spaces",
+                "{{spaceSlug}}",
+                "tags",
+                "{{tagId}}",
+                "pages",
+                "{{pageId}}"
+              ]
+            },
+            "description": "Dissociate a tag from a draft page."
+          },
+          "response": []
+        },
+        {
+          "name": "Upload Media Attachment",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": ""
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/drafts/spaces/{{spaceSlug}}/pages/{{pageId}}/attachments",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "drafts",
+                "spaces",
+                "{{spaceSlug}}",
+                "pages",
+                "{{pageId}}",
+                "attachments"
+              ]
+            },
+            "description": "Upload a media attachment (max 10MB; PDF, images, docs) to embed into a draft page."
+          },
+          "response": []
+        },
+        {
+          "name": "List Attachments for Page",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/drafts/spaces/{{spaceSlug}}/pages/{{pageId}}/attachments",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "drafts",
+                "spaces",
+                "{{spaceSlug}}",
+                "pages",
+                "{{pageId}}",
+                "attachments"
+              ]
+            },
+            "description": "List all attachments associated with a draft page."
+          },
+          "response": []
+        },
+        {
+          "name": "Download Media Attachment",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/drafts/spaces/{{spaceSlug}}/pages/{{pageId}}/attachments/{{attachmentId}}/download",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "drafts",
+                "spaces",
+                "{{spaceSlug}}",
+                "pages",
+                "{{pageId}}",
+                "attachments",
+                "{{attachmentId}}",
+                "download"
+              ]
+            },
+            "description": "Get signed download URL for an embedded media attachment."
+          },
+          "response": []
+        },
+        {
+          "name": "List Draft Templates",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/drafts/templates?category=scholarship",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "drafts",
+                "templates"
+              ],
+              "query": [
+                {
+                  "key": "category",
+                  "value": "scholarship"
+                }
+              ]
+            },
+            "description": "List available system templates and candidate's custom draft templates."
+          },
+          "response": []
+        },
+        {
+          "name": "Create Custom Template",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Standard Motivation Letter\",\n  \"description\": \"3-section structure for European masters applications\",\n  \"category\": \"admission\",\n  \"workspaceId\": \"e2f1b8a3-4b6c-482a-96e0-81d3f9bca101\",\n  \"contentJson\": {\n    \"type\": \"doc\",\n    \"content\": [\n      {\n        \"type\": \"paragraph\",\n        \"content\": [\n          {\n            \"type\": \"text\",\n            \"text\": \"Dear Selection Committee,\"\n          }\n        ]\n      }\n    ]\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/drafts/templates",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "drafts",
+                "templates"
+              ]
+            },
+            "description": "Create a reusable custom document template."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Page Versions",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/drafts/pages/{{pageId}}/versions",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "drafts",
+                "pages",
+                "{{pageId}}",
+                "versions"
+              ]
+            },
+            "description": "List chronological version snapshots for a draft page."
+          },
+          "response": []
+        },
+        {
+          "name": "Revert to Version",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/drafts/pages/{{pageId}}/versions/{{versionId}}/revert",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "drafts",
+                "pages",
+                "{{pageId}}",
+                "versions",
+                "{{versionId}}",
+                "revert"
+              ]
+            },
+            "description": "Revert draft page content to a previous historical version snapshot."
+          },
+          "response": []
+        },
+        {
+          "name": "Finalize Draft to Official PDF",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"documentTypeId\": \"5d47cc7c-5264-4bfb-94d2-fdafa83e6b70\",\n  \"displayName\": \"Chevening_Statement_Fatima.pdf\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/drafts/pages/{{pageId}}/finalize",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "drafts",
+                "pages",
+                "{{pageId}}",
+                "finalize"
+              ]
+            },
+            "description": "Compile TipTap draft AST to official PDF, store in documents, activate in candidate profile, and lock page."
+          },
+          "response": []
+        },
+        {
+          "name": "Unlock Finalized Draft",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/drafts/pages/{{pageId}}/unlock",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "drafts",
+                "pages",
+                "{{pageId}}",
+                "unlock"
+              ]
+            },
+            "description": "Unlock a finalized draft page back to IN_PROGRESS status to permit new revisions."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "AI Assistant",
+      "item": [
+        {
+          "name": "Transform Text (Edit)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"text\": \"I really want to get into your university because it is very good and famous.\",\n  \"mode\": \"academic_tone\",\n  \"instructions\": \"Make it sound persuasive and grounded in research excellence\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/editor/ai/edit",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "editor",
+                "ai",
+                "edit"
+              ]
+            },
+            "description": "Transform highlighted draft text (modes: academic_tone, rephrase, grammar, shorten, expand, summarize)."
+          },
+          "response": []
+        },
+        {
+          "name": "Generate Starter Content",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"prompt\": \"Draft an outline for a 500-word Chevening leadership essay.\",\n  \"context\": \"Candidate has 3 years of experience leading an environmental NGO in Amman.\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/editor/ai/generate",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "editor",
+                "ai",
+                "generate"
+              ]
+            },
+            "description": "Generate starter essay/statement content and outlines based on contextual prompt."
+          },
+          "response": []
+        },
+        {
+          "name": "Conversational Memory RAG Chat Copilot",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"message\": \"Can you review the opening of my leadership essay and suggest improvements?\",\n  \"conversationId\": \"{{conversationId}}\",\n  \"pageId\": \"{{pageId}}\",\n  \"pageContext\": \"I really want to get into your university because it is very good and famous.\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/editor/ai/chat",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "editor",
+                "ai",
+                "chat"
+              ]
+            },
+            "description": "Interactive AI writing partner with conversational vector memory RAG, candidate profile grounding, and tool calling."
+          },
+          "response": []
+        },
+        {
+          "name": "List User Conversations",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/editor/ai/conversations?page=1&limit=20",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "editor",
+                "ai",
+                "conversations"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1",
+                  "description": "Page number (1-based)"
+                },
+                {
+                  "key": "limit",
+                  "value": "20",
+                  "description": "Number of items per page (default 20, max 50)"
+                }
+              ]
+            },
+            "description": "List user conversation sessions with pagination ordered by last activity descending."
+          },
+          "response": [
+            {
+              "name": "Success",
+              "originalRequest": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/editor/ai/conversations?page=1&limit=20",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "editor",
+                    "ai",
+                    "conversations"
+                  ],
+                  "query": [
+                    {
+                      "key": "page",
+                      "value": "1"
+                    },
+                    {
+                      "key": "limit",
+                      "value": "20"
+                    }
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"statusCode\": 200,\n  \"message\": \"OK\",\n  \"data\": {\n    \"items\": [\n      {\n        \"id\": \"3bd69d37-a966-4a53-9f20-3d26fc25f7ce\",\n        \"title\": \"Scholarship Essay Strategy\",\n        \"messageCount\": 6,\n        \"lastMessagePreview\": \"Here is an improved conclusion highlighting your leadership credentials...\",\n        \"createdAt\": \"2026-10-21T08:00:00.000Z\",\n        \"updatedAt\": \"2026-10-21T08:15:30.000Z\"\n      }\n    ],\n    \"meta\": {\n      \"total\": 1,\n      \"page\": 1,\n      \"limit\": 20,\n      \"totalPages\": 1\n    }\n  },\n  \"timestamp\": \"2026-10-21T08:15:30.000Z\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Get Conversation Message History",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/editor/ai/conversations/{{conversationId}}/messages?page=1&limit=20",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "editor",
+                "ai",
+                "conversations",
+                "{{conversationId}}",
+                "messages"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1",
+                  "description": "Page number (1-based)"
+                },
+                {
+                  "key": "limit",
+                  "value": "20",
+                  "description": "Number of items per page (default 20, max 50)"
+                }
+              ]
+            },
+            "description": "Get chronological message history for a conversation session owned by the authenticated user."
+          },
+          "response": [
+            {
+              "name": "Success",
+              "originalRequest": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/editor/ai/conversations/{{conversationId}}/messages?page=1&limit=20",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "editor",
+                    "ai",
+                    "conversations",
+                    "{{conversationId}}",
+                    "messages"
+                  ],
+                  "query": [
+                    {
+                      "key": "page",
+                      "value": "1"
+                    },
+                    {
+                      "key": "limit",
+                      "value": "20"
+                    }
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"statusCode\": 200,\n  \"message\": \"OK\",\n  \"data\": {\n    \"conversationId\": \"3bd69d37-a966-4a53-9f20-3d26fc25f7ce\",\n    \"title\": \"Scholarship Essay Strategy\",\n    \"messages\": [\n      {\n        \"id\": \"52a0c7fe-6ff1-4165-aaf5-b1327f85b525\",\n        \"role\": \"user\",\n        \"content\": \"How can I improve my statement?\",\n        \"createdAt\": \"2026-10-21T08:00:00.000Z\"\n      },\n      {\n        \"id\": \"52a0c7fe-6ff1-4165-aaf5-b1327f85b526\",\n        \"role\": \"assistant\",\n        \"content\": \"I recommend focusing on your specific contribution to the research team.\",\n        \"createdAt\": \"2026-10-21T08:01:00.000Z\"\n      }\n    ],\n    \"meta\": {\n      \"total\": 2,\n      \"page\": 1,\n      \"limit\": 20,\n      \"totalPages\": 1\n    }\n  },\n  \"timestamp\": \"2026-10-21T08:15:30.000Z\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "List Proposals for Draft Page",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/editor/ai/proposals/page/{{pageId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "editor",
+                "ai",
+                "proposals",
+                "page",
+                "{{pageId}}"
+              ]
+            },
+            "description": "List all staged AI edit proposals for a page (PENDING, ACCEPTED, REJECTED)."
+          },
+          "response": []
+        },
+        {
+          "name": "Accept Staged Edit Proposal",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/editor/ai/proposals/{{proposalId}}/accept",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "editor",
+                "ai",
+                "proposals",
+                "{{proposalId}}",
+                "accept"
+              ]
+            },
+            "description": "Atomically create pre-edit version snapshot, replace text in ProseMirror AST, and mark proposal ACCEPTED."
+          },
+          "response": []
+        },
+        {
+          "name": "Reject Staged Edit Proposal",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/editor/ai/proposals/{{proposalId}}/reject",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "editor",
+                "ai",
+                "proposals",
+                "{{proposalId}}",
+                "reject"
+              ]
+            },
+            "description": "Atomically mark staged proposal REJECTED without modifying draft content."
+          },
+          "response": []
         }
       ]
     }
@@ -2246,6 +3381,61 @@
     },
     {
       "key": "prefInstitutionId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "inviteToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "spaceSlug",
+      "value": "chevening-2026",
+      "type": "string"
+    },
+    {
+      "key": "pageId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "tagId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "attachmentId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "templateId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "proposalId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "conversationId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "versionId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "notificationId",
       "value": "",
       "type": "string"
     }

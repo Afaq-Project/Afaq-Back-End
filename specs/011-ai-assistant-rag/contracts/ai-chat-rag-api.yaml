@@ -1,0 +1,305 @@
+openapi: 3.0.3
+info:
+  title: AI Copilot & Staged Proposals API
+  version: 1.0.0
+  description: API endpoints for multi-turn conversational AI copilot with RAG episodic memory and persistent staged document edit proposals.
+
+paths:
+  /api/editor/ai/chat:
+    post:
+      summary: Send message to AI writing copilot with long-term conversational memory
+      operationId: chat
+      tags:
+        - AI Assistant
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AiChatRequest'
+      responses:
+        '200':
+          description: AI assistant response with optional edit proposal
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AiChatResponseEnvelope'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+
+  /api/editor/ai/proposals/{proposalId}/accept:
+    post:
+      summary: Accept a staged document edit proposal and apply it with an automatic rollback snapshot
+      operationId: acceptProposal
+      tags:
+        - AI Proposals
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: proposalId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Proposal accepted, draft page updated, and version snapshot recorded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProposalActionResponseEnvelope'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+  /api/editor/ai/proposals/{proposalId}/reject:
+    post:
+      summary: Reject a staged document edit proposal
+      operationId: rejectProposal
+      tags:
+        - AI Proposals
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: proposalId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Proposal marked as rejected; document remains unmodified
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProposalActionResponseEnvelope'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+  /api/editor/ai/proposals/page/{pageId}:
+    get:
+      summary: List all active edit proposals for a draft page
+      operationId: listPageProposals
+      tags:
+        - AI Proposals
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: pageId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: List of proposals for the draft page
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProposalListResponseEnvelope'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    AiChatRequest:
+      type: object
+      required:
+        - message
+      properties:
+        message:
+          type: string
+          maxLength: 50000
+          example: "Could you rewrite paragraph 2 of my draft to emphasize my teamwork in the robotics project?"
+        conversationId:
+          type: string
+          format: uuid
+          nullable: true
+        pageId:
+          type: string
+          format: uuid
+          nullable: true
+        pageContext:
+          type: string
+          maxLength: 50000
+          nullable: true
+
+    AiEditProposalDto:
+      type: object
+      required:
+        - id
+        - pageId
+        - originalText
+        - suggestedText
+        - mode
+        - status
+      properties:
+        id:
+          type: string
+          format: uuid
+        pageId:
+          type: string
+          format: uuid
+        originalText:
+          type: string
+        suggestedText:
+          type: string
+        mode:
+          type: string
+          example: "academic_tone"
+        explanation:
+          type: string
+          nullable: true
+          example: "Elevated vocabulary and highlighted collaborative problem-solving."
+        status:
+          type: string
+          enum: [PENDING, ACCEPTED, REJECTED]
+        createdAt:
+          type: string
+          format: date-time
+
+    AiChatData:
+      type: object
+      required:
+        - conversationId
+        - reply
+        - model
+      properties:
+        conversationId:
+          type: string
+          format: uuid
+        reply:
+          type: string
+        model:
+          type: string
+          example: "gemini-3.5-flash-lite"
+        proposal:
+          $ref: '#/components/schemas/AiEditProposalDto'
+          nullable: true
+
+    ProposalActionData:
+      type: object
+      required:
+        - proposalId
+        - pageId
+        - status
+      properties:
+        proposalId:
+          type: string
+          format: uuid
+        pageId:
+          type: string
+          format: uuid
+        status:
+          type: string
+          enum: [PENDING, ACCEPTED, REJECTED]
+        snapshotId:
+          type: string
+          format: uuid
+          nullable: true
+        message:
+          type: string
+
+    AiChatResponseEnvelope:
+      type: object
+      required:
+        - statusCode
+        - message
+        - data
+        - timestamp
+      properties:
+        statusCode:
+          type: integer
+          example: 200
+        message:
+          type: string
+          example: "AI assistant response generated successfully"
+        data:
+          $ref: '#/components/schemas/AiChatData'
+        timestamp:
+          type: string
+          format: date-time
+
+    ProposalActionResponseEnvelope:
+      type: object
+      required:
+        - statusCode
+        - message
+        - data
+        - timestamp
+      properties:
+        statusCode:
+          type: integer
+          example: 200
+        message:
+          type: string
+        data:
+          $ref: '#/components/schemas/ProposalActionData'
+        timestamp:
+          type: string
+          format: date-time
+
+    ProposalListResponseEnvelope:
+      type: object
+      required:
+        - statusCode
+        - message
+        - data
+        - timestamp
+      properties:
+        statusCode:
+          type: integer
+          example: 200
+        message:
+          type: string
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/AiEditProposalDto'
+        timestamp:
+          type: string
+          format: date-time
+
+  responses:
+    BadRequestError:
+      description: Invalid request payload
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              statusCode: { type: integer, example: 400 }
+              message: { type: string, example: "Invalid input data" }
+              timestamp: { type: string, format: date-time }
+
+    UnauthorizedError:
+      description: Authentication required
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              statusCode: { type: integer, example: 401 }
+              message: { type: string, example: "Unauthorized" }
+              timestamp: { type: string, format: date-time }
+
+    NotFoundError:
+      description: Requested resource not found
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              statusCode: { type: integer, example: 404 }
+              message: { type: string, example: "Resource not found" }
+              timestamp: { type: string, format: date-time }

@@ -25,8 +25,13 @@ export class LocalStorageService implements StorageService {
     _mimeType: string,
   ): Promise<{ key: string; url?: string }> {
     try {
-      const key = `${uuidv4()}-${filename}`;
+      const sanitizedFilename = filename.replace(/^[/\\]+/, '');
+      const key = `${uuidv4()}-${sanitizedFilename}`;
       const filePath = path.join(this.uploadPath, key);
+      const dir = path.dirname(filePath);
+      if (!fs.existsSync(dir)) {
+        await fs.promises.mkdir(dir, { recursive: true });
+      }
       await fs.promises.writeFile(filePath, file);
       return { key };
     } catch {

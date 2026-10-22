@@ -1,0 +1,67 @@
+openapi: 3.0.3
+info:
+  title: Afaq Notifications API
+  version: 1.0.0
+  description: Universal in-app notification endpoints utilizing native Afaq notifications and notification_types tables.
+servers:
+  - url: /api/v1
+security:
+  - BearerAuth: []
+
+paths:
+  /notifications:
+    get:
+      summary: Retrieve candidate notifications list
+      tags: [Notifications]
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+        - name: unreadOnly
+          in: query
+          schema:
+            type: boolean
+            default: false
+      responses:
+        '200':
+          description: Paginated notification records with payload metadata
+
+  /notifications/unread-count:
+    get:
+      summary: Get unread notifications badge counter
+      tags: [Notifications]
+      responses:
+        '200':
+          description: Total unread count
+
+  /notifications/{id}/read:
+    patch:
+      summary: Mark a specific notification as read
+      tags: [Notifications]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Notification marked as read
+
+  /notifications/read-all:
+    patch:
+      summary: Mark all notifications as read for current user
+      tags: [Notifications]
+      responses:
+        '200':
+          description: All notifications marked as read
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

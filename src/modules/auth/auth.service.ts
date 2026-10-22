@@ -121,7 +121,39 @@ export class AuthService {
   ) {}
 
   // ── Register ─────────────────────────────────
+  // [OMA-W002-T009] Registration policy enforcement
   async register(dto: RegisterDto): Promise<RegisterResponseDto> {
+    const registrationSetting = await this.prisma.systemSettings.findUnique({
+      where: { key: 'auth.registration_enabled' },
+    });
+    if (registrationSetting && registrationSetting.value === false) {
+      throw new ForbiddenException({
+        code: 'REGISTRATION_DISABLED',
+        message:
+          'Public registration is currently disabled. An invitation is required to register.',
+      });
+    }
+
+    const domainsSetting = await this.prisma.systemSettings.findUnique({
+      where: { key: 'auth.allowed_email_domains' },
+    });
+    if (
+      domainsSetting &&
+      Array.isArray(domainsSetting.value) &&
+      domainsSetting.value.length > 0
+    ) {
+      const domain = dto.email.split('@')[1]?.toLowerCase();
+      const allowed = (domainsSetting.value as string[]).map((d) =>
+        d.toLowerCase(),
+      );
+      if (!domain || !allowed.includes(domain)) {
+        throw new ForbiddenException({
+          code: 'EMAIL_DOMAIN_NOT_ALLOWED',
+          message: `Registration is restricted to authorized email domains: ${allowed.join(', ')}`,
+        });
+      }
+    }
+
     const existing = await this.usersService.findByEmail(dto.email);
     if (existing) {
       this.logger.warn(

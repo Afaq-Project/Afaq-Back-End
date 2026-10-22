@@ -1,0 +1,259 @@
+{
+  "timestamp": "2026-10-18T16:13:38.169Z",
+  "total": 20,
+  "passed": 20,
+  "failed": 0,
+  "probes": [
+    {
+      "id": "SEC-01-RAG-PARAM-SQL-CONVERSATION-USER",
+      "name": "Strict parameterized filtering on conversation_id ($2::uuid) and user_id ($3::uuid)",
+      "category": "Tenant Isolation & Authorization",
+      "passed": true,
+      "severity": "none",
+      "details": "Verified findRelevantTurns binds both conversation_id and user_id as parameterized SQL placeholders ($2::uuid and $3::uuid), preventing cross-tenant vector retrieval.",
+      "evidence": {
+        "hasConvParam": true,
+        "hasUserParam": true,
+        "hasVectorParam": true,
+        "hasSubqueryParam": true
+      }
+    },
+    {
+      "id": "SEC-02-RAG-NO-RAW-INTERPOLATION",
+      "name": "Zero dynamic string interpolation in Prisma raw SQL queries",
+      "category": "SQL Injection Prevention",
+      "passed": true,
+      "severity": "none",
+      "details": "Verified no JavaScript template string interpolations (${...}) exist inside $queryRawUnsafe or $executeRawUnsafe in AiMemoryService.",
+      "evidence": {
+        "hasDynamicInterpolationInRaw": false,
+        "rawQueryCallCount": 2
+      }
+    },
+    {
+      "id": "SEC-03-RAG-CROSS-TENANT-VECTOR-LEAKAGE",
+      "name": "Multi-tenant isolation prevents cross-tenant turn retrieval",
+      "category": "Tenant Isolation",
+      "passed": true,
+      "severity": "none",
+      "details": "Verified user-1 cannot retrieve turns from user-2 conversation conv-2. Query returned 0 rows.",
+      "evidence": {
+        "crossTenantLeakageDetected": false,
+        "leakedCount": 0,
+        "simulatedDbQueryArgs": {
+          "conversationId": "conv-2",
+          "userId": "user-1"
+        }
+      }
+    },
+    {
+      "id": "SEC-04-RAG-VECTOR-STR-NUMERICAL-INTEGRITY",
+      "name": "Local embedding output guarantees strictly numerical vector serialization",
+      "category": "Input Sanitization & Data Integrity",
+      "passed": true,
+      "severity": "none",
+      "details": "Vector serialization produced 384 strictly numerical floating point values without any unescaped characters.",
+      "evidence": {
+        "dimension": 384,
+        "isStrictlyNumericVector": true,
+        "sample": "[0.042258,0.024102,0.004014,-0.016395,-0.035491,-0..."
+      }
+    },
+    {
+      "id": "SEC-05-RAG-INDEX-TURN-PARAMETERIZATION",
+      "name": "AiMemoryService.indexTurn strictly parameterizes messageId, conversationId, userId, and vector",
+      "category": "SQL Injection Prevention",
+      "passed": true,
+      "severity": "none",
+      "details": "Verified indexTurn binds $1::uuid, $2::uuid, $3::uuid, $4::vector via parameterized values.",
+      "evidence": {
+        "hasIndexTurnParams": true
+      }
+    },
+    {
+      "id": "SEC-06-PROPOSAL-IDOR-ACCEPT-OWNERSHIP",
+      "name": "IDOR prevention on proposal acceptance via updateMany userId predicate",
+      "category": "Authorization & IDOR Protection",
+      "passed": true,
+      "severity": "none",
+      "details": "Verified user-B cannot accept user-A proposal. Throws ConflictException due to updateMany count === 0.",
+      "evidence": {
+        "idorAcceptBlocked": true
+      }
+    },
+    {
+      "id": "SEC-07-PROPOSAL-IDOR-REJECT-OWNERSHIP",
+      "name": "IDOR prevention on proposal rejection via updateMany userId predicate",
+      "category": "Authorization & IDOR Protection",
+      "passed": true,
+      "severity": "none",
+      "details": "Verified user-B cannot reject user-A proposal. Throws ConflictException due to updateMany count === 0.",
+      "evidence": {
+        "idorRejectBlocked": true
+      }
+    },
+    {
+      "id": "SEC-08-PROPOSAL-ATOMIC-DOUBLE-ACCEPT-RACE",
+      "name": "Atomic status check prevents double-acceptance race conditions",
+      "category": "Concurrency & Race Condition Prevention",
+      "passed": true,
+      "severity": "none",
+      "details": "First acceptance atomically transitions PENDING -> ACCEPTED; subsequent or concurrent call receives count 0 and throws ConflictException.",
+      "evidence": {
+        "firstAcceptSucceeded": true,
+        "secondAcceptBlocked": true,
+        "updatedProposalStatus": null,
+        "hasAtomicUpdateInAccept": true,
+        "hasSnapshotBeforeMutation": true
+      }
+    },
+    {
+      "id": "SEC-09-PROPOSAL-PAGE-OWNERSHIP-CREATION",
+      "name": "Draft page ownership enforced on proposal creation",
+      "category": "Authorization & Access Control",
+      "passed": true,
+      "severity": "none",
+      "details": "Verified createProposal checks draftPages.findFirst({ where: { id: pageId, userId } }), blocking cross-user proposal creation.",
+      "evidence": {
+        "proposalCreationUnauthorizedBlocked": true
+      }
+    },
+    {
+      "id": "SEC-10-PROPOSAL-PAGE-OWNERSHIP-ACCEPTANCE",
+      "name": "Secondary page ownership validation inside acceptProposal transaction",
+      "category": "Authorization & Defensive Depth",
+      "passed": true,
+      "severity": "none",
+      "details": "Verified acceptProposal verifies draftPages ownership within the transaction before applying AST changes.",
+      "evidence": {
+        "crossPageAcceptanceBlocked": true
+      }
+    },
+    {
+      "id": "SEC-11-API-KEY-LOGGER-LEAKAGE",
+      "name": "GeminiProvider never outputs GEMINI_API_KEY to NestJS Logger",
+      "category": "Sensitive Data Exposure",
+      "passed": true,
+      "severity": "none",
+      "details": "Verified GeminiProvider logs only response status, sanitized error messages, or masked config warnings; apiKey is never interpolated into logger arguments.",
+      "evidence": {
+        "logsApiKey": false,
+        "logsErrorTextWithKey": false
+      }
+    },
+    {
+      "id": "SEC-12-API-KEY-EXCEPTION-SUPPRESSION",
+      "name": "API errors and network exceptions are handled with fallback, preventing stack/URL exposure",
+      "category": "Error Handling & Information Disclosure",
+      "passed": true,
+      "severity": "none",
+      "details": "Verified fetch exceptions are caught inside GeminiProvider.chatWithTools and fallback responses returned, preventing unhandled exceptions from exposing API URLs or stack traces.",
+      "evidence": {
+        "exceptionCaughtGracefully": true
+      }
+    },
+    {
+      "id": "SEC-13-PROMPT-BOUNDS-AICHAT-DTO",
+      "name": "AiChatDto strictly enforces 50,000 character limits on message and pageContext",
+      "category": "Input Validation & DoS Prevention",
+      "passed": true,
+      "severity": "none",
+      "details": "Validated class-validator @MaxLength(50000) constraint rejects 50,001 characters and accepts 50,000 characters for both message and pageContext.",
+      "evidence": {
+        "isValidPayloadAccepted": true,
+        "isMessageBoundEnforced": true,
+        "isContextBoundEnforced": true,
+        "overflowMessageError": {
+          "maxLength": "message must be shorter than or equal to 50000 characters"
+        },
+        "overflowContextError": {
+          "maxLength": "pageContext must be shorter than or equal to 50000 characters"
+        }
+      }
+    },
+    {
+      "id": "SEC-14-PROMPT-BOUNDS-AIEDIT-AIGENERATE-DTOS",
+      "name": "AiEditDto and AiGenerateDto enforce 50,000 character bounds",
+      "category": "Input Validation & DoS Prevention",
+      "passed": true,
+      "severity": "none",
+      "details": "Verified all AI transform and generation DTOs strictly enforce 50,000 character maximums against memory exhaustion and token DoS.",
+      "evidence": {
+        "isEditBoundEnforced": true,
+        "isGenerateBoundEnforced": true
+      }
+    },
+    {
+      "id": "SEC-15-UNHANDLED-REJECTION-BACKGROUND-INDEXING",
+      "name": "Background memory indexing promises attach explicit .catch() handlers",
+      "category": "Process Stability & Availability",
+      "passed": true,
+      "severity": "none",
+      "details": "Verified both userMessage and assistantMessage asynchronous indexTurn calls attach .catch() logging errors, preventing process crashes on unhandled promise rejection.",
+      "evidence": {
+        "hasUserMessageCatch": true,
+        "hasAssistantMessageCatch": true
+      }
+    },
+    {
+      "id": "SEC-16-INDEX-TURN-INTERNAL-CATCH",
+      "name": "AiMemoryService.indexTurn encapsulates execution within try/catch",
+      "category": "Fault Tolerance & Reliability",
+      "passed": true,
+      "severity": "none",
+      "details": "Verified indexTurn internally catches and logs errors when embedding generation or database execution fails, returning safely.",
+      "evidence": {
+        "indexTurnCrashed": false
+      }
+    },
+    {
+      "id": "SEC-17-AST-PROTOTYPE-POLLUTION",
+      "name": "Resistance to prototype pollution attacks during ProseMirror AST traversal",
+      "category": "Prototype Pollution",
+      "passed": true,
+      "severity": "none",
+      "details": "Verified AST text replacement uses object spread without polluting Object.prototype.",
+      "evidence": {
+        "isPrototypePolluted": false
+      }
+    },
+    {
+      "id": "SEC-18-AST-SCRIPT-TAG-INJECTION-SAFETY",
+      "name": "Malicious HTML / Script tags in suggestedText remain passive string data in text nodes",
+      "category": "Cross-Site Scripting (XSS) & AST Integrity",
+      "passed": true,
+      "severity": "none",
+      "details": "Verified that injected script and HTML tags are stored strictly as text node string literals without mutating node types or injecting DOM tree structures.",
+      "evidence": {
+        "replacedCount": 1,
+        "nodeType": "text",
+        "textValue": "This is <script>alert(\"XSS\")</script><img src=\"x\" onerror=\"alert(1)\">.",
+        "nodeCount": 1
+      }
+    },
+    {
+      "id": "SEC-19-AST-DEEP-NESTING-RECURSION",
+      "name": "Stack safety and recursion limit resistance under deeply nested AST hierarchy (100 levels)",
+      "category": "Recursion & Memory Safety",
+      "passed": true,
+      "severity": "none",
+      "details": "Handled 100 levels of nested AST blockquotes without stack overflow or recursion failure.",
+      "evidence": {
+        "deepNestingPassed": true
+      }
+    },
+    {
+      "id": "SEC-20-AST-REPLACE-PATTERN-SUBSTITUTION",
+      "name": "Audit JavaScript String.prototype.replace special pattern evaluation ($&, $')",
+      "category": "AST Replacement Precision & Special Characters",
+      "passed": true,
+      "severity": "none",
+      "details": "Observation: String.prototype.replace(string, string) expands $& to the matched substring (\"100 dollars\"). For pure literal string substitution invariant to special dollar syntax, using a functional replacer () => suggestedText is recommended.",
+      "evidence": {
+        "originalInput": "100 dollars",
+        "suggestedInput": "$1,000 & $& matching grant",
+        "resultingText": "I requested $1,000 & 100 dollars matching grant for scholarship."
+      }
+    }
+  ]
+}

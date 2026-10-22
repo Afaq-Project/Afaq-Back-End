@@ -1,6 +1,8 @@
 import { PrismaClient } from '@prisma/client';
 import AdmZip = require('adm-zip');
 import * as XLSX from 'xlsx';
+import * as fs from 'fs';
+import * as path from 'path';
 
 const prisma = new PrismaClient();
 
@@ -182,9 +184,40 @@ async function loadCities(limit?: number) {
   );
 }
 
+function getLocalMajorsFallback(): Buffer {
+  const localZipPath = path.join(__dirname, 'data', 'cip.zip');
+  if (fs.existsSync(localZipPath)) {
+    return fs.readFileSync(localZipPath);
+  }
+  throw new Error(`Bundled local CIP fallback archive not found at ${localZipPath}`);
+}
+
 async function loadMajors(catLimit?: number, majorLimit?: number) {
   console.log('Fetching Majors (CIP codes)...');
-  const buffer = await fetchBuffer(MAJORS_URL);
+  let buffer: Buffer;
+
+  try {
+    const remoteBuffer = await fetchBuffer(MAJORS_URL);
+    // Validate PKZip magic header bytes (0x50, 0x4B)
+    if (
+      remoteBuffer.length >= 4 &&
+      remoteBuffer[0] === 0x50 &&
+      remoteBuffer[1] === 0x4b
+    ) {
+      buffer = remoteBuffer;
+    } else {
+      console.warn(
+        '⚠️ Remote CIP URL returned non-zip content (e.g. site maintenance). Using bundled local fallback.',
+      );
+      buffer = getLocalMajorsFallback();
+    }
+  } catch (err: any) {
+    console.warn(
+      `⚠️ Failed to download remote CIP file (${err.message}). Using bundled local fallback.`,
+    );
+    buffer = getLocalMajorsFallback();
+  }
+
   const zip = new AdmZip(buffer);
 
   const entries = zip.getEntries();

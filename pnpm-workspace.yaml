@@ -5,3 +5,5 @@ allowBuilds:
   '@swc/core': false
   msgpackr-extract: false
   prisma: false
+  protobufjs: true
+  sharp: true

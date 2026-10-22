@@ -7,7 +7,11 @@ import { ConfigService } from '@nestjs/config';
 import { UsersService } from '@/modules/users/users.service';
 import { PrismaService } from '@/prisma';
 import { UsersRepository } from '@/modules/users/repositories';
-import { UnauthorizedException, ConflictException } from '@nestjs/common';
+import {
+  UnauthorizedException,
+  ConflictException,
+  ForbiddenException,
+} from '@nestjs/common';
 import { ProfileService } from '../profile/services/profile.service';
 import { RedisService } from '../../redis/redis.service';
 import * as bcrypt from 'bcryptjs';
@@ -35,6 +39,7 @@ describe('AuthService', () => {
       users: { findUnique: jest.fn(), create: jest.fn(), update: jest.fn() },
       userRoles: { create: jest.fn() },
       userProfiles: { create: jest.fn() },
+      systemSettings: { findUnique: jest.fn().mockResolvedValue(null) },
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -211,6 +216,90 @@ describe('AuthService', () => {
         email: 'a@a.com',
         password: '123',
       });
+    });
+
+    // [OMA-W002-T009] Registration policy enforcement: registration disabled check
+    it('should throw ForbiddenException if public registration is disabled', async () => {
+      prisma.systemSettings.findUnique.mockImplementation(
+        ({ where }: { where: { key: string } }) => {
+          if (where.key === 'auth.registration_enabled') {
+            return Promise.resolve({
+              key: 'auth.registration_enabled',
+              value: false,
+            });
+          }
+          return Promise.resolve(null);
+        },
+      );
+
+      await expect(
+        service.register({ email: 'candidate@example.com', password: '123' }),
+      ).rejects.toThrow(ForbiddenException);
+    });
+
+    // [OMA-W002-T009] Registration policy enforcement: email domain allowlist rejection
+    it('should throw ForbiddenException if email domain is not in allowed_email_domains', async () => {
+      prisma.systemSettings.findUnique.mockImplementation(
+        ({ where }: { where: { key: string } }) => {
+          if (where.key === 'auth.registration_enabled') {
+            return Promise.resolve({
+              key: 'auth.registration_enabled',
+              value: true,
+            });
+          }
+          if (where.key === 'auth.allowed_email_domains') {
+            return Promise.resolve({
+              key: 'auth.allowed_email_domains',
+              value: ['partner.edu', 'scholarship.org'],
+            });
+          }
+          return Promise.resolve(null);
+        },
+      );
+
+      await expect(
+        service.register({ email: 'unauthorized@gmail.com', password: '123' }),
+      ).rejects.toThrow(ForbiddenException);
+    });
+
+    // [OMA-W002-T009] Registration policy enforcement: email domain allowlist accepted
+    it('should proceed with registration if email domain matches allowed_email_domains', async () => {
+      prisma.systemSettings.findUnique.mockImplementation(
+        ({ where }: { where: { key: string } }) => {
+          if (where.key === 'auth.registration_enabled') {
+            return Promise.resolve({
+              key: 'auth.registration_enabled',
+              value: true,
+            });
+          }
+          if (where.key === 'auth.allowed_email_domains') {
+            return Promise.resolve({
+              key: 'auth.allowed_email_domains',
+              value: ['partner.edu', 'scholarship.org'],
+            });
+          }
+          return Promise.resolve(null);
+        },
+      );
+
+      usersService.findByEmail.mockResolvedValue(null);
+      (bcrypt.hash as jest.Mock).mockResolvedValue('hashed');
+      usersService.createUser.mockResolvedValue({
+        id: '1',
+        email: 'scholar@partner.edu',
+        isActive: true,
+        userRoles: [{ roles: { name: 'user' } }],
+      } as any);
+
+      await service.register({
+        email: 'scholar@partner.edu',
+        password: 'Password123!',
+      });
+
+      // eslint-disable-next-line @typescript-eslint/unbound-method
+      expect(usersService.createUser).toHaveBeenCalledWith(
+        expect.objectContaining({ email: 'scholar@partner.edu' }),
+      );
     });
   });
 

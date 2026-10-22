@@ -1,0 +1,244 @@
+openapi: 3.0.3
+info:
+  title: Afaq Personal Drafts & Editor API
+  version: 1.0.0
+  description: Endpoints for managing private candidate workspaces, rich-text draft documents, REST auto-save, version history, and official PDF finalization.
+servers:
+  - url: /api/v1
+security:
+  - BearerAuth: []
+
+paths:
+  /drafts/spaces:
+    get:
+      summary: List candidate draft workspaces
+      tags: [Draft Spaces]
+      responses:
+        '200':
+          description: List of user workspaces
+    post:
+      summary: Create a new draft workspace
+      tags: [Draft Spaces]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name]
+              properties:
+                name:
+                  type: string
+                  example: Chevening Application 2026
+                description:
+                  type: string
+                icon:
+                  type: string
+      responses:
+        '201':
+          description: Workspace created
+
+  /drafts/spaces/{slug}:
+    get:
+      summary: Get workspace details and document hierarchy
+      tags: [Draft Spaces]
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Workspace details with nested pages
+
+  /drafts/spaces/{slug}/pages:
+    post:
+      summary: Create a new draft page inside workspace
+      tags: [Draft Pages]
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [title]
+              properties:
+                title:
+                  type: string
+                  example: Statement of Purpose
+                parentId:
+                  type: string
+                  format: uuid
+                documentId:
+                  type: string
+                  format: uuid
+                  description: Optional ID of source uploaded document
+      responses:
+        '201':
+          description: Draft page created
+
+  /drafts/spaces/{slug}/pages/{pageId}:
+    get:
+      summary: Get full draft page including TipTap contentJson
+      tags: [Draft Pages]
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: pageId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Draft page loaded
+    patch:
+      summary: REST Auto-Save endpoint for draft updates
+      tags: [Draft Pages]
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: pageId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                contentJson:
+                  type: object
+                  description: TipTap ProseMirror document AST
+                status:
+                  type: string
+                  enum: [DRAFT, IN_PROGRESS, FINALIZED, ARCHIVED]
+      responses:
+        '200':
+          description: Auto-save acknowledged and snapshot persisted
+        '403':
+          description: Draft is locked in FINALIZED state; unlock required to edit
+
+    delete:
+      summary: Soft-delete draft page to trash
+      tags: [Draft Pages]
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: pageId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Page moved to trash
+
+  /drafts/pages/{pageId}/finalize:
+    post:
+      summary: Finalize draft into an official PDF document and approve in profile
+      tags: [Draft Finalization]
+      parameters:
+        - name: pageId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                documentTypeId:
+                  type: string
+                  format: uuid
+                  description: Target Afaq document type (e.g. CV, Statement of Purpose)
+                displayName:
+                  type: string
+      responses:
+        '201':
+          description: PDF rendered, uploaded to S3, recorded in documents, and activated in profile
+
+  /drafts/pages/{pageId}/unlock:
+    post:
+      summary: Unlock a finalized draft to start a new revision
+      tags: [Draft Finalization]
+      parameters:
+        - name: pageId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Draft unlocked and reset to IN_PROGRESS state
+
+  /drafts/pages/{pageId}/versions:
+    get:
+      summary: Retrieve chronological version history
+      tags: [Draft Versions]
+      parameters:
+        - name: pageId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Version timeline list
+
+  /drafts/pages/{pageId}/versions/{versionId}/revert:
+    post:
+      summary: Revert draft content to a historical version snapshot
+      tags: [Draft Versions]
+      parameters:
+        - name: pageId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: versionId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Active content reverted to selected snapshot
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

@@ -1,0 +1,82 @@
+openapi: 3.0.3
+info:
+  title: Afaq Invitations & Onboarding API
+  version: 1.0.0
+  description: Administrative endpoints for tokenized candidate invitations and controlled onboarding.
+servers:
+  - url: /api/v1
+
+paths:
+  /auth/invitations:
+    post:
+      summary: Issue an onboarding invitation (Admin only)
+      tags: [Invitations]
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email]
+              properties:
+                email:
+                  type: string
+                  format: email
+                roleId:
+                  type: integer
+                  description: Optional pre-assigned role ID (e.g. candidate, mentor)
+                expiresInDays:
+                  type: integer
+                  default: 7
+      responses:
+        '201':
+          description: Invitation created with secure invite token link
+
+  /auth/invitations/{token}:
+    get:
+      summary: Validate an invitation token before signup
+      tags: [Invitations]
+      parameters:
+        - name: token
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Token is valid and unconsumed
+        '404':
+          description: Invalid, consumed, or expired invitation token
+
+  /auth/register-with-invite:
+    post:
+      summary: Register account using a validated invitation token
+      tags: [Invitations]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [token, password, firstName, lastName]
+              properties:
+                token:
+                  type: string
+                password:
+                  type: string
+                firstName:
+                  type: string
+                lastName:
+                  type: string
+      responses:
+        '201':
+          description: Account created and invitation consumed
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

@@ -4,7 +4,7 @@ version: '3.9'
 services:
   # ── PostgreSQL ──────────────────
   postgres:
-    image: postgres:17-alpine
+    image: pgvector/pgvector:pg16
     container_name: ai-hub-postgres
     restart: unless-stopped
     environment:

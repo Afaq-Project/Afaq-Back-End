@@ -10,3 +10,6 @@ export * from './forgot-password.dto';
 export * from './reset-password.dto';
 export * from './change-password.dto';
 export * from './resend-verification.dto';
+// [OMA-W002-T009] Invitation DTO exports
+export * from './invite-user.dto';
+export * from './register-with-invite.dto';
